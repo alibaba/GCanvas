@@ -1,63 +1,91 @@
-GPlatform is a fast hybrid graphics solution for mobile Apps: [https://gplatformteam.github.io](https://gplatformteam.github.io/gplatform-website/docs/index.html)
-
-# [GPlatform](https://gplatformteam.github.io/gplatform-website/docs/index.html) &middot;
-
-GPlatform is a fast hybrid graphics solution for mobile Apps, provides high-performance rendering ability for Web developers.
-Currently it consists of two products: GCanvas and G3D.
-
 # GCanvas
 
-* [GCanvas](https://gplatformteam.github.io/gplatform-website/docs/gcanvas.html) is a hybrid canvas SDK for mobile Apps, which allows you to draw to native devices with Javascript. It supports hybrid frameworks like Weex, and ReactNative. GCanvas uses same API as HTML5 canvas.  It supports both graphics 2D and WebGL APIs. GCanvas also takes advantage of hardware acceleration on most devices, which makes you be able to draw scenes in very high frame rate with Javascript.
+GCanvas is a cross-platform rendering engine for mobile devices developed by Taobao. It is written with C++ based on OpenGL ES,  so it can provide high performance 2D/WebGL rendering capabilities for Javascript runtime. It also  has browser-like canvas APIs, so it's very convinent and flexiable for use, espcially for web developers.
 
-For more details, read [GCanvas Introdunction](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/guide/How%20it%20works.html).
+Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 
-## Get Started
-* If you want to integrate Canvas into your Weex Application, read [GCanvas Weex Bridge Setup Guide](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/docs/Weex%20Setup%20Guide.html);
-* If you want to integrate Canvas into your ReactNative Application, read [GCanvas ReactNative Bridge Setup Guide](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/docs/ReactNative%20Setup%20Guide.html);
-* If you want to integrate GCanvas engine into your own project, read [How it works](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/guide/How%20it%20works.html) and [Create A Custom GCanvas Bridge Guide](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/guide/Customize%20your%20own%20bridge.html);
-* If you want to try some light, pure WebGL rendering 3D engine, or build 3D applications with GCanvas, read [G3D First Setup Guide](https://gplatformteam.github.io/gplatform-website/docs/g3d/guide/First%20Steps.html)
+- [Getting Started](#getting-started)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Built With](#build-with)
+- [Opening Issues](#opening-issues)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+- Cross-platform, support popular iOS and Android.
+- High performance, accelerate graphic draw by OpenGL ES.
+- Provide javascript runtime,  such as [Weex](https://github.com/apache/incubator-weex) and [ReactNative](https://github.com/facebook/react-native/).  convenient to use Javascript API like HTML canvas.
+- Scalable Architecture, easy to implement a GCanvas bridge by yourself following the guide [Custom Native Bridge](./docs/Guide_Custom_GCanvas_Bridge.md) and [Custom Javascript Bridge](./docs/Guide_JS_Use.md) .
+- Small size.
+
+
+## Introduction
+
+See the  [Introduction to GCanvas](./docs/An_Introduction_to_GCanvas.md) for a detailed  introduction to GCanvas.
+
+## Getting Started
+
+### Weex
+Follow these guides to integrate GCanvas on Weex
+* [Weex Guide Android](./docs/Guide_Android_Setup_Weex.md)
+* [Weex Guide iOS](./docs/Guide_iOS_Setup_Weex.md)
+
+### ReactNative
+Follow this guide [ReactNative Guide](./docs/Guide_Setup_ReactNative.md)  to integrate GCanvas on ReactNative.
+
+### Javascript
+Follow this [Javascript Guide](./docs/Guide_JS_Use.md) to setup Javascript runtime environment.
+
+
+## Documentation
+
+GCanvas has browser-like canvas APIs, so almost all of the APIs are exactly same as HTML5 canvas. At this moment, we have already supported 90% of 2D APIs and 99% of WebGL APIs. You can find out those informations in [APIs document](./docs/APIs.md).
+
+## Examples
+We take [Weex](https://github.com/apache/incubator-weex) as example, code snippet of context 2d using `GCanvas`.
+```javascript
+import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
+
+var gcanvas = enable(this.$refs.canvas_holder, {bridge: WeexBridge});
+var ctx = gcanvas.getContext("2d");
+//rect
+ctx.fillStyle = 'red';
+ctx.fillRect(0, 0, 100, 100);
+
+//rect
+ctx.fillStyle = 'black';
+ctx.fillRect(100, 100, 100, 100);
+ctx.fillRect(25, 210, 700, 5);
+
+//circle
+ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+ctx.fill();
+
+var image = new GImage();
+image.src = 'https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png';
+image.onload = function(){
+  ctx.drawImage(image, 100, 300);
+};
+```
+
+## Built With
+
+* [Freetype](https://www.freetype.org/) - Used for font rendering on Android
+
+
+## Open Issues
+If you encounter a bug with GCanvas we would like to hear about it. Search the [existing issues]() and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of GCanvas  and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
 
 ## Contributing
-Please read [Contributing Guide](https://github.com/alibaba/GPlatform/blob/master/GCanvas/docs/Contributing.md) for more details.
+
+Please read [CONTRIBUTING](./docs/Contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Authors
+
+GCanvas Open Source Team
+
 
 ## License
-GPlatform is Apache 2.0 licensed.
 
-GPlatform documentation is Creative Commons licensed.
-
-## Development Team
-
-Active maintainers:
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top">
-        <img width="128" height="128" src="https://avatars3.githubusercontent.com/u/1937795?s=400&u=7814600b27a1270921892f44588f22754fa297d0&v=4">
-        <br>
-        <a href="https://github.com/fREEDtICE">@ertong</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="128" height="128" src="https://avatars0.githubusercontent.com/u/1164433?s=460&v=4">
-        <br>
-        <a href="https://github.com/jwxbond">@jwxbond</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="128" height="128" src="https://avatars0.githubusercontent.com/u/10558069?s=460&v=4">
-        <br>
-        <a href="https://github.com/sylonhu">@sylonhu</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="128" height="128" src="https://avatars1.githubusercontent.com/u/2938447?s=400&v=4">
-        <br>
-        <a href="https://github.com/xieguanglei">@xieguanglei</a>
-      </td>
-      <td align="center" valign="top">
-        <img width="128" height="128" src="https://avatars2.githubusercontent.com/u/726566?s=400&v=4">
-        <br>
-        <a href="https://github.com/wintercn">@wintercn</a>
-      </td>
-     </tr>
-  </tbody>
-</table>
-
-Great appreciate all GPlatform contributors.
+This project is licensed under the Apache License - see the [LICENSE](./docs/LICENSE.md) file for details

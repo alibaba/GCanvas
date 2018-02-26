@@ -15,7 +15,7 @@ GCanvas API is designed to be like html canvas. Here is a sample
 
 Try GCanvas in our [playground]().
 ### Integrate GCanvas to your app
-See [Integrate GCanvas on weex](), [Integrate GCanvas on RN](), [Integrate GCanvas on Cordova](https://lark.alipay.com/hanquan.csf/qnalmk/tolr49/edit) or [create your own bridge](https://lark.alipay.com/hanquan.csf/qnalmk/tolr49/edit).
+See [Integrate GCanvas on weex](), [Integrate GCanvas on RN](), or [create your own bridge]().
 
 
 
