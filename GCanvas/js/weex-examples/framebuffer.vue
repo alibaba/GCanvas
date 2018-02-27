@@ -139,7 +139,6 @@ function start(ref, size, image) {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.viewport(0, 0, size.width, size.height);
 
-
     // setTimeout 注释掉就出不来了
     setTimeout(function() {
       drawElements(6);
@@ -147,7 +146,7 @@ function start(ref, size, image) {
   }
 
   const texture = drawFramebuffer();
-  
+
   if (texture) {
     drawCanvas(texture);
   }
@@ -177,9 +176,12 @@ export default {
       ref.height = size.height;
     }
 
-    ref = enable(ref, { debug: true });
+    if (isWeex) {
+      ref = enable(ref, { debug: true, bridge: WeexBridge });
+    }
+
     loadImage(
-      "//img.alicdn.com/tfs/TB1apiEb8HH8KJjy0FbXXcqlpXa-1024-1024.png",
+      "https://img.alicdn.com/tfs/TB1apiEb8HH8KJjy0FbXXcqlpXa-1024-1024.png",
       function(image) {
         start(ref, size, image);
       }

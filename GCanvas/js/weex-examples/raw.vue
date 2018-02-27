@@ -17,8 +17,8 @@ const isWeex = typeof callNative === "function";
 import { compile } from "./compile-shader";
 import hackLog from "./hack-log";
 
-// import { enable, WeexBridge, Image as GImage } from "../src/index.js";
-var { enable, WeexBridge, Image: GImage } = require("../dist/gcanvas.min.js");
+import { enable, WeexBridge, Image as GImage } from "../src/index.js";
+// var { enable, WeexBridge, Image: GImage } = require("../dist/gcanvas.min.js");
 
 function startRaw(ref, size) {
   if (isWeex) {
@@ -70,6 +70,7 @@ function startRaw(ref, size) {
   }
 
   render();
+  ref._swapBuffers();
 }
 
 export default {
@@ -97,7 +98,7 @@ export default {
     }
 
     if (isWeex) {
-      ref = enable(ref, { debug: true, bridge: WeexBridge });
+      ref = enable(ref, { debug: true, bridge: WeexBridge, disableAutoSwap: true });
     }
     
     startRaw(ref, size);
