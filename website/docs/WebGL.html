@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h3 id="usage">Usage</h3>
+<p>For gcanvas is designed to follow WebGL API, find details of each API in</p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API">https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API</a></p>
+<h3 id="support">Support</h3>
+<p>Legend</p>
+<ul>
+<li>Implemented: API is implemented .</li>
+<li><strong>Undefined</strong>: API is not defined.</li>
+<li><em>Empty</em>: API is defined but not implemented.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>API Name</th>
+<th>API Type</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>viewport()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>vertexAttribPointer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>vertexAttrib2fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>useProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniformMatrix4fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniformMatrix3fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniformMatrix2fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform4iv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform4i()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform4fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform4f()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform3iv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform3i()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform3fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform3f()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform2iv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform2i()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform2fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform2f()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform1iv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform1i()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform1fv()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>uniform1f()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>texParameteri()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>texImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>shaderSource()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>scissor()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>renderbufferStorage()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>pixelStorei()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>linkProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>lineWidth()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getUniformLocation()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getShaderParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getAttribLocation()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>generateMipmap()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>frontFace()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>framebufferTexture2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>flush()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>enableVertexAttribArray()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>enable()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>drawElements()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>disableVertexAttribArray()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>disable()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>depthMask()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>depthFunc()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteRenderbuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteFramebuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>deleteBuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>cullFace()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createRenderbuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createFramebuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createBuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>compileShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>colorMask()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clearStencil()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clearDepth()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clearColor()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clear()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bufferData()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>blendFuncSeparate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>blendFunc()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>blendEquationSeparate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>blendEquation()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bindRenderbuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bindFramebuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bindBuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bindAttribLocation()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>attachShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>activeTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>validateProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>texSubImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>texParameterf()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilOpSeparate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilOp()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilMaskSeparate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilMask()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilFuncSeparate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stencilFunc()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>sampleCoverage()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>readPixels()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>polygonOffset()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isRenderbuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isProgram()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isFramebuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isEnabled()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isContextLost()</td>
+<td>Method</td>
+<td><em>Empty</em></td>
+</tr>
+<tr>
+<td>isBuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getVertexAttribOffset()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getVertexAttrib()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getUniform()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getTexParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getSupportedExtensions()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getShaderSource()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getShaderPrecisionFormat()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getShaderInfoLog()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getRenderbufferParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getProgramParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getProgramInfoLog()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getFramebufferAttachmentParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getExtension()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getError()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getContextAttributes()</td>
+<td>Method</td>
+<td><em>Empty</em></td>
+</tr>
+<tr>
+<td>getBufferParameter()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getAttachedShaders()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getActiveUniform()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getActiveAttrib()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>drawArrays / drawArraysInstancedANGLE()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>detachShader()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>depthRange()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>copyTexSubImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>copyTexImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>compressedTexSubImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>compressedTexImage2D()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>checkFramebufferStatus()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bufferSubData()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>blendColor()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bindTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>commit()</td>
+<td>Method</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>finish()</td>
+<td>Method</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>framebufferRenderbuffer()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>hint()</td>
+<td>Method</td>
+<td><strong>Undefined</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>

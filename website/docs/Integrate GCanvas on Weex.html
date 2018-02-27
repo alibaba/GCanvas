@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h2 id="android">Android</h2>
+<h3 id="requirement">Requirement</h3>
+<p>Make sure the following configuration is completed:</p>
+<ul>
+<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">JDK</a>  &gt;= 1.7 , and configure the environment variable</li>
+<li>Android SDK installed and configure the environment variable</li>
+<li>Android SDK version 23 (compileSdkVersion in build.gradle)</li>
+<li>SDK build tools version 21.1.2 (buildToolsVersion in build.gradle)</li>
+<li>Android Support Repository &gt;= 17 (for Android Support Library)</li>
+<li><a href="https://weex.apache.org/">Weex</a> SDK &gt;= 0.16.X</li>
+</ul>
+<h3 id="steps">Steps</h3>
+<p>The steps are as follows:</p>
+<ol>
+<li>Create an Android project. There is nothing to be specified, according to your habits to.</li>
+<li><strong>At this moment, our publication is being reviewed by Maven. Once published, source dependency will be changed to AAR dependency. </strong>
+Download source code, update build.gradle by adding the following dependencies:<pre><code class="lang-groovy">compile project &#39;:bridges:weex-bridge:android:weex_bridge&#39;
+</code></pre>
+</li>
+<li>Register GCanvas Module and Component to your Weex Application.<pre><code class="lang-java">WXSDKEngine.registerModule(&quot;gcanvas&quot;, GCanvasWeexModule.class);
+WXSDKEngine.registerComponent(&quot;gcanvas&quot;, WXGCanvasWeexComponent.class);
+</code></pre>
+</li>
+<li>Modify AndroidManifest.xml, add below line to acquire OpenGL ES features.<pre><code class="lang-xml">&lt;uses-feature android:glEsVersion=&quot;0x00020000&quot; /&gt;
+</code></pre>
+</li>
+</ol>
+<h2 id="ios">iOS</h2>
+<h4 id="requirement">Requirement</h4>
+<ul>
+<li>Make sure that you have installed the <a href="https://help.apple.com/xcode/mac/current/#/dev60b6fbbc7">iOS development environment</a> and <a href="https://guides.cocoapods.org/using/getting-started.html">CocoaPods</a>.</li>
+<li>Make sure that you have integrate <a href="https://github.com/apache/incubator-weex#ios">WeexSDK</a></li>
+<li>Make sure that you have insalled the <a href="https://www.npmjs.com/package/weex-toolkit">weex-toolkit</a> in <a href="https://nodejs.org/en/">Nodejs</a> 4.0+ for running case</li>
+</ul>
+<h4 id="steps">Steps</h4>
+<ol>
+<li>Install components with CocoaPods<pre><code class="lang-objective-c">pod &#39;WeexGcanvas&#39;
+pod &#39;WeexPluginLoader&#39;
+</code></pre>
+</li>
+</ol>
+<p><code>WeexPluginLoader</code> would dynamic register Weex <code>Module</code> and <code>Component</code> of GCanvas, so we do not need to register manually.</p>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>

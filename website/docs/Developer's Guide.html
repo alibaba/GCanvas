@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h3 id="i-install-js-library">I. Install JS Library</h3>
+<p>GCanvas requires a js library.  Install it from npm:</p>
+<p><code>npm install weex-gcanvas --save</code>
+<code>npm install react-native-gcanvas --save</code></p>
+<p>or find the .js fild in our project:</p>
+<p><code>https://github.com/alibaba/GPlatform/tree/master/GCanvas/js/src</code></p>
+<h3 id="ii-getting-context">II. Getting Context</h3>
+<p>To use gcanvas, you need to get a context(2d or 3d) before doing anything else.  There is a few differences between the platforms, but after getting the context, the code should be same.</p>
+<h4 id="weex">weex</h4>
+<p>For weex, a &quot;gcanvas&quot; element was added to weex runtime. <code>this.$refs.&lt;canvas ref&gt;</code> should return the element. Note for some techinal reason the element is not the GCanvas instance itself. We need to call <code>enable</code> with width and height on this element.</p>
+<pre><code class="lang-HTML5">&lt;template&gt;
+    &lt;div ref=&quot;test&quot;&gt;
+        &lt;gcanvas ref=&quot;canvas_holder&quot; style=&quot;width:750;height:750;background-color:rgba(0,0,0,0.1)&quot;&gt;&lt;/gcanvas&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+
+//for debug
+const enable = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).enable;
+const WeexBridge = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).WeexBridge;
+const GImage = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).Image;
+
+
+module.exports = {
+    mounted: function () {
+        var ref = this.$refs.canvas_holder;
+        var gcanvas = enable(ref, {width:750, height:750});
+        var ctx = gcanvas.getContext(&#39;2d&#39;);
+        ctx.drawText(&quot;Hello world!&quot;);
+    }
+};
+&lt;/script&gt;
+</code></pre>
+<h4 id="react-native">React native</h4>
+<pre><code class="lang-javascript">
+
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  TouchableHighlight
+} from &#39;react-native&#39;;
+
+import {
+  requireNativeComponent,
+  findNodeHandle,
+  NativeModules
+} from &#39;react-native&#39;;
+
+import {
+  GCanvasView,
+} from &#39;react-native-gcanvas&#39;;
+</code></pre>
+<p>Then, import  <code>enable</code>, <code>ReactNativeBridge</code> and <code>image</code> from  <code>gcanvas.js</code>,  initialize <code>ReactNativeBridge</code> with native module and platform.</p>
+<pre><code class="lang-Javascript">const { enable, ReactNativeBridge, Image: GImage } = require(&#39;gcanvas.js&#39;);
+
+ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
+ReactNativeBridge.Platform = Platform;
+</code></pre>
+<p>Finally, you can use GCanvas in ReactNative App. Notice that before you <code>enable</code> GCanvas, convert<code>GCanvasView</code> reactTag to a string.</p>
+<pre><code class="lang-JavaScript">export default class App extends Component&lt;{}&gt; {
+
+  //draw something with gcanvas
+  draw() =&gt; {
+    var ref = this.refs.canvas_holder;
+
+    //must convert canvas tag to a string
+    var canvas_tag = findNodeHandle(ref);
+    var el = { ref:&quot;&quot;+canvas_tag, style:{width:414, height:376}};
+    ref = enable(el, {bridge: ReactNativeBridge});
+
+    //TODO get context by yourself
+    var ctx = ref.getContext(&#39;2d&#39;);
+    //rect
+    ctx.fillStyle = &#39;green&#39;;
+    ctx.fillRect(0, 0, 100, 100);
+
+    //rect
+    ctx.fillStyle = &#39;black&#39;;
+    ctx.fillRect(100, 100, 100, 100);
+    ctx.fillRect(25, 205, 414-50, 5);
+
+    //circle
+    ctx.arc(200, 315, 100, 0, Math.PI * 2, true);
+    ctx.fill();
+
+    var image = new GImage();
+    image.onload = function(){
+      ctx.drawImage(image, 150, 0);
+      ctx.drawImage(image, 150, 450);
+    }
+    image.src = &#39;//gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png&#39;;
+  }
+
+  //render
+  render(){
+      return  &lt;GCanvasView ref=&#39;canvas_holder&#39; style={top: 20,width: 414,height :700,backgroundColor: &#39;#FF000030&#39;}&gt;&lt;/GCanvasView&gt;  
+  }
+
+}
+</code></pre>
+<h3 id="iii-using-gcanvas-2d-api">III. Using GCanvas 2d API</h3>
+<p>To know which API could be used on gcanvas, check <a href="">reference</a>.</p>
+<p>The following sample shows how we could use gcanvas.</p>
+<p>Drawing text:</p>
+<p>Drawing geometry:</p>
+<pre><code class="lang-JavaScript">//rect
+ctx.fillStyle = &#39;red&#39;;
+ctx.fillRect(0, 0, 100, 100);
+
+//rect
+ctx.fillStyle = &#39;black&#39;;
+ctx.fillRect(100, 100, 100, 100);
+ctx.fillRect(25, 210, 700, 5);
+
+//circle
+ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+ctx.fill();
+</code></pre>
+<p>Drawing image:</p>
+<pre><code class="lang-Javascript">var image = new GImage();
+image.src = &#39;https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png&#39;;
+image.onload = function(){
+  ctx.drawImage(image, 100, 300);
+};
+</code></pre>
+<h3 id="iv-using-gcanvas-webgl">IV. Using GCanvas WebGL</h3>
+<p>To know which API could be used on gcanvas, check <a href="">reference</a>.</p>
+<p>The following sample shows how we could use gcanvas.</p>
+<pre><code class="lang-JavaScript">var gl = gcanvas.getContext(&#39;webgl&#39;);
+gl.clearColor(0.0, 0.0, 0.0, 1.0);
+gl.enable(gl.DEPTH_TEST);
+gl.depthFunc(gl.LEQUAL);
+gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);  
+</code></pre>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>

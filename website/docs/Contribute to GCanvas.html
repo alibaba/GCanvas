@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h1 id="contributing-guide">Contributing Guide</h1>
+<p>Hi, folks, thanks for pay attention to GCanvas. Before submitting your contribution though, please make sure to take a moment and read through the following guidelines.</p>
+<ul>
+<li><a href="#issue-reporting-guidelines">Issue Reporting Guidelines</a></li>
+<li><a href="#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li><a href="./GIT_COMMIT_SPECIFIC.md">Git Commit Specific</a></li>
+</ul>
+<h2 id="issue-reporting-guidelines">Issue Reporting Guidelines</h2>
+<ul>
+<li><p>Try to search for your issue before you commit an issue. It may have already been answered or even fixed in the development branch.</p>
+</li>
+<li><p>It is <strong>required</strong> that you clearly describe the steps necessary to reproduce the issue you are running into. Issues with no clear repro steps will not be triaged. If an issue labeled &quot;need repro&quot; receives no further input from the issue author for more than 5 days, it will be closed.</p>
+</li>
+<li><p>For bugs that involves build setups, you can create a reproduction repository with steps in the README.</p>
+</li>
+<li><p>If your issue is resolved but still open, don’t hesitate to close it. In case you found a solution by yourself, it could be helpful to explain how you fixed it.</p>
+</li>
+</ul>
+<h2 id="pull-request-guidelines">Pull Request Guidelines</h2>
+<ul>
+<li>Only code that&#39;s ready for release should be committed to the master branch. All development should be done in dedicated branches.</li>
+<li>Checkout a <strong>new</strong> topic branch from master branch, and merge back against master branch.</li>
+<li>Make sure all of the unit tests pass.</li>
+<li>If adding new feature:<ul>
+<li>Add accompanying test case.</li>
+<li>Provide convincing reason to add this feature. Ideally you should open a suggestion issue first and have it greenlighted before working on it.</li>
+</ul>
+</li>
+<li>If fixing a bug:<ul>
+<li>If you are resolving a special issue, add <code>(fix #xxxx[,#xxx])</code> (#xxxx is the issue id) in your PR title for a better release log, e.g. <code>update entities encoding/decoding (fix #3899)</code>.</li>
+<li>Provide detailed description of the bug in the PR. Live demo preferred.</li>
+<li>Add appropriate test coverage if applicable.</li>
+</ul>
+</li>
+</ul>
+<h2 id="git-commit-specific">Git Commit Specific</h2>
+<ul>
+<li>Please commit your code after passing all of the unit tests.</li>
+<li>We will check your commit message, if it does not conform to the specification, the commit will be automatically refused, make sure you have read the specification above.</li>
+<li>We strongly recommend you that do multiple small commits rather than batch of modifications on your branch.</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>

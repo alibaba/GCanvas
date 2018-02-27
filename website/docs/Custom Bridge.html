@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h3 id="android">Android</h3>
+<p>Note: <strong>At this moment, our publication is being reviewed by Maven. Once published, source code dependency will be changed to AAR dependency.</strong></p>
+<ul>
+<li>Add bridge specification dependency</li>
+<li><em>Download gcanvas source</em>, add below line to your build.gradle:
+<code>compile project (&#39;:android:bridge\_spec&#39;)</code></li>
+<li>Implement <code>IGBridgeModule</code> interface. The interface should build bridge between GCanvas C++ rendering engine and your Javascript runtime environment. Check comments of the interface for more details. You can extend from an abstract class named &#39;AbsGBridgeModule&#39;. We strongly recommend implements your bridge by composite implementation.</li>
+<li>Implement interfaces with prefix <code>IJSCallbackXXX</code>. These interfaces are used for data communicating between Javascript and native.</li>
+<li>Inherit from <code>GTextureView</code>. This stage is optional, depending on how your runtime communicates between native and Javascript, but an OpenGL-renderable view is necessary.</li>
+</ul>
+<h3 id="ios">iOS</h3>
+<ul>
+<li>Add Cocoapods dependency Add this pod to your Podfile and run <code>pod install</code> to install:
+<code>pod &#39;GCanvas&#39;</code></li>
+<li>Export module and methods of GCanvas<ul>
+<li>Implement protocol <code>GCanvasModuleProtocol</code> in your bridge which you used, such as <a href="https://cordova.apache.org/">Cordova</a></li>
+<li>Implement protocol <code>GCanvasViewPortocol</code> in your bridge as a component which contains a <code>GLKView</code>as display view of OpenGL ES.</li>
+<li>Export module to Javascript in your custom bridge For export module, <code>Weex</code> and <code>ReactNative</code> supply the method <code>WX\_PlUGIN\_EXPORT\_MODULE</code> and <code>RCT\_EXPORT\_MODULE()</code></li>
+<li>Export method to Javascript in your custom bridge For export method, <code>Weex</code> and <code>ReactNative</code> supply the method.<ul>
+<li>Weex <code>WX\_EXPORT\_METHOD\_SYNC</code>, synchronous method <code>WX\_EXPORT\_METHOD</code>, asynchornous method</li>
+<li>ReactNative <code>RCT\_EXPORT\_BLOCKING\_SYNCHRONOUS\_METHOD</code> , synchronous method<code>RCT\_EXPORT\_METHOD</code>, asynchornous method</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>There may be different ways in bridges. But your bridge must support export asynchornous and synchronous method both for javascript call native method. And you must implement <a href="https://gplatformteam.github.io/gplatform-website/docs/gcanvas/guide/Customize%20your%20own%20bridge.html#Export Method List">Export method list</a> to ensure <code>GCanvas</code>works well with your bridge.</p>
+<h3 id="native-apis-list">Native APIs List</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Method</th>
+<th style="text-align:left">Async/Sync</th>
+<th style="text-align:left">Android/iOS</th>
+<th style="text-align:left">Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">enable(args)</td>
+<td style="text-align:left">Sync</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Build relationships between GCanvas.js and native view</td>
+</tr>
+<tr>
+<td style="text-align:left">render(cmd, componentId)</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Execute render command</td>
+</tr>
+<tr>
+<td style="text-align:left">preLoadImage(data, callback)</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Preload image with callback</td>
+</tr>
+<tr>
+<td style="text-align:left">bindImageTexture(data, callback)</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Bind image to an OpenGL Texture with callback</td>
+</tr>
+<tr>
+<td style="text-align:left">setContextType</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Set GCanvas Context Type, 0-2d, 1-WebGL</td>
+</tr>
+<tr>
+<td style="text-align:left">setLogLevel</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">Both</td>
+<td style="text-align:left">Set Native Log Level</td>
+</tr>
+<tr>
+<td style="text-align:left">resetComponent</td>
+<td style="text-align:left">Async</td>
+<td style="text-align:left">iOS only</td>
+<td style="text-align:left">call the method while view disappear</td>
+</tr>
+<tr>
+<td style="text-align:left">extendCallNative</td>
+<td style="text-align:left">Sync</td>
+<td style="text-align:left">iOS only</td>
+<td style="text-align:left">method</td>
+</tr>
+<tr>
+<td style="text-align:left">texImage2D</td>
+<td style="text-align:left">Sync</td>
+<td style="text-align:left">Android only</td>
+<td style="text-align:left">convert image to texture, used for WebGL</td>
+</tr>
+<tr>
+<td style="text-align:left">texSubImage2D</td>
+<td style="text-align:left">Sync</td>
+<td style="text-align:left">Android only</td>
+<td style="text-align:left">convert image to sub-texture, used for WebGL</td>
+</tr>
+</tbody>
+</table>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>

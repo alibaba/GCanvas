@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta content="text/html">
+    <meta charset="utf-8">
+    <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
+    <link rel="icon" href="../assets/favicon-g3d.png" type="image/x-icon">
+    <link rel="stylesheet" href="../index.css">
+  </head>
+  <body>
+    <div class="header">
+      <div class="menu">
+        <div class="item"><a class="link" href="../"><img class="logo" src=".././assets/logo-gcanvas.png"></a></div>
+        <div class="item"><a class="link" href="../docs/Introduction.html">Docs</a></div>
+        <div class="item"><a class="link" href="../community.html">Community</a></div>
+        <div class="item"><a class="link" href="../playground.html">Playground</a></div>
+        <div class="item-right item"><a class="link" href="https://alibaba.github.io/G3D/website/homepage/">G3D</a></div>
+      </div>
+    </div>
+    <div class="g3d">
+      <div class="doc">
+        <div class="content">
+          <div class="index">
+            <ol>
+              <li class="item"><a href="./Introduction.html">Introduction</a></li>
+              <li class="item">
+                <div class="item-title">Guide</div>
+                <ol>
+                  <li class="item"><a href="./Developer's Guide.html">Developer's Guide</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on Weex.html">Integrate GCanvas on Weex</a></li>
+                  <li class="item"><a href="./Integrate GCanvas on ReactNative.html">Integrate GCanvas on ReactNative</a></li>
+                  <li class="item"><a href="./Custom Bridge.html">Custom Bridge</a></li>
+                  <li class="item"><a href="./Contribute to GCanvas.html">Contribute to GCanvas</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Design</div>
+                <ol>
+                  <li class="item"><a href="./Architecutre.html">Architecutre</a></li>
+                </ol>
+              </li>
+              <li class="item">
+                <div class="item-title">Reference</div>
+                <ol>
+                  <li class="item"><a href="./Graphics 2D.html">Graphics 2D</a></li>
+                  <li class="item"><a href="./WebGL.html">WebGL</a></li>
+                </ol>
+              </li>
+              <li class="item"><a href="./About.html">About</a></li>
+              <li class="item"><a href="./Playground.html">Playground</a></li>
+            </ol>
+          </div>
+          <div class="body"><h3 id="usage">Usage</h3>
+<p>For gcanvas is designed to follow web canvas API, find details of each API in</p>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API</a></p>
+<p>###</p>
+<h3 id="support">Support</h3>
+<p>Legend</p>
+<ul>
+<li>Implemented: API is implemented .</li>
+<li><strong>Undefined</strong>: API is not defined.</li>
+<li><em>Empty</em>: API is defined but not implemented.</li>
+</ul>
+<h4 id="1-context">1.Context</h4>
+<table>
+<thead>
+<tr>
+<th>API Name</th>
+<th>API Type</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fillStyle</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>strokeStyle</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>shadowColor</td>
+<td>Attribute getter/setter</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>shadowBlur</td>
+<td>Attribute getter/setter</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>shadowOffsetX</td>
+<td>Attribute getter/setter</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>shadowOffsetY</td>
+<td>Attribute getter/setter</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>createLinearGradient()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createPattern()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createRadialGradient()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>addColorStop()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>isPointInPath()</td>
+<td>Method</td>
+<td><em>Empty</em></td>
+</tr>
+<tr>
+<td>createEvent()</td>
+<td>Method</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>toDataURL()</td>
+<td>Method</td>
+<td><strong>Undefined</strong></td>
+</tr>
+<tr>
+<td>lineCap</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>lineJoin</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>lineWidth</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>miterLimit</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>font</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>textAlign</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>textBaseline</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>globalAlpha</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>globalCompositeOperation</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>rect()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>fillRect()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>strokeRect()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clearRect()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>fill()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>stroke()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>beginPath()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>moveTo()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>closePath()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>lineTo()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>clip()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>quadraticCurveTo()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>bezierCurveTo()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>arc()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>arcTo()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>scale()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>rotate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>translate()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>transform()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>setTransform()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>fillText()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>strokeText()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>measureText()</td>
+<td>Method</td>
+<td><em>Empty</em></td>
+</tr>
+<tr>
+<td>drawImage()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>createImageData()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getImageData()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>putImageData()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>save()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>restore()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>getContext()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>loadTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>unloadTexture()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>resetTransform()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>render()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>capture()</td>
+<td>Method</td>
+<td><em>Empty</em></td>
+</tr>
+<tr>
+<td>resetClip()</td>
+<td>Method</td>
+<td>Implemented</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-imagedata-apis">2.ImageData APIs</h3>
+<table>
+<thead>
+<tr>
+<th>API Name</th>
+<th>API Type</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>width</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>height</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>data</td>
+<td>Attribute getter/setter</td>
+<td>Undefined</td>
+</tr>
+<tr>
+<td>src</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+<tr>
+<td>complete</td>
+<td>Attribute getter/setter</td>
+<td>Implemented</td>
+</tr>
+</tbody>
+</table>
+</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
+        <div class="license">Released under Apache License</div>
+        <div class="copyright">Copyright ©️ 2017 Alibaba Inc.</div>
+      </div>
+    </div>
+  </body>
+</html>
