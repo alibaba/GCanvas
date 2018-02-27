@@ -1,0 +1,18 @@
+{
+  "name": "gcanvas-website",
+  "version": "1.0.0",
+  "description": "",
+  "main": ".gulpfile.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "fs-extra": "^5.0.0",
+    "gulp": "^3.9.1",
+    "gulp-less": "^4.0.0",
+    "marked": "^0.3.16",
+    "pug": "^2.0.0-rc.4",
+    "yaml-js": "^0.2.3"
+  }
+}
