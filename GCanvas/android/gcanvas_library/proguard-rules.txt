@@ -1,9 +1,0 @@
--keep class com.taobao.gcanvas.GCanvasJNI {
-    *** bindTexture(...);
-    *** init(...);
-    *** sendEvent(...);
-    *** setContextType(...);
-    *** setDevicePixelRatio(...);
-    *** texSubImage2D(...);
-    *** registerCallback(...);
-}
