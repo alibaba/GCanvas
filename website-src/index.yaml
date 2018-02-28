@@ -9,7 +9,7 @@ docs:
     Custom Bridge: ../GCanvas/docs/Guide_Custom_Bridge.md
     Contribute to GCanvas: ../GCanvas/docs/Contributing.md
   Design:
-    Architecutre: ../GCanvas/docs/An_Introduction_to_GCanvas.md
+    Architecture: ../GCanvas/docs/An_Introduction_to_GCanvas.md
   Reference:
     Graphics 2D: ../GCanvas/docs/Reference_Graphics_2D.md
     WebGL: ../GCanvas/docs/Reference_WebGL.md
