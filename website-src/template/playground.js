@@ -10,7 +10,7 @@ var query = (function () {
 
 console.warn(document.querySelector('iframe'));
 if (query.id) {
-    document.querySelector('iframe').src = "https://jsplayground.taobao.com/vueplayground/" + id
+    document.querySelector('iframe').src = "https://jsplayground.taobao.com/vueplayground/" + query.id
 }else{
     document.querySelector('iframe').src = "https://jsplayground.taobao.com/vueplayground/87ea9a43-cab1-4d3f-aa16-a0fe5e4c6539"
 }
