@@ -4,7 +4,7 @@ Hi, folks, thanks for pay attention to GCanvas. Before submitting your contribut
 
 - [Issue Reporting Guidelines](#issue-reporting-guidelines)
 - [Pull Request Guidelines](#pull-request-guidelines)
-- [Git Commit Specific](./GIT_COMMIT_SPECIFIC.md)
+- [Git Commit Specific](#git-commit-specific)
 
 
 ## Issue Reporting Guidelines

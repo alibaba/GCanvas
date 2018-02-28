@@ -13,6 +13,6 @@ GCanvas API is designed to be like html canvas. Here is a sample
 
 
 
-Try GCanvas in our [playground](./playground.md).
+Try GCanvas in our [playground](https://alibaba.github.io/GCanvas/docs/playground.html).
 ### Integrate GCanvas to your app
-See [Integrate GCanvas on weex](./Guide_Setup_ReactNative.md), [Integrate GCanvas on RN](./Guide_Setup_Weex.md), or [create your own bridge](./Guide_Custom_Bridge.md).
+See [Integrate GCanvas on weex](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html), [Integrate GCanvas on RN](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html), or [create your own bridge](https://alibaba.github.io/GCanvas/docs/Custom%20Bridge.html).

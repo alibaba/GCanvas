@@ -88,7 +88,7 @@ import {
 } from 'react-native-gcanvas';
 ```
 
-Third, import  `enable`, `ReactNativeBridge` and `image` from  `gcanvas.js`,  initialize `ReactNativeBridge` with native module and platform. 
+Third, import  `enable`, `ReactNativeBridge` and `image` from  `gcanvas.js`,  initialize `ReactNativeBridge` with native module and platform.
 
 ```javascript
 const { enable, ReactNativeBridge, Image: GImage } = require('gcanvas.js');
@@ -97,19 +97,19 @@ ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
 ReactNativeBridge.Platform = Platform;
 ```
 
-Finally, you can use GCanvas in ReactNative App. Notice that before you `enable` GCanvas, convert`GCanvasView` reactTag to a string. 
+Finally, you can use GCanvas in ReactNative App. Notice that before you `enable` GCanvas, convert`GCanvasView` reactTag to a string.
 ```
 export default class App extends Component<{}> {
 
-  //draw something with gcanvas 
+  //draw something with gcanvas
   draw() => {
 	var ref = this.refs.canvas_holder;
-	
+
 	//must convert canvas tag to a string
     var canvas_tag = findNodeHandle(ref);
     var el = { ref:""+canvas_tag, style:{width:414, height:376}};
     ref = enable(el, {bridge: ReactNativeBridge});
-    
+
     //TODO get context by yourself
     var ctx = ref.getContext('2d');
     //rect
@@ -124,7 +124,7 @@ export default class App extends Component<{}> {
     //circle
     ctx.arc(200, 315, 100, 0, Math.PI * 2, true);
     ctx.fill();
-    
+
     var image = new GImage();
     image.onload = function(){
       ctx.drawImage(image, 150, 0);
@@ -133,7 +133,7 @@ export default class App extends Component<{}> {
     image.src = '//gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png';
   }
 
-  //render 
+  //render
   render(){
       return  <GCanvasView ref='canvas_holder' style={top: 20,width: 414,height :700,backgroundColor: '#FF000030'}></GCanvasView>  
   }
@@ -143,7 +143,7 @@ export default class App extends Component<{}> {
 
 ## Writing your own bridge
 
-Notice that we pass in the bridge object calling `enable`. Actually in this module we provide WeexBridge and ReactNativeBridge, if you want to define a custom bridge, you need to implement the same functions WeexBridge implemented. These functions are: 
+Notice that we pass in the bridge object calling `enable`. Actually in this module we provide WeexBridge and ReactNativeBridge, if you want to define a custom bridge, you need to implement the same functions WeexBridge implemented. These functions are:
 
 | function name          | arguments                   | return              |
 | ---------------------- | --------------------------- | ------------------- |
@@ -162,4 +162,4 @@ Notice that we pass in the bridge object calling `enable`. Actually in this modu
 
 You can check `src/bridge/bridge-weex.js` for detail.
 
-This module is the javascript part of the js-native bridge. About writing the native part, you can refer to [Custom GCanvas Bridge](../docs/Guide_Custom_GCanvas_Bridge.md).
+This module is the javascript part of the js-native bridge. About writing the native part, you can refer to [Custom GCanvas Bridge](https://alibaba.github.io/GCanvas/docs/Custom%20Bridge.html).
