@@ -322,6 +322,9 @@ body {
   width: 33%;
   text-align: center;
 }
+.gcanvas .intro .content .demos .demo img{
+  border: 1px solid #000;
+}
 .gcanvas .archi {
   height: 620px;
   background: linear-gradient(to bottom, #0a61fc, #03bdfc);
