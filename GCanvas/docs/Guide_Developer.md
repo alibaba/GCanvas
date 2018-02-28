@@ -7,7 +7,7 @@ GCanvas requires a js library.  Install it from npm:
 
 or find the .js fild in our project:
 
-`https://github.com/alibaba/GPlatform/tree/master/GCanvas/js/src`
+`https://github.com/alibaba/GCanvas/tree/master/GCanvas/js/src`
 
 ### II. Getting Context
 

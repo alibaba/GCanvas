@@ -1,7 +1,7 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-project.ext.meta.vcsUrl = "https://github.com/alibaba/GPlatform.git"
+project.ext.meta.vcsUrl = "https://github.com/alibaba/GCanvas.git"
 
 buildscript {
     repositories {
@@ -24,9 +24,9 @@ buildscript {
 def pomConfig = {
     url "https://g-platform.github.io"
     scm {
-        url "https://github.com/alibaba/GPlatform"
-        connection "scm:git:https://github.com/alibaba/GPlatform.git"
-        developerConnection "scm:git:git@github.com:alibaba/GPlatform.git"
+        url "https://github.com/alibaba/GCanvas"
+        connection "scm:git:https://github.com/alibaba/GCanvas.git"
+        developerConnection "scm:git:git@github.com:alibaba/GCanvas.git"
     }
     licenses {
         license {

@@ -21,12 +21,10 @@ Note: **At this moment, our publication is being reviewed by Maven. Once publish
     * Weex `WX\_EXPORT\_METHOD\_SYNC`, synchronous method `WX\_EXPORT\_METHOD`, asynchornous method
     * ReactNative `RCT\_EXPORT\_BLOCKING\_SYNCHRONOUS\_METHOD` , synchronous method`RCT\_EXPORT\_METHOD`, asynchornous method
 
-There may be different ways in bridges. But your bridge must support export asynchornous and synchronous method both for javascript call native method. And you must implement [Export method list](https://gplatformteam.github.io/gplatform-website/docs/gcanvas/guide/Customize%20your%20own%20bridge.html#Export Method List) to ensure `GCanvas`works well with your bridge.
+There may be different ways in bridges. But your bridge must support export asynchornous and synchronous method both for javascript call native method. And you must implement [Export native method list](#expot-native-apis-list) to ensure `GCanvas`works well with your bridge.
 
 
-
-
-### Native APIs List
+### Export Native APIs List
 | Method | Async/Sync | Android/iOS | Comments |
 | :--- | :--- | :--- | :--- |
 | enable(args) | Sync | Both | Build relationships between GCanvas.js and native view |

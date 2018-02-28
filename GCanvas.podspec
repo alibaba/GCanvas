@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
                    A cross-platform fast Canvas render engine.
                    DESC
 
-  s.homepage     = 'https://github.com/alibaba/GPlatform'
+  s.homepage     = 'https://github.com/alibaba/GCanvas'
   s.license = {
     :type => 'Copyright',
     :text => <<-LICENSE
@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '7.0'
 
  # s.source =  { :path => '.' }
-  s.source =  { :git => "https://github.com/alibaba/GPlatform.git", :tag => s.version }
+  s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }
 
   s.source_files = 'GCanvas/ios/Classes/**/*.{h,m,mm}',
                    'GCanvas/core/src/GCanvas.{hpp,cpp}',
@@ -43,7 +43,7 @@ Pod::Spec.new do |s|
                    'GCanvas/core/src/gcanvas/GWebglContext.{h,cpp}',
                    'GCanvas/core/src/memory/*.h',
                    'GCanvas/core/src/png/**/*.*',
-                   'GCanvas/core/src/support/DynArray.h', 
+                   'GCanvas/core/src/support/DynArray.h',
                    'GCanvas/core/src/support/Encode.{h,cpp}',
                    'GCanvas/core/src/support/Lesser.h',
                    'GCanvas/core/src/support/Log.{h,cpp}',
@@ -52,11 +52,11 @@ Pod::Spec.new do |s|
   s.public_header_files = 'GCanvas/ios/Classes/**/*.h', 'GCanvas/core/src/gcanvas/GTextDefine.h'
 
   s.user_target_xcconfig  = { 'FRAMEWORK_SEARCH_PATHS' => "'$(PODS_ROOT)/GCanvas'" }
-  
+
   s.requires_arc = true
 
   s.frameworks = 'Foundation','UIKit','GLKit'
-  
+
   s.library = 'stdc++'
 
   s.pod_target_xcconfig = { 'OTHER_CFLAGS'  => '-DIOS' }
