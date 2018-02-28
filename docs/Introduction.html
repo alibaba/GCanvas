@@ -54,10 +54,80 @@
 <p>Currently GCanvas is working well with weex and react native. Also you could <a href="">create your own bridge</a> and make it work with your UI system.</p>
 <h3 id="use-gcanvas">Use GCanvas</h3>
 <p>GCanvas API is designed to be like html canvas. Here is a sample</p>
-<blockquote>
-<p>// GCanvas Hello world</p>
-</blockquote>
-<p>Try GCanvas in our <a href="https://alibaba.github.io/GCanvas/docs/playground.html">playground</a>.</p>
+<pre><code class="lang-HTML5">&lt;template&gt;
+  &lt;div&gt;
+    &lt;gcanvas v-if=&quot;isWeex&quot; ref=&quot;canvas_holder&quot; v-bind:style=&quot;{width:width,height:height,backgroundColor:&#39;rgba(255,255,255,1)&#39;}&quot;&gt;&lt;/gcanvas&gt;
+    &lt;canvas v-if=&quot;!isWeex&quot; ref=&quot;canvas_holder&quot; v-bind:style=&quot;{width:width+&#39;px&#39;,height:height+&#39;px&#39;,backgroundColor:&#39;rgba(255,255,255,1)&#39;}&quot;&gt;&lt;/canvas&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+const isWeex = typeof callNative === &quot;function&quot;;
+
+const dom = weex.requireModule(&quot;dom&quot;);
+import { enable, WeexBridge, Image as GImage } from &quot;gcanvas.js&quot;;
+let EnvImage = isWeex ? GImage : Image;
+
+function run(canvas, { requestAnimationFrame }) {
+    var img = new EnvImage();
+    let cxt = canvas.getContext(&#39;2d&#39;);
+    img.onload = function(){
+      cxt.drawImage(img, 0, 0, img.width, img.height);
+    }  
+    img.src = &#39;https://c1.staticflickr.com/3/2388/5800134409_83345951ed_b.jpg&#39;;
+}
+
+export default {
+  data() {
+    return {
+      isWeex,
+      width: 750,
+      height: 980
+    };
+  },
+
+  mounted: function() {
+
+    const start = () =&gt; {
+
+      var ref = this.$refs.canvas_holder;
+
+      var size = isWeex
+        ? {
+            width: parseInt(this.width),
+            height: parseInt(this.height)
+          }
+        : {
+            width: parseInt(ref.clientWidth),
+            height: parseInt(ref.clientHeight)
+          };
+
+      if (isWeex) {
+        ref = enable(ref, { debug: true, bridge: WeexBridge });
+      }
+
+      ref.width = size.width;
+      ref.height = size.height;
+
+      run(ref, {
+        requestAnimationFrame: isWeex ? setTimeout : requestAnimationFrame
+      });
+    };
+
+    setTimeout(function(){
+      dom.getComponentRect(&quot;viewport&quot;, e =&gt; {
+      this.height = e.size.height;
+
+      this.isReady = true;
+
+      setTimeout(start, 1000);
+    })
+    }, 50);
+  }
+};
+&lt;/script&gt;
+</code></pre>
+<p>Try GCanvas in our <a href="https://alibaba.github.io/GCanvas/playground.html">playground</a>.</p>
 <h3 id="integrate-gcanvas-to-your-app">Integrate GCanvas to your app</h3>
 <p>See <a href="https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html">Integrate GCanvas on weex</a>, <a href="https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html">Integrate GCanvas on RN</a>, or <a href="https://alibaba.github.io/GCanvas/docs/Custom%20Bridge.html">create your own bridge</a>.</p>
 </div>
