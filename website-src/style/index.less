@@ -412,6 +412,7 @@ html, body{
         padding: 20px 80px;
 
         .index{
+
             float: left;
             width: 300px;
 
@@ -453,7 +454,11 @@ html, body{
         }
 
         .body{
+
             margin-left: 300px;
+            &.full{
+                margin-left: 0;
+            }
         }
     }
 
@@ -527,9 +532,10 @@ html, body{
 
 iframe.playground{
     display: block;
-    width: 900px;
-    height: 700px;
+    height: 1000px;
+    width: 1500px;
     margin: 20px auto;
+    margin-left: -160px;
     border: 1px solid #aaa;
     box-shadow: #ccc 2px 0px 4px;
 }
