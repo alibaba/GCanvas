@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
                    GCanvas Weex Bridge Source.
                    DESC
 
-  s.homepage     = 'https://github.com/alibaba/GPlatform'
+  s.homepage     = 'https://github.com/alibaba/GCanvas'
   s.license = {
     :type => 'Copyright',
     :text => <<-LICENSE
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
 
  # s.source =  { :path => '.' }
-  s.source =  { :git => "https://github.com/alibaba/GPlatform.git", :tag => s.version }
+  s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }
 
   s.source_files  = "GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.{h,m}"
 
@@ -31,12 +31,12 @@ Pod::Spec.new do |s|
   s.user_target_xcconfig  = { 'FRAMEWORK_SEARCH_PATHS' => "'$(PODS_ROOT)/WeexGcanvas'" }
 
   s.requires_arc = true
-  
+
   s.dependency "WeexPluginLoader"
   s.dependency "WeexSDK", "~> 0.16.1"
   s.dependency "GCanvas"
   s.dependency "SDWebImage", "< 4.0.0"
-  
+
   s.libraries = "stdc++"
 
 end
