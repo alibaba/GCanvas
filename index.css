@@ -314,6 +314,14 @@ body {
   width: 1280px;
   margin: auto;
 }
+.gcanvas .intro .content .demos {
+  margin-top: 30px;
+  display: flex;
+}
+.gcanvas .intro .content .demos .demo {
+  width: 50%;
+  text-align: center;
+}
 .gcanvas .archi {
   height: 620px;
   background: linear-gradient(to bottom, #0a61fc, #03bdfc);
