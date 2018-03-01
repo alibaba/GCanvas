@@ -79,200 +79,6 @@ body {
   float: right;
   margin-top: -18px;
 }
-.index .banner {
-  height: 700px;
-  background: #2b2b2b;
-  position: relative;
-}
-.index .banner .content {
-  color: #fff;
-}
-.index .banner .content .title {
-  text-align: center;
-  font-size: 60px;
-  font-weight: bolder;
-  padding-top: 270px;
-}
-.index .banner .content .description {
-  text-align: center;
-  font-size: 30px;
-  font-weight: lighter;
-  padding-top: 10px;
-}
-.index .intro {
-  height: 500px;
-  padding-top: 60px;
-  padding-bottom: 80px;
-  background-color: #ededed;
-}
-.index .intro .content {
-  width: 1280px;
-  margin: auto;
-}
-.index .intro .content .the-box {
-  background-color: #fff;
-  height: 500px;
-  width: 500px;
-  margin-left: 70px;
-}
-.index .intro .content .the-box .logo {
-  text-align: center;
-}
-.index .intro .content .the-box .logo img {
-  height: 160px;
-}
-.index .intro .content .the-box .title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-.index .intro .content .the-box .description {
-  color: #777;
-  width: 400px;
-  margin: auto;
-  padding: 20px;
-}
-.index .intro .content .the-box .button {
-  width: 100px;
-  text-align: center;
-  margin: auto;
-  padding: 10px;
-  color: #fff;
-  background-color: #078bfc;
-  border-radius: 5px;
-}
-.index .intro .content .the-box .button a {
-  text-decoration: none;
-}
-.index .intro .content .the-box .button a:link {
-  color: #fff;
-}
-.index .intro .content .the-box .button a:active {
-  color: #fff;
-}
-.index .intro .content .the-box .button a:visited {
-  color: #fff;
-}
-.index .intro .content .left {
-  width: 50%;
-  float: left;
-}
-.index .intro .content .left .box {
-  background-color: #fff;
-  height: 500px;
-  width: 500px;
-  margin-left: 70px;
-}
-.index .intro .content .left .box .logo {
-  text-align: center;
-}
-.index .intro .content .left .box .logo img {
-  height: 160px;
-}
-.index .intro .content .left .box .title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-.index .intro .content .left .box .description {
-  color: #777;
-  width: 400px;
-  margin: auto;
-  padding: 20px;
-}
-.index .intro .content .left .box .button {
-  width: 100px;
-  text-align: center;
-  margin: auto;
-  padding: 10px;
-  color: #fff;
-  background-color: #078bfc;
-  border-radius: 5px;
-}
-.index .intro .content .left .box .button a {
-  text-decoration: none;
-}
-.index .intro .content .left .box .button a:link {
-  color: #fff;
-}
-.index .intro .content .left .box .button a:active {
-  color: #fff;
-}
-.index .intro .content .left .box .button a:visited {
-  color: #fff;
-}
-.index .intro .content .right {
-  width: 50%;
-  float: right;
-}
-.index .intro .content .right .box {
-  background-color: #fff;
-  height: 500px;
-  width: 500px;
-  margin-left: 70px;
-}
-.index .intro .content .right .box .logo {
-  text-align: center;
-}
-.index .intro .content .right .box .logo img {
-  height: 160px;
-}
-.index .intro .content .right .box .title {
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-.index .intro .content .right .box .description {
-  color: #777;
-  width: 400px;
-  margin: auto;
-  padding: 20px;
-}
-.index .intro .content .right .box .button {
-  width: 100px;
-  text-align: center;
-  margin: auto;
-  padding: 10px;
-  color: #fff;
-  background-color: #078bfc;
-  border-radius: 5px;
-}
-.index .intro .content .right .box .button a {
-  text-decoration: none;
-}
-.index .intro .content .right .box .button a:link {
-  color: #fff;
-}
-.index .intro .content .right .box .button a:active {
-  color: #fff;
-}
-.index .intro .content .right .box .button a:visited {
-  color: #fff;
-}
-.gcanvas .header {
-  background-color: #474747;
-  height: 40px;
-}
-.gcanvas .header .menu {
-  width: 1280px;
-  margin: auto;
-}
-.gcanvas .header .menu .item {
-  height: 40px;
-  line-height: 40px;
-}
-.gcanvas .header .menu .item img {
-  height: 40px;
-  margin-left: 11px;
-  margin-right: 13px;
-}
-.gcanvas .header .menu .item-right {
-  float: right;
-}
-.gcanvas .header .menu .item-right a.link {
-  color: #888;
-  font-size: 0.9rem;
-}
 .gcanvas .banner {
   height: 700px;
   position: relative;
@@ -344,7 +150,7 @@ body {
 }
 .gcanvas .usage {
   background: #fff;
-  padding: 80px 0;
+  padding: 0px 0;
 }
 .gcanvas .usage .content {
   width: 1280px;
@@ -361,14 +167,17 @@ body {
   margin: auto;
 }
 .gcanvas .usage .content .user-list {
-  padding-bottom: 50px;
+  width: 800px;
+  margin: auto;
+  padding: 50px 0;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
-.gcanvas .usage .content .user-list .user-item {
+.gcanvas .usage .content .user-list img {
   width: 100px;
   height: 100px;
-  margin: 50px;
+  margin: 30px 50px;
 }
 .gcanvas .content {
   width: 1080px;
@@ -537,4 +346,127 @@ iframe.playground {
   margin-left: -160px;
   border: 1px solid #aaa;
   box-shadow: #ccc 2px 0px 4px;
+}
+@media only screen and (max-device-width: 640px) {
+  html,
+  body {
+    font-size: 30px;
+  }
+  .header {
+    display: none;
+  }
+  .gcanvas .banner {
+    height: 100vh;
+  }
+  .gcanvas .banner ::after {
+    height: 60vh;
+    background-color: #000;
+  }
+  .gcanvas .banner .content {
+    display: block;
+    width: 100vw;
+    text-shadow: 0px 0px 3px #000000;
+  }
+  .gcanvas .banner .content .title {
+    padding-top: 65vh;
+    font-size: 3rem;
+    width: 100vw;
+  }
+  .gcanvas .banner .content .description {
+    padding-top: 1vh;
+    font-size: 1.5rem;
+    width: 100vw;
+  }
+  .gcanvas .banner .content .github {
+    display: block;
+    background: #ff7979;
+    margin-left: 37vw;
+    margin-top: 10vw;
+    width: 25vw;
+    height: 10vw;
+    line-height: 10vw;
+    font-size: 1.5rem;
+    border-radius: 5vh;
+    text-align: center;
+  }
+  .gcanvas .banner .content .github a {
+    text-decoration: none;
+    color: #fff;
+  }
+  .gcanvas .banner .content .github a:hover {
+    color: #fff;
+  }
+  .gcanvas .banner .content .github a:link {
+    color: #fff;
+  }
+  .gcanvas .intro .content {
+    width: 100vw;
+    height: 100vh;
+  }
+  .gcanvas .intro .content .logo img {
+    width: 50vw;
+  }
+  .gcanvas .intro .content .title {
+    display: none;
+  }
+  .gcanvas .intro .content .description {
+    font-size: 1.5rem;
+    padding: 0vw 10vw;
+    line-height: 4.5vh;
+  }
+  .gcanvas .intro .content .blueprint {
+    display: none;
+  }
+  .gcanvas .intro .content .demos {
+    display: none;
+  }
+  .gcanvas .archi {
+    display: none;
+  }
+  .gcanvas .usage .content {
+    width: 100vw;
+  }
+  .gcanvas .usage .content .title {
+    width: 100vw;
+    font-size: 2rem;
+    color: #888;
+  }
+  .gcanvas .usage .content .user-list {
+    width: 100vw;
+    margin: 0;
+  }
+  .gcanvas .usage .content .user-list img {
+    width: 30vw;
+    height: 30vw;
+    margin: 10vw;
+  }
+  .footer {
+    height: 30vh;
+  }
+  .footer .content {
+    width: 100vw;
+    margin: auto;
+  }
+  .footer .content .open-source-icon {
+    padding-left: 30vw;
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+    width: 40vw;
+    display: block;
+  }
+  .footer .content .open-source-icon img {
+    width: 40vw;
+  }
+  .footer .content .license {
+    float: none;
+    font-size: 1.5rem;
+    text-align: center;
+    height: 7vh;
+  }
+  .footer .content .copyright {
+    float: none;
+    font-size: 1.5rem;
+    text-align: center;
+    height: 7vh;
+  }
 }
