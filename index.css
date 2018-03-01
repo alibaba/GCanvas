@@ -98,6 +98,9 @@ body {
   font-weight: lighter;
   padding-top: 10px;
 }
+.gcanvas .banner .content .github {
+  display: none;
+}
 .gcanvas .intro .content {
   width: 1280px;
   margin: auto;
