@@ -31,7 +31,12 @@ body {
   vertical-align: middle;
 }
 .header .menu .item .logo {
-  height: 64px;
+  margin-top: -13px;
+  height: 90px;
+}
+.header .menu .item .logo-small {
+  margin-top: 7px;
+  height: 50px;
 }
 .header .menu .item .link {
   text-decoration: none;
