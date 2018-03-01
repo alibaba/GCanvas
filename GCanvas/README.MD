@@ -75,7 +75,7 @@ image.onload = function(){
 
 
 ## Open Issues
-If you encounter a bug with GCanvas we would like to hear about it. Search the [existing issues]() and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of GCanvas  and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
+If you encounter a bug with GCanvas we would like to hear about it. Search the [existing issues](https://github.com/alibaba/GCanvas/issues) and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of GCanvas  and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
 
 ## Contributing
 
