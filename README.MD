@@ -16,31 +16,29 @@ Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 - Cross-platform, support popular iOS and Android.
 - High performance, accelerate graphic draw by OpenGL ES.
 - Provide javascript runtime,  such as [Weex](https://github.com/apache/incubator-weex) and [ReactNative](https://github.com/facebook/react-native/).  convenient to use Javascript API like HTML canvas.
-- Scalable Architecture, easy to implement a GCanvas bridge by yourself following the guide [Custom Native Bridge](./docs/Guide_Custom_GCanvas_Bridge.md) and [Custom Javascript Bridge](./docs/Guide_JS_Use.md) .
+- Scalable Architecture, easy to implement a GCanvas bridge by yourself following the guide [Custom Native Bridge](https://alibaba.github.io/GCanvas/docs/Custom%20Bridge.html) .
 - Small size.
 
 
 ## Introduction
 
-See the  [Introduction to GCanvas](./docs/An_Introduction_to_GCanvas.md) for a detailed  introduction to GCanvas.
+See the  [Introduction to GCanvas](https://alibaba.github.io/GCanvas/docs/Developer's%20Guide.html) for a detailed  introduction to GCanvas.
 
 ## Getting Started
 
 ### Weex
-Follow these guides to integrate GCanvas on Weex
-* [Weex Guide Android](./docs/Guide_Android_Setup_Weex.md)
-* [Weex Guide iOS](./docs/Guide_iOS_Setup_Weex.md)
+Follow [Weex Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html) to integrate GCanvas on Weex
 
 ### ReactNative
-Follow this guide [ReactNative Guide](./docs/Guide_Setup_ReactNative.md)  to integrate GCanvas on ReactNative.
+Follow [ReactNative Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html)  to integrate GCanvas on ReactNative.
 
 ### Javascript
-Follow this [Javascript Guide](./docs/Guide_JS_Use.md) to setup Javascript runtime environment.
+Try our [Playground](https://alibaba.github.io/GCanvas/playground.html).
+GCanvas has browser-like canvas APIs, so almost all of the APIs are exactly same as HTML5 canvas. At this moment, we have already supported 90% of 2D APIs and 99% of WebGL APIs. You can find out those informations in [2D  APIs](https://alibaba.github.io/GCanvas/docs/Graphics%202D.html) and [WebGL APIs](https://alibaba.github.io/GCanvas/docs/WebGL.html).
 
 
 ## Documentation
-
-GCanvas has browser-like canvas APIs, so almost all of the APIs are exactly same as HTML5 canvas. At this moment, we have already supported 90% of 2D APIs and 99% of WebGL APIs. You can find out those informations in [APIs document](./docs/APIs.md).
+Check [Documentation](https://alibaba.github.io/GCanvas/docs/Introduction.html) for more information.
 
 ## Examples
 We take [Weex](https://github.com/apache/incubator-weex) as example, code snippet of context 2d using `GCanvas`.
@@ -79,7 +77,7 @@ If you encounter a bug with GCanvas we would like to hear about it. Search the [
 
 ## Contributing
 
-Please read [CONTRIBUTING](./docs/Contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING](./GCanvas/docs/Contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
@@ -88,4 +86,4 @@ GCanvas Open Source Team
 
 ## License
 
-This project is licensed under the Apache License - see the [LICENSE](./docs/LICENSE.md) file for details
+This project is licensed under the Apache License - see the [LICENSE](./GCanvas/docs/LICENSE.md) file for details
