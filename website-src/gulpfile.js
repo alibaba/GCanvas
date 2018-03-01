@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const less = require('gulp-less');
 const yaml = require('yaml-js');
 const marked = require('marked');
+const watch = require('gulp-watch');
 
 
 const homePageTasks = (function () {

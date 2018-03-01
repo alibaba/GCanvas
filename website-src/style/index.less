@@ -99,149 +99,9 @@ html, body{
     }
 }
 
-.index{
-
-    .banner{
-
-        height: 700px;
-        background: rgb(43,43,43);
-
-        position: relative;
-
-        .content{
-
-            color: #fff;
-
-            .title{
-                text-align: center;
-                font-size: 60px;
-                font-weight: bolder;
-                padding-top: 270px;
-            }
-
-            .description{
-                text-align: center;
-                font-size: 30px;
-                font-weight: lighter;
-                padding-top: 10px; 
-            }
-        }
-    }
-
-    .intro{
-
-        height: 500px;
-        padding-top: 60px;
-        padding-bottom: 80px;
-
-        background-color: rgb(237, 237, 237);
-
-        .content{
-
-            width: 1280px;
-            margin: auto;
-
-            .the-box{
-                background-color: #fff;
-                height: 500px;
-                width: 500px;
-                margin-left: 70px;
-
-                .logo{
-                    text-align: center;
-                    img{
-                        height: 160px;
-                    }
-                }
-                .title{
-                    font-size: 20px;
-                    font-weight: bold;
-                    text-align: center;
-                }
-                .description{
-                    color: #777;
-                    width: 400px;
-                    margin: auto;
-                    padding: 20px;
-                }
-                .button{
-                    width: 100px;
-                    text-align: center;
-                    margin: auto;
-                    padding: 10px;
-                    color: #fff;
-                    background-color: rgb(7, 139, 252);
-                    border-radius: 5px;
-
-                    a{
-                        text-decoration: none;
-                        &:link{
-                            color: #fff;
-                        }
-                        &:active{
-                            color: #fff;
-                        }
-                        &:visited{
-                            color: #fff;
-                        }
-                    }
-                }
-            }
-
-            .left{
-                width: 50%;
-                float: left;
-                .box{
-                    .the-box;
-                }
-            }
-
-            .right{
-                width: 50%;
-                float: right;
-                .box{
-                    .the-box;
-                }
-
-            }
-
-        }
-
-
-    }
-    
-}
 
 
 .gcanvas{
-    .header{
-        background-color: rgb(71, 71, 71);
-        height: 40px;
-
-        .menu{
-            width: 1280px;
-            margin: auto;
-
-            .item{
-                height: 40px;
-                line-height: 40px;
-                img{
-                    height: 40px;
-                    margin-left: 11px;
-                    margin-right: 13px;
-                }
-            }
-
-            .item-right{
-                float: right;
-                a.link{
-                    color: #888;
-                    font-size: 0.9rem;
-                }
-            }
-        }
-
-    }
 
     .banner{
 
@@ -334,7 +194,7 @@ html, body{
 
     .usage{
         background: #fff;
-        padding: 80px 0;        
+        padding: 0px 0;
 
         .content{
             width: 1280px;
@@ -353,13 +213,16 @@ html, body{
             }
 
             .user-list{
-                padding-bottom: 50px;
+                width: 800px;
+                margin: auto;
+                padding: 50px 0;
                 display: flex;
                 justify-content: center;
-                .user-item{
+                flex-wrap: wrap;
+                img{
                     width: 100px;
                     height: 100px;
-                    margin: 50px;
+                    margin: 30px 50px;
                 }
             }
         }
@@ -547,4 +410,165 @@ iframe.playground{
     margin-left: -160px;
     border: 1px solid #aaa;
     box-shadow: #ccc 2px 0px 4px;
+}
+
+
+@media only screen and (max-device-width: 640px){
+    
+    html, body{
+        font-size: 30px;
+    }
+
+    .header{
+        display: none;
+    }
+
+    .gcanvas{
+
+        .banner{
+            height: 100vh;
+            ::after{
+                height: 60vh;
+                background-color: #000;
+            }
+
+            .content{
+                display: block;
+
+                width: 100vw;
+
+                text-shadow: 0px 0px 3px #000000;
+
+                .title{
+                    padding-top: 65vh;
+                    font-size: 3rem;
+                    width: 100vw;
+                }
+
+                .description{
+                    padding-top: 1vh; 
+                    font-size: 1.5rem;
+                    width: 100vw;                        
+                }
+
+                .github{
+                    display: block;
+                    background: #ff7979;
+                    margin-left: 37vw;
+                    margin-top: 10vw;
+                    width: 25vw;
+                    height: 10vw;
+                    line-height: 10vw;
+                    font-size: 1.5rem;
+                    border-radius: 5vh;
+                    text-align: center;
+                    a{
+                        text-decoration: none;
+                        color: #fff;
+                        &:hover{
+                            color:#fff;
+                        }
+                        &:link{
+                            color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+
+        .intro{
+
+            .content{
+                width: 100vw;
+                height: 100vh;
+
+                .logo{
+                    img{
+                        width: 50vw;
+                    }
+                }
+    
+                .title{
+                    display: none;
+                }
+
+                .description{
+                    font-size: 1.5rem;
+                    padding: 0vw 10vw;
+                    line-height: 4.5vh;
+                }
+
+                .blueprint{
+                    display: none;
+                }
+
+                .demos{
+                    display: none;
+                }
+            }
+        }
+
+        .archi{
+            display: none;
+        }
+
+        .usage{
+
+            .content{
+                width: 100vw;
+                .title{
+                    width: 100vw;
+                    font-size: 2rem;
+                    color: #888;
+                }
+    
+                .user-list{
+                    width: 100vw;
+                    margin: 0;
+                    img{
+                        width: 30vw;
+                        height: 30vw;
+                        margin: 10vw;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+
+    .footer{
+        height: 30vh;
+        .content{
+            
+            width: 100vw;
+            margin: auto;
+    
+            .open-source-icon{
+                padding-left: 30vw;
+                padding-top: 5vh;
+                padding-bottom: 5vh;
+                width: 40vw;
+                display: block;
+                img{
+                    width: 40vw;
+                }
+            }
+            .license{
+                float: none;
+                font-size: 1.5rem;
+                text-align: center;
+                height: 7vh;                
+            }
+            .copyright{
+                float: none;
+                font-size: 1.5rem;
+                text-align: center;                
+                height: 7vh;
+            }
+        }
+    }
+
+
 }
