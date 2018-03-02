@@ -16,9 +16,9 @@ Click link below to download apk.
 
 #### For Weex
 
-Click link below to download apk.
+Click link below to download ipa.
 
-<a href="itms-services://?action=download-manifest&amp;url=https://raw.githubusercontent.com/g-platform/gcanvas-playground-ios/master/GCanvasPlayground-Releasedownload.plist" >Download Weex Playground  Apk</a>
+<a href="itms-services://?action=download-manifest&url=https://raw.githubusercontent.com/g-platform/gcanvas-playground-ios/master/GCanvasPlayground-Releasedownload.plist" >Download Weex Playground  IPA</a>
 
 
 
