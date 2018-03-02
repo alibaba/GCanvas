@@ -1,16 +1,62 @@
-@font-face {
-  font-family: 'OpenSans';
-  src: url('assets/OpenSans-Regular.ttf') format('ttf');
+/*hightlight.js vs*/
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: white;
+  color: black;
 }
-@font-face {
-  font-family: 'FiraMono';
-  src: url('assets/FiraMono-Regular.ttf') format('ttf');
+.hljs-comment,
+.hljs-quote,
+.hljs-variable {
+  color: #008000;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: #00f;
+}
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #a31515;
+}
+.hljs-deletion,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-meta {
+  color: #2b91af;
+}
+.hljs-doctag {
+  color: #808080;
+}
+.hljs-attr {
+  color: #f00;
+}
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  color: #00b0e8;
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: bold;
 }
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: 'OpenSans', 'Verdana', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  font-family: 'Verdana', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
   overflow: auto;
 }
 .header {
@@ -251,6 +297,7 @@ body {
 .doc {
   padding-top: 20px;
   padding-bottom: 100px;
+  line-height: 25px;
 }
 .doc .content {
   width: 1200px;
@@ -299,16 +346,17 @@ body {
   margin-left: 0;
 }
 .doc pre {
+  overflow-y: auto;
   padding: 10px;
   background-color: #eee;
 }
 .doc pre code {
-  font-family: 'FiraMono', 'Consolas', 'Courier', sans-serif;
+  font-family: 'Consolas', 'Courier', sans-serif;
 }
 .doc code {
   padding: 5px 3px;
   background: #eee;
-  font-family: 'FiraMono', 'Consolas', 'Courier', sans-serif;
+  font-family: 'Consolas', 'Courier', sans-serif;
 }
 .doc table {
   border: 1px solid #aaa;

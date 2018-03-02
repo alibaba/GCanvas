@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
-  <head>
+<!DOCTYPE html><html lang="zh"><head>
     <meta content="text/html">
     <meta charset="utf-8">
     <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
@@ -54,26 +52,26 @@
 <h3 id="requirement">Requirement</h3>
 <p>Make sure the following configuration is completed:</p>
 <ul>
-<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">JDK</a>  &gt;= 1.7 , and configure the environment variable</li>
+<li><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">JDK</a>  >= 1.7 , and configure the environment variable</li>
 <li>Android SDK installed and configure the environment variable</li>
 <li>Android SDK version 23 (compileSdkVersion in build.gradle)</li>
 <li>SDK build tools version 21.1.2 (buildToolsVersion in build.gradle)</li>
-<li>Android Support Repository &gt;= 17 (for Android Support Library)</li>
-<li><a href="https://weex.apache.org/">Weex</a> SDK &gt;= 0.16.X</li>
+<li>Android Support Repository >= 17 (for Android Support Library)</li>
+<li><a href="https://weex.apache.org/">Weex</a> SDK >= 0.16.X</li>
 </ul>
 <h3 id="steps">Steps</h3>
 <p>The steps are as follows:</p>
 <ol>
 <li>Create an Android project. There is nothing to be specified, according to your habits to.</li>
 <li><strong>At this moment, our publication is being reviewed by Maven. Once published, source dependency will be changed to AAR dependency. </strong>
-Download source code, update build.gradle by adding the following dependencies:<pre><code class="lang-groovy">compile project &#39;:bridges:weex-bridge:android:weex_bridge&#39;
+Download source code, update build.gradle by adding the following dependencies:<pre><code class="lang-groovy hljs"><span class="hljs-keyword">compile</span> <span class="hljs-keyword">project</span> <span class="hljs-string">':bridges:weex-bridge:android:weex_bridge'</span>
 </code></pre>
 </li>
-<li>Register GCanvas Module and Component to your Weex Application.<pre><code class="lang-java">WXSDKEngine.registerModule(&quot;gcanvas&quot;, GCanvasWeexModule.class);
-WXSDKEngine.registerComponent(&quot;gcanvas&quot;, WXGCanvasWeexComponent.class);
+<li>Register GCanvas Module and Component to your Weex Application.<pre><code class="lang-java hljs">WXSDKEngine.registerModule(<span class="hljs-string">"gcanvas"</span>, GCanvasWeexModule.<span class="hljs-built_in">class</span>);
+WXSDKEngine.registerComponent(<span class="hljs-string">"gcanvas"</span>, WXGCanvasWeexComponent.<span class="hljs-built_in">class</span>);
 </code></pre>
 </li>
-<li>Modify AndroidManifest.xml, add below line to acquire OpenGL ES features.<pre><code class="lang-xml">&lt;uses-feature android:glEsVersion=&quot;0x00020000&quot; /&gt;
+<li>Modify AndroidManifest.xml, add below line to acquire OpenGL ES features.<pre><code class="lang-xml hljs"><span class="hljs-tag">&lt;<span class="hljs-name">uses-feature</span> <span class="hljs-attr">android:glEsVersion</span>=<span class="hljs-string">"0x00020000"</span> /&gt;</span>
 </code></pre>
 </li>
 </ol>
@@ -86,8 +84,8 @@ WXSDKEngine.registerComponent(&quot;gcanvas&quot;, WXGCanvasWeexComponent.class)
 </ul>
 <h4 id="steps">Steps</h4>
 <ol>
-<li>Install components with CocoaPods<pre><code class="lang-objective-c">pod &#39;WeexGcanvas&#39;
-pod &#39;WeexPluginLoader&#39;
+<li>Install components with CocoaPods<pre><code class="lang-objective-c hljs"><span class="hljs-attribute">pod</span> <span class="hljs-string">'WeexGcanvas'</span>
+pod <span class="hljs-string">'WeexPluginLoader'</span>
 </code></pre>
 </li>
 </ol>
@@ -102,5 +100,5 @@ pod &#39;WeexPluginLoader&#39;
         <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
       </div>
     </div>
-  </body>
-</html>
+  
+</body></html>

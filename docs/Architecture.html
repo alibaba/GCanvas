@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
-  <head>
+<!DOCTYPE html><html lang="zh"><head>
     <meta content="text/html">
     <meta charset="utf-8">
     <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
@@ -76,7 +74,7 @@ The code is under ./gcanvas/js/, which mainly includes core files in ./src/core/
 <h3 id="2-2-bridge-layer">2.2 Bridge Layer</h3>
 <p>Bridge Layer is responsible for setting up a bridge to interact between JavaScript and OS native languages.</p>
 <p>There are typically 2 ways to achieve this goal. One way is to implement it based on JSBridge, for example, Cordova is supposed to be a good choice. Another way is to implement it based on JSBinding, for example, V8 on Android and JSC on iOS.</p>
-<p>We have integrated an Android bridge(based on Cordova) &amp; an iOS bridge(based on WebViewJavascriptBridge) into this project. It is only used to demonstrate how a bridge plug-in can be implemented. Any implementation in this layer is supposed to  be replaced or extended easily. The code of Android plug-in is under ./gcanvas/android/android_cordova_bridge_plugin/ and the code of iOS plug-in is under ./gcanvas/ios/GCanvasJSBridge/.</p>
+<p>We have integrated an Android bridge(based on Cordova) & an iOS bridge(based on WebViewJavascriptBridge) into this project. It is only used to demonstrate how a bridge plug-in can be implemented. Any implementation in this layer is supposed to  be replaced or extended easily. The code of Android plug-in is under ./gcanvas/android/android_cordova_bridge_plugin/ and the code of iOS plug-in is under ./gcanvas/ios/GCanvasJSBridge/.</p>
 <h3 id="2-3-platform-adapter-layer">2.3 Platform Adapter Layer</h3>
 <p>Operation System Adapter Layer is responsible for relaying draw calls, responding OS events, like touch etc. and other OS-related operations that cannot be processed in Render Core Layer. The code of Android is under ./gcanvas/android/android_library/ and the code of iOS is under ./gcanvas/ios/Classes/.</p>
 <h4 id="2-3-1-android-simple-workflow">2.3.1 Android simple workflow</h4>
@@ -96,7 +94,7 @@ The code is under ./gcanvas/js/, which mainly includes core files in ./src/core/
 <p>For quality assurance, test project is provided in the directory ./gcanvas/test/ which includes three parts: Android test app, iOS test App and UI test project.
 The diagram below shows their workflow in simple:
 <img src="http://git.cn-hangzhou.oss-cdn.aliyun-inc.com/uploads/gcanvas/gcanvas/7efe726528156d99a11c84496657577a/gcanvas_testproject_architecture.png" alt="gcanvas_testproject_architecture"></p>
-<h4 id="2-6-1-test-app-test-project">2.6.1 Test App &amp; Test Project</h4>
+<h4 id="2-6-1-test-app-test-project">2.6.1 Test App & Test Project</h4>
 <p>Two test apps are provided to check the test environment and add test cases which are both the target apps of the test project.</p>
 <p>Test app includes all the html cases operated by the test project by appium. If you want to run the cases exist, you can run the shell script directly;</p>
 <p>but if you want to add js case, you need to change the TestApp, for detail you can read the readme.</p>
@@ -126,7 +124,7 @@ the latter is good for testing in different environment (such different test dev
 <ul>
 <li>fully support WebGL APIs</li>
 <li>upgrade to OpenGL ES 3.0</li>
-<li>integrate Vulkan &amp; Metal</li>
+<li>integrate Vulkan & Metal</li>
 <li>have independent JavaScript runtime</li>
 </ul>
 <p>VR/AR market is very hot. GCanvas is going to provide more capabilities in-application for developers to practice in these areas.</p>
@@ -134,7 +132,7 @@ the latter is good for testing in different environment (such different test dev
 <h2 id="4-last">4. Last</h2>
 <p>Last but not least, this project is inspired by a lot of open source projects instead of building from nothing. We should give special thanks to these projects: Chromium, Skia, Ejecta, Fast-Canvas, Cocos2d.
 We hope this project can provide more value to the community as we do gain a lot from it.</p>
-<h5 align = "right">- GCanvas Open Source Team</h5>
+<h5 align="right">- GCanvas Open Source Team</h5>
 </div>
         </div>
       </div>
@@ -145,5 +143,5 @@ We hope this project can provide more value to the community as we do gain a lot
         <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
       </div>
     </div>
-  </body>
-</html>
+  
+</body></html>

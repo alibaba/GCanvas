@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
-  <head>
+<!DOCTYPE html><html lang="zh"><head>
     <meta content="text/html">
     <meta charset="utf-8">
     <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
@@ -54,9 +52,9 @@
 <p><code>react-native link react-native-gcanvas</code></p>
 <h3 id="ios">iOS</h3>
 <ol>
-<li>In XCode, in the project navigator, right click <code>Libraries</code> ➜ <code>Add Files to [your project&#39;s name]</code></li>
+<li>In XCode, in the project navigator, right click <code>Libraries</code> ➜ <code>Add Files to [your project's name]</code></li>
 <li>Go to <code>node\_modules</code> ➜ <code>react-native-gcanvas</code> and add <code>RNReactNativeGCanvas.xcodeproj</code></li>
-<li>In XCode, in the project navigator, select your project. Add <code>libRNReactNativeGCanvas.a</code> to your project&#39;s <code>Build Phases</code> ➜ <code>Link Binary With Libraries</code></li>
+<li>In XCode, in the project navigator, select your project. Add <code>libRNReactNativeGCanvas.a</code> to your project's <code>Build Phases</code> ➜ <code>Link Binary With Libraries</code></li>
 <li>Run your project (<code>Cmd+R</code>)</li>
 </ol>
 <h3 id="android">Android</h3>
@@ -65,10 +63,10 @@
 <li>Add <code>import com.reactlibrary.RNReactNativeGCanvasPackage;</code> to the imports at the top of the file</li>
 <li>Add <code>new RNReactNativeGCanvasPackage()</code> to the list returned by the <code>getPackages()</code> method</li>
 <li>Append the following lines to <code>android/settings.gradle</code>:
-<code>include &#39;:react-native-gcanvas&#39;</code>
-<code>project(&#39;:react-native-gcanvas&#39;).projectDir = new File(rootProject.projectDir,     &#39;../node\_modules/react-native-gcanvas/android&#39;)</code></li>
+<code>include ':react-native-gcanvas'</code>
+<code>project(':react-native-gcanvas').projectDir = new File(rootProject.projectDir,     '../node\_modules/react-native-gcanvas/android')</code></li>
 <li>Insert the following lines inside the dependencies block in <code>android/app/build.gradle</code>:
-<code>compile project(&#39;:react-native-gcanvas&#39;)</code></li>
+<code>compile project(':react-native-gcanvas')</code></li>
 </ol>
 </div>
         </div>
@@ -80,5 +78,5 @@
         <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
       </div>
     </div>
-  </body>
-</html>
+  
+</body></html>

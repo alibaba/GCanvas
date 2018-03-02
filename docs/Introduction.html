@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
-  <head>
+<!DOCTYPE html><html lang="zh"><head>
     <meta content="text/html">
     <meta charset="utf-8">
     <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
@@ -51,82 +49,82 @@
             </ol>
           </div>
           <div class="body"><p>GCanvas is a  cross-platform canvas solution, which implemented both graphics 2d and WebGL API. GCanvas gives its user ability to access OpenGL ES API directly.</p>
-<p>GCanvas is designed to solve performance issue and compatibility issue of canvas for JavaScript developers. It is also a feature extention for &quot;native frameworks&quot; like <a href="https://weex.apache.org/">weex</a> and <a href="https://facebook.github.io/react-native/">react native</a>, those who do not have their own canvas elements.</p>
+<p>GCanvas is designed to solve performance issue and compatibility issue of canvas for JavaScript developers. It is also a feature extention for "native frameworks" like <a href="https://weex.apache.org/">weex</a> and <a href="https://facebook.github.io/react-native/">react native</a>, those who do not have their own canvas elements.</p>
 <p>Currently GCanvas is working well with weex and react native. Also you could <a href="">create your own bridge</a> and make it work with your UI system.</p>
 <h3 id="use-gcanvas">Use GCanvas</h3>
 <p>GCanvas API is designed to be like html canvas. Here is a sample</p>
-<pre><code class="lang-HTML5">&lt;template&gt;
-  &lt;div&gt;
-    &lt;gcanvas v-if=&quot;isWeex&quot; ref=&quot;canvas_holder&quot; v-bind:style=&quot;{width:width,height:height,backgroundColor:&#39;rgba(255,255,255,1)&#39;}&quot;&gt;&lt;/gcanvas&gt;
-    &lt;canvas v-if=&quot;!isWeex&quot; ref=&quot;canvas_holder&quot; v-bind:style=&quot;{width:width+&#39;px&#39;,height:height+&#39;px&#39;,backgroundColor:&#39;rgba(255,255,255,1)&#39;}&quot;&gt;&lt;/canvas&gt;
-  &lt;/div&gt;
-&lt;/template&gt;
+<pre><code class="lang-HTML5 hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">gcanvas</span> <span class="hljs-attr">v-if</span>=<span class="hljs-string">"isWeex"</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"canvas_holder"</span> <span class="hljs-attr">v-bind:style</span>=<span class="hljs-string">"{width:width,height:height,backgroundColor:'rgba(255,255,255,1)'}"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">gcanvas</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">v-if</span>=<span class="hljs-string">"!isWeex"</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"canvas_holder"</span> <span class="hljs-attr">v-bind:style</span>=<span class="hljs-string">"{width:width+'px',height:height+'px',backgroundColor:'rgba(255,255,255,1)'}"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 
-&lt;script&gt;
-const isWeex = typeof callNative === &quot;function&quot;;
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+<span class="hljs-keyword">const</span> isWeex = <span class="hljs-keyword">typeof</span> callNative === <span class="hljs-string">"function"</span>;
 
-const dom = weex.requireModule(&quot;dom&quot;);
-import { enable, WeexBridge, Image as GImage } from &quot;gcanvas.js&quot;;
-let EnvImage = isWeex ? GImage : Image;
+<span class="hljs-keyword">const</span> dom = weex.requireModule(<span class="hljs-string">"dom"</span>);
+<span class="hljs-keyword">import</span> { enable, WeexBridge, Image <span class="hljs-keyword">as</span> GImage } <span class="hljs-keyword">from</span> <span class="hljs-string">"gcanvas.js"</span>;
+<span class="hljs-keyword">let</span> EnvImage = isWeex ? GImage : Image;
 
-function run(canvas, { requestAnimationFrame }) {
-    var img = new EnvImage();
-    let cxt = canvas.getContext(&#39;2d&#39;);
-    img.onload = function(){
-      cxt.drawImage(img, 0, 0, img.width, img.height);
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">run</span>(<span class="hljs-params">canvas, { requestAnimationFrame }</span>) </span>{
+    <span class="hljs-keyword">var</span> img = <span class="hljs-keyword">new</span> EnvImage();
+    <span class="hljs-keyword">let</span> cxt = canvas.getContext(<span class="hljs-string">'2d'</span>);
+    img.onload = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+      cxt.drawImage(img, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, img.width, img.height);
     }  
-    img.src = &#39;https://c1.staticflickr.com/3/2388/5800134409_83345951ed_b.jpg&#39;;
+    img.src = <span class="hljs-string">'https://c1.staticflickr.com/3/2388/5800134409_83345951ed_b.jpg'</span>;
 }
 
-export default {
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
   data() {
-    return {
+    <span class="hljs-keyword">return</span> {
       isWeex,
-      width: 750,
-      height: 980
+      <span class="hljs-attr">width</span>: <span class="hljs-number">750</span>,
+      <span class="hljs-attr">height</span>: <span class="hljs-number">980</span>
     };
   },
 
-  mounted: function() {
+  <span class="hljs-attr">mounted</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
 
-    const start = () =&gt; {
+    <span class="hljs-keyword">const</span> start = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
 
-      var ref = this.$refs.canvas_holder;
+      <span class="hljs-keyword">var</span> ref = <span class="hljs-keyword">this</span>.$refs.canvas_holder;
 
-      var size = isWeex
+      <span class="hljs-keyword">var</span> size = isWeex
         ? {
-            width: parseInt(this.width),
-            height: parseInt(this.height)
+            <span class="hljs-attr">width</span>: <span class="hljs-built_in">parseInt</span>(<span class="hljs-keyword">this</span>.width),
+            <span class="hljs-attr">height</span>: <span class="hljs-built_in">parseInt</span>(<span class="hljs-keyword">this</span>.height)
           }
         : {
-            width: parseInt(ref.clientWidth),
-            height: parseInt(ref.clientHeight)
+            <span class="hljs-attr">width</span>: <span class="hljs-built_in">parseInt</span>(ref.clientWidth),
+            <span class="hljs-attr">height</span>: <span class="hljs-built_in">parseInt</span>(ref.clientHeight)
           };
 
-      if (isWeex) {
-        ref = enable(ref, { debug: true, bridge: WeexBridge });
+      <span class="hljs-keyword">if</span> (isWeex) {
+        ref = enable(ref, { <span class="hljs-attr">debug</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">bridge</span>: WeexBridge });
       }
 
       ref.width = size.width;
       ref.height = size.height;
 
       run(ref, {
-        requestAnimationFrame: isWeex ? setTimeout : requestAnimationFrame
+        <span class="hljs-attr">requestAnimationFrame</span>: isWeex ? setTimeout : requestAnimationFrame
       });
     };
 
-    setTimeout(function(){
-      dom.getComponentRect(&quot;viewport&quot;, e =&gt; {
-      this.height = e.size.height;
+    setTimeout(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+      dom.getComponentRect(<span class="hljs-string">"viewport"</span>, e =&gt; {
+      <span class="hljs-keyword">this</span>.height = e.size.height;
 
-      this.isReady = true;
+      <span class="hljs-keyword">this</span>.isReady = <span class="hljs-literal">true</span>;
 
-      setTimeout(start, 1000);
+      setTimeout(start, <span class="hljs-number">1000</span>);
     })
-    }, 50);
+    }, <span class="hljs-number">50</span>);
   }
 };
-&lt;/script&gt;
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
 <p>Try GCanvas in our <a href="https://alibaba.github.io/GCanvas/playground.html">playground</a>.</p>
 <h3 id="integrate-gcanvas-to-your-app">Integrate GCanvas to your app</h3>
@@ -141,5 +139,5 @@ export default {
         <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
       </div>
     </div>
-  </body>
-</html>
+  
+</body></html>

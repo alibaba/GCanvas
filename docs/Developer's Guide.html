@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh">
-  <head>
+<!DOCTYPE html><html lang="zh"><head>
     <meta content="text/html">
     <meta charset="utf-8">
     <title>G3D - A pure WebGL-compatible 3D render engine, works without DOM API</title>
@@ -59,95 +57,95 @@
 <h3 id="ii-getting-context">II. Getting Context</h3>
 <p>To use gcanvas, you need to get a context(2d or 3d) before doing anything else.  There is a few differences between the platforms, but after getting the context, the code should be same.</p>
 <h4 id="weex">weex</h4>
-<p>For weex, a &quot;gcanvas&quot; element was added to weex runtime. <code>this.$refs.&lt;canvas ref&gt;</code> should return the element. Note for some techinal reason the element is not the GCanvas instance itself. We need to call <code>enable</code> with width and height on this element.</p>
-<pre><code class="lang-HTML5">&lt;template&gt;
-    &lt;div ref=&quot;test&quot;&gt;
-        &lt;gcanvas ref=&quot;canvas_holder&quot; style=&quot;width:750;height:750;background-color:rgba(0,0,0,0.1)&quot;&gt;&lt;/gcanvas&gt;
-    &lt;/div&gt;
-&lt;/template&gt;
-&lt;script&gt;
+<p>For weex, a "gcanvas" element was added to weex runtime. <code>this.$refs.<canvas ref></code> should return the element. Note for some techinal reason the element is not the GCanvas instance itself. We need to call <code>enable</code> with width and height on this element.</p>
+<pre><code class="lang-HTML5 hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"test"</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">gcanvas</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"canvas_holder"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width:750;height:750;background-color:rgba(0,0,0,0.1)"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">gcanvas</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
 
-//for debug
-const enable = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).enable;
-const WeexBridge = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).WeexBridge;
-const GImage = require(&#39;../../../../js/dist/gcanvas.min.js&#39;).Image;
+<span class="hljs-comment">//for debug</span>
+<span class="hljs-keyword">const</span> enable = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../../../js/dist/gcanvas.min.js'</span>).enable;
+<span class="hljs-keyword">const</span> WeexBridge = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../../../js/dist/gcanvas.min.js'</span>).WeexBridge;
+<span class="hljs-keyword">const</span> GImage = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../../../js/dist/gcanvas.min.js'</span>).Image;
 
 
-module.exports = {
-    mounted: function () {
-        var ref = this.$refs.canvas_holder;
-        var gcanvas = enable(ref, {width:750, height:750});
-        var ctx = gcanvas.getContext(&#39;2d&#39;);
-        ctx.drawText(&quot;Hello world!&quot;);
+<span class="hljs-built_in">module</span>.exports = {
+    <span class="hljs-attr">mounted</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">var</span> ref = <span class="hljs-keyword">this</span>.$refs.canvas_holder;
+        <span class="hljs-keyword">var</span> gcanvas = enable(ref, {<span class="hljs-attr">width</span>:<span class="hljs-number">750</span>, <span class="hljs-attr">height</span>:<span class="hljs-number">750</span>});
+        <span class="hljs-keyword">var</span> ctx = gcanvas.getContext(<span class="hljs-string">'2d'</span>);
+        ctx.drawText(<span class="hljs-string">"Hello world!"</span>);
     }
 };
-&lt;/script&gt;
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
 </code></pre>
 <h4 id="react-native">React native</h4>
-<pre><code class="lang-javascript">
+<pre><code class="lang-javascript hljs">
 
-import {
+<span class="clean"><span class="hljs-keyword">import</span> {
   Platform,
   StyleSheet,
   Text,
   View,
   TouchableHighlight
-} from &#39;react-native&#39;;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
 
-import {
+<span class="hljs-keyword">import</span> {
   requireNativeComponent,
   findNodeHandle,
   NativeModules
-} from &#39;react-native&#39;;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
 
-import {
+<span class="hljs-keyword">import</span> {
   GCanvasView,
-} from &#39;react-native-gcanvas&#39;;
-</code></pre>
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-gcanvas'</span>;
+</span></code></pre>
 <p>Then, import  <code>enable</code>, <code>ReactNativeBridge</code> and <code>image</code> from  <code>gcanvas.js</code>,  initialize <code>ReactNativeBridge</code> with native module and platform.</p>
-<pre><code class="lang-Javascript">const { enable, ReactNativeBridge, Image: GImage } = require(&#39;gcanvas.js&#39;);
+<pre><code class="lang-Javascript hljs"><span class="hljs-keyword">const</span> <span class="hljs-comment">{ enable, ReactNativeBridge, Image: GImage }</span> = require(<span class="hljs-string">'gcanvas.js'</span>);
 
 ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
-ReactNativeBridge.Platform = Platform;
+ReactNativeBridge.<span class="hljs-keyword">Platform</span> = <span class="hljs-keyword">Platform</span>;
 </code></pre>
 <p>Finally, you can use GCanvas in ReactNative App. Notice that before you <code>enable</code> GCanvas, convert<code>GCanvasView</code> reactTag to a string.</p>
-<pre><code class="lang-JavaScript">export default class App extends Component&lt;{}&gt; {
+<pre><code class="lang-JavaScript hljs"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span>&lt;</span>{}&gt; {
 
-  //draw something with gcanvas
+  <span class="hljs-comment">//draw something with gcanvas</span>
   draw() =&gt; {
-    var ref = this.refs.canvas_holder;
+    <span class="hljs-keyword">var</span> ref = <span class="hljs-keyword">this</span>.refs.canvas_holder;
 
-    //must convert canvas tag to a string
-    var canvas_tag = findNodeHandle(ref);
-    var el = { ref:&quot;&quot;+canvas_tag, style:{width:414, height:376}};
-    ref = enable(el, {bridge: ReactNativeBridge});
+    <span class="hljs-comment">//must convert canvas tag to a string</span>
+    <span class="hljs-keyword">var</span> canvas_tag = findNodeHandle(ref);
+    <span class="hljs-keyword">var</span> el = { <span class="hljs-attr">ref</span>:<span class="hljs-string">""</span>+canvas_tag, <span class="hljs-attr">style</span>:{<span class="hljs-attr">width</span>:<span class="hljs-number">414</span>, <span class="hljs-attr">height</span>:<span class="hljs-number">376</span>}};
+    ref = enable(el, {<span class="hljs-attr">bridge</span>: ReactNativeBridge});
 
-    //TODO get context by yourself
-    var ctx = ref.getContext(&#39;2d&#39;);
-    //rect
-    ctx.fillStyle = &#39;green&#39;;
-    ctx.fillRect(0, 0, 100, 100);
+    <span class="hljs-comment">//TODO get context by yourself</span>
+    <span class="hljs-keyword">var</span> ctx = ref.getContext(<span class="hljs-string">'2d'</span>);
+    <span class="hljs-comment">//rect</span>
+    ctx.fillStyle = <span class="hljs-string">'green'</span>;
+    ctx.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
 
-    //rect
-    ctx.fillStyle = &#39;black&#39;;
-    ctx.fillRect(100, 100, 100, 100);
-    ctx.fillRect(25, 205, 414-50, 5);
+    <span class="hljs-comment">//rect</span>
+    ctx.fillStyle = <span class="hljs-string">'black'</span>;
+    ctx.fillRect(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+    ctx.fillRect(<span class="hljs-number">25</span>, <span class="hljs-number">205</span>, <span class="hljs-number">414</span><span class="hljs-number">-50</span>, <span class="hljs-number">5</span>);
 
-    //circle
-    ctx.arc(200, 315, 100, 0, Math.PI * 2, true);
+    <span class="hljs-comment">//circle</span>
+    ctx.arc(<span class="hljs-number">200</span>, <span class="hljs-number">315</span>, <span class="hljs-number">100</span>, <span class="hljs-number">0</span>, <span class="hljs-built_in">Math</span>.PI * <span class="hljs-number">2</span>, <span class="hljs-literal">true</span>);
     ctx.fill();
 
-    var image = new GImage();
-    image.onload = function(){
-      ctx.drawImage(image, 150, 0);
-      ctx.drawImage(image, 150, 450);
+    <span class="hljs-keyword">var</span> image = <span class="hljs-keyword">new</span> GImage();
+    image.onload = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+      ctx.drawImage(image, <span class="hljs-number">150</span>, <span class="hljs-number">0</span>);
+      ctx.drawImage(image, <span class="hljs-number">150</span>, <span class="hljs-number">450</span>);
     }
-    image.src = &#39;//gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png&#39;;
+    image.src = <span class="hljs-string">'//gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png'</span>;
   }
 
-  //render
+  <span class="hljs-comment">//render</span>
   render(){
-      return  &lt;GCanvasView ref=&#39;canvas_holder&#39; style={top: 20,width: 414,height :700,backgroundColor: &#39;#FF000030&#39;}&gt;&lt;/GCanvasView&gt;  
+      <span class="hljs-keyword">return</span>  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">GCanvasView</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">'canvas_holder'</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{top:</span> <span class="hljs-attr">20</span>,<span class="hljs-attr">width:</span> <span class="hljs-attr">414</span>,<span class="hljs-attr">height</span> <span class="hljs-attr">:700</span>,<span class="hljs-attr">backgroundColor:</span> '#<span class="hljs-attr">FF000030</span>'}&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">GCanvasView</span>&gt;</span></span>  
   }
 
 }
@@ -157,34 +155,34 @@ ReactNativeBridge.Platform = Platform;
 <p>The following sample shows how we could use gcanvas.</p>
 <p>Drawing text:</p>
 <p>Drawing geometry:</p>
-<pre><code class="lang-JavaScript">//rect
-ctx.fillStyle = &#39;red&#39;;
-ctx.fillRect(0, 0, 100, 100);
+<pre><code class="lang-JavaScript hljs"><span class="hljs-comment">//rect</span>
+ctx.fillStyle = 'red';
+ctx.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
 
-//rect
-ctx.fillStyle = &#39;black&#39;;
-ctx.fillRect(100, 100, 100, 100);
-ctx.fillRect(25, 210, 700, 5);
+<span class="hljs-comment">//rect</span>
+ctx.fillStyle = 'black';
+ctx.fillRect(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+ctx.fillRect(<span class="hljs-number">25</span>, <span class="hljs-number">210</span>, <span class="hljs-number">700</span>, <span class="hljs-number">5</span>);
 
-//circle
-ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+<span class="hljs-comment">//circle</span>
+ctx.arc(<span class="hljs-number">450</span>, <span class="hljs-number">200</span>, <span class="hljs-number">100</span>, <span class="hljs-number">0</span>, Math.<span class="hljs-literal">PI</span> * <span class="hljs-number">2</span>, true);
 ctx.fill();
 </code></pre>
 <p>Drawing image:</p>
-<pre><code class="lang-Javascript">var image = new GImage();
-image.src = &#39;https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png&#39;;
-image.onload = function(){
-  ctx.drawImage(image, 100, 300);
+<pre><code class="lang-Javascript hljs"><span class="hljs-keyword">var</span> image = <span class="hljs-keyword">new</span> GImage();
+image.src = <span class="hljs-string">'https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png'</span>;
+image.onload = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+  ctx.drawImage(image, <span class="hljs-number">100</span>, <span class="hljs-number">300</span>);
 };
 </code></pre>
 <h3 id="iv-using-gcanvas-webgl">IV. Using GCanvas WebGL</h3>
 <p>To know which API could be used on gcanvas, check <a href="">reference</a>.</p>
 <p>The following sample shows how we could use gcanvas.</p>
-<pre><code class="lang-JavaScript">var gl = gcanvas.getContext(&#39;webgl&#39;);
-gl.clearColor(0.0, 0.0, 0.0, 1.0);
-gl.enable(gl.DEPTH_TEST);
-gl.depthFunc(gl.LEQUAL);
-gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);  
+<pre><code class="lang-JavaScript hljs"><span class="hljs-keyword">var</span> <span class="hljs-keyword">gl</span> = gcanvas.getContext('webgl');
+<span class="hljs-keyword">gl</span>.clearColor(0.0, 0.0, 0.0, 1.0);
+<span class="hljs-keyword">gl</span>.enable(<span class="hljs-keyword">gl</span>.DEPTH_TEST);
+<span class="hljs-keyword">gl</span>.depthFunc(<span class="hljs-keyword">gl</span>.LEQUAL);
+<span class="hljs-keyword">gl</span>.<span class="hljs-keyword">clear</span>(<span class="hljs-keyword">gl</span>.COLOR_BUFFER_BIT|<span class="hljs-keyword">gl</span>.DEPTH_BUFFER_BIT);  
 </code></pre>
 </div>
         </div>
@@ -196,5 +194,5 @@ gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
         <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
       </div>
     </div>
-  </body>
-</html>
+  
+</body></html>
