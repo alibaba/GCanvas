@@ -1,6 +1,6 @@
 {
   "name": "gcanvas.js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Javascript Bridge for GCanvas",
   "main": "dist/gcanvas.min.js",
   "scripts": {
