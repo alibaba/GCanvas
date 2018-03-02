@@ -4,6 +4,8 @@ const fs = require('fs-extra');
 const less = require('gulp-less');
 const yaml = require('yaml-js');
 const marked = require('marked');
+const watch = require('gulp-watch');
+const highlight = require('gulp-highlight-code');
 
 
 const homePageTasks = (function () {
@@ -30,17 +32,28 @@ const homePageTasks = (function () {
                 filename: './template/community.pug',
                 pretty: true
             }
+        ),
+        playground: pug.compile(
+            fs.readFileSync('./template/playground.pug', 'utf-8'),
+            {
+                filename: './template/playground.pug',
+                pretty: true
+            }
         )
     }
 
     function build() {
 
         const option = {
-            root: './'
+            root: './',
         }
 
         fs.writeFileSync('../website/index.html', templates.index(option));
         fs.writeFileSync('../website/community.html', templates.community(option));
+        fs.writeFileSync('../website/playground.html', templates.playground({
+            root: option.root,
+            content: marked(fs.readFileSync('../GCanvas/docs/playground.md', 'utf-8'))
+        }));
 
         const doc = yaml.load(fs.readFileSync('./index.yaml')).docs;
 
@@ -67,6 +80,10 @@ const homePageTasks = (function () {
         }
 
         deal(doc);
+
+        return gulp.src('../website/docs/*.html')
+            .pipe(highlight())
+            .pipe(gulp.dest('../website/docs/'));
     }
 
     function lessTask() {

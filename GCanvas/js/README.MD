@@ -1,1 +1,1 @@
-[GPlatform](https://gplatformteam.github.io/gplatform-website/docs/)
+[GCanvas](https://alibaba.github.io/GCanvas/)

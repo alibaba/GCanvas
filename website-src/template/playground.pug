@@ -1,0 +1,15 @@
+extend layout
+
+block meta
+    title G3D - A pure WebGL-compatible 3D render engine, works without DOM API
+    link(rel="icon" href=root+"assets/favicon-g3d.png" type="image/x-icon")
+    link(rel="stylesheet" href=root+"index.css")
+
+block main
+    .g3d
+        .doc
+            .content
+                .body.full!= content
+    script
+        include playground.js
+        

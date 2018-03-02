@@ -1,17 +1,11 @@
-@font-face {
-    font-family: 'OpenSans';
-    src: url('./assets/OpenSans-Regular.ttf') format('ttf');
-}
-@font-face {
-    font-family: 'FiraMono';
-    src: url('./assets/FiraMono-Regular.ttf') format('ttf');
-}
+/*hightlight.js vs*/
+.hljs{display:block;overflow-x:auto;padding:0.5em;background:white;color:black}.hljs-comment,.hljs-quote,.hljs-variable{color:#008000}.hljs-keyword,.hljs-selector-tag,.hljs-built_in,.hljs-name,.hljs-tag{color:#00f}.hljs-string,.hljs-title,.hljs-section,.hljs-attribute,.hljs-literal,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-addition{color:#a31515}.hljs-deletion,.hljs-selector-attr,.hljs-selector-pseudo,.hljs-meta{color:#2b91af}.hljs-doctag{color:#808080}.hljs-attr{color:#f00}.hljs-symbol,.hljs-bullet,.hljs-link{color:#00b0e8}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}
 
 
 html, body{
     margin: 0;
     padding: 0;
-    font-family:'OpenSans', 'Verdana','Hiragino Sans GB','Microsoft Yahei',sans-serif;
+    font-family: 'Verdana','Hiragino Sans GB','Microsoft Yahei',sans-serif;
     overflow: auto;
 }
 
@@ -36,7 +30,13 @@ html, body{
             vertical-align: middle;
 
             .logo{
-                height: 64px;
+                margin-top: -13px;
+                height: 90px;
+            }
+
+            .logo-small{
+                margin-top: 7px; 
+                height: 50px;
             }
 
             .link{
@@ -93,154 +93,13 @@ html, body{
     }
 }
 
-.index{
-
-    .banner{
-
-        height: 700px;
-        background: rgb(43,43,43);
-
-        position: relative;
-
-        .content{
-
-            color: #fff;
-
-            .title{
-                text-align: center;
-                font-size: 60px;
-                font-weight: bolder;
-                padding-top: 270px;
-            }
-
-            .description{
-                text-align: center;
-                font-size: 30px;
-                font-weight: lighter;
-                padding-top: 10px; 
-            }
-        }
-    }
-
-    .intro{
-
-        height: 500px;
-        padding-top: 60px;
-        padding-bottom: 80px;
-
-        background-color: rgb(237, 237, 237);
-
-        .content{
-
-            width: 1280px;
-            margin: auto;
-
-            .the-box{
-                background-color: #fff;
-                height: 500px;
-                width: 500px;
-                margin-left: 70px;
-
-                .logo{
-                    text-align: center;
-                    img{
-                        height: 160px;
-                    }
-                }
-                .title{
-                    font-size: 20px;
-                    font-weight: bold;
-                    text-align: center;
-                }
-                .description{
-                    color: #777;
-                    width: 400px;
-                    margin: auto;
-                    padding: 20px;
-                }
-                .button{
-                    width: 100px;
-                    text-align: center;
-                    margin: auto;
-                    padding: 10px;
-                    color: #fff;
-                    background-color: rgb(7, 139, 252);
-                    border-radius: 5px;
-
-                    a{
-                        text-decoration: none;
-                        &:link{
-                            color: #fff;
-                        }
-                        &:active{
-                            color: #fff;
-                        }
-                        &:visited{
-                            color: #fff;
-                        }
-                    }
-                }
-            }
-
-            .left{
-                width: 50%;
-                float: left;
-                .box{
-                    .the-box;
-                }
-            }
-
-            .right{
-                width: 50%;
-                float: right;
-                .box{
-                    .the-box;
-                }
-
-            }
-
-        }
-
-
-    }
-    
-}
 
 
 .gcanvas{
-    .header{
-        background-color: rgb(71, 71, 71);
-        height: 40px;
-
-        .menu{
-            width: 1280px;
-            margin: auto;
-
-            .item{
-                height: 40px;
-                line-height: 40px;
-                img{
-                    height: 40px;
-                    margin-left: 11px;
-                    margin-right: 13px;
-                }
-            }
-
-            .item-right{
-                float: right;
-                a.link{
-                    color: #888;
-                    font-size: 0.9rem;
-                }
-            }
-        }
-
-    }
 
     .banner{
 
         height: 700px;
-        background: rgb(43,43,43);
 
         position: relative;
 
@@ -260,6 +119,10 @@ html, body{
                 font-size: 30px;
                 font-weight: lighter;
                 padding-top: 10px; 
+            }
+
+            .github{
+                display: none;
             }
         }
     }
@@ -297,7 +160,18 @@ html, body{
                     width: 1280px;
                     margin: auto;
                 }
+            }
 
+            .demos{
+                margin-top: 30px; 
+                display: flex;
+                .demo{
+                    width: 33%;
+                    text-align: center;
+                    img{
+                        border: 1px solid #000;
+                    }
+                }
             }
         }
     }
@@ -318,7 +192,7 @@ html, body{
 
     .usage{
         background: #fff;
-        padding: 80px 0;        
+        padding: 0px 0;
 
         .content{
             width: 1280px;
@@ -337,13 +211,16 @@ html, body{
             }
 
             .user-list{
-                padding-bottom: 50px;
+                width: 800px;
+                margin: auto;
+                padding: 50px 0;
                 display: flex;
                 justify-content: center;
-                .user-item{
+                flex-wrap: wrap;
+                img{
                     width: 100px;
                     height: 100px;
-                    margin: 50px;
+                    margin: 30px 50px;
                 }
             }
         }
@@ -402,119 +279,20 @@ html, body{
     }
 }
 
-.g3d{
-    .header{
-        background-color: rgb(71, 71, 71);
-        height: 40px;
-
-        .menu{
-            width: 1280px;
-            margin: auto;
-
-            .item{
-                height: 40px;
-                line-height: 40px;
-                img{
-                    height: 40px;
-                    margin-left: 11px;
-                    margin-right: 13px;
-                }
-            }
-
-            .item-right{
-                float: right;
-                a.link{
-                    color: #888;
-                    font-size: 0.9rem;
-                }
-            }
-        }
-
-    }
-
-
-    .banner{
-
-        height: 700px;
-        background: rgb(43,43,43);
-
-        position: relative;
-
-        .content{
-
-            color: #fff;
-
-            .title{
-                text-align: center;
-                font-size: 60px;
-                font-weight: bolder;
-                padding-top: 270px;
-            }
-
-            .description{
-                text-align: center;
-                font-size: 30px;
-                font-weight: lighter;
-                padding-top: 10px; 
-            }
-        }
-    }
-
-    .intro{
-        .content{
-            width: 1280px;
-            margin: auto;
-
-            .logo{
-                img{
-                    display: block;
-                    width: 200px;
-                    margin: auto;
-                }
-            }
-
-            .title{
-                font-size: 30px;
-                text-align: center;
-            }
-
-            .description{
-                font-size: 18px;
-                color: #777;
-                padding: 20px 140px;
-            }
-
-            .blueprint{
-                height: 450px;
-                margin-top: 80px;
-                .title{
-                    margin-bottom: 30px;
-                }
-            }
-        }
-    }
-
-    .archi{
-        height: 600px;
-        background: linear-gradient(to bottom, rgb(10,97,252), rgb(3,189,252));
-    }
-
-    .usage{
-        height: 600px;
-        background: #fff;
-    }
-}
 
 
 .doc{
     padding-top: 20px;
     padding-bottom: 100px;
+    line-height: 25px;
+
     .content{
         width: 1200px;
         margin: auto;
         padding: 20px 80px;
 
         .index{
+
             float: left;
             width: 300px;
 
@@ -556,22 +334,27 @@ html, body{
         }
 
         .body{
+
             margin-left: 300px;
+            &.full{
+                margin-left: 0;
+            }
         }
     }
 
     pre{
+        overflow-y: auto;
         padding: 10px;
         background-color: #eee;
         code{
-            font-family: 'FiraMono', 'Consolas', 'Courier', sans-serif;
+            font-family: 'Consolas', 'Courier', sans-serif;
         }
     }
 
     code{
         padding: 5px 3px;
         background: #eee;
-        font-family: 'FiraMono', 'Consolas', 'Courier', sans-serif;
+        font-family: 'Consolas', 'Courier', sans-serif;
     }
 
 
@@ -582,14 +365,6 @@ html, body{
         width: 100%;
 
         color:#444;
-
-        // th, td{
-        //     max-width:500px;
-        //     min-width:100px;
-        //     text-align:left;
-        //     vertical-align:top;
-        //     padding: 0 20px 0 0;
-        // }
 
         thead{
             tr{
@@ -630,9 +405,171 @@ html, body{
 
 iframe.playground{
     display: block;
-    width: 900px;
-    height: 700px;
+    height: 1000px;
+    width: 1500px;
     margin: 20px auto;
+    margin-left: -160px;
     border: 1px solid #aaa;
     box-shadow: #ccc 2px 0px 4px;
+}
+
+
+@media only screen and (max-device-width: 640px){
+    
+    html, body{
+        font-size: 30px;
+    }
+
+    .header{
+        display: none;
+    }
+
+    .gcanvas{
+
+        .banner{
+            height: 100vh;
+            ::after{
+                height: 60vh;
+                background-color: #000;
+            }
+
+            .content{
+                display: block;
+
+                width: 100vw;
+
+                text-shadow: 0px 0px 3px #000000;
+
+                .title{
+                    padding-top: 65vh;
+                    font-size: 3rem;
+                    width: 100vw;
+                }
+
+                .description{
+                    padding-top: 1vh; 
+                    font-size: 1.5rem;
+                    width: 100vw;                        
+                }
+
+                .github{
+                    display: block;
+                    background: #ff7979;
+                    margin-left: 37vw;
+                    margin-top: 10vw;
+                    width: 25vw;
+                    height: 10vw;
+                    line-height: 10vw;
+                    font-size: 1.5rem;
+                    border-radius: 5vh;
+                    text-align: center;
+                    a{
+                        text-decoration: none;
+                        color: #fff;
+                        &:hover{
+                            color:#fff;
+                        }
+                        &:link{
+                            color: #fff;
+                        }
+                    }
+                }
+            }
+        }
+
+        .intro{
+
+            .content{
+                width: 100vw;
+                height: 100vh;
+
+                .logo{
+                    img{
+                        width: 50vw;
+                    }
+                }
+    
+                .title{
+                    display: none;
+                }
+
+                .description{
+                    font-size: 1.5rem;
+                    padding: 0vw 10vw;
+                    line-height: 4.5vh;
+                }
+
+                .blueprint{
+                    display: none;
+                }
+
+                .demos{
+                    display: none;
+                }
+            }
+        }
+
+        .archi{
+            display: none;
+        }
+
+        .usage{
+
+            .content{
+                width: 100vw;
+                .title{
+                    width: 100vw;
+                    font-size: 2rem;
+                    color: #888;
+                }
+    
+                .user-list{
+                    width: 100vw;
+                    margin: 0;
+                    img{
+                        width: 30vw;
+                        height: 30vw;
+                        margin: 10vw;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+
+    .footer{
+        height: 30vh;
+        .content{
+            
+            width: 100vw;
+            margin: auto;
+    
+            .open-source-icon{
+                padding-left: 30vw;
+                padding-top: 5vh;
+                padding-bottom: 5vh;
+                width: 40vw;
+                display: block;
+                img{
+                    width: 40vw;
+                }
+            }
+            .license{
+                float: none;
+                font-size: 1.5rem;
+                text-align: center;
+                height: 7vh;                
+            }
+            .copyright{
+                float: none;
+                font-size: 1.5rem;
+                text-align: center;                
+                height: 7vh;
+            }
+        }
+    }
+
+
 }
