@@ -10,6 +10,7 @@
   "devDependencies": {
     "fs-extra": "^5.0.0",
     "gulp": "^3.9.1",
+    "gulp-highlight-code": "^1.0.8",
     "gulp-less": "^4.0.0",
     "gulp-watch": "^5.0.0",
     "marked": "^0.3.16",

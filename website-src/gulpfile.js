@@ -5,6 +5,7 @@ const less = require('gulp-less');
 const yaml = require('yaml-js');
 const marked = require('marked');
 const watch = require('gulp-watch');
+const highlight = require('gulp-highlight-code');
 
 
 const homePageTasks = (function () {
@@ -79,6 +80,10 @@ const homePageTasks = (function () {
         }
 
         deal(doc);
+
+        return gulp.src('../website/docs/*.html')
+            .pipe(highlight())
+            .pipe(gulp.dest('../website/docs/'));
     }
 
     function lessTask() {
