@@ -1,6 +1,7 @@
 Pod::Spec.new do |s|
+  
   s.name         = "WeexGcanvas"
-  s.version      = "0.1.0"
+  s.version      = "0.1.1"
   s.summary      = "GCanvas Weex Bridge Source."
 
   s.description  = <<-DESC
@@ -33,9 +34,9 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.dependency "WeexPluginLoader"
-  s.dependency "WeexSDK", "~> 0.16.1"
+  s.dependency "WeexSDK"
   s.dependency "GCanvas"
-  s.dependency "SDWebImage", "< 4.0.0"
+  s.dependency "SDWebImage"
 
   s.libraries = "stdc++"
 
