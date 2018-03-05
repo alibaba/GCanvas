@@ -9,6 +9,6 @@ target 'GCanvasPlayground' do
   
   #pod 'WeexGcanvas'
   pod 'WeexGcanvas', :path=>'../../../../../'
-  #pod 'GCanvas', :path=>'../../../../../'
+  pod 'GCanvas', :path=>'../../../../../'
 
 end
