@@ -6,3 +6,5 @@ gradle/
 Pods
 Podfile.lock
 *.xcworkspace
+build/
+.externalNativeBuild/
