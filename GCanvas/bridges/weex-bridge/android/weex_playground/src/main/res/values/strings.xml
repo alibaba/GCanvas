@@ -40,4 +40,6 @@ under the License.
         "WXMainActivity"
     </string>
     <string name="title_activity_dynamic">DynamicActivity</string>
+    <string name="request_camera_permission">Camera access is required for QR code scanner.</string>
+    <string name="camera_permission_refused">Camera permission request was denied, Can\'t able to start QR scan.</string>
 </resources>
