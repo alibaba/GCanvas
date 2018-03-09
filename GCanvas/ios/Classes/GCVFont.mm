@@ -74,6 +74,8 @@
 
 - (void)dealloc{
     CFRelease(self.ctMainFont);
+    fontTextureCache = nil;
+    fontCache = nil;
 }
 
 - (void)cleanFont{
@@ -85,11 +87,8 @@
             }];
             [textureMap removeAllObjects];
         }];
-        [fontTextureCache removeAllObjects];
-        fontTextureCache = nil;
-        
+        [fontTextureCache removeAllObjects];        
         [fontCache removeAllObjects];
-        fontCache = nil;
     }
 }
 
