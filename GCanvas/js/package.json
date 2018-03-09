@@ -13,6 +13,7 @@
     "jwxbond@gmail.com"
   ],
   "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "dalaran": "^0.1.5",
     "gulp": "^3.9.1",
     "shader-program-compiler": "^0.0.3"
