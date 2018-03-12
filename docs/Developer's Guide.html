@@ -60,7 +60,7 @@
 <p>For weex, a "gcanvas" element was added to weex runtime. <code>this.$refs.<canvas ref></code> should return the element. Note for some techinal reason the element is not the GCanvas instance itself. We need to call <code>enable</code> with width and height on this element.</p>
 <pre><code class="lang-HTML5 hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"test"</span>&gt;</span>
-        <span class="hljs-tag">&lt;<span class="hljs-name">gcanvas</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"canvas_holder"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width:750;height:750;background-color:rgba(0,0,0,0.1)"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">gcanvas</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">gcanvas</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">"canvas_holder"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"width:750;height:750;"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">gcanvas</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
@@ -73,6 +73,7 @@
 
 <span class="hljs-built_in">module</span>.exports = {
     <span class="hljs-attr">mounted</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+
         <span class="hljs-keyword">var</span> ref = <span class="hljs-keyword">this</span>.$refs.canvas_holder;
         <span class="hljs-keyword">var</span> gcanvas = enable(ref, {<span class="hljs-attr">width</span>:<span class="hljs-number">750</span>, <span class="hljs-attr">height</span>:<span class="hljs-number">750</span>});
         <span class="hljs-keyword">var</span> ctx = gcanvas.getContext(<span class="hljs-string">'2d'</span>);
