@@ -72,7 +72,12 @@ function start(ref, size, image) {
 
     gl.useProgram(program);
 
-    const { framebuffer, texture } = createFramebuffer(64, 64);
+    // const fx = 64;
+    // const fy = 64;
+
+    const [fx, fy] = [128, 128];
+
+    const { framebuffer, texture } = createFramebuffer(fx, fy);
 
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
     attributes.aPosition.fill(
@@ -87,7 +92,7 @@ function start(ref, size, image) {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    gl.viewport(0, 0, 64, 64);
+    gl.viewport(0, 0, fx/1.5, fy/1.5);
     drawElements(6);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -140,9 +145,10 @@ function start(ref, size, image) {
     gl.viewport(0, 0, size.width, size.height);
 
     // setTimeout 注释掉就出不来了
-    setTimeout(function() {
+    setTimeout(function(){
       drawElements(6);
     }, 1000);
+
   }
 
   const texture = drawFramebuffer();
