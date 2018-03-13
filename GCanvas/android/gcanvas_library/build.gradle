@@ -1,0 +1,84 @@
+apply plugin: 'com.android.library'
+
+group = rootProject.extensions.groups.Main
+version = "0.0.1"
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':core')
+}
+
+buildscript {
+    repositories {
+        //本地库，local repository(${user.home}/.m2/repository)
+        mavenCentral()
+        jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+android {
+    compileSdkVersion rootProject.extensions.sdks.CompileSDK
+    buildToolsVersion rootProject.extensions.sdks.BuildTool
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+        }
+    }
+
+    defaultConfig {
+        consumerProguardFiles 'proguard-rules.txt'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+project.ext.id = rootProject.extensions.artifacts.Core
+project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'Rendering', 'High Performance']
+project.ext.meta.description = 'This package defines GCanvas main library.'
+apply from: "${rootProject.projectDir}/publish.gradle"
+
+
+android.libraryVariants.all { type ->
+    task("prepareSo${type.name.capitalize()}") {
+        copy {
+            from("${rootProject.projectDir}/core/build/intermediates/ndkBuild/${type.name}/obj/local/armeabi/") {
+                include "*.so"
+            }
+
+            into 'libs/armeabi'
+        }
+    }
+
+    project.getTasksByName("assemble${type.name.capitalize()}", true).any { task ->
+        task.dependsOn("prepareSo${type.name.capitalize()}")
+        task.doLast {
+            delete 'libs/armeabi'
+        }
+    }
+}

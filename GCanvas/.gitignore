@@ -1,0 +1,10 @@
+local.properties
+gradle/
+.idea/
+.gradle/
+*.iml
+Pods
+Podfile.lock
+*.xcworkspace
+build/
+.externalNativeBuild/
