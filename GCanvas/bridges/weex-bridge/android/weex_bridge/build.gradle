@@ -55,12 +55,6 @@ dependencies {
     provided "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':android:adapters:bridge_adapter')
-    compile project(':android:gcanvas_library')
-}
-
 
 project.ext.id = rootProject.extensions.artifacts.WeexBridge
 project.ext.meta.labels = ['Weex', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'GCanvas Weex Bridge']
