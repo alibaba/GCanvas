@@ -17,7 +17,7 @@
 		A23717002020165B00A27353 /* GCanvasPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716EE2020165A00A27353 /* GCanvasPlugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A23717012020165B00A27353 /* GCanvasObject.m in Sources */ = {isa = PBXBuildFile; fileRef = A23716EF2020165A00A27353 /* GCanvasObject.m */; };
 		A23717022020165B00A27353 /* GCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F02020165A00A27353 /* GCanvasModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A23717032020165B00A27353 /* GCVLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F12020165A00A27353 /* GCVLog.h */; };
+		A23717032020165B00A27353 /* GCVLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F12020165A00A27353 /* GCVLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A23717042020165B00A27353 /* GCanvasViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F22020165A00A27353 /* GCanvasViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A23717052020165B00A27353 /* GCanvasPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = A23716F32020165A00A27353 /* GCanvasPlugin.mm */; };
 		A23717062020165B00A27353 /* GCVFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = A23716F42020165A00A27353 /* GCVFont.mm */; };
@@ -342,6 +342,7 @@
 				A248AF632021AE7B00218A11 /* GCanvasModuleProtocol.h in Headers */,
 				A25CDD5F2020642A00174CB1 /* PngLoader.h in Headers */,
 				A25CDD472020642A00174CB1 /* GTextDefine.h in Headers */,
+				A23717032020165B00A27353 /* GCVLog.h in Headers */,
 				A25CDD4A2020642A00174CB1 /* GCanvas.hpp in Headers */,
 				A23717072020165B00A27353 /* GCanvasSDK.h in Headers */,
 				A25CDD622020642A00174CB1 /* GCanvasManager.h in Headers */,
@@ -363,7 +364,6 @@
 				A25CDD2D2020642A00174CB1 /* GFillStyle.h in Headers */,
 				A25CDD4B2020642A00174CB1 /* AutoPtr.h in Headers */,
 				A25CDD372020642A00174CB1 /* GPath.h in Headers */,
-				A23717032020165B00A27353 /* GCVLog.h in Headers */,
 				A25CDD262020642A00174CB1 /* GTransform.h in Headers */,
 				A25CDD302020642A00174CB1 /* GShader.h in Headers */,
 				A25CDD4D2020642A00174CB1 /* RefCount.h in Headers */,
