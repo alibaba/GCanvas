@@ -2374,13 +2374,13 @@ int readPixels(GCanvas *obj, const char *&p)
           GetMacroValDebug(format), GetMacroValDebug(type));
 
     //convert pixels to string
-    GLuint retType = kReturnFloatArray; //FloatArray
+    GLuint retType = kReturnUintArray; //UintArray
     std::string result = gcanvas::toString(retType);
 
     for (int i=0; i<pixelSize; i++)
     {
         result += ",";
-        result += gcanvas::toString(pixels[i]);
+        result += gcanvas::toString((unsigned int)(pixels[i] & 0xff));
     }
     obj->setSyncResult(result);
 
