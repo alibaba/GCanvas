@@ -8,7 +8,6 @@
 const isWeex = typeof callNative === "function";
 
 import { enable, WeexBridge, Image as GImage } from "../src/index.js";
-// var { enable, WeexBridge, Image: GImage } = require("../dist/gcanvas.min.js");
 
 var EnvImage = isWeex ? GImage : Image;
 

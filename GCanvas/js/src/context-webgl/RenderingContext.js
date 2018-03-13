@@ -836,7 +836,10 @@ export default class WebGLRenderingContext {
             this._canvas.id,
             GLmethod.readPixels + ',' + x + ',' + y + ',' + width + ',' + height + ',' + format + ',' + type
         )
-        return result;
+        const [rType, ...data] = result.split(',');
+        for (let i = 0; i < data.length; i++) {
+            pixels[i] = parseInt(data[i]);
+        }
     }
 
     renderbufferStorage = function (target, internalFormat, width, height) {

@@ -71,6 +71,10 @@ function start(ref, image) {
 
     const { framebuffer, texture } = createFramebuffer(64, 64);
 
+    console.log('check framebuffer status');
+    console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER));
+    console.log(gl.FRAMEBUFFER_COMPLETE);
+
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
     attributes.aPosition.fill(
       attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
@@ -91,8 +95,8 @@ function start(ref, image) {
 
     var pixels = new Uint8Array(1 * 1 * 4);
     gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    // console.log('---read pixels---');
-    // console.log(pixels);
+    console.log('---read pixels---');
+    console.log(pixels);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     return texture;
