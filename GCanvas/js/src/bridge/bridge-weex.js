@@ -122,6 +122,7 @@ const GBridge = {
             "args": cmdArgs
         });
 
+        console.log(result);
         const res = result && result.result;
 
         if (isDebugging) {
