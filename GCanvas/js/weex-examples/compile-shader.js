@@ -232,12 +232,19 @@ function compile({ vShader, fShader, gl, options }) {
 
         createFramebuffer: function (width, height) {
             const framebuffer = gl.createFramebuffer();
+
+            // the core to test framebuffer
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+            return {};
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
             const tex = gl.createTexture();
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, tex);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
 
             const renderbuffer = gl.createRenderbuffer();

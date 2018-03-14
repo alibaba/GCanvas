@@ -50,8 +50,6 @@ function start(ref, image) {
     uniform float uTime;
     void main() {
       gl_FragColor = texture2D(uSample, fract( vTexCoord + uTime/100.0));
-      // float t = fract(uTime);
-      // gl_FragColor = vec4(t, t, 0, 1.0);
     }`;
 
     const {
@@ -70,16 +68,10 @@ function start(ref, image) {
     });
 
     const { framebuffer, texture } = createFramebuffer(64, 64);
-    fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
-    attributes.aPosition.fill(
-      attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
-    );
-    attributes.aTexCoord &&
-      attributes.aTexCoord.fill(
-        attributes.aTexCoord.createBuffer([0, 1, 0, 0, 1, 0, 1, 1])
-      );
-    uniforms.uSample &&
-      uniforms.uSample.fill(uniforms.uSample.createTexture(image));
+    // fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
+    // const aPositionBuffer = attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1]);
+    // const aTexCoordBuffer = attributes.aTexCoord.createBuffer([0, 1, 0, 0, 1, 0, 1, 1]);
+    // const uSampleTexture = uniforms.uSample.createTexture(image);
 
     // var pixels = new Uint8Array(1 * 1 * 4);
     // gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
@@ -87,18 +79,21 @@ function start(ref, image) {
     // console.log(pixels);
 
     return {
-      texture,
-      draw: function() {
-        gl.useProgram(program);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-        gl.viewport(0, 0, 64, 64);
-        gl.clearColor(0.5, 0.8, 0.5, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        const t = (Date.now()/1000)%1;
-        uniforms.uTime && uniforms.uTime.fill([t%1]);
-        drawElements(6);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      }
+      // texture,
+      // draw: function() {
+      //   gl.useProgram(program);
+      //   gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+      //   gl.viewport(0, 0, 64, 64);
+      //   gl.clearColor(1.0, 1.0, 1.0, 1.0);
+      //   gl.clear(gl.COLOR_BUFFER_BIT);
+      //   const t = (Date.now()/1000)%1;
+      //   uniforms.uTime && uniforms.uTime.fill([t%1]);
+      //   uniforms.uSample.fill(uSampleTexture);
+      //   attributes.aPosition.fill(aPositionBuffer);
+      //   attributes.aTexCoord.fill(aTexCoordBuffer);
+      //   drawElements(6);
+      //   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      // }
     };
   }
 
@@ -113,10 +108,11 @@ function start(ref, image) {
         }`;
     const fShader = `
         precision mediump float;
-        uniform sampler2D uSample;
+        // uniform sampler2D uSample;
         varying vec2 vTexCoord;
         void main() {
-          gl_FragColor = texture2D(uSample, vTexCoord);
+          // gl_FragColor = texture2D(uSample, vTexCoord);
+          gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
         }`;
 
     const {
@@ -134,18 +130,16 @@ function start(ref, image) {
     });
 
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
-    attributes.aPosition.fill(
-      attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
-    );
-    attributes.aTexCoord.fill(
-      attributes.aTexCoord.createBuffer([0, 0, 0, 1, 1, 1, 1, 0])
-    );
+    const aPositionBuffer = attributes.aPosition.createBuffer([-1, 0.5, -1, -1, 1, -1, 1, 1]);
+    const aTexCoordBuffer = attributes.aTexCoord.createBuffer([0, 0, 0, 1, 1, 1, 1, 0]);
 
     function draw() {
       gl.useProgram(program);
-      uniforms.uSample.fill(texture);
+      attributes.aPosition.fill(aPositionBuffer);
+      attributes.aTexCoord.fill(aTexCoordBuffer);
+      // uniforms.uSample.fill(texture);
       gl.viewport(0, 0, ref.width, ref.height);
-      gl.clearColor(0.0, 0.5, 0.0, 1.0);
+      gl.clearColor(0.0, 0.5, 0.5, 1.0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       drawElements(6);
     }
@@ -156,22 +150,15 @@ function start(ref, image) {
   }
 
   const { texture, draw: drawFramebuffer } = initFramebuffer();
-  const { draw: drawCanvas } = initCanvas(texture);
+  const { draw: drawCanvas } = initCanvas(/*texture*/null);
 
-  setInterval(function() {
-    drawFramebuffer();
+  // setInterval(function() {
+    // drawFramebuffer();
     drawCanvas();
     if (isWeex && ref._swapBuffers) {
-      ref._swapBuffers();
+      // ref._swapBuffers();
     }
-  }, 16);
-
-  // drawFramebuffer();
-  // drawCanvas();
-  // if (isWeex && ref._swapBuffers) {
-  //   console.log('swap');
-  //   ref._swapBuffers();
-  // }
+  // }, 16);
 }
 
 export default {
@@ -186,7 +173,7 @@ export default {
 
     if (isWeex) {
       ref = enable(ref, {
-        debug: false,
+        debug: true,
         bridge: WeexBridge,
         disableAutoSwap: false
       });
