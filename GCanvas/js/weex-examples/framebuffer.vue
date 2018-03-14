@@ -34,7 +34,7 @@ function start(ref, image) {
 
   // hackLog(gl);
 
-  function drawFramebuffer() {
+  function initFramebuffer() {
     const vShader = `
     attribute vec2 aPosition;
     attribute vec2 aTexCoord;
@@ -47,9 +47,11 @@ function start(ref, image) {
     precision mediump float;
     uniform sampler2D uSample;
     varying vec2 vTexCoord;
+    uniform float uTime;
     void main() {
-      gl_FragColor = texture2D(uSample, vTexCoord);
-      // gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+      gl_FragColor = texture2D(uSample, fract( vTexCoord + uTime/100.0));
+      // float t = fract(uTime);
+      // gl_FragColor = vec4(t, t, 0, 1.0);
     }`;
 
     const {
@@ -67,14 +69,7 @@ function start(ref, image) {
       gl
     });
 
-    gl.useProgram(program);
-
     const { framebuffer, texture } = createFramebuffer(64, 64);
-
-    console.log('check framebuffer status');
-    console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER));
-    console.log(gl.FRAMEBUFFER_COMPLETE);
-
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
     attributes.aPosition.fill(
       attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
@@ -86,23 +81,28 @@ function start(ref, image) {
     uniforms.uSample &&
       uniforms.uSample.fill(uniforms.uSample.createTexture(image));
 
-    gl.clearColor(0.5, 0.8, 0.5, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // var pixels = new Uint8Array(1 * 1 * 4);
+    // gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    // console.log("---read pixels---");
+    // console.log(pixels);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    gl.viewport(0, 0, 64, 64);
-    drawElements(6);
-
-    var pixels = new Uint8Array(1 * 1 * 4);
-    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    console.log('---read pixels---');
-    console.log(pixels);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    return texture;
+    return {
+      texture,
+      draw: function() {
+        gl.useProgram(program);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        gl.viewport(0, 0, 64, 64);
+        gl.clearColor(0.5, 0.8, 0.5, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        const t = (Date.now()/1000)%1;
+        uniforms.uTime && uniforms.uTime.fill([t%1]);
+        drawElements(6);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
+    };
   }
 
-  function drawCanvas(texture) {
+  function initCanvas(texture) {
     const vShader = `
         attribute vec2 aPosition;
         attribute vec2 aTexCoord;
@@ -133,7 +133,6 @@ function start(ref, image) {
       gl
     });
 
-    gl.useProgram(program);
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
     attributes.aPosition.fill(
       attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
@@ -141,22 +140,38 @@ function start(ref, image) {
     attributes.aTexCoord.fill(
       attributes.aTexCoord.createBuffer([0, 0, 0, 1, 1, 1, 1, 0])
     );
-    uniforms.uSample.fill(texture);
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.viewport(0, 0, ref.width, ref.height);
+    function draw() {
+      gl.useProgram(program);
+      uniforms.uSample.fill(texture);
+      gl.viewport(0, 0, ref.width, ref.height);
+      gl.clearColor(0.0, 0.5, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      drawElements(6);
+    }
 
-    // setTimeout(function() {
-    drawElements(6);
-    // }, 1000);
+    return {
+      draw
+    };
   }
 
-  const texture = drawFramebuffer();
+  const { texture, draw: drawFramebuffer } = initFramebuffer();
+  const { draw: drawCanvas } = initCanvas(texture);
 
-  if (texture) {
-    drawCanvas(texture);
-  }
+  setInterval(function() {
+    drawFramebuffer();
+    drawCanvas();
+    if (isWeex && ref._swapBuffers) {
+      ref._swapBuffers();
+    }
+  }, 16);
+
+  // drawFramebuffer();
+  // drawCanvas();
+  // if (isWeex && ref._swapBuffers) {
+  //   console.log('swap');
+  //   ref._swapBuffers();
+  // }
 }
 
 export default {
@@ -171,8 +186,9 @@ export default {
 
     if (isWeex) {
       ref = enable(ref, {
-        debug: true,
-        bridge: WeexBridge
+        debug: false,
+        bridge: WeexBridge,
+        disableAutoSwap: false
       });
     }
 

@@ -478,10 +478,10 @@ export default class WebGLRenderingContext {
         )
     }
 
-    framebufferRenderbuffer = function (target, attachment, textarget, texture, level) {
+    framebufferRenderbuffer = function (target, attachment, textarget, texture) {
         WebGLRenderingContext.GBridge.callNative(
             this._canvas.id,
-            GLmethod.framebufferRenderbuffer + ',' + target + ',' + attachment + ',' + textarget + ',' + (texture ? texture.id : 0) + ',' + level,
+            GLmethod.framebufferRenderbuffer + ',' + target + ',' + attachment + ',' + textarget + ',' + (texture ? texture.id : 0),
             true
         )
     }

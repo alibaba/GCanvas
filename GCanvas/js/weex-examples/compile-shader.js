@@ -1,6 +1,6 @@
-function compile({ vShader, fShader, gl, options }) {
+let textureCount = 0;
 
-    let textureCount = 0;
+function compile({ vShader, fShader, gl, options }) {
 
     function createShaderProgram(vShaderSource, fShaderSource, gl) {
 
@@ -239,10 +239,18 @@ function compile({ vShader, fShader, gl, options }) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+
+            const renderbuffer = gl.createRenderbuffer();
+            gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
             return {
                 framebuffer,
-                texture: tex
+                texture: tex,
+                depthBuffer: renderbuffer
             };
         }
     };
