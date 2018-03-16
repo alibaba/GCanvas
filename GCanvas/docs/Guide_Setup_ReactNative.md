@@ -10,7 +10,7 @@
 
 In XCode, in the project navigator, select your project. 
 
-1. Add `GCanvas.fromework` ( in the path `node_moduls/react-native-gcanvas/ios/GCanvas.framework`) to your project's `Build Phases` ➜ `Link Binary With Libraries`
+1. Add `GCanvas.fromework` ( in the path `./node_modules/react-native-gcanvas/ios/GCanvas.framework`) to your project's `Build Phases` ➜ `Link Binary With Libraries`
 2. Add `$(SRCROOT)/../node_modules/react-native-gcanvas/ios` to your project's `Build Settings` ➜ `Framework Search Path`
 
 ### Manual installation
@@ -24,7 +24,7 @@ In XCode, in the project navigator, select your project.
 
 3. Go to `GCanvas/ios`  and add `GCanvas.xcodeproj`
 
-4. In XCode, in the project navigator, select your project. Add `libRCTGCanvas.a` and `GCanvas.fromework` ( in the path `node_moduls/react-native-gcanvas/ios/GCanvas.framework`) to your project's `Build Phases` ➜ `Link Binary With Libraries`
+4. In XCode, in the project navigator, select your project. Add `libRCTGCanvas.a` and `GCanvas.fromework` ( in the path `./node_modules/react-native-gcanvas/ios/GCanvas.framework`) to your project's `Build Phases` ➜ `Link Binary With Libraries`
 
    ​
 
