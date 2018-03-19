@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+group = rootProject.extensions.groups.Bridge
+version = "1.0.0"
+
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
     buildToolsVersion rootProject.extensions.sdks.BuildTool
@@ -22,9 +25,9 @@ android {
 }
 
 dependencies {
-    compile project(':android:gcanvas_library')
-    compile project(':android:bridge_spec')
-    compile project(':android:adapters:gcanvas_imageloader_fresco')
+    compile "com.taobao.gcanvas:corelib:1.0.2"
+    compile "com.taobao.gcanvas.bridges:spec:1.0.1"
+    compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -34,5 +37,9 @@ dependencies {
     provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
     provided "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
     compile "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
-
 }
+
+project.ext.id = rootProject.extensions.artifacts.ReactNative
+project.ext.meta.labels = ['ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'GCanvas ReactNative Bridge']
+project.ext.meta.description = 'GCanvas ReactNative bridge.'
+apply from: "${rootProject.projectDir}/publish.gradle"

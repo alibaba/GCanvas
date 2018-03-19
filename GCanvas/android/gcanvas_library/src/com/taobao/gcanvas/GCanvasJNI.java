@@ -35,14 +35,6 @@ public class GCanvasJNI {
             } catch (Exception e) {
                 GLog.e("CANVAS", "fail to load gcanvas.");
             }
-            // try to load gcPng library
-            try {
-                System.loadLibrary("gcPng");
-            } catch (UnsatisfiedLinkError e) {
-                GLog.e("CANVAS", "png optimization is not found.");
-            } catch (Exception e) {
-                GLog.e("CANVAS", "fail to load png optimization.");
-            }
         }
     }
 
@@ -52,8 +44,6 @@ public class GCanvasJNI {
 
     public static native void render(String contextID, String renderCommands);
 
-
-    public static native void contextLost(String contextID); // Deletes native memory associated with lost GL context
 
     public static native void release(); // Deletes native canvas
 
@@ -71,8 +61,6 @@ public class GCanvasJNI {
 
 
     public static native String getImageData(String contextID, int x, int y, int width, int height);
-
-//    public static native String getAllParameter(String contextID);
 
     public static native void setContextType(String contextID, int type);
 
@@ -105,17 +93,11 @@ public class GCanvasJNI {
 
     public static native void setPreCompilePath(String path);
 
-//    public static native String exeSyncCmd(String contextID, int type, String renderCommands);
-
-//    public static native void reset(String contextID);
-
     public static native void bindTexture(String contextId, Bitmap bitmap,int id,
                                           int target, int level,int internalformat,int format,int type);
     public static native void texSubImage2D(String contextId, Bitmap bitmap,int id,
                                           int target, int level,int xoffset,int yoffset,int format,int type);
 
-    public static native long getWindvaneNativeFuncPtr();
-    public static native long destroyWVGRef();
     public static native boolean sendEvent(String contextId);
 
     public static native void registerCallback(String soPath, int version);

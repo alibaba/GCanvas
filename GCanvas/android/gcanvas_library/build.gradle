@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Main
-version = "0.0.1"
+version = "1.0.2"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -62,23 +62,3 @@ project.ext.id = rootProject.extensions.artifacts.Core
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'Rendering', 'High Performance']
 project.ext.meta.description = 'This package defines GCanvas main library.'
 apply from: "${rootProject.projectDir}/publish.gradle"
-
-
-android.libraryVariants.all { type ->
-    task("prepareSo${type.name.capitalize()}") {
-        copy {
-            from("${rootProject.projectDir}/core/build/intermediates/ndkBuild/${type.name}/obj/local/armeabi/") {
-                include "*.so"
-            }
-
-            into 'libs/armeabi'
-        }
-    }
-
-    project.getTasksByName("assemble${type.name.capitalize()}", true).any { task ->
-        task.dependsOn("prepareSo${type.name.capitalize()}")
-        task.doLast {
-            delete 'libs/armeabi'
-        }
-    }
-}

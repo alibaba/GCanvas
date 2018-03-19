@@ -84,7 +84,7 @@ publishing {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
                 configurations.compile.allDependencies.each { dep ->
-                    if (dep.group != null && (dep.name != null && "unspecified" != dep.name) && dep.version != null) {
+                    if (dep.group != null && (dep.name != null && "unspecified" != dep.name) && dep.version != null && dep.version != 'unspecified') {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', dep.group)
                         dependencyNode.appendNode('artifactId', dep.name)

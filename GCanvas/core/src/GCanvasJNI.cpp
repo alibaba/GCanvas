@@ -299,8 +299,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
-        JNIEnv *je, jclass jc, jobject jCanvasRender, jstring contextId,
-        jstring renderCommands) {
+        JNIEnv *je, jclass jc, jstring contextId, jstring renderCommands) {
     GCanvasManager *theManager = GCanvasManager::GetManager();
     char *cid = jstringToString(je, contextId);
     string canvasId = cid;
@@ -311,8 +310,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
         int length = je->GetStringUTFLength(renderCommands);
         if (0 != length) {
             theCanvas->mJniEnv = je;
-            theCanvas->mCanvasRender = &jCanvasRender;
-            theCanvas->Render(rc, length);
+            theCanvas->CallNative(0x60000001, rc);
             je->ReleaseStringUTFChars(renderCommands, rc);
         } else {
             theCanvas->LinkNativeGLProc();
@@ -747,22 +745,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_texSubImage2D(
 }
 
 
-/**
- * 只有在主线程调用findclass才有效
- */
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getWindvaneNativeFuncPtr(
-        JNIEnv *je, jclass jc) {
-    JavaVM *jvm = NULL;
-    je->GetJavaVM(&jvm);
-    jclass plugin_class = je->FindClass("com/taobao/windvane/plugins/GCanvasPlugin");
-    jclass g_plugin_class = (jclass) je->NewGlobalRef(plugin_class);//todo 记得释放！！
-    GCanvasWindvaneLinkNative::initJVMEnv(jvm, g_plugin_class);
-    const IString *
-    (*nativeFunc)(void *, const char *, int,
-                  const char *) = &GCanvasWindvaneLinkNative::CallNative;
-    return (long) nativeFunc;
-}
-
 JNIEXPORT bool JNICALL Java_com_taobao_gcanvas_GCanvasJNI_sendEvent(
         JNIEnv *je, jclass jc, jstring contextId) {
     if (!contextId) {
@@ -809,10 +791,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_registerCallback(JNIEn
         LOG_D("Register for Android N Below");
         RegisterCallNativeCallback_belowN();
     }
-}
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_destroyWVGRef(
-        JNIEnv *je, jclass jc) {
-    GCanvasWindvaneLinkNative::releaseGRef(je);
 }
 
 JNIEXPORT jint JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring contextId){
