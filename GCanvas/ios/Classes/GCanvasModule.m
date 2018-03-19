@@ -489,10 +489,10 @@ static NSMutableDictionary  *_staticModuleExistDict;
  * JS call native directly just for WebGL
  *
  * @param   dict    input WebGL command
- dict[@"contextId"] - GCanvas component identifier
- dict[@"type"] - type
- dict[@"args"] - WebGL command
- 
+ *          dict[@"contextId"] - GCanvas component identifier
+ *          dict[@"type"] - type
+ *          dict[@"args"] - WebGL command
+ *
  * @return          return execute result
  */
 - (NSDictionary*)extendCallNative:(NSDictionary*)dict{
@@ -557,8 +557,7 @@ static NSMutableDictionary  *_staticModuleExistDict;
                 });
                 return @{};
             }
-            
-        #ifdef DEBUG
+        //#ifdef DEBUG
             else{
                 NSRange range = [args rangeOfString:@","];
                 if (range.location != NSNotFound) {
@@ -571,7 +570,7 @@ static NSMutableDictionary  *_staticModuleExistDict;
                     }
                 }
             }
-        #endif
+        //#endif
             
             [plugin addCommands:args];
             [plugin execCommands];

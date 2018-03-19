@@ -36,7 +36,6 @@
 		2DCD954D1E0B4F2C00145EB5 /* RNGCanvasSampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* RNGCanvasSampleTests.m */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		A22CB7072029D62800BFE25D /* GCanvas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A22CB7082029D62800BFE25D /* GCanvas.framework */; };
 		A2B65C342029D080000DB6F7 /* libRCTGCanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B65C032029D02F000DB6F7 /* libRCTGCanvas.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
@@ -368,7 +367,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A22CB7072029D62800BFE25D /* GCanvas.framework in Frameworks */,
 				A2B65C342029D080000DB6F7 /* libRCTGCanvas.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,

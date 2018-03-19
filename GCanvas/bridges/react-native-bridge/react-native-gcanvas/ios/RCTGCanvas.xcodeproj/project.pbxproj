@@ -10,24 +10,8 @@
 		A2385E4E2005FDC30010B576 /* RCTGCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */; };
 		A2385E51200600600010B576 /* RCTGCanvasViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E50200600600010B576 /* RCTGCanvasViewManager.m */; };
 		A2385E52200607840010B576 /* RCTGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E222004D91B0010B576 /* RCTGCanvasModule.m */; };
+		A24DA1F2205B74A8001C001E /* GCanvas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A24DA1F1205B74A8001C001E /* GCanvas.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		A248AFD72028003100218A11 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A248AFD32028003100218A11 /* GCanvas.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9A40B58B1ED4546700739AE6;
-			remoteInfo = GCanvas;
-		};
-		A248AFD92028003800218A11 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A248AFD32028003100218A11 /* GCanvas.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 9A40B58A1ED4546700739AE6;
-			remoteInfo = GCanvas;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		A2385E362005FB730010B576 /* CopyFiles */ = {
@@ -49,7 +33,7 @@
 		A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTGCanvasView.m; sourceTree = "<group>"; };
 		A2385E4F200600600010B576 /* RCTGCanvasViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTGCanvasViewManager.h; sourceTree = "<group>"; };
 		A2385E50200600600010B576 /* RCTGCanvasViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTGCanvasViewManager.m; sourceTree = "<group>"; };
-		A248AFD32028003100218A11 /* GCanvas.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = GCanvas.xcodeproj; path = ../../../../ios/GCanvas.xcodeproj; sourceTree = "<group>"; };
+		A24DA1F1205B74A8001C001E /* GCanvas.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GCanvas.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A24DA1F2205B74A8001C001E /* GCanvas.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,7 +51,6 @@
 		A2385DD12004D8540010B576 = {
 			isa = PBXGroup;
 			children = (
-				A248AFD32028003100218A11 /* GCanvas.xcodeproj */,
 				A2385E4C2005FDC30010B576 /* RCTGCanvasView.h */,
 				A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */,
 				A2385E4F200600600010B576 /* RCTGCanvasViewManager.h */,
@@ -89,16 +73,9 @@
 		A2385E6120060A510010B576 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A24DA1F1205B74A8001C001E /* GCanvas.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		A248AFD42028003100218A11 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A248AFD82028003100218A11 /* GCanvas.framework */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -115,7 +92,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				A248AFDA2028003800218A11 /* PBXTargetDependency */,
 			);
 			name = RCTGCanvas;
 			productName = RCTGCanvas;
@@ -147,28 +123,12 @@
 			mainGroup = A2385DD12004D8540010B576;
 			productRefGroup = A2385DDC2004D8540010B576 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = A248AFD42028003100218A11 /* Products */;
-					ProjectRef = A248AFD32028003100218A11 /* GCanvas.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				A2385E372005FB730010B576 /* RCTGCanvas */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		A248AFD82028003100218A11 /* GCanvas.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = GCanvas.framework;
-			remoteRef = A248AFD72028003100218A11 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A2385E342005FB730010B576 /* Sources */ = {
@@ -182,14 +142,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		A248AFDA2028003800218A11 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = GCanvas;
-			targetProxy = A248AFD92028003800218A11 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A2385DE12004D8550010B576 /* Debug */ = {
