@@ -393,7 +393,10 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context) {
 
 void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
                              GPoint p1, GPoint p2, GColorRGBA color) {
-    float width2 = context->LineWidth() / 2.f;
+    float width2 = context->LineWidth();
+    if( width2 >= 2 ){
+        width2 /= 2.f;
+    }
 
     GPoint v1 = PointNormalize(PointSub(p1, point)),
             v2 = PointNormalize(PointSub(p2, point));
@@ -437,7 +440,10 @@ void GPath::DrawLinesToContext(GCanvasContext *context) {
     GColorRGBA color = context->StrokeStyle();
     color.rgba.a = (float) color.rgba.a * context->GlobalAlpha();
 
-    float lineWidth = context->LineWidth() / 2.f;
+    float lineWidth = context->LineWidth();
+    if( lineWidth >= 2 ){
+        lineWidth /= 2.f;
+    }
 
     for (std::vector<tSubPath>::const_iterator iter = mPathStack.begin();
          iter != mPathStack.end(); ++iter) {
@@ -564,7 +570,11 @@ void GPath::drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
     }
 
     float miterAngle = angle1 + angleGap;
-    float lineWidth = context->LineWidth() / 2.f;
+    float lineWidth = context->LineWidth();
+    if( lineWidth >= 2.0 ){
+        lineWidth /= 2.f;
+    }
+    
     GPoint miterPoint = {
             center.x + cosf(miterAngle) * miterLen * lineWidth,
             center.y + sinf(miterAngle) * miterLen * lineWidth};

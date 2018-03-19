@@ -214,12 +214,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 #pragma mark - GCVImageLoaderProtocol
 - (void)loadImage:(NSURL*)url completed:(GCVLoadImageCompletion)completion{
-    [[SDWebImageManager sharedManager] downloadImageWithURL:url
-                                                    options:0
-                                                   progress:nil
-                                                  completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                                      completion(image, error, finished, url);
-                                                  }];
+    [[SDWebImageManager sharedManager].imageDownloader downloadImageWithURL:url options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+            completion(image, error, finished, url);
+    }];
 }
 
 #pragma mark - Event Notificaiton

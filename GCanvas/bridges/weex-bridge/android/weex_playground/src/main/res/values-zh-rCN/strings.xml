@@ -15,7 +15,7 @@
  limitations under the License.
  -->
 <resources>
-  <string name="app_name">WEEX</string>
+  <string name="app_name">GCanvas</string>
   <string name="app_picker_name">应用</string>
   <string name="bookmark_picker_name">书签</string>
   <string name="button_add_calendar">添加至日程表</string>
@@ -142,5 +142,6 @@
   <string name="wifi_changing_network">连接到 Wi-Fi \u2026</string>
 
   <string name="cpu_not_support_tip">对不起,您当前的设备是X86架构.\n我们只支持ARM架构的设备!</string>
-
+  <string name="request_camera_permission">需要摄像头权限。</string>
+  <string name="camera_permission_refused">没有获取到摄像头权限，退出PlayGround。</string>
 </resources>

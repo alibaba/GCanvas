@@ -17,23 +17,11 @@ const isWeex = typeof callNative === "function";
 import { compile } from "./compile-shader";
 import hackLog from "./hack-log";
 
-import { enable } from "../browser/index.weex.min.js";
+import { enable, WeexBridge, Image as GImage } from "../src/index.js";
 
-// import GCanvas from "../js-weex/gcanvas";
-// import GImage from "../js-weex/gcanvasimage";
-// const enable = ref => {
-//   if (isWeex) {
-//     return GCanvas.start(ref);
-//   }else{
-//     return ref;
-//   }
-// };
 
-function startRaw(ref, size) {
-  if (isWeex) {
-    ref.width = size.width;
-    ref.height = size.height;
-  }
+
+function startRaw(ref) {
 
   var gl = ref.getContext("webgl");
 
@@ -102,7 +90,6 @@ function startRaw(ref, size) {
   }
 
   tick();
-  //   setTimeout(tick, 1000);
 }
 
 export default {
@@ -115,22 +102,18 @@ export default {
   mounted: function() {
     var ref = this.$refs.canvas_holder;
 
-    var size = isWeex
-      ? {
-          width: 750,
-          height: 750
-        }
-      : {
-          width: parseInt(ref.style.width),
-          height: parseInt(ref.style.height)
-        };
-    if (!isWeex) {
-      ref.width = size.width;
-      ref.height = size.height;
+    if (isWeex) {
+      ref = enable(ref, {
+        debug: true,
+        bridge: WeexBridge,
+        disableAutoSwap: true
+      });
     }
 
-    ref = enable(ref, { debug: false, disableAutoSwap: true });
-    startRaw(ref, size);
+    ref.width = WXEnvironment.deviceWidth;
+    ref.height = WXEnvironment.deviceWidth;
+
+    startRaw(ref);
   }
 };
 </script>

@@ -1,8 +1,8 @@
 # Playground
 
-Download the playground app and visit our [playground](https://jsplayground.taobao.com/vueplayground) site.
+Download the playground app and visit our [playground](https://jsplayground.taobao.org/vueplayground) site.
 
-<iframe class="playground" src="https://jsplayground.taobao.com/vueplayground/"></iframe>
+<iframe class="playground" src="https://jsplayground.taobao.org/vueplayground/"></iframe>
 
 # Android
 
@@ -16,9 +16,9 @@ Click link below to download apk.
 
 #### For Weex
 
-Click link below to download apk.
+Click link below to download ipa.
 
-<a href="itms-services://?action=download-manifest&amp;url=https://raw.githubusercontent.com/g-platform/gcanvas-playground-ios/master/GCanvasPlayground-Releasedownload.plist" >Download Weex Playground  Apk</a>
+<a href="itms-services://?action=download-manifest&url=https://raw.githubusercontent.com/g-platform/gcanvas-playground-ios/master/GCanvasPlayground-Releasedownload.plist" >Download Weex Playground  IPA</a>
 
 
 
