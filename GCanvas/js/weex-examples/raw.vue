@@ -4,7 +4,7 @@
   <div>
     <gcanvas v-if="isWeex" ref="canvas_holder" style="width:750;height:750;background-color:rgba(255,0,0,1);"></gcanvas>
     <canvas v-if="!isWeex" ref="canvas_holder" style="width:750px;height:750px;background-color:rgba(255,0,0,1);"></canvas>
-    <text class="text">isWeex2:{{isWeex}}</text>
+    <text class="text">isWeex:{{isWeex}}</text>
   </div>
 </template>
 <style>
@@ -18,14 +18,8 @@ import { compile } from "./compile-shader";
 import hackLog from "./hack-log";
 
 import { enable, WeexBridge, Image as GImage } from "../src/index.js";
-// var { enable, WeexBridge, Image: GImage } = require("../dist/gcanvas.min.js");
 
 function startRaw(ref, size) {
-  if (isWeex) {
-    ref.width = size.width;
-    ref.height = size.height;
-  }
-
   var gl = ref.getContext("webgl");
 
   // hackLog(gl);
@@ -70,7 +64,9 @@ function startRaw(ref, size) {
   }
 
   render();
-  ref._swapBuffers();
+  if (isWeex) {
+    ref._swapBuffers();
+  }
 }
 
 export default {
@@ -83,25 +79,18 @@ export default {
   mounted: function() {
     var ref = this.$refs.canvas_holder;
 
-    var size = isWeex
-      ? {
-          width: 750,
-          height: 750
-        }
-      : {
-          width: parseInt(ref.style.width),
-          height: parseInt(ref.style.height)
-        };
-    if (!isWeex) {
-      ref.width = size.width;
-      ref.height = size.height;
+    if (isWeex) {
+      ref = enable(ref, {
+        debug: true,
+        bridge: WeexBridge,
+        disableAutoSwap: true
+      });
     }
 
-    if (isWeex) {
-      ref = enable(ref, { debug: true, bridge: WeexBridge, disableAutoSwap: true });
-    }
-    
-    startRaw(ref, size);
+    ref.width = WXEnvironment.deviceWidth;
+    ref.height = WXEnvironment.deviceWidth;
+
+    startRaw(ref);
   }
 };
 </script>

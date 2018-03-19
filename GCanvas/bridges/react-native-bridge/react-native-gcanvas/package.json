@@ -1,6 +1,6 @@
 {
   "name": "react-native-gcanvas",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "## Getting started",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   ],
   "peerDependencies": {
     "react-native": "^0.41.2",
-    "react-native-windows": "0.41.0-rc.1"
+    "react-native-windows": "0.41.0-rc.1",
+    "gcanvas.js": "^0.0.6"
   }
 }

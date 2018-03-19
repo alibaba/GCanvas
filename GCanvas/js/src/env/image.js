@@ -4,7 +4,7 @@ const noop = function () { };
 
 class GImage {
 
-    // static GBridge = null;
+    static GBridge = null;
 
     constructor() {
         this._id = incId++;
@@ -36,6 +36,10 @@ class GImage {
     }
 
     set src(v) {
+
+        if (v.startsWith('//')) {
+            v = 'http:' + v;
+        }
 
         this._src = v;
 
