@@ -67,36 +67,17 @@ function start(ref, image) {
       gl
     });
 
-<<<<<<< HEAD
-    gl.useProgram(program);
-
-    // const fx = 64;
-    // const fy = 64;
-
-    const [fx, fy] = [128, 128];
-
-    const { framebuffer, texture } = createFramebuffer(fx, fy);
-=======
     const { framebuffer, texture } = createFramebuffer(64, 64);
     // fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
     // const aPositionBuffer = attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1]);
     // const aTexCoordBuffer = attributes.aTexCoord.createBuffer([0, 1, 0, 0, 1, 0, 1, 1]);
     // const uSampleTexture = uniforms.uSample.createTexture(image);
->>>>>>> @bugfix/viewport-device-ratio
 
     // var pixels = new Uint8Array(1 * 1 * 4);
     // gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
     // console.log("---read pixels---");
     // console.log(pixels);
 
-<<<<<<< HEAD
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    gl.viewport(0, 0, fx/1.5, fy/1.5);
-    drawElements(6);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    return texture;
-=======
     return {
       // texture,
       // draw: function() {
@@ -114,7 +95,6 @@ function start(ref, image) {
       //   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       // }
     };
->>>>>>> @bugfix/viewport-device-ratio
   }
 
   function initCanvas(texture) {
@@ -132,7 +112,7 @@ function start(ref, image) {
         varying vec2 vTexCoord;
         void main() {
           // gl_FragColor = texture2D(uSample, vTexCoord);
-          gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+          gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
         }`;
 
     const {
@@ -150,25 +130,6 @@ function start(ref, image) {
     });
 
     fillElements(createElementsBuffer([0, 1, 2, 0, 2, 3]));
-<<<<<<< HEAD
-    attributes.aPosition.fill(
-      attributes.aPosition.createBuffer([-1, 1, -1, -1, 1, -1, 1, 1])
-    );
-    attributes.aTexCoord.fill(
-      attributes.aTexCoord.createBuffer([0, 0, 0, 1, 1, 1, 1, 0])
-    );
-    uniforms.uSample.fill(texture);
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.viewport(0, 0, size.width, size.height);
-
-    // setTimeout 注释掉就出不来了
-    setTimeout(function(){
-      drawElements(6);
-    }, 1000);
-
-=======
     const aPositionBuffer = attributes.aPosition.createBuffer([-1, 0.5, -1, -1, 1, -1, 1, 1]);
     const aTexCoordBuffer = attributes.aTexCoord.createBuffer([0, 0, 0, 1, 1, 1, 1, 0]);
 
@@ -186,7 +147,6 @@ function start(ref, image) {
     return {
       draw
     };
->>>>>>> @bugfix/viewport-device-ratio
   }
 
   const { texture, draw: drawFramebuffer } = initFramebuffer();
@@ -213,7 +173,7 @@ export default {
 
     if (isWeex) {
       ref = enable(ref, {
-        debug: true,
+        debug: false,
         bridge: WeexBridge,
         disableAutoSwap: false
       });

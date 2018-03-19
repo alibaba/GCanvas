@@ -235,7 +235,6 @@ function compile({ vShader, fShader, gl, options }) {
 
             // the core to test framebuffer
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
             return {};
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
