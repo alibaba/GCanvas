@@ -4,6 +4,7 @@ block meta
     title GCanvas - Draw to your devices directly with Javascript
     link(rel="icon" href=root+"assets/favicon-gcanvas.png" type="image/x-icon")
     link(rel="stylesheet" href=root+"index.css")
+    script(async defer src="https://buttons.github.io/buttons.js")
 
 block main
     .gcanvas
@@ -11,6 +12,9 @@ block main
             .content
                 .title GCanvas
                 .description Draw to your devices directly with Javascript
+                .github-buttons
+                    a.github-button(href="https://github.com/alibaba/GCanvas" data-size="large" data-show-count="true" aria-label="Star alibaba/GCanvas on GitHub") Star
+                    a.github-button(href="https://github.com/alibaba/GCanvas/fork" data-icon="octicon-repo-forked" data-size="large" data-show-count="true" aria-label="Fork alibaba/GCanvas on GitHub") Fork
                 .github
                     a(href="https://github.com/alibaba/GCanvas") Github
         .intro
