@@ -147,6 +147,16 @@ body {
 .gcanvas .banner .content .github {
   display: none;
 }
+.gcanvas .banner .content .github-buttons {
+  text-align: center;
+  margin-top: 20px;
+}
+.gcanvas .banner .content .github-buttons a {
+  display: none;
+}
+.gcanvas .banner .content .github-buttons iframe {
+  margin: 0 10px;
+}
 .gcanvas .intro .content {
   width: 1280px;
   margin: auto;
@@ -449,6 +459,9 @@ iframe.playground {
   }
   .gcanvas .banner .content .github a:link {
     color: #fff;
+  }
+  .gcanvas .banner .content .github-buttons {
+    display: none;
   }
   .gcanvas .intro .content {
     width: 100vw;

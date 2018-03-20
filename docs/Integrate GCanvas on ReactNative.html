@@ -48,16 +48,37 @@
               <li class="item"><a href="./About.html">About</a></li>
             </ol>
           </div>
-          <div class="body"><h3 id="automatic-install-">Automatic install:</h3>
+          <div class="body"><h2 id="getting-started">Getting started</h2>
+<p><code>npm install gcanvas.js --save</code></p>
+<p><code>npm install react-native-gcanvas --save</code></p>
+<h3 id="mostly-automatic-installation">Mostly automatic installation</h3>
 <p><code>react-native link react-native-gcanvas</code></p>
-<h3 id="ios">iOS</h3>
+<p>In XCode, in the project navigator, select your project. </p>
 <ol>
-<li>In XCode, in the project navigator, right click <code>Libraries</code> ➜ <code>Add Files to [your project's name]</code></li>
-<li>Go to <code>node\_modules</code> ➜ <code>react-native-gcanvas</code> and add <code>RNReactNativeGCanvas.xcodeproj</code></li>
-<li>In XCode, in the project navigator, select your project. Add <code>libRNReactNativeGCanvas.a</code> to your project's <code>Build Phases</code> ➜ <code>Link Binary With Libraries</code></li>
-<li>Run your project (<code>Cmd+R</code>)</li>
+<li>Add <code>GCanvas.fromework</code> ( in the path <code>./node_modules/react-native-gcanvas/ios/GCanvas.framework</code>) to your project's <code>Build Phases</code> ➜ <code>Link Binary With Libraries</code></li>
+<li>Add <code>$(SRCROOT)/../node_modules/react-native-gcanvas/ios</code> to your project's <code>Build Settings</code> ➜ <code>Framework Search Path</code></li>
 </ol>
-<h3 id="android">Android</h3>
+<h3 id="manual-installation">Manual installation</h3>
+<h4 id="ios">iOS</h4>
+<ol>
+<li><p>In XCode, in the project navigator, right click <code>Libraries</code> ➜ <code>Add Files to [your project's name]</code></p>
+</li>
+<li><p>Go to <code>node_modules</code> ➜ <code>react-native-gcanvas</code> and add <code>RCTGCanvas.xcodeproj</code></p>
+</li>
+<li><p>Go to <code>GCanvas/ios</code>  and add <code>GCanvas.xcodeproj</code></p>
+</li>
+<li><p>In XCode, in the project navigator, select your project. Add <code>libRCTGCanvas.a</code> and <code>GCanvas.fromework</code> ( in the path <code>./node_modules/react-native-gcanvas/ios/GCanvas.framework</code>) to your project's <code>Build Phases</code> ➜ <code>Link Binary With Libraries</code></p>
+<p>​</p>
+</li>
+</ol>
+<p>Also you can run the given sample <code>RNGCanvasSample</code>, follow steps below:</p>
+<ol>
+<li>Goto <code>GCanvas/bridges/react-native/bridge/examples/RNGCanvasSample</code> directory,  run <code>npm install</code> install dependency library.</li>
+<li>Run your project (<code>Cmd+R</code>)</li>
+<li>Run result same as below, congratuation.
+<img src="https://img.alicdn.com/tfs/TB1E4OoX1OSBuNjy0FdXXbDnVXa-1242-2208.png" width="60%"></li>
+</ol>
+<h4 id="android">Android</h4>
 <ol>
 <li>Open <code>android/app/src/main/java/[...]/MainActivity.java</code></li>
 <li>Add <code>import com.reactlibrary.RNReactNativeGCanvasPackage;</code> to the imports at the top of the file</li>
@@ -68,6 +89,18 @@
 <li>Insert the following lines inside the dependencies block in <code>android/app/build.gradle</code>:
 <code>compile project(':react-native-gcanvas')</code></li>
 </ol>
+<h2 id="usage">Usage</h2>
+<pre><code class="lang-javascript hljs"><span class="hljs-keyword">import</span> GCanvasView <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-gcanvas'</span>;
+
+...
+
+render() {
+    <span class="hljs-keyword">return</span> (
+           <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">GCanvasView</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">'gcanvasRef'</span> <span class="hljs-attr">style</span>=<span class="hljs-string">{width:</span> <span class="hljs-attr">414</span>, <span class="hljs-attr">height</span> <span class="hljs-attr">:736</span>, <span class="hljs-attr">backgroundColor:</span> '#<span class="hljs-attr">FF000030</span>'}&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">GCanvasView</span>&gt;</span></span>
+    );
+  }
+</code></pre>
 </div>
         </div>
       </div>
