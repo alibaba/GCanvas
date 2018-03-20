@@ -246,9 +246,10 @@ void GRenderer::renderLoop() {
 
             if (m_viewportchanged) {
 //                LOG_D("onsurface changed in thread. w = %d, h = %d", m_width, m_height);
-                m_proxy->OnSurfaceChanged(m_width, m_height);
                 m_proxy->SetClearColor(mClearColor);
                 m_proxy->SetDevicePixelRatio(m_device_pixel_ratio);
+                m_proxy->OnSurfaceChanged(m_width, m_height);
+
                 m_viewportchanged = false;
 
                 if(m_requestInitialize){
@@ -438,6 +439,8 @@ void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id,int target, int 
             LOG_D("the bitmap is rgb format.");
             format = GL_RGB;
             internalformat = GL_RGB;
+            // fix image with format 565 color confusion
+            type = GL_UNSIGNED_SHORT_5_6_5;
         } else if(info.format == ANDROID_BITMAP_FORMAT_RGBA_8888 ||
                   info.format == ANDROID_BITMAP_FORMAT_RGBA_4444){
             LOG_D("the bitmap is rgba format.");
