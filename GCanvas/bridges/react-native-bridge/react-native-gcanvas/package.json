@@ -1,7 +1,7 @@
 {
   "name": "react-native-gcanvas",
-  "version": "0.0.3",
-  "description": "## Getting started",
+  "version": "0.0.4",
+  "description": "GCanvas React-Native version",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
