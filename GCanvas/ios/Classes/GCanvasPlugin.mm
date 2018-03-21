@@ -205,7 +205,7 @@
 
 - (GLuint)textureId{
     if( !self.gcanvas ) return 0;
-    return self.gcanvas->mFboTexture.GetTextureID();
+    return self.gcanvas->GetFboTexture()->GetTextureID();
 }
 
 - (NSString*)getSyncResult{

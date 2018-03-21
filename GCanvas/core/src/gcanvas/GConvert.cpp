@@ -429,7 +429,7 @@ GColorRGBA StrValueToColorRGBA(const char *value)
                 {
                     alpha[j] = value[i + j];
                 }
-                c.components[current] = atof(alpha);
+                c.components[current] = atof(alpha)/ 255.0f;
                 current++;
             }
             else if (isdigit(value[i]))
