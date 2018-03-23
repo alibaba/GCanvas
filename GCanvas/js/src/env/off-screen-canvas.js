@@ -1,23 +1,19 @@
-import GContext2D from '../context-2d/RenderingContext';
+import GContext2D from '../context-2d/OffScreenRenderingContext';
 import GContextWebGL from '../context-webgl/RenderingContext';
 
-export default class GCanvas {
 
+export default class GOffScreenCanvas {
 
     id = null;
 
     _needRender = true;
 
-    constructor(id, { disableAutoSwap }) {
+    constructor(id) {
         this.id = id;
+        this.className = 'GOffScreenCanvas';
 
-        this._disableAutoSwap = disableAutoSwap;
-        if (disableAutoSwap) {
-            this._swapBuffers = () => {
-                GCanvas.GBridge.render(this.id);
-            }
-        }
     }
+
 
     getContext(type) {
 
@@ -45,19 +41,6 @@ export default class GCanvas {
             } else {
                 this.context2d = context = new GContext2D(this);
                 context.componentId = this.id;
-
-                const render = () => {
-
-                    const commands = context._drawCommands;
-                    context._drawCommands = '';
-
-                    GCanvas.GBridge.render2d(this.id, commands);
-                    this._needRender = false;
-
-                }
-                setInterval(render, 16);
-
-                GCanvas.GBridge.callSetContextType(this.id, 0);
             }
 
         } else {
@@ -65,6 +48,15 @@ export default class GCanvas {
         }
 
         return context;
+
+    }
+
+    get drawCommands() {
+        return this.context2d._drawCommands;
+    }
+
+    get images() {
+        return this.context2d.images;
 
     }
 }

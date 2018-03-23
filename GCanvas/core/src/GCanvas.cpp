@@ -14,12 +14,14 @@
 #include "png/PngLoader.h"
 #include "support/Encode.h"
 #include "support/Util.h"
+#include <sstream>
 
 #ifdef ANDROID
 
 #include "gcanvas/GFontCache.h"
 #include "support/CharacterSet.h"
 #include "GCanvasLinkNative.h"
+#include <3d/gmanager.h>
 
 #endif
 
@@ -30,6 +32,7 @@
 #endif
 
 using namespace gcanvas;
+
 
 void GCanvas::Clear() {
     LOG_D("Canvas::DoContextLost start.");
@@ -50,7 +53,8 @@ void GCanvas::Clear() {
 
 int g_clear_color_time = 0;
 
-GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0) {
+GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0),
+                                          mCurrentTransform(1, 0, 0, 1, 0, 0) {
     mContextId = contextId;
     mRenderCount = 0;
     mLastTime = clock();
@@ -93,7 +97,9 @@ void GCanvas::OnSurfaceChanged(int width, int height) {
 
     if (mTyOffsetFlag) {
         mTyOffset = mHeight;
+        mCurrentTransform.ty = mTyOffset;
     }
+
     mContextLost = false;
     LOG_D("GCanvas::OnSurfaceChanged mContextLost %d", mContextLost);
 }
@@ -111,7 +117,8 @@ void GCanvas::SetOrtho(int width, int height) {
 }
 
 void GCanvas::AddTexture(int textureGroupId, int glID, int width, int height) {
-    LOG_D("AddTexture, Group ID = %d, GL ID = %d, width = %d, height = %d, context lost = %d", textureGroupId, glID, width, height, mContextLost);
+    LOG_D("AddTexture, Group ID = %d, GL ID = %d, width = %d, height = %d, context lost = %d",
+          textureGroupId, glID, width, height, mContextLost);
     if (mContextLost) return;
     mTextureMgr.Append(textureGroupId, glID, width, height);
 }
@@ -320,6 +327,68 @@ const char *GCanvas::parseDrawImage(const char *p, Clip *clipOut) {
     return p;
 }
 
+const char *GCanvas::parseName(const char *p, std::string &name) {
+    const char *old = p;
+    while (*p && *p != ';') {
+        ++p;
+    }
+    name.assign(old, p - old);
+    if (*p == ';') ++p;
+    return p;
+}
+
+const char *
+GCanvas::parseBindingPara(const char *p, std::string &name, float &width, float &height) {
+    const char *old = p;
+    while (*p && *p != ',') {
+        ++p;
+    }
+    name.assign(old, p - old);
+
+    if (*p == ',') ++p;
+
+
+    width = fastFloat(p);
+    while (*p && *p != ',') {
+        ++p;
+    }
+    if (*p == ',') ++p;
+    height = fastFloat(p);
+    while (*p && *p != ';') {
+        ++p;
+    }
+    if (*p == ';') ++p;
+    return p;
+}
+
+const char *
+GCanvas::parseBindingPara(const char *p, std::string &name, float& sx, float& sy, float& sw, float& sh,
+                          float& dx, float& dy, float& dw, float& dh) {
+    const char *old = p;
+    while (*p && *p != ',') {
+        ++p;
+    }
+    name.assign(old, p - old);
+
+    if (*p == ',') ++p;
+
+    float tokens[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    parseTokesOpt(tokens, &p);
+
+    sx = tokens[0];
+    sy = tokens[1];
+    sw = tokens[2];
+    sh = tokens[3];
+
+    dx = tokens[4];
+    dy = tokens[5];
+    dw = tokens[6];
+    dh = tokens[7];
+
+    if (*p == ';') ++p;
+    return p;
+}
+
 // From the current position, past semicolon or to end
 const char *GCanvas::parseUnknown(const char *p) {
     while (*p && *p != ';') {
@@ -366,13 +435,13 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
 
     char tmpFont[256];
     char tmpText[1024];
-    GTransform action;
+    GTransform &action = mCurrentTransform;
 
     ClearGeometryDataBuffers();
-    ApplyTransform(1, 0, 0, 1, 0, mTyOffset);
-    action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
-    action.ty = mTyOffset;
-
+//    ApplyTransform(1, 0, 0, 1, 0, mTyOffset);
+//    action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
+//    action.ty = mTyOffset;
+    ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
     Clip clip;
     const char *p = renderCommands;
     const char *end = renderCommands + length;
@@ -390,11 +459,80 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 p++;
                 // Load the clip
                 p = parseDrawImage(p, &clip);
+
                 ApplyTransform(action.a, action.b, action.c, action.d,
                                action.tx, action.ty);
                 UseDefaultRenderPipeline();
                 DrawImage(clip.textureID, clip.cx, clip.cy, clip.cw, clip.ch,
                           clip.px, clip.py, clip.pw, clip.ph);
+
+                break;
+            }
+            case 'Q': {
+                p++;
+
+                // bind FBO
+                std::string name;
+                float width, height;
+                p = parseBindingPara(p, name, width, height);
+
+                if (!mIsFboSupported) {
+                    break;
+                }
+                GFrameBufferObject *fbo = nullptr;
+                std::map<std::string, GFrameBufferObject>::iterator it = mFboMap.find(name);
+                if (it == mFboMap.end()) {
+                    fbo = &mFboMap[name];
+                    fbo->InitFBO(width * mDevicePixelRatio, height * mDevicePixelRatio,
+                                 StrValueToColorRGBA("transparent_white"));
+                } else {
+                    fbo = &it->second;
+                }
+                fbo->BindFBO();
+                fbo->mSavedTransform = action;
+                action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
+                action.ty = (mHeight / mDevicePixelRatio - height);
+                ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
+                break;
+            }
+            case 'Y': {
+                p++;
+
+                // unbind FBO
+                std::string name;
+                p = parseName(p, name);
+
+                if (!mIsFboSupported) {
+                    break;
+                }
+                SendVertexBufferToGPU();
+                GFrameBufferObject &fbo = mFboMap[name];
+                fbo.UnbindFBO();
+                action = fbo.mSavedTransform;
+
+                ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
+                break;
+            }
+            case 'I': {
+                p++;
+
+                // draw FBO
+                std::string name;
+                float sx, sy, sw, sh, dx, dy, dw, dh;
+                p = parseBindingPara(p, name, sx, sy, sw, sh, dx, dy, dw, dh);
+                if (!mIsFboSupported) {
+                    break;
+                }
+                GTexture &texture = mFboMap[name].mFboTexture;
+                drawFBO(name,COMPOSITE_OP_SOURCE_OVER,
+                        sx * 2 * mDevicePixelRatio / texture.GetWidth(),
+                        sy * 2 * mDevicePixelRatio / texture.GetHeight(),
+                        sw * mDevicePixelRatio / texture.GetWidth(),
+                        sh * mDevicePixelRatio / texture.GetHeight(),
+                        dx * 2 * mDevicePixelRatio / mWidth,
+                        dy * 2 * mDevicePixelRatio / mHeight,
+                        dw * mDevicePixelRatio / mWidth,
+                        dh * mDevicePixelRatio / mHeight);
 
                 break;
             }
@@ -754,12 +892,14 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
             case 'L': {
                 p++;
                 Fill();
+                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
             case 'x': {
                 p++;
                 Stroke();
+                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
@@ -975,7 +1115,8 @@ void GCanvas::calculateFPS() {
     }
 }
 
-void GCanvas::drawFBO() {
+
+void GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
     if (!mIsFboSupported) {
         return;
     }
@@ -983,6 +1124,7 @@ void GCanvas::drawFBO() {
     if (nullptr == mCurrentState || nullptr == mCurrentState->mShader) {
         return;
     }
+    GFrameBufferObject &fbo = mFboMap[fboName];
 
     SaveRenderPipeline();
     UseDefaultRenderPipeline();
@@ -990,15 +1132,17 @@ void GCanvas::drawFBO() {
     glDisable(GL_STENCIL_TEST);
 
     const GCompositeOperation old_op = mCurrentState->mGlobalCompositeOp;
-    SetGlobalCompositeOperation(COMPOSITE_OP_REPLACE);
+    SetGlobalCompositeOperation(compositeOp);
 
     GColorRGBA color = StrValueToColorRGBA("white");
     mCurrentState->mShader->SetOverideTextureColor(0);
     mCurrentState->mShader->SetHasTexture(1);
-    mFboTexture.Bind();
+    fbo.mFboTexture.Bind();
 
-    SetTransformOfShader(GTransformIdentity);
-    PushRectangle(-1, -1, 2, 2, 0, 0, 1, 1, color);
+    SetTransformOfShader(GTransformMake(1, 0, 0, 1, dx, -dy));
+//    SetTransformOfShader(GTransformIdentity);
+
+    PushRectangle(-1, 1 - 2 * dh, 2 * dw, 2 * dh, sx, 1-sh-sy, sw, sh, color);
     SendVertexBufferToGPU();
 
     if (HasClipRegion()) {
@@ -1008,6 +1152,7 @@ void GCanvas::drawFBO() {
 
     RestoreRenderPipeline();
 }
+
 
 void GCanvas::Render(const char *renderCommands, int length) {
     if (mContextLost) {
@@ -1040,7 +1185,7 @@ void GCanvas::Render(const char *renderCommands, int length) {
             execute2dCommands(renderCommands, length);
         }
         UnbindFBO();
-        drawFBO();
+        drawFBO(DefaultFboName);
     }
 
     // process any capture requests
@@ -1071,15 +1216,15 @@ void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
     }
     const TextureGroup &group = *ptr_group;
 
-    if (!group.IsSplit()){
-    #ifdef IOS
+    if (!group.IsSplit()) {
+#ifdef IOS
         std::map< int, int >::iterator iter = mOfflineTextures.find(textureId);
         if (iter != mOfflineTextures.end())
         {
             Scale(1, -1);
             mOfflineTextures.erase(iter);
         }
-    #endif
+#endif
         DrawImage1(group.mVecTexture[0]->GetWidth(),
                    group.mVecTexture[0]->GetHeight(),
                    group.mVecTexture[0]->GetGlID(), sx, sy, sw, sh, dx, dy, dw,
@@ -1109,9 +1254,9 @@ void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
                 int index = r * block_count + c;
                 int x1 = std::max(c * group.mTileWidth, static_cast<int>(sx));
                 int x2 = std::min((c + 1) * group.mTileWidth, static_cast<int>(sx + sw));
-                LOG_D( "[GCanvas::drawImage] rc:(%d, %d), x:(%d, %d), y:(%d, %d)",
-                        r, c, x1, x2, y1, y2);
-                
+                LOG_D("[GCanvas::drawImage] rc:(%d, %d), x:(%d, %d), y:(%d, %d)",
+                      r, c, x1, x2, y1, y2);
+
                 DrawImage1(group.mVecTexture[index]->GetWidth(),
                            group.mVecTexture[index]->GetHeight(),
                            group.mVecTexture[index]->GetGlID(),
@@ -1250,6 +1395,7 @@ void GCanvas::SetTyOffsetFlag(bool flag) {
     mTyOffsetFlag = flag;
     if (mTyOffsetFlag) {
         mTyOffset = mHeight;
+        mCurrentTransform.ty = mTyOffset;
     }
 }
 
@@ -1729,7 +1875,7 @@ const char *GCanvas::CallNative(int type, std::string args) {
 //        waitResponse();
 //        sem_wait(&mSyncSem);
 
-        gcanvas::waitUtilTimeout(&mSyncSem,GCANVAS_TIMEOUT);
+        gcanvas::waitUtilTimeout(&mSyncSem, GCANVAS_TIMEOUT);
 
 //        LOG_D("sync op,finish wait.");
 
@@ -1872,49 +2018,61 @@ void GCanvas::addBitmapQueue(struct BitmapCmd *p) {
 void GCanvas::bindTexture(struct BitmapCmd cmd) {
 //    while (!mBitmapQueue.empty()) {
 //        struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-        GLuint glID;
-        LOG_D("DO BIND TEXTURE. context type = %d", mContextType);
+    GLuint glID;
+    LOG_D("DO BIND TEXTURE. context type = %d", mContextType);
 
-        //step 1:bindtexture
-        if (mContextType == 0) {
-            glGenTextures(1, &glID);
-            glBindTexture(GL_TEXTURE_2D, glID);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                            GL_LINEAR_MIPMAP_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                            GL_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                            GL_CLAMP_TO_EDGE);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                            GL_CLAMP_TO_EDGE);
-        }
+    //step 1:bindtexture
+    if (mContextType == 0) {
+        glGenTextures(1, &glID);
+        glBindTexture(GL_TEXTURE_2D, glID);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        GL_LINEAR_MIPMAP_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                        GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                        GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                        GL_CLAMP_TO_EDGE);
+    }
 
-        glTexImage2D(cmd.target, cmd.level, cmd.interformat, cmd.width,
-                     cmd.height, 0, cmd.format,
-                     cmd.type, cmd.Bitmap);
+    glTexImage2D(cmd.target, cmd.level, cmd.interformat, cmd.width,
+                 cmd.height, 0, cmd.format,
+                 cmd.type, cmd.Bitmap);
 
-        //step 2:save textureid
-        if(mContextType == 0) {
-            glGenerateMipmap(GL_TEXTURE_2D);
-            AddTexture(cmd.id, glID, cmd.width, cmd.height);
-        }
+    //step 2:save textureid
+    if (mContextType == 0) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+        AddTexture(cmd.id, glID, cmd.width, cmd.height);
+    }
+}
+
+void GCanvas::bindTexture(GTexture *texture) {
+
+
+    if (mContextType == 0) {
+        texture->Bind();
+//        AddTexture(texture->GetTextureID(), texture->GetTextureID(), texture->GetWidth(), texture->GetHeight());
+
+    }
+
+
 }
 
 void GCanvas::texSubImage2D(struct BitmapCmd cmd) {
 //    while (!mBitmapQueue.empty()) {
 //        struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
 
-        LOG_D("start to texSubImage2D in grenderer.");
+    LOG_D("start to texSubImage2D in grenderer.");
 
-//        glTexSubImage2D(p->target, p->level, p->xoffset, p->yoffset,
+//        glTexSubImage2D(p->target, p->level, p->µ, p->yoffset,
 //                        p->width, p->height,
 //                        p->format,
 //                        p->type, p->Bitmap);
 
-        glTexSubImage2D(cmd.target, cmd.level, cmd.xoffset, cmd.yoffset,
-                        cmd.width, cmd.height,
-                        cmd.format,
-                        cmd.type, cmd.Bitmap);
+    glTexSubImage2D(cmd.target, cmd.level, cmd.xoffset, cmd.yoffset,
+                    cmd.width, cmd.height,
+                    cmd.format,
+                    cmd.type, cmd.Bitmap);
 }
 
 

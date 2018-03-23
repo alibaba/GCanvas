@@ -543,7 +543,7 @@ void GCanvasContext::adjustTextPenPoint(std::vector< GFont * > font,
 GCanvasContext::GCanvasContext(short w, short h)
     : mIsFboSupported(true), mWidth(w), mHeight(h), mCurrentState(nullptr),
       mHasClipRegion(false), mHiQuality(false), mVertexBufferIndex(0),
-      mSaveShader(nullptr), mFboTexture(), mFboFrame(0), mFboStencil(0), mSaveFboFrame(0),
+      mSaveShader(nullptr),
       mClearColor(DEFAULT_CLEAR_COLOR), mDevicePixelRatio(1.f), mContextType(0) //默认值设置为2D
 {
     CalculateProjectTransform();
@@ -575,21 +575,23 @@ void GCanvasContext::CalculateProjectTransform()
 
 void GCanvasContext::DeleteFBO()
 {
-    if (mFboFrame)
-    {
-        glDeleteFramebuffers(1, &mFboFrame);
-        mFboFrame = 0;
-    }
-
-    if (mFboStencil)
-    {
-        glDeleteRenderbuffers(1, &mFboStencil);
-        mFboStencil = 0;
-    }
-    
-    GLuint textureId = mFboTexture.GetTextureID();
-    glDeleteTextures(1, &textureId);
-    mFboTexture.Unbind();
+//    delete mFboBuffer;
+//    mFboBuffer = nullptr;
+//    if (mFboFrame)
+//    {
+//        glDeleteFramebuffers(1, &mFboFrame);
+//        mFboFrame = 0;
+//    }
+//
+//    if (mFboStencil)
+//    {
+//        glDeleteRenderbuffers(1, &mFboStencil);
+//        mFboStencil = 0;
+//    }
+//
+//    GLuint textureId = mFboTexture.GetTextureID();
+//    glDeleteTextures(1, &textureId);
+//    mFboTexture.Unbind();
 }
 
 void GCanvasContext::ClearScreen(const GColorRGBA &color) {
@@ -602,108 +604,47 @@ void GCanvasContext::ClearScreen(const GColorRGBA &color) {
 void GCanvasContext::InitFBO()
 {
     if (0 != mContextType) return;
+
     if (!mIsFboSupported)
     {
         return;
     }
-
-    DeleteFBO();
-
-    glGenFramebuffers(1, &mFboFrame);
-    BindFBO();
-
-    GLuint tid = 0;
-    glGenTextures(1, &tid);
-    mFboTexture.SetTextureID(tid);
-    mFboTexture.SetWidth(mWidth);
-    mFboTexture.SetHeight(mHeight);
-    mFboTexture.SetFormat(GL_RGBA);
-    mFboTexture.Bind();
-    glTexImage2D(GL_TEXTURE_2D, 0, mFboTexture.GetFormat(), mFboTexture.GetWidth(),
-                 mFboTexture.GetHeight(), 0, mFboTexture.GetFormat(),
-                 GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           mFboTexture.GetTextureID(), 0);
-
-    const char *extString = (const char *)glGetString(GL_EXTENSIONS);
-    bool OES_packed_depth_stencil =
-        (strstr(extString, OES_PACKED_DEPTH_STENCIL) != 0);
-
-    if (OES_packed_depth_stencil)
+    if(mFboMap.find(DefaultFboName) == mFboMap.end())
     {
-        glGenRenderbuffers(1, &mFboStencil);
-        glBindRenderbuffer(GL_RENDERBUFFER, mFboStencil);
-        glRenderbufferStorage(GL_RENDERBUFFER,
-                              GL_DEPTH24_STENCIL8_OES /*GL_DEPTH_COMPONENT16*/,
-                              mFboTexture.GetWidth(), mFboTexture.GetHeight());
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                  GL_RENDERBUFFER, mFboStencil);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, mFboStencil);
-    }
-    else
-    {
-        glGenRenderbuffers(1, &mFboStencil);
-        glBindRenderbuffer(GL_RENDERBUFFER, mFboStencil);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8,
-                              mFboTexture.GetWidth(), mFboTexture.GetHeight());
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
-                                  GL_RENDERBUFFER, mFboStencil);
+        mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight, mClearColor);
     }
 
-    ClearScreen(mClearColor);
-    glClear(GL_STENCIL_BUFFER_BIT);
 
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    bool is_fbo_supported = true;
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        is_fbo_supported = false;
-
-        LOG_D("failed to make complete framebuffer object %x", status);
-        LOG_D("FBO fail ! fboFrame = %d, fboTexture = %d, fboStencial = "
-                  "%d, w = %d, h = %d",
-                  mFboFrame, mFboTexture.GetTextureID(), mFboStencil,
-                  mFboTexture.GetWidth(), mFboTexture.GetHeight());
-    }
-    else
-    {
-        is_fbo_supported = true;
-
-        LOG_D("FBO complete! fboFrame = %d, fboTexture = %d, fboStencial = "
-                  "%d, w = %d, h = %d",
-                  mFboFrame, mFboTexture.GetTextureID(), mFboStencil,
-                  mFboTexture.GetWidth(), mFboTexture.GetHeight());
-    }
-
-    UnbindFBO();
-
-    mIsFboSupported = is_fbo_supported;
 }
 
 void GCanvasContext::BindFBO()
 {
-    if (!mIsFboSupported)
-    {
-        return;
-    }
+    mFboMap[DefaultFboName].BindFBO();
 
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mSaveFboFrame);
-    glBindFramebuffer(GL_FRAMEBUFFER, mFboFrame);
 }
 
 void GCanvasContext::UnbindFBO()
 {
-    if (!mIsFboSupported)
-    {
-        return;
-    }
+    mFboMap[DefaultFboName].UnbindFBO();
 
-    glBindFramebuffer(GL_FRAMEBUFFER, mSaveFboFrame);
+}
+
+GTexture* GCanvasContext::GetFboTexture()
+{
+    return &mFboMap[DefaultFboName].mFboTexture;
+}
+//
+//unsigned char* GCanvasContext::GetFboBuffer()
+//{
+//    return mFboBuffer;
+//}
+
+void GCanvasContext::UpdateFboBuffer()
+{
+    BindFBO();
+
+//    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, mFboBuffer);
+    UnbindFBO();
 }
 
 GCanvasContext::~GCanvasContext()
@@ -973,6 +914,45 @@ void GCanvasContext::PushRectangle(float x, float y, float w, float h,
     mVertexBufferIndex += 6;
 }
 
+void GCanvasContext::PushReverseRectangle(float x, float y, float w, float h,
+                                   float tx, float ty, float tw, float th,
+                                   GColorRGBA color)
+{
+    if (mVertexBufferIndex >= GCANVAS_VERTEX_BUFFER_SIZE - 6)
+    {
+        SendVertexBufferToGPU();
+    }
+
+    GPoint p11 = PointMake(x, y);
+    GPoint p21 = PointMake(x + w, y);
+    GPoint p12 = PointMake(x, y + h);
+    GPoint p22 = PointMake(x + w, y + h);
+
+    GPoint t11 = PointMake(tx, ty + th);
+    GPoint t21 = PointMake(tx + tw, ty + th);
+    GPoint t12 = PointMake(tx, ty);
+    GPoint t22 = PointMake(tx + tw, ty);
+
+    GVertex *vb = &CanvasVertexBuffer[mVertexBufferIndex];
+    vb[0].pos = p11;
+    vb[0].uv = t11;
+    vb[1].pos = p21;
+    vb[1].uv = t21;
+    vb[2].pos = p12;
+    vb[2].uv = t12;
+
+    vb[3].pos = p21;
+    vb[3].uv = t21;
+    vb[4].pos = p12;
+    vb[4].uv = t12;
+    vb[5].pos = p22;
+    vb[5].uv = t22;
+    vb[0].color = vb[1].color = vb[2].color = vb[3].color = vb[4].color =
+    vb[5].color = color;
+
+    mVertexBufferIndex += 6;
+}
+
 void GCanvasContext::PushPoints(const std::vector< GPoint > &points,
                                  GColorRGBA color)
 {
@@ -1136,8 +1116,8 @@ GCompositeOperation GCanvasContext::GlobalCompositeOperation()
 void GCanvasContext::SetGlobalCompositeOperation(GCompositeOperation op)
 {
     SendVertexBufferToGPU();
-    glBlendFunc(GCompositeOperationFuncs[op].source,
-                GCompositeOperationFuncs[op].destination);
+    glBlendFuncSeparate(GCompositeOperationFuncs[op].source,
+                GCompositeOperationFuncs[op].destination, GL_ONE, GL_ONE);
     mCurrentState->mGlobalCompositeOp = op;
 }
 
@@ -1221,6 +1201,23 @@ void GCanvasContext::ResetClip()
 
         SetClipFlag(false);
     }
+}
+
+void GCanvasContext::DrawCanvas(float w, float h, int textureId, float sx,
+                                float sy, float sw, float sh, float dx,
+                                float dy, float dw, float dh)
+{
+    GColorRGBA color;
+    color.rgba.r = 1.0f;
+    color.rgba.g = 1.0f;
+    color.rgba.b = 1.0f;
+    color.rgba.a = 1.0f;
+
+    mCurrentState->mShader->SetHasTexture(1);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    PushReverseRectangle(dx, dy, dw, dh, sx / w, sy / h, sw / w, sh / h, color);
+
+    SendVertexBufferToGPU();
 }
 
 void GCanvasContext::DrawImage1(float w, float h, int TextureId, float sx,
@@ -1483,6 +1480,7 @@ void GCanvasContext::UseRadialGradientPipeline()
         SetTransformOfShader(mCurrentState->mTransform);
     }
 }
+
 
 #ifdef ANDROID
 std::string GCanvas::exe2dSyncCmd(int cmd,const char *&args){
