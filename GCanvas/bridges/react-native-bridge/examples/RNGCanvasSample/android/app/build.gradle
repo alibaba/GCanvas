@@ -104,7 +104,7 @@ android {
         versionCode 1
         versionName "1.0"
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi", "x86", "armeabi-v7a"
         }
     }
     splits {
@@ -112,7 +112,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
+            include "armeabi", "x86", "armeabi-v7a"
         }
     }
     buildTypes {
@@ -126,7 +126,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def versionCodes = ["armeabi":1, "x86":2, "armeabi-v7a":3]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -137,7 +137,7 @@ android {
 }
 
 dependencies {
-    compile project(':bridges:react-native-bridge:react-native-gcanvas:android')
+    compile "com.taobao.gcanvas.bridges:rn:+"
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:+"  // From node_modules

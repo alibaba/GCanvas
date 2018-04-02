@@ -301,10 +301,9 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
         JNIEnv *je, jclass jc, jstring contextId, jstring renderCommands) {
     GCanvasManager *theManager = GCanvasManager::GetManager();
-    char *cid = jstringToString(je, contextId);
-    string canvasId = cid;
-    free(cid);
+    char *canvasId = jstringToString(je, contextId);
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
+    free(canvasId);
     if (theCanvas) {
         const char *rc = je->GetStringUTFChars(renderCommands, 0);
         int length = je->GetStringUTFLength(renderCommands);
@@ -399,15 +398,13 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setHiQuality(
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setDevicePixelRatio(
         JNIEnv *je, jclass jc, jstring contextId, jdouble ratio) {
-    LOG_D("Canvas JNI::setDevicePixelRatio");
-    char *cid = jstringToString(je, contextId);
-    string canvasId = cid;
-    free(cid);
-    LOG_D("Canvas JNI::setDevicePixelRatio");
+    char *canvasId = jstringToString(je, contextId);
+    LOG_D("Canvas JNI::setDevicePixelRatio %s", canvasId);
     GRenderer *render = GManager::getSingleton()->findRenderer(canvasId);
     if (render) {
         render->setDevicePixelRatio((const float) ratio);
     }
+    free(canvasId);
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_init(JNIEnv *je, jclass jc) {
@@ -431,11 +428,10 @@ Java_com_taobao_gcanvas_GCanvasJNI_isNeonSupport(JNIEnv *, jclass) {
 JNIEXPORT jboolean JNICALL Java_com_taobao_gcanvas_GCanvasJNI_isFboSupport(
         JNIEnv *je, jclass jc, jstring contextId) {
     LOG_D("Canvas JNI::isFboSupport");
-    char *cid = jstringToString(je, contextId);
-    string canvasId = cid;
-    free(cid);
+    char *canvasId = jstringToString(je, contextId);
     GCanvasManager *theManager = GCanvasManager::GetManager();
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
+    free(canvasId);
     if (theCanvas) {
         return (jboolean) theCanvas->IsFboSupport();
     }
@@ -449,10 +445,9 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getImageData(
     LOG_D("Canvas JNI::getImageData xy=(%d, %d), wh=(%d, %d)", x, y, width,
               height);
     GCanvasManager *theManager = GCanvasManager::GetManager();
-    char *cid = jstringToString(je, contextId);
-    string canvasId = cid;
-    free(cid);
+    char *canvasId = jstringToString(je, contextId);
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
+    free(canvasId);
     if (NULL == theCanvas) {
         return je->NewStringUTF("");
     }
@@ -660,12 +655,10 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setContextType(
 
 JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_exeSyncCmd
         (JNIEnv *je, jclass jc, jstring ContextID, jint type, jstring args) {
-    char *cid = jstringToString(je, ContextID);
-    string contextID = cid;
-    free(cid);
-
+    char *contextID = jstringToString(je, ContextID);
     GCanvasManager *theManager = GCanvasManager::GetManager();
     GCanvas *theCanvas = theManager->GetCanvas(contextID);
+    free(contextID);
     if (theCanvas) {
         const char *cargs = nullptr;
         if (args != NULL) {

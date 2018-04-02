@@ -39,7 +39,7 @@ import static com.taobao.gcanvas.bridges.spec.module.IGBridgeModule.ContextType.
  * @author ertong
  */
 public class GReactModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
-    private static final String NAME = "CanvasModule";
+    private static final String NAME = "GCanvasModule";
 
     private static final String TAG = GReactModule.class.getSimpleName();
 
@@ -235,7 +235,7 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         Point size = new Point();
         display.getSize(size);
         double devicePixelRatio = size.x * 1.0 / size.y;
-//
+
         GLog.d(TAG, "enable size " + size.toString());
         GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
 
