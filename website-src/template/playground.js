@@ -8,7 +8,6 @@ var query = (function () {
     return result;
 })();
 
-console.warn(document.querySelector('iframe'));
 if (query.id) {
     document.querySelector('iframe').src = "https://jsplayground.taobao.org/vueplayground/" + query.id
 }else{
