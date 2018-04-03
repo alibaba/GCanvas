@@ -17,6 +17,7 @@
 namespace gcanvas
 {
 typedef enum {
+    LOG_LEVEL_VERBOSE = -1,
     LOG_LEVEL_DEBUG = 0,
     LOG_LEVEL_INFO,
     LOG_LEVEL_WARN,
@@ -50,6 +51,7 @@ LogLevel GetLogLevel();
 #define LOG_EXT(...) ;
 #else
 #define LOG_TAG_NAME "gcanvas.native"
+#define LOG_V(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_VERBOSE, LOG_TAG_NAME, __VA_ARGS__)
 #define LOG_D(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_DEBUG, LOG_TAG_NAME, __VA_ARGS__)
 #define LOG_I(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_INFO, LOG_TAG_NAME, __VA_ARGS__)
 #define LOG_W(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_WARN, LOG_TAG_NAME, __VA_ARGS__)

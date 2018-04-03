@@ -27,12 +27,22 @@ void SetLogLevel(LogLevel logLevel)
 #if defined(__ANDROID__)
 int TransLogLevel(LogLevel logLevel)
 {
-    if (LOG_LEVEL_DEBUG == logLevel) return ANDROID_LOG_DEBUG;
-    if (LOG_LEVEL_INFO == logLevel) return ANDROID_LOG_INFO;
-    if (LOG_LEVEL_WARN == logLevel) return ANDROID_LOG_WARN;
-    if (LOG_LEVEL_ERROR == logLevel) return ANDROID_LOG_ERROR;
-    if (LOG_LEVEL_FATAL == logLevel) return ANDROID_LOG_FATAL;
-    return ANDROID_LOG_DEFAULT;
+    switch (logLevel){
+        case LOG_LEVEL_VERBOSE:
+            return ANDROID_LOG_VERBOSE;
+        case LOG_LEVEL_DEBUG:
+            return ANDROID_LOG_DEBUG;
+        case LOG_LEVEL_INFO:
+            return ANDROID_LOG_INFO;
+        case LOG_LEVEL_WARN:
+            return ANDROID_LOG_WARN;
+        case LOG_LEVEL_ERROR:
+            return ANDROID_LOG_ERROR;
+        case LOG_LEVEL_FATAL:
+            return ANDROID_LOG_FATAL;
+        default:
+            return ANDROID_LOG_DEFAULT;
+    }
 }
 #endif
 

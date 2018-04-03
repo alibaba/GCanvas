@@ -309,7 +309,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
         int length = je->GetStringUTFLength(renderCommands);
         if (0 != length) {
             theCanvas->mJniEnv = je;
-            theCanvas->CallNative(0x60000001, rc);
+            theCanvas->CallNative(0x20000001, rc);
             je->ReleaseStringUTFChars(renderCommands, rc);
         } else {
             theCanvas->LinkNativeGLProc();
