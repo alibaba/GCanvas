@@ -24,6 +24,9 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
     private SurfaceTexture mSurfaceTexture;
     private TextureView mTextureview;
     private static boolean INITIALIZED = false;
+    private Integer mContextType = null;
+    private Boolean mHiQuality = null;
+    private Double mDevicePixelRatio = null;
 
     private ArrayList<TextureView.SurfaceTextureListener> mDelegateLists;
 
@@ -62,6 +65,19 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         }
     }
 
+    public void setContextType(int contextType) {
+        mContextType = contextType;
+    }
+
+
+    public void setHiQuality(boolean hiQuality) {
+        mHiQuality = hiQuality;
+    }
+
+    public void setDevicePixelRatio(double devicePixelRatio) {
+        mDevicePixelRatio = devicePixelRatio;
+    }
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
 
@@ -73,7 +89,19 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
             mTextureview.setSurfaceTexture(mSurfaceTexture);
         }
 
+        if (mContextType != null) {
+            GCanvasJNI.setContextType(mKey, mContextType);
+        }
+        if (mHiQuality != null) {
+            GCanvasJNI.setHiQuality(mKey, mHiQuality);
+        }
+        if (mDevicePixelRatio != null) {
+            GCanvasJNI.setDevicePixelRatio(mKey, mDevicePixelRatio);
+        }
+
         onSurfaceChanged(this.mKey, mSurface, 0, width, height, mBackgroundColor);
+
+
         if (GCanvasJNI.sendEvent(mKey)) {
             if (mTextureview instanceof GTextureView) {
                 GLog.d("start to send event in GSurfaceCallback.");
@@ -98,6 +126,7 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
 
         onSurfaceChanged(this.mKey, mSurface, 0, width, height, mBackgroundColor);
 
+
         if (null != mDelegateLists) {
             for (TextureView.SurfaceTextureListener listener : mDelegateLists) {
                 listener.onSurfaceTextureSizeChanged(surface, width, height);
@@ -113,11 +142,12 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         }
 
         if (null != mDelegateLists) {
+            mSurfaceTexture = null;
             for (TextureView.SurfaceTextureListener listener : mDelegateLists) {
                 listener.onSurfaceTextureDestroyed(surface);
             }
         }
-
+        onSurfaceDestroyed(this.mKey, mSurface);
         return true;
     }
 

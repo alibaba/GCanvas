@@ -99,4 +99,16 @@ public class GTextureView extends TextureView {
 
         return "";
     }
+
+    public void setContextType(int contextType) {
+        mCallback.setContextType(contextType);
+    }
+
+    public void setHiQuality(boolean hiQuality) {
+        mCallback.setHiQuality(hiQuality);
+    }
+
+    public void setDevicePixelRatio(double devicePixelRatio) {
+        mCallback.setDevicePixelRatio(devicePixelRatio);
+    }
 }

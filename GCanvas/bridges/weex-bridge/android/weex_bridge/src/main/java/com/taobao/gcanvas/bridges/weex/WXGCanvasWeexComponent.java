@@ -33,6 +33,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class WXGCanvasWeexComponent extends WXComponent<GWXTextureView> implements TextureView.SurfaceTextureListener {
     private GWXTextureView mSurfaceView;
     public AtomicBoolean mSended = new AtomicBoolean(false);
+
+
+    public void setType(IGBridgeModule.ContextType type) {
+        mSurfaceView.setContextType(type.value());
+        mType  = type;
+    }
+
+    public void setHiQuality(boolean hiQuality) {
+        mSurfaceView.setHiQuality(hiQuality);
+    }
+
+    public void setDevicePixelRatio(double devicePixelRatio) {
+        mSurfaceView.setDevicePixelRatio(devicePixelRatio);
+    }
+
     public IGBridgeModule.ContextType mType;
 
     private static final String TAG = WXGCanvasWeexComponent.class.getSimpleName();

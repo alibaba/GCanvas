@@ -110,7 +110,9 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
 
             WXGCanvasWeexComponent component = module.mComponentMap.get(canvasId);
             if (component != null) {
-                component.mType = type;
+                component.setType(type);
+                component.setHiQuality(true);
+                component.setDevicePixelRatio(devicePixelRatio);
             }
         }
 

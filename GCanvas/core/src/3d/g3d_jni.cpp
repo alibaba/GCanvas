@@ -123,7 +123,7 @@ Java_com_taobao_gcanvas_surface_GTextureViewCallback_onSurfaceDestroyed(JNIEnv *
     if(render) {
         render->surfaceDestroy();
     }
-
+    GManager::getSingleton()->removeRenderer(cxx_string);
     env->ReleaseStringUTFChars(key, str_chars);
 }
 
