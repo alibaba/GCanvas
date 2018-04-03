@@ -2,8 +2,6 @@ package com.taobao.gcanvas.bridges.rn.bridge;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.ReadableNativeArray;
-import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableNativeArray;
@@ -20,7 +18,7 @@ public class RNJSCallbackArray implements IJSCallbackArray {
 
     private WritableNativeArray mArray = new WritableNativeArray();
 
-    public RNJSCallbackArray(ReadableNativeArray array) {
+    public RNJSCallbackArray(ReadableArray array) {
         if (null != array) {
             for (int i = 0; i < array.size(); i++) {
                 ReadableType type = array.getType(i);
@@ -97,7 +95,7 @@ public class RNJSCallbackArray implements IJSCallbackArray {
 
     @Override
     public IJSCallbackArray getArray(int index) {
-        ReadableNativeArray array = mArray.getArray(index);
+        ReadableArray array = mArray.getArray(index);
         if (null != array) {
             return new RNJSCallbackArray(array);
         }
@@ -106,7 +104,7 @@ public class RNJSCallbackArray implements IJSCallbackArray {
 
     @Override
     public IJSCallbackMap getMap(int index) {
-        ReadableNativeMap map = mArray.getMap(index);
+        ReadableMap map = mArray.getMap(index);
         if (null != map) {
             return new RNJSCallbackMap(map);
         }

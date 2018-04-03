@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.adapters.img.impl.fresco.GCanvasFrescoImageLoader;
 import com.taobao.gcanvas.bridges.rn.bridge.RNJSCallbackArray;
@@ -36,6 +37,7 @@ import static com.taobao.gcanvas.bridges.spec.module.IGBridgeModule.ContextType.
 
 /**
  * ReactNative bridge.
+ *
  * @author ertong
  */
 public class GReactModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -109,6 +111,7 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
         @Override
         public void setDevicePixelRatio(String canvasId, double ratio) {
+            GCanvasJNI.setDevicePixelRatio(canvasId, ratio);
         }
 
         @Override
@@ -184,6 +187,9 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
     @ReactMethod
     public void render(String cmd, String canvasId) {
+        if (TextUtils.isEmpty(canvasId) || TextUtils.isEmpty(cmd)) {
+            return;
+        }
         mImpl.render(canvasId, cmd);
     }
 
@@ -193,12 +199,23 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         mImpl.setLogLevel(level);
     }
 
+
     @ReactMethod
-    public String enable(String args) {
+    public String enable(ReadableMap args) {
+        if (null == args) {
+            return Boolean.FALSE.toString();
+        }
+
+        if (!args.hasKey("componentId")) {
+            return Boolean.FALSE.toString();
+        }
+
+        JSONObject data = new JSONObject();
         try {
-            JSONObject json = new JSONObject(args);
-            return mImpl.enable(json);
+            data.putOpt("componentId", args.getString("componentId"));
+            return mImpl.enable(data);
         } catch (JSONException e) {
+            GLog.e(TAG, "error when enable", e);
             return Boolean.FALSE.toString();
         }
     }
