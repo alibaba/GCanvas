@@ -24,35 +24,28 @@ android {
     }
 }
 
-def pomConfig = {
-    scm {
-        url "https://github.com/alibaba/GCanvas"
-        connection "scm:git:https://github.com/alibaba/GCanvas.git"
-        developerConnection "scm:git:git@github.com:alibaba/GCanvas.git"
-    }
-    licenses {
-        license {
-            name 'Apache 2.0'
-            url 'https://www.apache.org/licenses/LICENSE-2.0'
-            distribution 'repo'
-        }
-    }
-}
-
 dependencies {
-    compile "com.taobao.gcanvas:corelib:1.0.2"
-    compile "com.taobao.gcanvas.bridges:spec:1.0.1"
-    compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    debugImplementation project(':android:gcanvas_library')
+    debugImplementation project(':android:bridge_spec')
+    debugImplementation project(':android:adapters:gcanvas_imageloader_fresco')
+    debugImplementation project(':android:adapters:bridge_adapter')
+
+
+    releaseImplementation "com.taobao.gcanvas:corelib:1.0.2"
+    releaseImplementation "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
+    releaseImplementation "com.taobao.gcanvas.bridges:spec:1.0.1"
+
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
-    provided "com.taobao.android:weexplugin-annotation:${rootProject.extensions.sdks.WeexAnnotation}"
-    provided "com.taobao.android:weex_sdk:${rootProject.extensions.sdks.Weex}"
-    provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
-    provided "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
-    provided "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
+    testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
+    compileOnly "com.taobao.android:weexplugin-annotation:${rootProject.extensions.sdks.WeexAnnotation}"
+    compileOnly "com.taobao.android:weex_sdk:${rootProject.extensions.sdks.Weex}"
+    compileOnly "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
 }
 
 

@@ -45,9 +45,12 @@ android {
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.taobao.gcanvas:corelib:1.0.2"
-    compile "com.taobao.gcanvas.adapters:img:1.0.0"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    debugImplementation project(':android:gcanvas_library')
+    debugImplementation project(':android:adapters:bridge_adapter')
+
+    releaseImplementation "com.taobao.gcanvas:corelib:1.0.2"
+    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
 }
 
 project.ext.id = rootProject.extensions.artifacts.BridgeSpec

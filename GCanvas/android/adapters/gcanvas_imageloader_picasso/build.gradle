@@ -28,8 +28,10 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
-    compile "com.taobao.gcanvas.adapters:img:1.0.0"
+    compileOnly "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
+
+    debugImplementation project(':android:adapters:bridge_adapter')
+    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
 }
 
 project.ext.id = rootProject.extensions.artifacts.PicassoAdapter

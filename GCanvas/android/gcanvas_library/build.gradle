@@ -4,8 +4,8 @@ group = rootProject.extensions.groups.Main
 version = "1.0.2"
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':core')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':core')
 }
 
 buildscript {
