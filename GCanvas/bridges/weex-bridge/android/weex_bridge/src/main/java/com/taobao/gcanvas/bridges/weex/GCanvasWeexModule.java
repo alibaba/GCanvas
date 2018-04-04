@@ -95,9 +95,13 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
             GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
 
 
-            GCanvasJNI.setHiQuality(canvasId, true);
-            GCanvasJNI.setContextType(canvasId, type.value());
-            GCanvasJNI.setDevicePixelRatio(canvasId, devicePixelRatio);
+
+            /**
+             * open high Quality default
+             */
+            GCanvasJNI.setWrapperHiQuality(canvasId, true);
+            GCanvasJNI.setWrapperDevicePixelRatio(canvasId, devicePixelRatio);
+            GCanvasJNI.setWrapperContextType(canvasId, type.value());
             if (GCanvasJNI.sendEvent(canvasId)) {
                 GLog.d("start to send event in module.");
                 WXGCanvasWeexComponent component = module.mComponentMap.get(canvasId);
