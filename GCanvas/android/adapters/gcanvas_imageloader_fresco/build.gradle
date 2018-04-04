@@ -33,8 +33,7 @@ dependencies {
     compileOnly "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
     testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
 
-    debugImplementation project(':android:adapters:bridge_adapter')
-    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
+    implementation project(':android:adapters:bridge_adapter')
 }
 
 project.ext.id = rootProject.extensions.artifacts.FrescoAdapter

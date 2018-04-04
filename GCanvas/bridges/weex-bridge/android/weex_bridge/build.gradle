@@ -25,16 +25,10 @@ android {
 }
 
 dependencies {
-    debugImplementation project(':android:gcanvas_library')
-    debugImplementation project(':android:bridge_spec')
-    debugImplementation project(':android:adapters:gcanvas_imageloader_fresco')
-    debugImplementation project(':android:adapters:bridge_adapter')
-
-
-    releaseImplementation "com.taobao.gcanvas:corelib:1.0.2"
-    releaseImplementation "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
-    releaseImplementation "com.taobao.gcanvas.bridges:spec:1.0.1"
-
+    implementation project(':android:gcanvas_library')
+    implementation project(':android:bridge_spec')
+    implementation project(':android:adapters:gcanvas_imageloader_fresco')
+    implementation project(':android:adapters:bridge_adapter')
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {

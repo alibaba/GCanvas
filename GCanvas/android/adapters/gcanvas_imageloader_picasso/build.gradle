@@ -30,8 +30,7 @@ dependencies {
 
     compileOnly "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
 
-    debugImplementation project(':android:adapters:bridge_adapter')
-    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
+    implementation project(':android:adapters:bridge_adapter')
 }
 
 project.ext.id = rootProject.extensions.artifacts.PicassoAdapter
