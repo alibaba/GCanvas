@@ -301,7 +301,7 @@ public:
 
 #ifdef ANDROID
     JNIEnv *mJniEnv;
-    jobject *mCanvasRender;
+//    jobject *mCanvasRender;
     JNIEnv *GetEnv();
     sem_t mSyncSem;
     bool mSync = false;

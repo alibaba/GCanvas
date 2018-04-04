@@ -64,4 +64,10 @@ export default class GCanvas {
         return context;
 
     }
+
+    reset() {
+        GCanvas.GBridge.callReset(this.id);
+    }
+
+
 }

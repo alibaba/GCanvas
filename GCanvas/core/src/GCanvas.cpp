@@ -63,7 +63,6 @@ GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0) {
 
 #ifdef ANDROID
     mJniEnv = NULL;
-    mCanvasRender = NULL;
 #endif
 
     mContextLost = false;
@@ -1924,11 +1923,7 @@ bool GCanvas::continueProcess() {
         return false;
     }
 
-    if (!mBitmapQueue.empty() || !mCmdQueue.empty()) {
-        return true;
-    }
-
-    return false;
+    return !mBitmapQueue.empty() || !mCmdQueue.empty();
 
 }
 

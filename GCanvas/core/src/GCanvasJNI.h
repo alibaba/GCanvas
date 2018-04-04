@@ -88,7 +88,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
-        JNIEnv *je, jclass jc, jobject jCanvasRender, jstring contextId,
+        JNIEnv *je, jclass jc, jstring contextId,
         jstring renderCommands);
 
 /*
@@ -106,15 +106,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_surfaceChanged(
  */
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_captureGLLayer(
         JNIEnv *, jclass, jstring, jstring, jint, jint, jint, jint, jstring);
-
-/*
- * Class:     com_taobao_gcanvas_GCanvasJNI
- * Method:    contextLost
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_contextLost(JNIEnv *,
-                                                                      jclass,
-                                                                      jstring);
 
 /*
  * Class:     com_taobao_gcanvas_GCanvasJNI
@@ -187,16 +178,10 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_texSubImage2D(
         jint target, jint level, jint xoffset, jint yoffset, jint format, jint type);
 
 
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getWindvaneNativeFuncPtr(
-        JNIEnv *je, jclass jc);
-
 JNIEXPORT bool JNICALL Java_com_taobao_gcanvas_GCanvasJNI_sendEvent(
 		JNIEnv *je, jclass jc, jstring contextId);
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_registerCallback(JNIEnv *je, jclass jc, jstring soPath, jint version);
-
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_destroyWVGRef(
-		JNIEnv *je, jclass jc);
 
 JNIEXPORT jint JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring contextId);
 

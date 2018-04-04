@@ -1,13 +1,13 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Bridge
-version = "1.0.0"
+version = "1.0.1"
 
 buildscript {
     repositories {
         //本地库，local repository(${user.home}/.m2/repository)
-        mavenCentral()
         jcenter()
+        mavenCentral()
         maven {
             url 'https://maven.google.com/'
             name 'Google'
@@ -46,8 +46,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':android:adapters:bridge_adapter')
-    compile project(':android:gcanvas_library')
+    compile "com.taobao.gcanvas:corelib:1.0.2"
+    compile "com.taobao.gcanvas.adapters:img:1.0.0"
 }
 
 project.ext.id = rootProject.extensions.artifacts.BridgeSpec

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Bridge
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -40,9 +40,9 @@ def pomConfig = {
 }
 
 dependencies {
-    compile project(':android:gcanvas_library')
-    compile project(':android:bridge_spec')
-    compile project(':android:adapters:gcanvas_imageloader_fresco')
+    compile "com.taobao.gcanvas:corelib:1.0.2"
+    compile "com.taobao.gcanvas.bridges:spec:1.0.1"
+    compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

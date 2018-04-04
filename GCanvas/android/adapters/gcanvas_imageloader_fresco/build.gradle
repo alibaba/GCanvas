@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Adapter
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -31,7 +31,7 @@ dependencies {
 
     provided "com.android.support:appcompat-v7:${rootProject.extensions.sdks.Support}"
     provided "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
-    compile project(':android:adapters:bridge_adapter')
+    compile "com.taobao.gcanvas.adapters:img:1.0.0"
     testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
 }
 

@@ -1,9 +1,21 @@
 <template>
-	<div ref="test">
-		<gcanvas v-if="isWeex" ref="canvas_holder" style="top: 0; width:750;height:750;position:absolute; background-color:rgba(0,0,0,0.1)" ></gcanvas>
-		<canvas v-if="!isWeex" ref="canvas_holder" style="width:750px;height:750px;background-color:rgba(0,0,0,0)"></canvas>
+	<div ref="test">        
+        <div style="height: 750px">
+            <gcanvas v-if="isWeex" ref="canvas_holder" style="top: 0; width:750;height:750;position:absolute; background-color:rgba(0,0,0,0.1)" ></gcanvas>
+            <canvas v-if="!isWeex" ref="canvas_holder" style="width:750px;height:750px;background-color:rgba(0,0,0,0)"></canvas>
+        </div>
+        <div class="button" size="large" value="push" @click="push"></div>        
 	</div>
 </template>
+
+<style>
+.button {
+  height: 200px;
+  background-color: #ff0;
+}
+</style>
+
+
 <script>
 const isWeex = typeof callNative === "function";
 
@@ -23,7 +35,8 @@ function start(ref, size) {
   var pattern = null;
 
   var image = new EnvImage();
-  image.src = "https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png";
+  image.src =
+    "https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png";
   image.onload = function() {
     imageLoaded = true;
     pattern = ctx.createPattern(image, "repeat");
@@ -109,10 +122,20 @@ export default {
     }
 
     if (isWeex) {
-      ref = enable(ref, {bridge: WeexBridge});
+      ref = enable(ref, { bridge: WeexBridge });
     }
 
     start(ref, size);
+  },
+
+  methods: {
+    push: function() {
+      var url = "./multi-canvas.weex.js";
+      if (isWeex) {
+        const event = weex.requireModule("event");
+        event.openURL(url);
+      }
+    }
   }
 };
 </script>

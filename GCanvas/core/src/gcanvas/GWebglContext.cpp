@@ -2578,28 +2578,28 @@ int texImage2D(GCanvas *obj, const char *&p)
 #endif
 
 #ifdef ANDROID
-        int next_cmd = atoi(p);
-        jint flush_flag = 1;
-
-        // if next cmd still is texImage2D, can unflush load cmd with
-        // java.primise has the same  param num .
-        if ((next_cmd >= 1) && (next_cmd <= WEBGL_API_COUNT) &&
-            (g_webglFuncMap[next_cmd] == texImage2D))
-        {
-            flush_flag = 0;
-        }
-
-        JNIEnv *je = obj->mJniEnv;
-        jobject &jCanvasRender = *(obj->mCanvasRender);
-        jclass cls = je->GetObjectClass(jCanvasRender);
-        jmethodID jmid =
-            je->GetMethodID(cls, "dealTexture", "(Ljava/lang/String;III)V");
-        jstring jparam = je->NewStringUTF(src.c_str());
-        jint jflipy = obj->mPixelFlipY;
-
-        LOG_D("[webgl::exec] glTexImage2D(%s, 0, %s, 0)", target, src.c_str());
-        je->CallVoidMethod(jCanvasRender, jmid, jparam, target, jflipy,
-                           flush_flag);
+//        int next_cmd = atoi(p);
+//        jint flush_flag = 1;
+//
+//        // if next cmd still is texImage2D, can unflush load cmd with
+//        // java.primise has the same  param num .
+//        if ((next_cmd >= 1) && (next_cmd <= WEBGL_API_COUNT) &&
+//            (g_webglFuncMap[next_cmd] == texImage2D))
+//        {
+//            flush_flag = 0;
+//        }
+//
+//        JNIEnv *je = obj->mJniEnv;
+//        jobject &jCanvasRender = *(obj->mCanvasRender);
+//        jclass cls = je->GetObjectClass(jCanvasRender);
+//        jmethodID jmid =
+//            je->GetMethodID(cls, "dealTexture", "(Ljava/lang/String;III)V");
+//        jstring jparam = je->NewStringUTF(src.c_str());
+//        jint jflipy = obj->mPixelFlipY;
+//
+//        LOG_D("[webgl::exec] glTexImage2D(%s, 0, %s, 0)", target, src.c_str());
+//        je->CallVoidMethod(jCanvasRender, jmid, jparam, target, jflipy,
+//                           flush_flag);
 
 // TODO: here need call ReleaseString for free mem, ref is
 // :http://blog.csdn.net/coutcin/article/details/1350245

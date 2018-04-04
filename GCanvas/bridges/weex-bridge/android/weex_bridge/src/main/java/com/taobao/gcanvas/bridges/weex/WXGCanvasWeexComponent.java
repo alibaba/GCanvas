@@ -121,7 +121,7 @@ public class WXGCanvasWeexComponent extends WXComponent<GWXTextureView> implemen
 
         GLog.d(TAG, "enable width = " + screenWidth + ",devicePixelRatio = " + devicePixelRatio);
 
-        GCanvasJNI.setDevicePixelRatio(getRef(), devicePixelRatio);
+        GCanvasJNI.setWrapperDevicePixelRatio(getRef(), devicePixelRatio);
     }
 
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {

@@ -62,9 +62,11 @@ const GBridge = {
     },
 
     callSetContextType: function (componentId, context_type) {
-
         GCanvasModule.setContextType(context_type, componentId);
+    },
 
+    callReset: function(id){
+        GCanvasModule.resetComponent && canvasModule.resetComponent(componentId);
     },
 
     render: isWeexIOS ? function (componentId) {
@@ -205,7 +207,6 @@ const GBridge = {
     },
 
     bindImageTexture(componentId, src, imageId) {
-        console.log(src, imageId);
         GCanvasModule.bindImageTexture([src, imageId], componentId);
     },
 

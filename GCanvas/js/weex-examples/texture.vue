@@ -2,7 +2,7 @@
   <div>
     <gcanvas v-if="isWeex" ref="canvas_holder" style="width:750;height:750;background-color:rgba(255,0,0,1)"></gcanvas>
     <canvas v-if="!isWeex" ref="canvas_holder" style="width:750px;height:750px;background-color:rgba(255,0,0,1)"></canvas>
-    <text class="text">isWeex0:{{isWeex}}</text>
+    <text class="text">isWeex:{{isWeex}}</text>
   </div>
 </template>
 <style>
@@ -30,11 +30,7 @@ function loadImage(url, callback) {
   image.src = url;
 }
 
-function startTexture(ref, size) {
-  if (isWeex) {
-    ref.width = size.width;
-    ref.height = size.height;
-  }
+function startTexture(ref) {
 
   var gl = ref.getContext("webgl");
 
@@ -108,24 +104,17 @@ export default {
   mounted: function() {
     var ref = this.$refs.canvas_holder;
 
-    var size = isWeex
-      ? {
-          width: 750,
-          height: 750
-        }
-      : {
-          width: parseInt(ref.style.width),
-          height: parseInt(ref.style.height)
-        };
-    if (!isWeex) {
-      ref.width = size.width;
-      ref.height = size.height;
+    if (isWeex) {
+      ref = enable(ref, {
+        debug: false,
+        bridge: WeexBridge
+      });
     }
 
-    if (isWeex) {
-      ref = enable(ref, { debug: true, disableComboCommands: true, bridge: WeexBridge });
-    }
-    startTexture(ref, size);
+    ref.width = WXEnvironment.deviceWidth;
+    ref.height = WXEnvironment.deviceWidth;
+
+    startTexture(ref);
   }
 };
 </script>

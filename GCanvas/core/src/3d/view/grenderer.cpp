@@ -257,6 +257,8 @@ void GRenderer::renderLoop() {
                     m_sendEvent = true;
                 }
 
+                m_proxy->OnSurfaceChanged(m_width, m_height);
+
                 sem_post(&m_SyncSem);
             }
 
