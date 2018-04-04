@@ -1674,8 +1674,8 @@ std::string GCanvas::metalProc(int op, int sync, std::string args) {
 }
 
 const char *GCanvas::CallNative(int type, std::string args) {
-//    LOG_D("GCanvas::CallNative type: %d", type);
-//    LOG_D("GCanvas::CallNative mContextLost: %d, mExit: %d", mContextLost, mExit);
+    LOG_D("GCanvas::CallNative type: %d ===> cmd = %s", type, args.c_str());
+    LOG_D("GCanvas::CallNative mContextLost: %d, mExit: %d", mContextLost, mExit);
     if (mContextLost) {
         return "";
     }
@@ -1757,11 +1757,11 @@ void GCanvas::clearCmdQueue() {
 }
 
 void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
-//    LOG_D("enter QueueProc");
+    LOG_V("enter QueueProc");
     if (queue == nullptr) {
         return;
     }
-//    LOG_D("queue is not null! %d", queue->size());
+    LOG_V("queue is not null! %d", queue->size());
     if (!queue->empty()) {
         struct GCanvasCmd *p = reinterpret_cast<struct GCanvasCmd *>(queue->front());
         int type = p->type;
@@ -1771,26 +1771,29 @@ void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
 
         std::string args = p->args;
 
-//        LOG_D("start to process queue cmd.");
-
         switch (cmd) {
             case CANVAS: {
+                LOG_V("CANVAS PROC");
                 canvasProc(op, sync, args);
                 break;
             }
             case WEBGL: {
+                LOG_V("WEBGL PROC");
                 webglProc(op, sync, args);
                 break;
             }
             case VULKAN: {
+                LOG_V("VULKAN PROC");
                 vulkanProc(op, sync, args);
                 break;
             }
             case METAL: {
+                LOG_V("METAL PROC");
                 metalProc(op, sync, args);
                 break;
             }
             default: {
+                LOG_V("NOTHING FOUND, PROC");
                 break;
             }
         }
@@ -1818,7 +1821,7 @@ void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
 void GCanvas::LinkNativeGLProc() {
 
     if (mContextLost) {
-//        LOG_D("in LinkNativeGLProc mContextLost");
+        LOG_D("in LinkNativeGLProc mContextLost");
         clearCmdQueue();
         return;
     }

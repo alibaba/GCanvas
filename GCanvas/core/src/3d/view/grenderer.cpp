@@ -203,14 +203,15 @@ void GRenderer::surfaceExit() {
 }
 
 void GRenderer::drawFrame() {
-    struct timeval before;
-    struct timeval after;
-    gettimeofday(&before, NULL);
+//    struct timeval before;
+//    struct timeval after;
+//    gettimeofday(&before, NULL);
+    LOG_D("drawFrame");
     if (m_proxy) {
-//        LOG_D("start to linkNativeGLProc.");
+        LOG_D("start to linkNativeGLProc.");
         m_proxy->LinkNativeGLProc();
     }
-    gettimeofday(&after, NULL);
+//    gettimeofday(&after, NULL);
 //    LOG_D("before drawFrame: sec = %d, usec = %d, after sec = %d, usec = %d", before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
 }
 
@@ -221,16 +222,16 @@ void GRenderer::renderLoop() {
             m_proxy->finishProc();
         }
 
-        if((m_requestInitialize || m_initialized)&& m_viewportchanged) {
+        if(m_requestInitialize || m_viewportchanged) {
             if (!m_initialized) {
-//                LOG_D("on initialize in thread.");
+                LOG_D("on initialize in thread.");
                 initialize();
                 m_initialized = true;
                 if (m_proxy) m_proxy->setContextLost(false);
             }
 
             if (!m_proxy) {
-//                LOG_D("create canvas in thread.");
+                LOG_D("create canvas in thread.");
                 m_proxy = new gcanvas_proxy(m_contextid, this);
                 m_proxy->mContextType = m_context_type;
                 GCanvasManager *m = GCanvasManager::GetManager();
@@ -245,7 +246,7 @@ void GRenderer::renderLoop() {
             }
 
             if (m_viewportchanged) {
-//                LOG_D("onsurface changed in thread. w = %d, h = %d", m_width, m_height);
+                LOG_D("onsurface changed in thread. w = %d, h = %d", m_width, m_height);
                 m_proxy->SetClearColor(mClearColor);
                 m_proxy->SetDevicePixelRatio(m_device_pixel_ratio);
                 m_viewportchanged = false;
@@ -313,16 +314,13 @@ void GRenderer::renderLoop() {
         }
 
         if (m_egl_display) {
-//            LOG_D("start to draw frame in thread.");
+            LOG_D("start to draw frame in thread.");
             drawFrame();
             if (m_refresh) {
-                struct timeval before;
-                struct timeval after;
-                gettimeofday(&before, NULL);
-//                LOG_D("start to swap buffer.");
+                LOG_D("start to swap buffer.");
                 if (!eglSwapBuffers(m_egl_display, m_egl_surface)) {
+                    LOG_E("swap buffer failed!");
                 }
-                gettimeofday(&after, NULL);
 //                LOG_D("swapbuffer before sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
                 m_refresh = false;
             }

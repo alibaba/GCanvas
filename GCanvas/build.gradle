@@ -5,6 +5,7 @@ allprojects {
         maven {
             url 'https://maven.google.com/'
             name 'Google'
+//            url "$rootDir/bridges/react-native-bridge/examples/RNGCanvasSample/node_modules/react-native/android"
         }
         mavenCentral()
         jcenter()
@@ -21,11 +22,12 @@ buildscript {
         maven {
             url 'https://maven.google.com/'
             name 'Google'
+//            url "$rootDir/bridges/react-native-bridge/examples/RNGCanvasSample/node_modules/react-native/android"
         }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.0.1"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath "com.android.tools.build:gradle:3.1.0"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
     }
 }
 
@@ -34,9 +36,9 @@ task clean(type: Delete) {
 }
 
 rootProject.extensions.sdks = [
-        'Gradle'        : '3.0.1',
+        'Gradle'        : '3.1.1',
         'CompileSDK'    : 26,
-        'BuildTool'     : '26.0.2',
+        'BuildTool'     : '27.0.3',
         'MinSDK'        : 16,
         'TargetSDK'     : 25,
         'Fresco'        : '1.8.0',

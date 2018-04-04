@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Bridge
-version = "1.0.2"
+version = "1.0.3"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -25,17 +25,26 @@ android {
 }
 
 dependencies {
-    compile "com.taobao.gcanvas:corelib:1.0.2"
-    compile "com.taobao.gcanvas.bridges:spec:1.0.1"
-    compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+
+    debugImplementation project(':android:gcanvas_library')
+    debugImplementation project(':android:bridge_spec')
+    debugImplementation project(':android:adapters:gcanvas_imageloader_fresco')
+    debugImplementation project(':android:adapters:bridge_adapter')
+
+    releaseImplementation "com.taobao.gcanvas:corelib:1.0.2"
+    releaseImplementation "com.taobao.gcanvas.bridges:spec:1.0.1"
+    releaseImplementation "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
+    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
+
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
-    provided "com.facebook.react:react-native:+"
-    provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
-    provided "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
+    testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
+    compileOnly "com.facebook.react:react-native:+"
+    compileOnly "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
 }
 
 project.ext.id = rootProject.extensions.artifacts.ReactNative

@@ -10,7 +10,7 @@
     "gcanvas.js": "^0.0.6",
     "react": "16.2.0",
     "react-native": "0.53.0",
-    "react-native-gcanvas": "^0.0.4"
+    "react-native-gcanvas": "0.0.6-dev"
   },
   "devDependencies": {
     "babel-jest": "22.1.0",

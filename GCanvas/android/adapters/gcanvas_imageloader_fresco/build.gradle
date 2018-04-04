@@ -27,12 +27,13 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided "com.android.support:appcompat-v7:${rootProject.extensions.sdks.Support}"
-    provided "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
-    compile "com.taobao.gcanvas.adapters:img:1.0.0"
-    testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
+    compileOnly "com.android.support:appcompat-v7:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
+    debugImplementation project(':android:adapters:bridge_adapter')
+    releaseImplementation "com.taobao.gcanvas.adapters:img:1.0.0"
+    testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
 }
 
 project.ext.id = rootProject.extensions.artifacts.FrescoAdapter
