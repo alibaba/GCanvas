@@ -48,7 +48,6 @@ Also you can run the given sample `RNGCanvasSample`, follow steps below:
     compile "com.taobao.gcanvas.bridges:spec:1.0.1"
     compile "com.taobao.gcanvas.bridges:rn:1.0.4"
 ```
-
 2. Add 'react-native-gcanvas' dependencies to your package.json
 ```json
 {
@@ -59,7 +58,6 @@ Also you can run the given sample `RNGCanvasSample`, follow steps below:
 }
 ```
 gcanvas.js uses babel to compatible with ES6. If your environment has no babel installed, add below lines to your package.json
-
 ```json
 {
     "dependencies": {
@@ -70,9 +68,7 @@ gcanvas.js uses babel to compatible with ES6. If your environment has no babel i
     }
 }
 ```
-
 run ```npm install ``` to install all packages.
-
 3. Register GCanvas ReactNative Package in your Application class:
 ```java
  @Override

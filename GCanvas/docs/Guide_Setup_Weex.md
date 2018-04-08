@@ -11,15 +11,13 @@ Make sure the following configuration is completed:
 ### Steps
 The steps are as follows:
 1. Create an Android project. There is nothing to be specified, according to your habits to.
-2. **At this moment, our publication is being reviewed by Maven. Once published, source dependency will be changed to AAR dependency. **
-   Download source code, update build.gradle by adding the following dependencies:
+2. Update build.gradle by adding the following dependencies:
 ```groovy
     compile "com.taobao.gcanvas:corelib:1.0.4"
     compile "com.taobao.gcanvas.adapters:img:1.0.0"
     compile "com.taobao.gcanvas.bridges:spec:1.0.1"
     compile "com.taobao.gcanvas.bridges:weex:1.0.2"
 ```
-
 If you use Fresco as your image loader, add Fresco adapter dependency:
 ```groovy
 compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
@@ -28,7 +26,6 @@ Or if you choose Picasso as your image loader, add Picasso adapter dependency:
 ```groovy
 compile "com.taobao.gcanvas.adapters:img_picasso:1.0.1"
 ```
-
 3. Register GCanvas Module and Component to your Weex Application.
 ```java
 WXSDKEngine.registerModule("gcanvas", GCanvasWeexModule.class);
