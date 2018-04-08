@@ -130,6 +130,7 @@ bintray {
         repo = "GCanvas"
         name = "${project.group}:${project.ext.id}"
         userOrg = user
+        publish = true
         licenses = ['Apache-2.0']
         websiteUrl = "https://g-platform.github.io"
         vcsUrl = project.ext.meta.vcsUrl

@@ -1,6 +1,6 @@
 {
   "name": "react-native-gcanvas",
-  "version": "0.0.6-dev",
+  "version": "0.0.5",
   "description": "GCanvas React-Native version",
   "main": "index.js",
   "scripts": {

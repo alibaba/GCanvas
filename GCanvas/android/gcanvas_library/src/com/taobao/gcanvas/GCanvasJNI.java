@@ -24,9 +24,10 @@ import java.util.Map;
 
 public class GCanvasJNI {
     public static boolean GCanvaslibEnable = false;
+
     // Native methods
     static {
-        if(!GCanvaslibEnable){
+        if (!GCanvaslibEnable) {
             try {
                 System.loadLibrary("gcanvas");
                 System.loadLibrary("freetype");
@@ -52,35 +53,36 @@ public class GCanvasJNI {
 
     public static native void release(); // Deletes native canvas
 
-    public static void setWrapperDevicePixelRatio(String contextID, double ratio){
+    public static void setWrapperDevicePixelRatio(String contextID, double ratio) {
         setDevicePixelRatio(contextID, ratio);
         devicePixelRatioMap.put(contextID, ratio);
     }
 
-    public static void setWrapperContextType(String contextID, int type){
+    public static void setWrapperContextType(String contextID, int type) {
         setContextType(contextID, type);
         contextTypeMap.put(contextID, type);
     }
 
-    public static void setWrapperHiQuality(String contextID, boolean isHiQuality){
+    public static void setWrapperHiQuality(String contextID, boolean isHiQuality) {
         setHiQuality(contextID, isHiQuality);
         qualityMap.put(contextID, isHiQuality);
     }
 
-    public static void refreshArguments(String contextID){
-        Integer type=contextTypeMap.get(contextID);
-        if(type!=null){
+    public static void refreshArguments(String contextID) {
+        Integer type = contextTypeMap.get(contextID);
+        if (type != null) {
             setContextType(contextID, type);
         }
-        Double ratio=devicePixelRatioMap.get(contextID);
-        if(ratio!=null){
+        Double ratio = devicePixelRatioMap.get(contextID);
+        if (ratio != null) {
             setDevicePixelRatio(contextID, ratio);
         }
-        Boolean isHiQuality=qualityMap.get(contextID);
-        if(isHiQuality){
+        Boolean isHiQuality = qualityMap.get(contextID);
+        if (null != isHiQuality) {
             setHiQuality(contextID, isHiQuality);
         }
     }
+
     public static native void setDevicePixelRatio(String contextID, double ratio);
 
     public static native void setClearColor(String contextID, String color);
@@ -107,7 +109,7 @@ public class GCanvasJNI {
 
     public static native void addFallbackFontFamily(String[] fallbackFontFiles);
 
-    public static void registerWXCallNativeFunc(Context context){
+    public static void registerWXCallNativeFunc(Context context) {
         /**
          * We have a different javascript-call-native solution on Weex, which we call it "directly" call-native.
          * Weex's customized JavascriptCore has been injected a special handle to deal GCanvas' call. All calls can directly send to JavascriptCore, avoiding JNI calls, which significantly improves performance.
@@ -127,10 +129,11 @@ public class GCanvasJNI {
 
     public static native void setPreCompilePath(String path);
 
-    public static native void bindTexture(String contextId, Bitmap bitmap,int id,
-                                          int target, int level,int internalformat,int format,int type);
-    public static native void texSubImage2D(String contextId, Bitmap bitmap,int id,
-                                          int target, int level,int xoffset,int yoffset,int format,int type);
+    public static native void bindTexture(String contextId, Bitmap bitmap, int id,
+                                          int target, int level, int internalformat, int format, int type);
+
+    public static native void texSubImage2D(String contextId, Bitmap bitmap, int id,
+                                            int target, int level, int xoffset, int yoffset, int format, int type);
 
     public static native boolean sendEvent(String contextId);
 
