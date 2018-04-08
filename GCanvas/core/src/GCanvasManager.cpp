@@ -45,7 +45,7 @@ GCanvasManager::~GCanvasManager()
     Clear();
 }
 
-void GCanvasManager::NewCanvas(string canvasId)
+void GCanvasManager::NewCanvas(const string canvasId)
 {
     LOG_D("new canvas");
     GCanvas *c = GetCanvas(canvasId);
@@ -56,7 +56,7 @@ void GCanvasManager::NewCanvas(string canvasId)
     }
 }
 
-void GCanvasManager::RemoveCanvas(string canvasId)
+void GCanvasManager::RemoveCanvas(const string canvasId)
 {
     std::map< string, GCanvas * >::iterator it = mCanvases.find(canvasId);
     if (it != mCanvases.end())
@@ -75,7 +75,7 @@ void GCanvasManager::RemoveCanvas(string canvasId)
 
 }
 
-GCanvas *GCanvasManager::GetCanvas(string canvasId)
+GCanvas *GCanvasManager::GetCanvas(const string canvasId)
 {
     std::map< string, GCanvas * >::iterator it = mCanvases.find(canvasId);
     if (it != mCanvases.end())
@@ -109,7 +109,7 @@ void GCanvasManager::Clear()
     mCmdQueue.clear();
 }
 
-void GCanvasManager::AddtoQueue(std::string contextId,struct GCanvasCmd *p){
+void GCanvasManager::AddtoQueue(const std::string contextId,struct GCanvasCmd *p){
     std::map< string, std::queue<struct GCanvasCmd *> *>::iterator it = mCmdQueue.find(contextId);
     if (it != mCmdQueue.end()) {
         std::queue<struct GCanvasCmd *> *queue = it->second;
@@ -121,7 +121,7 @@ void GCanvasManager::AddtoQueue(std::string contextId,struct GCanvasCmd *p){
     }
 }
 
-std::queue<struct GCanvasCmd *> * GCanvasManager::getQueueByContextId(std::string contextId){
+std::queue<struct GCanvasCmd *> * GCanvasManager::getQueueByContextId(const std::string contextId){
     std::map< string, std::queue<struct GCanvasCmd *> *>::iterator it = mCmdQueue.find(contextId);
     if (it != mCmdQueue.end()) {
         std::queue<struct GCanvasCmd *> *queue =  it->second;
@@ -141,7 +141,7 @@ void GCanvasManager::clearQueue(std::queue<struct GCanvasCmd *> *queue){
     }
 }
 
-void GCanvasManager::clearQueueByContextId(std::string contextId){
+void GCanvasManager::clearQueueByContextId(const std::string contextId){
     std::queue<struct GCanvasCmd *> *queue = getQueueByContextId(contextId);
     if(queue != nullptr) {
         clearQueue(queue);

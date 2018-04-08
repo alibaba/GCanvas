@@ -23,15 +23,15 @@ public:
     GCanvasManager();
     virtual ~GCanvasManager();
 
-    void NewCanvas(std::string canvasId);
-    void RemoveCanvas(std::string canvasId);
-    GCanvas *GetCanvas(std::string canvasId);
+    void NewCanvas(const std::string canvasId);
+    void RemoveCanvas(const std::string canvasId);
+    GCanvas *GetCanvas(const std::string canvasId);
     void addCanvas(GCanvas *p);
     int canvasCount();
     void Clear();
-    void AddtoQueue(std::string contextId,struct GCanvasCmd *);
-    std::queue<struct GCanvasCmd *> * getQueueByContextId(std::string contextId);
-    void clearQueueByContextId(std::string contextId);
+    void AddtoQueue(const std::string contextId,struct GCanvasCmd *);
+    std::queue<struct GCanvasCmd *> * getQueueByContextId(const std::string contextId);
+    void clearQueueByContextId(const std::string contextId);
     void clearQueue(std::queue<struct GCanvasCmd *> *queue);
     static GCanvasManager *GetManager();
     static void Release();

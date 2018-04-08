@@ -29,6 +29,8 @@ import { enable, ReactNativeBridge, Image as GImage } from "gcanvas.js/src/index
 ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
 ReactNativeBridge.Platform = Platform;
 
+ReactNativeBridge.GCanvasModule.setLogLevel(0);
+
 export default class App extends Component<{}> {
 
   onPressHandle = () => {
@@ -59,23 +61,23 @@ export default class App extends Component<{}> {
     var image = new GImage();
     image.onload = function(){
       ctx.drawImage(image, 150, 0);
-      ctx.drawImage(image, 150, 450);
 
+      ctx.drawImage(image, 150, 450);
     }
-    image.src = '//gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png';
+    image.src = 'https://gw.alicdn.com/tfs/TB1KwRTlh6I8KJjy0FgXXXXzVXa-225-75.png';
 
     console.log(">>>>>>>>onPressHandle...end")
   };
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
+      <View>
+        <Text>
           Click to draw gcanvas
         </Text>
         <TouchableHighlight onPress={this.onPressHandle}>
           <GCanvasView ref='canvas_holder' style={styles.gcanvas}>
-          </GCanvasView>   
+          </GCanvasView>
         </TouchableHighlight>
       </View>
     );
@@ -96,11 +98,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
   },
   welcome: {
-    fontSize: 20,
+    fontSize: 50,
     textAlign: 'center',
     margin: 10,
     top:20,
     height :40
-
   }
 });

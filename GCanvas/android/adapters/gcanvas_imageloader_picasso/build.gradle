@@ -29,7 +29,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     compileOnly "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
-
     implementation project(':android:adapters:bridge_adapter')
 }
 

@@ -68,7 +68,7 @@ dependencies {
     })
 
 
-    implementation "com.taobao.gcanvas.bridges:weex:1.0.1"
+    implementation project(':bridges:weex-bridge:android:weex_bridge')
 
     implementation 'com.loopj.android:android-async-http:1.4.9@aar'
     implementation "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
