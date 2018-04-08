@@ -63,8 +63,14 @@
 <p>The steps are as follows:</p>
 <ol>
 <li>Create an Android project. There is nothing to be specified, according to your habits to.</li>
-<li><strong>At this moment, our publication is being reviewed by Maven. Once published, source dependency will be changed to AAR dependency. </strong>
-Download source code, update build.gradle by adding the following dependencies:<pre><code class="lang-groovy hljs"><span class="hljs-keyword">compile</span> <span class="hljs-keyword">project</span> <span class="hljs-string">':bridges:weex-bridge:android:weex_bridge'</span>
+<li>Update build.gradle by adding the following dependencies:<pre><code class="lang-groovy hljs"> <span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-pseudo">:corelib</span><span class="hljs-selector-pseudo">:1.0.4"</span>
+ <span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-class">.adapters</span><span class="hljs-selector-pseudo">:img</span><span class="hljs-selector-pseudo">:1.0.0"</span>
+ <span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-class">.bridges</span><span class="hljs-selector-pseudo">:spec</span><span class="hljs-selector-pseudo">:1.0.1"</span>
+ <span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-class">.bridges</span><span class="hljs-selector-pseudo">:weex</span><span class="hljs-selector-pseudo">:1.0.2"</span>
+</code></pre>
+If you use Fresco as your image loader, add Fresco adapter dependency:<pre><code class="lang-groovy hljs"><span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-class">.adapters</span><span class="hljs-selector-pseudo">:img_fresco</span><span class="hljs-selector-pseudo">:1.0.1"</span>
+</code></pre>
+Or if you choose Picasso as your image loader, add Picasso adapter dependency: <pre><code class="lang-groovy hljs"><span class="hljs-selector-tag">compile</span> "<span class="hljs-selector-tag">com</span><span class="hljs-selector-class">.taobao</span><span class="hljs-selector-class">.gcanvas</span><span class="hljs-selector-class">.adapters</span><span class="hljs-selector-pseudo">:img_picasso</span><span class="hljs-selector-pseudo">:1.0.1"</span>
 </code></pre>
 </li>
 <li>Register GCanvas Module and Component to your Weex Application.<pre><code class="lang-java hljs">WXSDKEngine.registerModule(<span class="hljs-string">"gcanvas"</span>, GCanvasWeexModule.<span class="hljs-built_in">class</span>);
