@@ -88,7 +88,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
  * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
-        JNIEnv *je, jclass jc, jobject jCanvasRender, jstring contextId,
+        JNIEnv *je, jclass jc, jstring contextId,
         jstring renderCommands);
 
 /*

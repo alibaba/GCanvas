@@ -221,7 +221,7 @@ public:
 
     void initWebglExt();
 
-    const char *CallNative(int type, std::string args);
+    const char *CallNative(int type, const std::string& args);
 
 #endif
 

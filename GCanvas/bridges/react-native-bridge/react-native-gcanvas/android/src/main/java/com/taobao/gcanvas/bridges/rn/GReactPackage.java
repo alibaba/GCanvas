@@ -23,7 +23,6 @@ public class GReactPackage implements ReactPackage {
         return modules;
     }
 
-    @Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
         return Collections.EMPTY_LIST;
     }

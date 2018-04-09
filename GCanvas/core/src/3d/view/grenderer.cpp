@@ -221,16 +221,14 @@ void GRenderer::renderLoop() {
             m_proxy->finishProc();
         }
 
-        if((m_requestInitialize || m_initialized)&& m_viewportchanged) {
+        if(m_requestInitialize || m_viewportchanged) {
             if (!m_initialized) {
-//                LOG_D("on initialize in thread.");
                 initialize();
                 m_initialized = true;
                 if (m_proxy) m_proxy->setContextLost(false);
             }
 
             if (!m_proxy) {
-//                LOG_D("create canvas in thread.");
                 m_proxy = new gcanvas_proxy(m_contextid, this);
                 m_proxy->mContextType = m_context_type;
                 GCanvasManager *m = GCanvasManager::GetManager();
@@ -239,20 +237,17 @@ void GRenderer::renderLoop() {
                 m_createCanvas = true;
                 m_viewportchanged = true;
 
-//                LOG_D("set sendEvent flag in canvas initialized.");
                 m_sendEvent = true;
                 sem_post(&m_SyncSem);
             }
 
             if (m_viewportchanged) {
-//                LOG_D("onsurface changed in thread. w = %d, h = %d", m_width, m_height);
                 m_proxy->OnSurfaceChanged(m_width, m_height);
                 m_proxy->SetClearColor(mClearColor);
                 m_proxy->SetDevicePixelRatio(m_device_pixel_ratio);
                 m_viewportchanged = false;
 
                 if(m_requestInitialize){
-//                    LOG_D("set sendEvent flag in viewport changed.");
                     m_sendEvent = true;
                 }
 
@@ -262,31 +257,19 @@ void GRenderer::renderLoop() {
             m_requestInitialize = false;
         }
 
-//        if(m_requestSurfaceDestroy) {
-//            if(m_proxy) m_proxy->setContextLost(true);
-//
-//            surfaceExit();
-//            m_requestSurfaceDestroy = false;
-//            m_initialized = false;
 
-//            sem_post(&m_SyncSem);
-//        }
 
-//        LOG_D("pthread mutex lock.");
         pthread_mutex_lock(&m_mutex);
 
         if (!m_proxy || (m_proxy && !m_proxy->continueProcess() &&
             !m_viewportchanged && !m_requestSurfaceDestroy && mBitmapQueue.empty())) {
-//            LOG_D("pthread start to wait.");
             pthread_cond_wait(&m_cond, &m_mutex);
         }
 
-//        LOG_D("pthread receive signal,start to process cmd.");
 
         if (m_bindtexture) {
             while (!mBitmapQueue.empty()) {
                 struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-//                LOG_D("start to bindtexture in grenderer.");
                 m_proxy->bindTexture(*p);
 
                 mBitmapQueue.pop();
@@ -300,7 +283,6 @@ void GRenderer::renderLoop() {
         if (m_subImage2D) {
             while (!mBitmapQueue.empty()) {
                 struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-//                LOG_D("start to subTexImage2D in grenderer.");
                 m_proxy->texSubImage2D(*p);
 
                 mBitmapQueue.pop();
@@ -312,27 +294,22 @@ void GRenderer::renderLoop() {
         }
 
         if (m_egl_display) {
-//            LOG_D("start to draw frame in thread.");
             drawFrame();
             if (m_refresh) {
                 struct timeval before;
                 struct timeval after;
                 gettimeofday(&before, NULL);
-//                LOG_D("start to swap buffer.");
                 if (!eglSwapBuffers(m_egl_display, m_egl_surface)) {
                 }
                 gettimeofday(&after, NULL);
-//                LOG_D("swapbuffer before sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
                 m_refresh = false;
             }
         }
 
 
-//        LOG_D("pthread finished process cmd.");
 
         pthread_mutex_unlock(&m_mutex);
 
-//        LOG_D("pthread mutex unlock.");
     }
 
     if (m_requestExit) {
@@ -374,18 +351,11 @@ void GRenderer::setRefreshFlag(bool refresh) {
 //    LOG_D("setRefreshFlag in grenderer.flag=%d\n", refresh);
 }
 
-void GRenderer::requestCreateCanvas(std::string contextid) {
+void GRenderer::requestCreateCanvas(const std::string contextid) {
 
-    LOG_D("start to lock.");
-//    pthread_mutex_lock(&m_mutex);
 
     m_contextid = contextid;
-//    m_createCanvas = true;
-    LOG_D("start to signal thread.");
-//    pthread_cond_signal(&m_cond);
-    LOG_D("end to signal thread.");
 
-//    sem_wait(&m_SyncSem);
 
     if(!m_createCanvas) {
         LOG_D("start to wait response from thread.");
@@ -394,23 +364,21 @@ void GRenderer::requestCreateCanvas(std::string contextid) {
         pthread_cond_signal(&m_cond);
 
         gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+
+        LOG_D("end to wait response.");
+
     }
 
-    LOG_D("end to wait response.");
 
-//    pthread_mutex_unlock(&m_mutex);
-    LOG_D("end lock.");
 }
 
 void GRenderer::requestViewportChanged() {
-//    pthread_mutex_lock(&m_mutex);
 
     m_viewportchanged = true;
     pthread_cond_signal(&m_cond);
 
     waitUtilTimeout(&m_SyncSem,GCANVAS_TIMEOUT);
 
-//    pthread_mutex_unlock(&m_mutex);
 }
 
 void GRenderer::waitResponse() {

@@ -31,8 +31,8 @@ dependencies {
     })
     testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
     provided "com.facebook.react:react-native:+"
-    provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
+//    provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
     provided "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
-    compile "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
+//    compile "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
 
 }

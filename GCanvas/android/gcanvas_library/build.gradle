@@ -64,21 +64,3 @@ project.ext.meta.description = 'This package defines GCanvas main library.'
 apply from: "${rootProject.projectDir}/publish.gradle"
 
 
-android.libraryVariants.all { type ->
-    task("prepareSo${type.name.capitalize()}") {
-        copy {
-            from("${rootProject.projectDir}/core/build/intermediates/ndkBuild/${type.name}/obj/local/armeabi/") {
-                include "*.so"
-            }
-
-            into 'libs/armeabi'
-        }
-    }
-
-    project.getTasksByName("assemble${type.name.capitalize()}", true).any { task ->
-        task.dependsOn("prepareSo${type.name.capitalize()}")
-        task.doLast {
-            delete 'libs/armeabi'
-        }
-    }
-}

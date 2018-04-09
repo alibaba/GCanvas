@@ -72,6 +72,8 @@
 		A25CDD712020642A00174CB1 /* Encode.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDCAA2020642A00174CB1 /* Encode.h */; };
 		A25CDD732020642A00174CB1 /* GCanvasManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */; };
 		A25CDD762020642A00174CB1 /* GCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDCAF2020642A00174CB1 /* GCanvas.cpp */; };
+		BDA0D1CF206DD25900D7BCD8 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = BDA0D1CD206DD25800D7BCD8 /* GFrameBufferObject.h */; };
+		BDA0D1D0206DD25900D7BCD8 /* GFrameBufferObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BDA0D1CE206DD25900D7BCD8 /* GFrameBufferObject.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -141,6 +143,8 @@
 		A25CDCAA2020642A00174CB1 /* Encode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Encode.h; sourceTree = "<group>"; };
 		A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasManager.cpp; sourceTree = "<group>"; };
 		A25CDCAF2020642A00174CB1 /* GCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvas.cpp; sourceTree = "<group>"; };
+		BDA0D1CD206DD25800D7BCD8 /* GFrameBufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFrameBufferObject.h; sourceTree = "<group>"; };
+		BDA0D1CE206DD25900D7BCD8 /* GFrameBufferObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFrameBufferObject.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -242,6 +246,8 @@
 		A25CDC542020642A00174CB1 /* gcanvas */ = {
 			isa = PBXGroup;
 			children = (
+				BDA0D1CE206DD25900D7BCD8 /* GFrameBufferObject.cpp */,
+				BDA0D1CD206DD25800D7BCD8 /* GFrameBufferObject.h */,
 				A25CDC6D2020642A00174CB1 /* GCanvas2dContext.cpp */,
 				A25CDC792020642A00174CB1 /* GCanvas2dContext.h */,
 				A25CDC682020642A00174CB1 /* GConvert.cpp */,
@@ -338,8 +344,10 @@
 				A25CDD452020642A00174CB1 /* GCanvas2dContext.h in Headers */,
 				A25CDD402020642A00174CB1 /* GWebglContext.h in Headers */,
 				A25CDD4C2020642A00174CB1 /* IDelete.h in Headers */,
+				BDA0D1CF206DD25900D7BCD8 /* GFrameBufferObject.h in Headers */,
 				A25CDD6F2020642A00174CB1 /* Util.h in Headers */,
 				A248AF632021AE7B00218A11 /* GCanvasModuleProtocol.h in Headers */,
+				A23717032020165B00A27353 /* GCVLog.h in Headers */,
 				A25CDD5F2020642A00174CB1 /* PngLoader.h in Headers */,
 				A25CDD472020642A00174CB1 /* GTextDefine.h in Headers */,
 				A23717032020165B00A27353 /* GCVLog.h in Headers */,
@@ -462,6 +470,7 @@
 				A25CDD352020642A00174CB1 /* GConvert.cpp in Sources */,
 				A25CDD5D2020642A00174CB1 /* LodePngCoder.cpp in Sources */,
 				A25CDD762020642A00174CB1 /* GCanvas.cpp in Sources */,
+				BDA0D1D0206DD25900D7BCD8 /* GFrameBufferObject.cpp in Sources */,
 				A25CDD652020642A00174CB1 /* Util.cpp in Sources */,
 				A23716FC2020165B00A27353 /* GCVLog.m in Sources */,
 				A23717052020165B00A27353 /* GCanvasPlugin.mm in Sources */,

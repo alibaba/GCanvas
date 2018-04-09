@@ -16,9 +16,9 @@ using namespace gcanvas;
 
 class GManager{
 public:
-    GRenderer* findRenderer(std::string key);
-    void removeRenderer(std::string key);
-    GRenderer* newRenderer(std::string key);
+    GRenderer* findRenderer(const std::string& key);
+    void removeRenderer(const std::string& key);
+    GRenderer* newRenderer(const std::string& key);
     GManager();
     virtual ~GManager();
 
