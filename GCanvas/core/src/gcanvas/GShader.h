@@ -42,7 +42,7 @@ public:
 
     void Bind();
 
-    std::string &GetName() { return mName; }
+    const std::string &GetName() { return mName; }
 
     virtual void RestoreShaderState() {}
 

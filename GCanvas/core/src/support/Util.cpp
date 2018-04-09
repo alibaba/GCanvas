@@ -84,13 +84,18 @@ void timeraddMS(struct timeval *a, uint ms)
     }
 }
 
+//#define DEBUG
+
 void waitUtilTimeout(sem_t *sem,uint ms){
+#ifdef DEBUG
+    sem_wait(sem);
+
+#else
     int ret;
     struct timeval now;
     struct timespec outtime;
 
     gettimeofday(&now, NULL);
-//    LOG_D("start to wait,sec=%d,usec=%d\n",now.tv_sec,now.tv_usec);
     timeraddMS(&now, ms);
     outtime.tv_sec = now.tv_sec;
     outtime.tv_nsec = now.tv_usec * 1000;
@@ -103,9 +108,8 @@ void waitUtilTimeout(sem_t *sem,uint ms){
     else
     {
         gettimeofday(&now, NULL);
-//        LOG_D("success wait response,sec=%d,usec=%d\n",now.tv_sec,now.tv_usec);
     }
-
+#endif
 }
 
 #endif

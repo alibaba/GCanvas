@@ -546,7 +546,7 @@ GCanvasContext::GCanvasContext(short w, short h)
       mSaveShader(nullptr),
       mClearColor(DEFAULT_CLEAR_COLOR), mDevicePixelRatio(1.f), mContextType(0) //默认值设置为2D
 {
-    CalculateProjectTransform();
+    CalculateProjectTransform(w, h);
 
     if (mWidth > 0 && mHeight > 0)
     {
@@ -560,14 +560,14 @@ GCanvasContext::GCanvasContext(short w, short h)
 void GCanvasContext::SetDevicePixelRatio(const float ratio)
 {
     mDevicePixelRatio = ratio;
-    CalculateProjectTransform();
+    CalculateProjectTransform(mWidth, mHeight);
 }
 
-void GCanvasContext::CalculateProjectTransform()
+void GCanvasContext::CalculateProjectTransform(int w, int h)
 {
     GTransform t = GTransformIdentity;
-    t = GTransformScale(t, 2.f * mDevicePixelRatio / mWidth,
-                        -2.f * mDevicePixelRatio / mHeight);
+    t = GTransformScale(t, 2.f * mDevicePixelRatio / w,
+                        -2.f * mDevicePixelRatio / h);
     t = GTransformTranslate(t, -1.f, 1.f);
 
     mProjectTransform = t;
@@ -684,7 +684,7 @@ bool GCanvasContext::InitializeGLEnvironment()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    CalculateProjectTransform();
+    CalculateProjectTransform(mWidth, mHeight);
     ResetStateStack();
 
     UsePatternRenderPipeline();
@@ -1113,11 +1113,12 @@ GCompositeOperation GCanvasContext::GlobalCompositeOperation()
     return mCurrentState->mGlobalCompositeOp;
 }
 
-void GCanvasContext::SetGlobalCompositeOperation(GCompositeOperation op)
+void GCanvasContext::SetGlobalCompositeOperation(GCompositeOperation op, GCompositeOperation alphaOp)
 {
     SendVertexBufferToGPU();
     glBlendFuncSeparate(GCompositeOperationFuncs[op].source,
-                GCompositeOperationFuncs[op].destination, GL_ONE, GL_ONE);
+                GCompositeOperationFuncs[op].destination, GCompositeOperationFuncs[alphaOp].source,
+                        GCompositeOperationFuncs[alphaOp].destination);
     mCurrentState->mGlobalCompositeOp = op;
 }
 
