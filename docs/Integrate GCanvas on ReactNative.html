@@ -115,44 +115,56 @@ run <code>npm install</code> to install all packages.</li>
 </li>
 </ol>
 <h2 id="usage">Usage</h2>
-<pre><code class="lang-javascript hljs"> <span class="hljs-keyword">import</span> {
-   <span class="hljs-type">GCanvasView</span>,
- } from <span class="hljs-symbol">'react</span>-native-gcanvas';
+<pre><code class="lang-javascript hljs"><span class="hljs-keyword">import</span> {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  TouchableHighlight
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
+
+<span class="hljs-keyword">import</span> {
+   GCanvasView,
+ } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native-gcanvas'</span>;
 
  <span class="hljs-keyword">import</span> {
    requireNativeComponent,
    findNodeHandle,
-   <span class="hljs-type">NativeModules</span>
- } from <span class="hljs-symbol">'react</span>-native';
+   NativeModules
+ } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-native'</span>;
 
- <span class="hljs-keyword">import</span> { enable, <span class="hljs-type">ReactNativeBridge</span>, <span class="hljs-type">Image</span> as <span class="hljs-type">GImage</span> } from <span class="hljs-string">"gcanvas.js/src/index.js"</span>;
+ <span class="hljs-keyword">import</span> { enable, ReactNativeBridge, Image <span class="hljs-keyword">as</span> GImage } <span class="hljs-keyword">from</span> <span class="hljs-string">"gcanvas.js/src/index.js"</span>;
 
- export <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Component&lt;Props&gt;</span> </span>{
+<span class="hljs-comment">// Must set up GCanvas Module before using, or a exception will thorw</span>
+ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
+ReactNativeBridge.Platform = Platform;
+
+ <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
     .....
     {
        <span class="hljs-keyword">var</span> ref = <span class="hljs-keyword">this</span>.refs.canvas_holder;
 
        <span class="hljs-keyword">var</span> canvas_tag = findNodeHandle(ref);
        <span class="hljs-comment">// var canvas_tag = "2";</span>
-       <span class="hljs-keyword">var</span> el = { ref:<span class="hljs-string">""</span>+canvas_tag, style:{width:<span class="hljs-number">414</span>, height:<span class="hljs-number">376</span>}};
+       <span class="hljs-keyword">var</span> el = { <span class="hljs-attr">ref</span>:<span class="hljs-string">""</span>+canvas_tag, <span class="hljs-attr">style</span>:{<span class="hljs-attr">width</span>:<span class="hljs-number">414</span>, <span class="hljs-attr">height</span>:<span class="hljs-number">376</span>}};
 
-       ref = enable(el, {bridge: <span class="hljs-type">ReactNativeBridge</span>});
+       ref = enable(el, {<span class="hljs-attr">bridge</span>: ReactNativeBridge});
 
-       <span class="hljs-keyword">var</span> ctx = ref.getContext(<span class="hljs-symbol">'2</span>d');
+       <span class="hljs-keyword">var</span> ctx = ref.getContext(<span class="hljs-string">'2d'</span>);
        <span class="hljs-comment">//rect</span>
-       ctx.fillStyle = <span class="hljs-symbol">'gree</span>n';
+       ctx.fillStyle = <span class="hljs-string">'green'</span>;
        ctx.fillRect(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
 
        <span class="hljs-comment">//rect</span>
-       ctx.fillStyle = <span class="hljs-symbol">'blac</span>k';
+       ctx.fillStyle = <span class="hljs-string">'black'</span>;
        ctx.fillRect(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
        ctx.fillRect(<span class="hljs-number">25</span>, <span class="hljs-number">205</span>, <span class="hljs-number">414</span><span class="hljs-number">-50</span>, <span class="hljs-number">5</span>);  
     }
 
     render() {
         <span class="hljs-keyword">return</span> (
-              &lt;<span class="hljs-type">GCanvasView</span> ref=<span class="hljs-symbol">'canvas_holde</span>r'&gt;
-              &lt;/<span class="hljs-type">GCanvasView</span>&gt;
+              <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">GCanvasView</span> <span class="hljs-attr">ref</span>=<span class="hljs-string">'canvas_holder'</span>&gt;</span>
+              <span class="hljs-tag">&lt;/<span class="hljs-name">GCanvasView</span>&gt;</span></span>
         );
       }
  }
