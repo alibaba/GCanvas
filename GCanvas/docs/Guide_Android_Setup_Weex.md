@@ -22,7 +22,11 @@ The steps are as follows:
 2. **At this moment, our publication is being reviewed by Maven. Once published, source code dependency will be changed to AAR dependency. **
    Download source code, update build.gradle by adding the following dependencies:
 ```groovy
-compile project ':bridges:weex-bridge:android:weex_bridge'
+    compile "com.taobao.gcanvas:corelib:1.0.4"
+    compile "com.taobao.gcanvas.adapters:img:1.0.0"
+    compile "com.taobao.gcanvas.adapters:img_fresco:1.0.1"
+    compile "com.taobao.gcanvas.bridges:spec:1.0.1"
+    compile "com.taobao.gcanvas.bridges:weex:1.0.2"
 ```
 
 3. Register GCanvas Module and Component to your Weex Application.

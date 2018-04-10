@@ -1,9 +1,10 @@
 package com.taobao.gcanvas.bridges.rn.bridge;
 
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
-import com.facebook.react.bridge.ReadableNativeArray;
-import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.ReadableType;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.taobao.gcanvas.bridges.spec.bridge.IJSCallbackArray;
 import com.taobao.gcanvas.bridges.spec.bridge.IJSCallbackMap;
@@ -17,7 +18,7 @@ public class RNJSCallbackMap implements IJSCallbackMap {
 
     private WritableNativeMap mMap = new WritableNativeMap();
 
-    public RNJSCallbackMap(ReadableNativeMap map) {
+    public RNJSCallbackMap(ReadableMap map) {
         if (null != map) {
             mMap.merge(map);
         }
@@ -26,7 +27,7 @@ public class RNJSCallbackMap implements IJSCallbackMap {
     public RNJSCallbackMap() {
     }
 
-    public WritableNativeMap getMap() {
+    public WritableMap getMap() {
         return mMap;
     }
 
@@ -62,7 +63,7 @@ public class RNJSCallbackMap implements IJSCallbackMap {
 
     @Override
     public IJSCallbackArray getArray(String name) {
-        ReadableNativeArray array = mMap.getArray(name);
+        ReadableArray array = mMap.getArray(name);
         if (null != array) {
             return new RNJSCallbackArray(array);
         }
@@ -71,7 +72,7 @@ public class RNJSCallbackMap implements IJSCallbackMap {
 
     @Override
     public IJSCallbackMap getMap(String name) {
-        ReadableNativeMap map = mMap.getMap(name);
+        ReadableMap map = mMap.getMap(name);
         if (null != map) {
             return new RNJSCallbackMap(map);
         }
