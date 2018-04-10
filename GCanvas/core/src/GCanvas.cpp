@@ -67,7 +67,7 @@ GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0),
 
 #ifdef ANDROID
     mJniEnv = NULL;
-    mCanvasRender = NULL;
+//    mCanvasRender = NULL;
 #endif
 
     mContextLost = false;
@@ -362,8 +362,9 @@ GCanvas::parseBindingPara(const char *p, std::string &name, float &width, float 
 }
 
 const char *
-GCanvas::parseBindingPara(const char *p, std::string &name, float& sx, float& sy, float& sw, float& sh,
-                          float& dx, float& dy, float& dw, float& dh) {
+GCanvas::parseBindingPara(const char *p, std::string &name, float &sx, float &sy, float &sw,
+                          float &sh,
+                          float &dx, float &dy, float &dw, float &dh) {
     const char *old = p;
     while (*p && *p != ',') {
         ++p;
@@ -490,8 +491,11 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 }
                 fbo->BindFBO();
                 fbo->mSavedTransform = action;
-                action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
-                action.ty = (mHeight / mDevicePixelRatio - height);
+                glViewport(0, 0, width*mDevicePixelRatio, height*mDevicePixelRatio);
+                CalculateProjectTransform(width*mDevicePixelRatio, height*mDevicePixelRatio);
+                action=GTransformIdentity;
+//                action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
+//                action.ty = (mHeight / mDevicePixelRatio - height);
                 ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
                 break;
             }
@@ -508,7 +512,9 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 SendVertexBufferToGPU();
                 GFrameBufferObject &fbo = mFboMap[name];
                 fbo.UnbindFBO();
+                glViewport(0, 0, mWidth, mHeight);
                 action = fbo.mSavedTransform;
+                CalculateProjectTransform(mWidth, mHeight);
 
                 ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
                 break;
@@ -524,7 +530,7 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                     break;
                 }
                 GTexture &texture = mFboMap[name].mFboTexture;
-                drawFBO(name,COMPOSITE_OP_SOURCE_OVER,
+                drawFBO(name, COMPOSITE_OP_SOURCE_OVER,
                         sx * 2 * mDevicePixelRatio / texture.GetWidth(),
                         sy * 2 * mDevicePixelRatio / texture.GetHeight(),
                         sw * mDevicePixelRatio / texture.GetWidth(),
@@ -1116,7 +1122,9 @@ void GCanvas::calculateFPS() {
 }
 
 
-void GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh) {
+void
+GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, float sx, float sy, float sw,
+                 float sh, float dx, float dy, float dw, float dh) {
     if (!mIsFboSupported) {
         return;
     }
@@ -1134,6 +1142,19 @@ void GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, floa
     const GCompositeOperation old_op = mCurrentState->mGlobalCompositeOp;
     SetGlobalCompositeOperation(compositeOp);
 
+#ifdef DEBUG_DRAW
+    GColorRGBA debugColor = StrValueToColorRGBA("green");
+    mCurrentState->mShader->SetOverideTextureColor(0);
+    mCurrentState->mShader->SetHasTexture(0);
+    fbo.mFboTexture.Bind();
+    
+    SetTransformOfShader(GTransformMake(1, 0, 0, 1, dx, -dy));
+    
+    PushRectangle(-1, 1-2*dh, 2 * dw, 2 * dh, sx, 1 - sh - sy, sw, sh, debugColor);
+    SendVertexBufferToGPU();
+
+#endif
+    
     GColorRGBA color = StrValueToColorRGBA("white");
     mCurrentState->mShader->SetOverideTextureColor(0);
     mCurrentState->mShader->SetHasTexture(1);
@@ -1142,7 +1163,7 @@ void GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, floa
     SetTransformOfShader(GTransformMake(1, 0, 0, 1, dx, -dy));
 //    SetTransformOfShader(GTransformIdentity);
 
-    PushRectangle(-1, 1 - 2 * dh, 2 * dw, 2 * dh, sx, 1-sh-sy, sw, sh, color);
+    PushRectangle(-1, 1-2*dh, 2 * dw, 2 * dh, sx, 1 - sh - sy, sw, sh, color);
     SendVertexBufferToGPU();
 
     if (HasClipRegion()) {
@@ -1152,6 +1173,7 @@ void GCanvas::drawFBO(std::string fboName, GCompositeOperation compositeOp, floa
 
     RestoreRenderPipeline();
 }
+
 
 
 void GCanvas::Render(const char *renderCommands, int length) {
@@ -1185,6 +1207,9 @@ void GCanvas::Render(const char *renderCommands, int length) {
             execute2dCommands(renderCommands, length);
         }
         UnbindFBO();
+        glClearColor(0, 0,0,0);
+        glClear(GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+
         drawFBO(DefaultFboName);
     }
 
@@ -1820,7 +1845,7 @@ std::string GCanvas::metalProc(int op, int sync, std::string args) {
     return "";
 }
 
-const char *GCanvas::CallNative(int type, std::string args) {
+const char *GCanvas::CallNative(int type, const std::string &args) {
 //    LOG_D("GCanvas::CallNative type: %d", type);
 //    LOG_D("GCanvas::CallNative mContextLost: %d, mExit: %d", mContextLost, mExit);
     if (mContextLost) {

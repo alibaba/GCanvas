@@ -20,7 +20,7 @@ public class RNJSCallbackArray implements IJSCallbackArray {
 
     private WritableNativeArray mArray = new WritableNativeArray();
 
-    public RNJSCallbackArray(ReadableNativeArray array) {
+    public RNJSCallbackArray(ReadableArray array) {
         if (null != array) {
             for (int i = 0; i < array.size(); i++) {
                 ReadableType type = array.getType(i);

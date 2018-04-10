@@ -40,7 +40,7 @@ GManager::~GManager() {
 }
 
 
-GRenderer* GManager::findRenderer(std::string key) {
+GRenderer* GManager::findRenderer(const std::string& key) {
     map<string, GRenderer*>::iterator it = m_renderMap.find(key);
     if(it != m_renderMap.end()){
         return it->second;
@@ -49,7 +49,7 @@ GRenderer* GManager::findRenderer(std::string key) {
     return NULL;
 }
 
-void GManager::removeRenderer(std::string key) {
+void GManager::removeRenderer(const std::string& key) {
     map<string, GRenderer*>::iterator it = m_renderMap.find(key);
     if(it != m_renderMap.end()){
         it->second->stop();
@@ -60,7 +60,7 @@ void GManager::removeRenderer(std::string key) {
 }
 
 
-GRenderer* GManager::newRenderer(std::string key) {
+GRenderer* GManager::newRenderer(const std::string& key) {
     GRenderer* renderer = findRenderer(key);
     if(!renderer){
         renderer = new GRenderer(key);

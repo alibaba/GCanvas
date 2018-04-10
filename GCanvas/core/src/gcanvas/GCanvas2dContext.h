@@ -73,6 +73,7 @@ typedef enum {
     COMPOSITE_OP_XOR,
     COMPOSITE_OP_REPLACE,
     COMPOSITE_OP_ALPHA,
+    COMPOSITE_OP_ADD,
 } GCompositeOperation;
 
 static const struct
@@ -88,7 +89,8 @@ static const struct
     {GL_DST_ALPHA, GL_ZERO},
     {GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
     {GL_ONE, GL_ZERO},
-    {GL_SRC_ALPHA, GL_DST_ALPHA}};
+    {GL_SRC_ALPHA, GL_DST_ALPHA},
+    {GL_ONE, GL_ONE}};
 
 class GCanvasState
 {
@@ -142,7 +144,7 @@ public:
     virtual ~GCanvasContext();
 
     void SetDevicePixelRatio(const float ratio);
-    void CalculateProjectTransform();
+    void CalculateProjectTransform(int w, int h);
     bool InitializeGLEnvironment();
     void ResetStateStack();
     void BindVertexBuffer();
@@ -182,7 +184,7 @@ public:
     }
     void SetGlobalAlpha(float a);
     GCompositeOperation GlobalCompositeOperation();
-    void SetGlobalCompositeOperation(GCompositeOperation op);
+    void SetGlobalCompositeOperation(GCompositeOperation op, GCompositeOperation alphaOp=COMPOSITE_OP_ADD);
 
     GColorRGBA StrokeStyle() const
     {

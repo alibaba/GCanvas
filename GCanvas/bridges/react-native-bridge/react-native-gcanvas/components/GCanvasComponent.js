@@ -1,8 +1,11 @@
 import React, { Component, PropTypes } from 'react';
-import { requireNativeComponent, View } from 'react-native';
+import { requireNativeComponent, View, Platform, findNodeHandle } from 'react-native';
 
-var RCTGCanvasView = requireNativeComponent('RCTGCanvasView', GCanvasView);
-
+var CanvasView = Platform.select({
+	ios: requireNativeComponent('RCTGCanvasView', null),
+	android: requireNativeComponent('GCanvasView', null)
+  });
+  
 export default class GCanvasView extends Component {
 	static propTypes = {
 		// isOffscreen: PropTypes.bool,
@@ -10,6 +13,7 @@ export default class GCanvasView extends Component {
 	};
 
 	render() {
-		return ( <RCTGCanvasView {...this.props} /> );
+		return ( <CanvasView {...this.props} /> );
+
 	};
 }
