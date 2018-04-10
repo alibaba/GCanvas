@@ -83,7 +83,15 @@ protected List<ReactPackage> getPackages() {
 
 ## Usage
 ```javascript
- import {
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  TouchableHighlight
+} from 'react-native';
+
+import {
    GCanvasView,
  } from 'react-native-gcanvas';
  
@@ -94,6 +102,10 @@ protected List<ReactPackage> getPackages() {
  } from 'react-native';
  
  import { enable, ReactNativeBridge, Image as GImage } from "gcanvas.js/src/index.js";
+ 
+// Must set up GCanvas Module before using, or a exception will thorw
+ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
+ReactNativeBridge.Platform = Platform;
  
  export default class App extends Component<Props> {
     .....
