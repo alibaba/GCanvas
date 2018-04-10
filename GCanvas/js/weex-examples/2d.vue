@@ -79,6 +79,9 @@ function start(ref, size) {
     }
 
     ctx.restore();
+
+
+    ref._swapBuffers();
   }
 
   setInterval(draw, 16);
@@ -109,7 +112,7 @@ export default {
     }
 
     if (isWeex) {
-      ref = enable(ref, {bridge: WeexBridge});
+      ref = enable(ref, {bridge: WeexBridge, disableAutoSwap: true});
     }
 
     start(ref, size);

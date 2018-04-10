@@ -36,7 +36,14 @@ export default class GCanvas {
                         this._needRender = false;
                     }
                 }
-                setInterval(render, 16);
+                const intervalId = setInterval(render, 16);
+                this._clearAutoSwap = ()=>{
+                    clearInterval(intervalId);
+                }
+            } else {
+                this._swapBuffers = () => {
+                    GCanvas.GBridge.render(this.id);
+                }
             }
 
             GCanvas.GBridge.callSetContextType(this.id, 1); // 0 for 2d; 1 for webgl
@@ -45,16 +52,26 @@ export default class GCanvas {
 
             context.componentId = this.id;
 
-            const render = () => {
+            if (!this._disableAutoSwap) {
+                const render = () => {
+                    const commands = context._drawCommands;
+                    context._drawCommands = '';
+                    GCanvas.GBridge.render2d(this.id, commands);
+                    this._needRender = false;
+                }
+                const intervalId = setInterval(render, 16);
 
-                const commands = context._drawCommands;
-                context._drawCommands = '';
+                this._clearAutoSwap = ()=>{
+                    clearInterval(intervalId);
+                }
 
-                GCanvas.GBridge.render2d(this.id, commands);
-                this._needRender = false;
-
+            } else {
+                this._swapBuffers = () => {
+                    const commands = context._drawCommands;
+                    context._drawCommands = '';
+                    GCanvas.GBridge.render2d(this.id, commands);                    
+                }
             }
-            setInterval(render, 16);
 
             GCanvas.GBridge.callSetContextType(this.id, 0);
         } else {
