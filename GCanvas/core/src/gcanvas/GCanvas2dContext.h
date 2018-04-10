@@ -29,6 +29,7 @@
 #include "GPath.h"
 #include "GTransform.h"
 #include "GFillStyle.h"
+#include "GFrameBufferObject.h"
 
 #ifdef ANDROID
 #include "GFont.h"
@@ -161,6 +162,8 @@ public:
                   GColorRGBA color);
     void PushRectangle(float x, float y, float w, float h, float tx, float ty,
                        float tw, float th, GColorRGBA color);
+    void PushReverseRectangle(float x, float y, float w, float h, float tx, float ty,
+                       float tw, float th, GColorRGBA color);
     void PushPoints(const std::vector< GPoint > &points, GColorRGBA color);
     short Width() { return mWidth; }
     short Height() { return mHeight; }
@@ -208,6 +211,10 @@ public:
                   float y, bool isStroke);
     void DrawImage1(float w, float h, int TextureId, float sx, float sy,
                     float sw, float sh, float dx, float dy, float dw, float dh);
+
+    void DrawCanvas(float w, float h, int TextureId, float sx, float sy,
+                    float sw, float sh, float dx, float dy, float dw, float dh);
+
 
     float LineWidth() const
     {
@@ -257,6 +264,10 @@ public:
     void InitFBO();
     void BindFBO();
     void UnbindFBO();
+
+    GTexture* GetFboTexture();
+    unsigned char* GetFboBuffer();
+    void UpdateFboBuffer();
 #ifdef ANDROID
     bool LoadFace(FT_Library *library, const char *filename, const float size,
                   FT_Face *face);
@@ -310,6 +321,13 @@ protected:
     bool mIsFboSupported;
     short mWidth;
     short mHeight;
+
+public:
+    short GetWidth() const { return mWidth; }
+
+    short GetHeight() const { return mHeight; }
+
+protected:
     GTransform mProjectTransform;
     GPath mPath;
     std::vector< GCanvasState > mStateStack;
@@ -318,18 +336,17 @@ protected:
     bool mHiQuality;
     int mVertexBufferIndex;
     GShader *mSaveShader;
-//    GTexture mFboTexture;
-    GLuint mFboFrame;
-    GLuint mFboStencil;
-    GLint mSaveFboFrame;
+
     GColorRGBA mClearColor;
+    std::map<std::string, GFrameBufferObject> mFboMap;
+
+    static constexpr const char* DefaultFboName = "default";
 
 #ifdef ANDROID
     GShaderManager *mShaderManager;
 #endif
 
 public:
-    GTexture mFboTexture;
     float mDevicePixelRatio;
     int mContextType; // 0--2d;1--webgl
     bool mContextLost;

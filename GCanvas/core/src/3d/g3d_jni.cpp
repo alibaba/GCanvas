@@ -80,9 +80,8 @@ Java_com_taobao_gcanvas_surface_GTextureViewCallback_onSurfaceChanged(JNIEnv *en
         if (!render->m_started) {
             if(clearColor){
                 char *ccolor = jstringToString_(env, clearColor);
-                string colorId = ccolor;
+                render->mClearColor = StrValueToColorRGBA(ccolor);
                 free(ccolor);
-                render->mClearColor = StrValueToColorRGBA(colorId.c_str());
                 LOG_D("parse color r:%f, g:%f, b:%f, a:%f",render->mClearColor.rgba.r,render->mClearColor.rgba.g,render->mClearColor.rgba.b,render->mClearColor.rgba.a);
             }
 

@@ -1,6 +1,7 @@
 import FillStylePattern from './FillStylePattern';
 import FillStyleLinearGradient from './FillStyleLinearGradient';
 import FillStyleRadialGradient from './FillStyleRadialGradient';
+import GImage from '../env/image';
 
 export default class CanvasRenderingContext2D {
 
@@ -28,6 +29,8 @@ export default class CanvasRenderingContext2D {
 
     timer = null;
     componentId = null;
+
+    _canvasId = {};
 
     // _imageMap = new GHashMap();
     // _textureMap = new GHashMap();
@@ -436,27 +439,98 @@ export default class CanvasRenderingContext2D {
         throw new Error('GCanvas not supported yet');
     }
 
+
+    bindFbo(name, width, height) {
+        this._drawCommands = this._drawCommands.concat("Q" + name + "," + width + "," + height + ";");
+    }
+
+    unbindFbo(name) {
+        this._drawCommands = this._drawCommands.concat("Y" + name + ";");
+    }
+
+    drawFbo(name, sx, sy, sw, sh, dx, dy, dw, dh) {
+        this._drawCommands = this._drawCommands.concat("I" + name + "," + sx + "," + sy + "," + sw + "," + sh + ","
+            + dx + "," + dy + "," + dw + "," + dh + ";");
+    }
+
     drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh) {
         const numArgs = arguments.length;
-        function drawImageCommands() {
 
-            if (numArgs === 3) {
-                const x = parseFloat(sx) || 0.0;
-                const y = parseFloat(sy) || 0.0;
+        if (image instanceof GImage) {
+            function drawImageCommands() {
 
-                return ("d" + image._id + ",0,0,"
-                    + image.width + "," + image.height + ","
-                    + x + "," + y + "," + image.width + "," + image.height + ";");
-            } else if (numArgs === 5) {
+                if (numArgs === 3) {
+                    const x = parseFloat(sx) || 0.0;
+                    const y = parseFloat(sy) || 0.0;
+
+                    return ("d" + image.id + ",0,0,"
+                        + image.width + "," + image.height + ","
+                        + x + "," + y + "," + image.width + "," + image.height + ";");
+                } else if (numArgs === 5) {
+                    const x = parseFloat(sx) || 0.0;
+                    const y = parseFloat(sy) || 0.0;
+                    const width = parseInt(sw) || image.width;
+                    const height = parseInt(sh) || image.height;
+
+                    return ("d" + image.id + ",0,0,"
+                        + image.width + "," + image.height + ","
+                        + x + "," + y + "," + width + "," + height + ";");
+                } else if (numArgs === 9) {
+                    sx = parseFloat(sx) || 0.0;
+                    sy = parseFloat(sy) || 0.0;
+                    sw = parseInt(sw) || image.width;
+                    sh = parseInt(sh) || image.height;
+                    dx = parseFloat(dx) || 0.0;
+                    dy = parseFloat(dy) || 0.0;
+                    dw = parseInt(dw) || image.width;
+                    dh = parseInt(dh) || image.height;
+
+                    return ("d" + image.id + ","
+                        + sx + "," + sy + "," + sw + "," + sh + ","
+                        + dx + "," + dy + "," + dw + "," + dh + ";");
+                }
+            }
+            CanvasRenderingContext2D.GBridge.bindImageTexture(this.componentId, image.src, image.id);
+            this._drawCommands += drawImageCommands();
+        } else if (image.className && (image.className == 'GOffScreenCanvas')) {
+            if (this._canvasId[image.id]) {
+                if (this._canvasId[image.id].cmdLength < image.drawCommands.length) {
+                    this.save();
+                    this.bindFbo(image.id, image.width, image.height);
+
+                    this.beginPath();
+                    this._drawCommands += image.drawCommands.substring(this._canvasId[image.id].cmdLength);
+                    this.unbindFbo(image.id);
+                    this.restore();
+                    for (var j = this._canvasId[image.id].imgLength, len = image.images.length; j < len; j++) {
+                        CanvasRenderingContext2D.GBridge.bindImageTexture(
+                            this.componentId, image.images[j].src, image.images[j].id);
+                    }
+                    this._canvasId[image.id] = { cmdLength: image.drawCommands.length, imgLength: image.images.length };
+                }
+            } else {
+                this.save();
+                this.bindFbo(image.id, image.width, image.height);
+
+                this.beginPath();
+                this._drawCommands += image.drawCommands;
+                this.unbindFbo(image.id);
+                this.restore();
+                for (var j = 0, len = image.images.length; j < len; j++) {
+                    CanvasRenderingContext2D.GBridge.bindImageTexture(
+                        this.componentId, image.images[j].src, image.images[j].id);
+                }
+                this._canvasId[image.id] = { cmdLength: image.drawCommands.length, imgLength: image.images.length };
+            }
+
+            if (numArgs < 6) {
                 const x = parseFloat(sx) || 0.0;
                 const y = parseFloat(sy) || 0.0;
                 const width = parseInt(sw) || image.width;
                 const height = parseInt(sh) || image.height;
+                this.drawFbo(image.id, 0, 0, image.width, image.height, x, y, width, height);
 
-                return ("d" + image._id + ",0,0,"
-                    + image.width + "," + image.height + ","
-                    + x + "," + y + "," + width + "," + height + ";");
-            } else if (numArgs === 9) {
+            } else {
                 sx = parseFloat(sx) || 0.0;
                 sy = parseFloat(sy) || 0.0;
                 sw = parseInt(sw) || image.width;
@@ -466,12 +540,10 @@ export default class CanvasRenderingContext2D {
                 dw = parseInt(dw) || image.width;
                 dh = parseInt(dh) || image.height;
 
-                return ("d" + image._id + ","
-                    + sx + "," + sy + "," + sw + "," + sh + ","
-                    + dx + "," + dy + "," + dw + "," + dh + ";");
+                this.drawFbo(image.id, sx, sy, sw, sh, dx, dy, dw, dh);
             }
+
         }
-        CanvasRenderingContext2D.GBridge.bindImageTexture(this.componentId, image.src, image._id);
-        this._drawCommands += drawImageCommands();
+
     }
 }

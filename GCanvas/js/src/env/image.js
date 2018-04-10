@@ -16,6 +16,10 @@ class GImage {
         this.complete = false;
     }
 
+    get id(){
+        return this._id;
+    }
+    
     get width() {
         return this._width;
     }
