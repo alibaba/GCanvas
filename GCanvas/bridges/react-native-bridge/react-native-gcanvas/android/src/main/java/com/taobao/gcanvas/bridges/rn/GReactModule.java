@@ -3,7 +3,10 @@ package com.taobao.gcanvas.bridges.rn;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 
@@ -28,9 +31,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.taobao.gcanvas.bridges.spec.module.IGBridgeModule.ContextType._2D;
 
@@ -47,18 +52,123 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
     private HashMap<String, GReactTextureView> mViews = new HashMap<>();
 
+    private interface IReactCacheCmd {
+        void execute();
+    }
+
+    private class SetContextTypeCmd implements IReactCacheCmd {
+        private String canvasId;
+        private int type;
+
+        public SetContextTypeCmd(String canvasId, int type) {
+            this.canvasId = canvasId;
+            this.type = type;
+        }
+
+        @Override
+        public void execute() {
+            setContextType(type, canvasId);
+        }
+    }
+
+    private class RenderCmd implements IReactCacheCmd {
+        private String canvasId, cmd;
+
+        public RenderCmd(String canvasId, String cmd) {
+            this.canvasId = canvasId;
+            this.cmd = cmd;
+        }
+
+        @Override
+        public void execute() {
+            render(cmd, canvasId);
+        }
+    }
+
+    private class BindImageTextureCmd implements IReactCacheCmd {
+        private ReadableArray array;
+        private String refId;
+        private Callback callback;
+
+        public BindImageTextureCmd(ReadableArray array, String refId, Callback callback) {
+            this.array = array;
+            this.refId = refId;
+            this.callback = callback;
+        }
+
+        @Override
+        public void execute() {
+            bindImageTexture(array, refId, callback);
+        }
+    }
+
+    private class TexImage2DCmd implements IReactCacheCmd {
+        private String refid;
+        private int target, level, internalformat, format, type;
+        private String path;
+
+        public TexImage2DCmd(String refid, int target, int level, int internalformat, int format, int type, String path) {
+            this.refid = refid;
+            this.target = target;
+            this.level = level;
+            this.internalformat = internalformat;
+            this.format = format;
+            this.type = type;
+            this.path = path;
+        }
+
+        @Override
+        public void execute() {
+            texImage2D(refid, target, level, internalformat, format, type, path);
+        }
+    }
+
+    private class TexSubImage2DCmd implements IReactCacheCmd {
+
+        private String refid;
+        private int target, level, xoffset, yoffset, format, type;
+        private String path;
+
+        public TexSubImage2DCmd(String refid, int target, int level, int xoffset, int yoffset, int format, int type, String path) {
+            this.refid = refid;
+            this.target = target;
+            this.level = level;
+            this.xoffset = xoffset;
+            this.yoffset = yoffset;
+            this.format = format;
+            this.type = type;
+            this.path = path;
+        }
+
+        @Override
+        public void execute() {
+            texSubImage2D(refid, target, level, xoffset, yoffset, format, type, path);
+        }
+    }
+
+    private HashMap<String, ArrayList<IReactCacheCmd>> mCacheCmdList = new HashMap<>();
+
+
+    private enum HostLifeState {
+        Idle, Running, Paused, Destroyed
+    }
+
+    private AtomicReference<HostLifeState> mLifeRef = new AtomicReference<>(HostLifeState.Idle);
+
     @Override
     public void onHostResume() {
-
+        mLifeRef.set(HostLifeState.Running);
     }
 
     @Override
     public void onHostPause() {
+        mLifeRef.set(HostLifeState.Paused);
     }
 
     @Override
     public void onHostDestroy() {
         // release resource
+        mLifeRef.set(HostLifeState.Destroyed);
         getReactApplicationContext().removeLifecycleEventListener(this);
         Iterator<Map.Entry<String, GReactTextureView>> iter = mViews.entrySet().iterator();
         while (iter.hasNext()) {
@@ -68,6 +178,16 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         }
 
         mViews.clear();
+        mCacheCmdList.clear();
+    }
+
+    private void addCacheCommand(String refId, IReactCacheCmd cmd) {
+        ArrayList<IReactCacheCmd> cacheCmds = mCacheCmdList.get(refId);
+        if (null == cacheCmds) {
+            cacheCmds = new ArrayList<>();
+            mCacheCmdList.put(refId, cacheCmds);
+        }
+        cacheCmds.add(cmd);
     }
 
     private class RNModuleImpl extends AbsGBridgeModule<Callback> {
@@ -78,21 +198,52 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         public String enable(JSONObject data) {
             try {
                 final String refId = data.getString("componentId");
-                int viewTag = Integer.parseInt(refId);
+                final int viewTag = Integer.parseInt(refId);
 
-                Activity activity = getCurrentActivity();
-
-                if (null == activity) {
+                if (null == getCurrentActivity()) {
                     return Boolean.FALSE.toString();
                 }
 
-                View v = activity.findViewById(viewTag);
-                if (v instanceof GReactTextureView) {
-                    mViews.put(refId, (GReactTextureView) v);
-                    return Boolean.TRUE.toString();
-                }
+                final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-                return Boolean.FALSE.toString();
+                final Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        Activity activity = getCurrentActivity();
+                        if (null == activity || mLifeRef.get().ordinal() > HostLifeState.Running.ordinal()) {
+                            return;
+                        }
+
+                        GReactTextureView view = null;
+                        if (mViews.containsKey(refId) && mCacheCmdList.containsKey(refId)) {
+                            view = mViews.get(refId);
+                        } else {
+                            View v = activity.findViewById(viewTag);
+                            view = (GReactTextureView) v;
+                            if (view.isReady()) {
+                                mViews.put(refId, view);
+                            } else {
+                                view = null;
+                            }
+                        }
+
+
+                        if (null != view && mCacheCmdList.containsKey(refId) && view.isReady()) {
+                            ArrayList<IReactCacheCmd> cmdList = mCacheCmdList.remove(refId);
+                            for (IReactCacheCmd cmd : cmdList) {
+                                Log.d("test", "execute command ===> " + cmd.getClass().getSimpleName());
+                                cmd.execute();
+                            }
+                            return;
+                        }
+
+                        mainHandler.removeCallbacks(this);
+                        mainHandler.postDelayed(this, 16);
+                    }
+                };
+
+                mainHandler.post(runnable);
+                return Boolean.TRUE.toString();
             } catch (Throwable e) {
                 e.printStackTrace();
                 return Boolean.FALSE.toString();
@@ -103,7 +254,7 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         public void setContextType(String canvasId, ContextType type) {
             GReactTextureView textureView = mViews.get(canvasId);
             if (null == textureView) {
-                GLog.e(TAG, "can not find canvas with id ===> " + canvasId);
+                GLog.w(TAG, "can not find canvas with id ===> " + canvasId);
                 return;
             }
             GCanvasJNI.setContextType(textureView.getCanvasKey(), type.value());
@@ -118,7 +269,7 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         public void render(String canvasId, String cmd) {
             GReactTextureView textureView = mViews.get(canvasId);
             if (null == textureView) {
-                GLog.e(TAG, "can not find canvas with id ===> " + canvasId);
+                GLog.w(TAG, "can not find canvas with id ===> " + canvasId);
                 return;
             }
             GCanvasJNI.render(textureView.getCanvasKey(), cmd);
@@ -157,7 +308,8 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         }
         GReactTextureView textureView = mViews.get(refId);
         if (null == textureView) {
-            GLog.e(TAG, "can not find canvas with id ===> " + refId);
+            GLog.w(TAG, "can not find canvas with id ===> " + refId);
+            addCacheCommand(refId, new BindImageTextureCmd(array, refId, callback));
             return;
         }
         String url = array.getString(0);
@@ -190,6 +342,14 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         if (TextUtils.isEmpty(canvasId) || TextUtils.isEmpty(cmd)) {
             return;
         }
+
+        GReactTextureView textureView = mViews.get(canvasId);
+        if (null == textureView) {
+            GLog.w(TAG, "render ==> can not find canvas with id ===> " + canvasId);
+            addCacheCommand(canvasId, new RenderCmd(canvasId, cmd));
+            return;
+        }
+
         mImpl.render(canvasId, cmd);
     }
 
@@ -208,6 +368,10 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
         if (!args.hasKey("componentId")) {
             return Boolean.FALSE.toString();
+        }
+
+        if (mViews.containsKey(args.getString("componentId"))) {
+            return Boolean.TRUE.toString();
         }
 
         JSONObject data = new JSONObject();
@@ -242,9 +406,16 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
             return;
         }
 
+        GReactTextureView textureView = mViews.get(refId);
+        if (null == textureView) {
+            GLog.w(TAG, "setContextType can not find canvas with id ===> " + refId);
+            addCacheCommand(refId, new SetContextTypeCmd(refId, args));
+            return;
+        }
+
         Activity ctx = getCurrentActivity();
         if (ctx == null) {
-            GLog.e(TAG, "setDevicePixelRatio error ctx == null");
+            GLog.w(TAG, "setDevicePixelRatio error ctx == null");
             return;
         }
 
@@ -275,16 +446,28 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
 
     @ReactMethod
-    public void texImage2D(final String refid, final int target, final int level, final int internalformat, final int format, final int type, String path) {
+    public void texImage2D(final String refId, final int target, final int level, final int internalformat, final int format, final int type, String path) {
         if (!TextUtils.isEmpty(path)) {
-            mImpl.texImage2D(refid, target, level, internalformat, format, type, path);
+            GReactTextureView textureView = mViews.get(refId);
+            if (null == textureView) {
+                GLog.w(TAG, " texImage2D ===> can not find canvas with id ===> " + refId);
+                addCacheCommand(refId, new TexImage2DCmd(refId, target, level, internalformat, format, type, path));
+                return;
+            }
+            mImpl.texImage2D(refId, target, level, internalformat, format, type, path);
         }
     }
 
     @ReactMethod
-    public void texSubImage2D(final String refid, final int target, final int level, final int xoffset, final int yoffset, final int format, final int type, String path) {
+    public void texSubImage2D(final String refId, final int target, final int level, final int xoffset, final int yoffset, final int format, final int type, String path) {
         if (!TextUtils.isEmpty(path)) {
-            mImpl.texSubImage2D(refid, target, level, xoffset, yoffset, format, type, path);
+            GReactTextureView textureView = mViews.get(refId);
+            if (null == textureView) {
+                GLog.w(TAG, "texSubImage2D ===> can not find canvas with id ===> " + refId);
+                addCacheCommand(refId, new TexSubImage2DCmd(refId, target, level, xoffset, yoffset, format, type, path));
+                return;
+            }
+            mImpl.texSubImage2D(refId, target, level, xoffset, yoffset, format, type, path);
         }
     }
 
