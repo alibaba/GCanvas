@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.taobao.gcanvas.GCanvasJNI;
+import com.taobao.gcanvas.adapters.GCanvasAdapterManager;
 import com.taobao.gcanvas.adapters.img.IGImageLoader;
 import com.taobao.gcanvas.bridges.spec.bridge.IJSCallbackDataFactory;
 import com.taobao.gcanvas.bridges.spec.bridge.IJSCallbackMap;
@@ -31,12 +32,6 @@ public abstract class AbsGBridgeModule<JSCallback> implements IGBridgeModule<JSC
     protected HashMap<String, GImageLoadInfo> mImageIdCache = new HashMap<>();
 
     protected HashMap<String, ArrayList<JSCallback>> mCallbacks = new HashMap<>();
-
-    protected IGImageLoader mImageLoader;
-
-    public void setImageLoader(IGImageLoader mImageLoader) {
-        this.mImageLoader = mImageLoader;
-    }
 
     private abstract static class AbsImageCallback implements IGImageLoader.ImageCallback {
 
@@ -116,7 +111,8 @@ public abstract class AbsGBridgeModule<JSCallback> implements IGBridgeModule<JSC
                             }
                         }
                     };
-                    mImageLoader.load(getContext(), src, imgCb);
+
+                    GCanvasAdapterManager.with(getContext()).getGImageLoader().load(getContext(), src, imgCb);
 
                     imgCb.waitTillFinish();
 
@@ -178,7 +174,7 @@ public abstract class AbsGBridgeModule<JSCallback> implements IGBridgeModule<JSC
                         }
                     };
 
-                    mImageLoader.load(getContext(), path, imgCb);
+                    GCanvasAdapterManager.with(getContext()).getGImageLoader().load(getContext(), path, imgCb);
                     imgCb.waitTillFinish();
                 }
             } catch (Throwable e) {
@@ -211,7 +207,7 @@ public abstract class AbsGBridgeModule<JSCallback> implements IGBridgeModule<JSC
                             }
                         }
                     };
-                    mImageLoader.load(getContext(), path, imgCb);
+                    GCanvasAdapterManager.with(getContext()).getGImageLoader().load(getContext(), path, imgCb);
                     imgCb.waitTillFinish();
                 }
             } catch (Throwable e) {
@@ -282,7 +278,7 @@ public abstract class AbsGBridgeModule<JSCallback> implements IGBridgeModule<JSC
 
                 final int imageIdFinal = imageId;
                 final String urlFinal = url;
-                mImageLoader.load(getContext(), url, new IGImageLoader.ImageCallback() {
+                GCanvasAdapterManager.with(getContext()).getGImageLoader().load(getContext(), url, new IGImageLoader.ImageCallback() {
                     @Override
                     public void onSuccess(Bitmap bitmap) {
                         if (null != bitmap) {

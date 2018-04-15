@@ -6,7 +6,6 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 
@@ -18,6 +17,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.taobao.gcanvas.GCanvasJNI;
+import com.taobao.gcanvas.adapters.GCanvasAdapterManager;
 import com.taobao.gcanvas.adapters.img.impl.fresco.GCanvasFrescoImageLoader;
 import com.taobao.gcanvas.bridges.rn.bridge.RNJSCallbackArray;
 import com.taobao.gcanvas.bridges.rn.bridge.RNJSCallbackDataFactory;
@@ -73,15 +73,17 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
     private class RenderCmd implements IReactCacheCmd {
         private String canvasId, cmd;
+        private int type;
 
-        public RenderCmd(String canvasId, String cmd) {
+        public RenderCmd(int type, String canvasId, String cmd) {
             this.canvasId = canvasId;
             this.cmd = cmd;
+            this.type = type;
         }
 
         @Override
         public void execute() {
-            render(cmd, canvasId);
+            render(type, cmd, canvasId);
         }
     }
 
@@ -231,7 +233,6 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
                         if (null != view && mCacheCmdList.containsKey(refId) && view.isReady()) {
                             ArrayList<IReactCacheCmd> cmdList = mCacheCmdList.remove(refId);
                             for (IReactCacheCmd cmd : cmdList) {
-                                Log.d("test", "execute command ===> " + cmd.getClass().getSimpleName());
                                 cmd.execute();
                             }
                             return;
@@ -266,13 +267,13 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         }
 
         @Override
-        public void render(String canvasId, String cmd) {
+        public void render(int type, String canvasId, String cmd) {
             GReactTextureView textureView = mViews.get(canvasId);
             if (null == textureView) {
                 GLog.w(TAG, "can not find canvas with id ===> " + canvasId);
                 return;
             }
-            GCanvasJNI.render(textureView.getCanvasKey(), cmd);
+            GCanvasJNI.render(type, textureView.getCanvasKey(), cmd);
         }
 
         @Override
@@ -338,7 +339,7 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
 
 
     @ReactMethod
-    public void render(String cmd, String canvasId) {
+    public void render(int type, String cmd, String canvasId) {
         if (TextUtils.isEmpty(canvasId) || TextUtils.isEmpty(cmd)) {
             return;
         }
@@ -346,11 +347,11 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         GReactTextureView textureView = mViews.get(canvasId);
         if (null == textureView) {
             GLog.w(TAG, "render ==> can not find canvas with id ===> " + canvasId);
-            addCacheCommand(canvasId, new RenderCmd(canvasId, cmd));
+            addCacheCommand(canvasId, new RenderCmd(type, canvasId, cmd));
             return;
         }
 
-        mImpl.render(canvasId, cmd);
+        mImpl.render(type, canvasId, cmd);
     }
 
     @ReactMethod
@@ -474,7 +475,9 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
     public GReactModule(ReactApplicationContext reactContext) {
         super(reactContext);
         mImpl = new RNModuleImpl();
-        mImpl.setImageLoader(new GCanvasFrescoImageLoader());
+        if (null == GCanvasAdapterManager.with(reactContext).getGImageLoader()) {
+            GCanvasAdapterManager.with(reactContext).setGImageLoader(new GCanvasFrescoImageLoader());
+        }
         getReactApplicationContext().addLifecycleEventListener(this);
     }
 

@@ -116,8 +116,9 @@ public interface IGBridgeModule<JSCallback> {
 
     /**
      * Send render command to specified canvas.
+     * @param type 2D or WebGL
      * @param cmd
      * @param canvasId
      */
-    void render(String cmd, String canvasId);
+    void render(int type, String cmd, String canvasId);
 }

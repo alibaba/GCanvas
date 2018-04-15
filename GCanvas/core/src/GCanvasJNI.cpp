@@ -299,7 +299,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
-        JNIEnv *je, jclass jc, jstring contextId, jstring renderCommands) {
+        JNIEnv *je, jclass jc, jint type, jstring contextId, jstring renderCommands) {
     GCanvasManager *theManager = GCanvasManager::GetManager();
     char *canvasId = jstringToString(je, contextId);
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
@@ -309,7 +309,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
         int length = je->GetStringUTFLength(renderCommands);
         if (0 != length) {
             theCanvas->mJniEnv = je;
-            theCanvas->CallNative(0x20000001, rc);
+            theCanvas->CallNative(type, rc);
             je->ReleaseStringUTFChars(renderCommands, rc);
         } else {
             theCanvas->LinkNativeGLProc();

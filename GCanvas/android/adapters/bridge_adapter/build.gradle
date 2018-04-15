@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 group = rootProject.extensions.groups.Adapter
-version = "1.0.0"
+version = "1.0.1"
 
 buildscript {
     repositories {
@@ -14,8 +14,8 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
     }
 }
 

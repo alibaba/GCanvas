@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  * @author ertong
- *         create at 2017/8/1
+ * create at 2017/8/1
  */
 
 public class GTextureViewCallback implements TextureView.SurfaceTextureListener {
@@ -56,12 +56,21 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         }
     }
 
+    public void removeSurfaceTextureListener(TextureView.SurfaceTextureListener listener) {
+        if (null == listener) {
+            return;
+        }
+
+        if (null != mDelegateLists) {
+            mDelegateLists.remove(listener);
+        }
+    }
+
     public void setBackgroundColor(String color) {
         if (!TextUtils.isEmpty(color)) {
             mBackgroundColor = color;
         }
     }
-
 
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -74,8 +83,6 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         } else {
             mTextureview.setSurfaceTexture(mSurfaceTexture);
         }
-
-
 
 
         onSurfaceChanged(this.mKey, mSurface, 0, width, height, mBackgroundColor);

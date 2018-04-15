@@ -7,6 +7,7 @@ import android.view.Display;
 
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvasJNI;
+import com.taobao.gcanvas.adapters.GCanvasAdapterManager;
 import com.taobao.gcanvas.adapters.img.impl.fresco.GCanvasFrescoImageLoader;
 import com.taobao.gcanvas.bridges.spec.bridge.IJSCallbackDataFactory;
 import com.taobao.gcanvas.bridges.spec.module.AbsGBridgeModule;
@@ -36,7 +37,7 @@ import static com.taobao.gcanvas.bridges.spec.module.IGBridgeModule.ContextType.
 
 /**
  * @author ertong
- *         create at 2017/8/17
+ * create at 2017/8/17
  */
 
 @WeexModule(name = "gcanvas")
@@ -95,7 +96,6 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
             GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
 
 
-
             /**
              * open high Quality default
              */
@@ -122,7 +122,7 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
         }
 
         @Override
-        public void render(String canvasId, String cmd) {
+        public void render(int type, String canvasId, String cmd) {
 
         }
 
@@ -151,7 +151,9 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
     public GCanvasWeexModule() {
         GCanvasJNI.registerWXCallNativeFunc(WXEnvironment.getApplication());
         mImpl = new WeexModuleImpl(this);
-        mImpl.setImageLoader(new GCanvasFrescoImageLoader());
+        if (null == GCanvasAdapterManager.with(mWXSDKInstance.getContext()).getGImageLoader()) {
+            GCanvasAdapterManager.with(mWXSDKInstance.getContext()).setGImageLoader(new GCanvasFrescoImageLoader());
+        }
     }
 
 
@@ -241,7 +243,7 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
     }
 
     @JSMethod(uiThread = false)
-    public void render(String cmd, String refId) {
+    public void render(int type, String cmd, String refId) {
         // Inject the render function "GCanvasCallNative" to weex core .so, empty implementation here.
     }
 

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Main
-version = "1.0.4"
+version = "1.0.5"
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

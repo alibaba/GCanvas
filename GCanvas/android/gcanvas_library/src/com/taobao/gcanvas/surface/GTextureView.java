@@ -10,7 +10,7 @@ import com.taobao.gcanvas.util.GLog;
 
 /**
  * @author ertong
- *         create at 2017/8/1
+ * create at 2017/8/1
  */
 
 public class GTextureView extends TextureView {
@@ -51,6 +51,17 @@ public class GTextureView extends TextureView {
 
         if (null != mCallback) {
             mCallback.addSurfaceTextureListener(listener);
+        }
+    }
+
+
+    public void removeSurfaceTextureListener(TextureView.SurfaceTextureListener listener) {
+        if (null == listener) {
+            return;
+        }
+
+        if (null != mCallback) {
+            mCallback.removeSurfaceTextureListener(listener);
         }
     }
 

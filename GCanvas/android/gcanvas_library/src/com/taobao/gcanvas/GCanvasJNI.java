@@ -48,8 +48,7 @@ public class GCanvasJNI {
 
     public static native void setOrtho(String contextID, int width, int height);
 
-    public static native void render(String contextID, String renderCommands);
-
+    public static native void render(int type, String contextID, String renderCommands);
 
     public static native void release(); // Deletes native canvas
 

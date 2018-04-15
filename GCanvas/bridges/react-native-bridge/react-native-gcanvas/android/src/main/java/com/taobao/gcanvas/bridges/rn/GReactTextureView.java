@@ -1,7 +1,9 @@
 package com.taobao.gcanvas.bridges.rn;
 
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 import android.util.AttributeSet;
+import android.view.TextureView;
 
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.taobao.gcanvas.surface.GTextureView;
@@ -58,7 +60,6 @@ public class GReactTextureView extends GTextureView implements LifecycleEventLis
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         mIsReady = true;
-        Log.e("test", "onSurfaceTextureAvailable=========");
     }
 
     @Override
@@ -69,7 +70,6 @@ public class GReactTextureView extends GTextureView implements LifecycleEventLis
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         mIsReady = false;
-        Log.e("test", "onSurfaceTextureDestroyed=========");
         return true;
     }
 
