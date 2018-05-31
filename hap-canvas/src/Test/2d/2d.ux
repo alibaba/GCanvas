@@ -1,0 +1,37 @@
+<template>
+	<div id="test">
+		<canvas  id="canvas_holder" style=" width:750px;height:750px;" ></canvas>
+	</div>
+</template>
+<script>
+import { enable, HapBridge, Image } from "../../Canvas/gcanvas.min.js";
+
+export default {
+
+  start(ref) {
+  const ctx = ref.getContext("2d");
+  setInterval(() => {
+    var startTime = new Date().getTime();
+    ctx.fillStyle = "blue";
+    ctx.fillRect(0, 0, 100, 100);
+    var img = new Image();
+    img.src = "https://www.baidu.com/img/bd_logo1.png"
+    img.onload = function () {
+      ctx.drawImage(img, 100, 100, 400, 400);
+    };
+    var endTime = new Date().getTime();
+    console.log("draw image costing:" + (endTime - startTime) * 0.001);
+    // if(disableAutoSwap) {
+    //     ref._swapBuffers();
+    // }
+    }, 16);
+  },
+  onReady() {
+    var ref = this.$element('canvas_holder');
+    ref = enable(ref, {bridge: HapBridge,disableAutoSwap:true});
+    if(ref){
+      this.start(ref);
+    }
+  }
+};
+</script>

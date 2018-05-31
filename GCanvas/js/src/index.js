@@ -4,13 +4,11 @@ import GImage from './env/image';
 import GWebGLRenderingContext from './context-webgl/RenderingContext';
 import GContext2D from './context-2d/RenderingContext';
 
-import GBridgeWeex from './bridge/bridge-weex';
-import GBridgeReactNative from './bridge/bridge-reactnative';
+import GBridgeHap from './bridge/bridge-hap';
 
 export let Image = GImage;
 
-export let WeexBridge = GBridgeWeex;
-export let ReactNativeBridge = GBridgeReactNative;
+export let HapBridge = GBridgeHap;
 
 export function enable(el, { bridge, debug, disableAutoSwap, disableComboCommands } = {}) {
 
@@ -34,8 +32,8 @@ export function enable(el, { bridge, debug, disableAutoSwap, disableComboCommand
     }
 
     var canvas = new GCanvas(el.ref, { disableAutoSwap });
-    canvas.width = el.style.width;
-    canvas.height = el.style.height;
+    canvas.width = el._style.width;
+    canvas.height = el._style.height;
 
     return canvas;
 };
