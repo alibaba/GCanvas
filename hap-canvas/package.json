@@ -1,0 +1,31 @@
+{
+  "name": "hap-canvas",
+  "version": "1.0.0",
+  "subversion": {
+    "toolkit": "0.0.33-beta.1"
+  },
+  "description": "",
+  "scripts": {
+    "server": "hap server",
+    "debug": "hap debug",
+    "build": "hap build",
+    "release": "hap release",
+    "watch": "hap watch"
+  },
+  "devDependencies": {
+    "hap-toolkit": "0.0.33-beta.1",
+    "babel-cli": "^6.10.1",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "css-what": "^2.1.0",
+    "koa": "^2.3.0",
+    "koa-send": "^4.1.1",
+    "koa-static": "^4.0.1",
+    "koa-body": "^2.5.0",
+    "koa-router": "^7.2.1",
+    "socket.io": "^2.1.0",
+    "webpack": "^3.11.0"
+  }
+}

@@ -1,2 +1,5 @@
 .DS_Store
-website
+.vscode/
+package-lock.json
+node_modules/
+dist/

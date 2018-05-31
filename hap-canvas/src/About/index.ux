@@ -1,0 +1,164 @@
+<template>
+  <div class="demo-page">
+    <!-- 应用图标 -->
+    <image id="icon" src="{{icon}}"></image>
+
+    <!-- 应用名 -->
+    <text id="name">{{name}}</text>
+
+    <!-- 应用标签 -->
+    <div id="tags">
+      <text class="tag">无安装</text>
+      <text class="gap">|</text>
+      <text class="tag">体积小</text>
+      <text class="gap">|</text>
+      <text class="tag">一步直达</text>
+    </div>
+
+    <!-- 应用描述 -->
+    <text id="desc">{{desc}}</text>
+
+    <!-- 应用详情 -->
+    <div class="detail detail-first">
+      <text class="detail-title">服务类型</text>
+      <text class="detail-content">{{serviceType}}</text>
+    </div>
+    <div class="detail">
+      <text class="detail-title">主体信息</text>
+      <text class="detail-content">{{subjectInfo}}</text>
+    </div>
+
+    <!-- 创建快捷方式 -->
+    <input class="btn" type="button" onclick="createShortcut" value="创建快捷方式" />
+
+    <!-- 版权信息 -->
+    <text id="footer">{{copyright}}</text>
+  </div>
+</template>
+
+<style>
+  .demo-page {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* 应用图标 */
+  #icon {
+    margin-top: 90px;
+    width: 134px;
+    height: 134px;
+    border-radius: 10px;
+    border: 1px solid #8d8d8d;
+  }
+
+  /* 应用名 */
+  #name {
+    margin-top: 20px;
+    font-size: 36px;
+    color: #000000;
+  }
+
+  /* 应用标签 */
+  #tags {
+    margin-top: 22px;
+    align-items: center;
+  }
+
+  .tag {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 28px;
+    color: #2a9700;
+  }
+
+  .gap {
+    font-size: 22px;
+    color: #b2b2b2;
+  }
+
+  /* 应用描述 */
+  #desc {
+    width: 650px;
+    margin-top: 40px;
+    line-height: 35px;
+    font-size: 25px;
+    color: #8d8d8d;
+  }
+
+  /* 应用详情 */
+  .detail {
+    width: 650px;
+    height: 90px;
+    border-bottom-width: 1px;
+    border-bottom-color: #f0f0f0;
+  }
+
+  .detail-first {
+    margin-top: 65px;
+    border-top-width: 1px;
+    border-top-color: #f0f0f0;
+  }
+
+  .detail-title {
+    width: 160px;
+    padding-left: 10px;
+    font-size: 25px;
+    color: #000000;
+  }
+
+  .detail-content {
+    font-size: 25px;
+    color: #8d8d8d;
+  }
+
+  /* 按钮 */
+  .btn {
+    width: 550px;
+    height: 86px;
+    margin-top: 75px;
+    border-radius: 43px;
+    background-color: #09ba07;
+    font-size: 30px;
+    color: #ffffff;
+  }
+
+  /* 底部版权信息 */
+  #footer {
+    width: 750px;
+    position: fixed;
+    bottom: 55px;
+    font-size: 25px;
+    color: #8d8d8d;
+    text-align: center;
+  }
+</style>
+
+<script>
+  /**
+   * 默认的菜单页(可自定义)
+   * name默认为manifest文件中的name字段
+   * icon默认为manifest文件中的icon字段
+   * 若需修改页面中文本，请修改ViewModel private中对应变量
+   * 注意：使用加载器测试`创建桌面快捷方式`功能时，需要进入系统设置->权限管理->开启应用加载器的`桌面快捷方式`权限，才能保存到桌面。应用上线后可自动获取`桌面快捷方式`权限
+   */
+  export default {
+    protected: {
+      name: null,
+      icon: null
+    },
+    private: {
+      desc: '即点即用，让你省去下载安装的步骤，立即使用各类服务',
+      serviceType: '工具类',
+      subjectInfo: 'xxx有限公司',
+      copyright: ''
+    },
+    onInit () {
+      // 设置标题栏
+      this.$page.setTitleBar({ text: this.name })
+    },
+    createShortcut () {
+      // 创建快捷方式
+      this.$app.$def.createShortcut()
+    }
+  }
+</script>
