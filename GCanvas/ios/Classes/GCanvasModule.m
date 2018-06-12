@@ -446,7 +446,10 @@ static NSMutableDictionary  *_staticModuleExistDict;
  * @param   component   id<GCanvasViewProtocol component bind with plugin
  */
 - (void)refreshPlugin:(GCanvasPlugin*)plugin withComponent:(id<GCanvasViewProtocol>)component{
-    CGFloat devicePixelRatio = component.devicePixelRatio;
+    CGFloat devicePixelRatio = 1.0;
+    if( plugin.contextType == GCVContextType2D ){
+        devicePixelRatio = component.devicePixelRatio;
+    }
     [plugin setDevicePixelRatio:devicePixelRatio];
     
     CGRect compFrame = component.componetFrame;
