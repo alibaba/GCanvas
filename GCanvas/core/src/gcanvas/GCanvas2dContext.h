@@ -131,6 +131,7 @@ typedef void (*GWebGLTxtImage2DFunc)(GLenum target, GLint level, GLenum internal
                                      GLenum format, GLenum type,  const char *src);
 typedef void (*GWebGLTxtSubImage2DFunc)(GLenum target, GLint level, GLint xoffset, GLint yoffset,
                                         GLenum format, GLenum type, const char *src);
+typedef void (*GWebGLBindToGLKViewFunc)(std::string contextId);
 
 
 
@@ -314,11 +315,24 @@ public:
     {
         gwebgl_txtsubImage_2d_func_ = func;
     }
+#ifdef IOS
+    GWebGLBindToGLKViewFunc GetGWebGLBindToGLKViewFunc()
+    {
+        return gwebgl_bind_glkview_func_;
+    }
+    void SetGWebGLBindToGLKViewFunc(GWebGLBindToGLKViewFunc func)
+    {
+        gwebgl_bind_glkview_func_ = func;
+    }
+#endif
 
 protected:
     G2DFontDrawTextFunc g2d_font_draw_text_func_;
     GWebGLTxtImage2DFunc gwebgl_txtImage_2d_func_;
     GWebGLTxtSubImage2DFunc gwebgl_txtsubImage_2d_func_;
+#ifdef IOS
+    GWebGLBindToGLKViewFunc gwebgl_bind_glkview_func_;
+#endif
     
     bool mIsFboSupported;
     short mWidth;
