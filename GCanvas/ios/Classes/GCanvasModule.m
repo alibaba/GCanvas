@@ -148,6 +148,10 @@ static NSMutableDictionary  *_staticModuleExistDict;
                                                  selector:@selector(onWillEnterForegroundNotify:)
                                                      name:UIApplicationDidBecomeActiveNotification
                                                    object:nil];
+        GCVWeakSelf
+        [GCanvasPlugin setFetchPlugin:^GCanvasPlugin *(NSString *componentId) {
+            return [weakSelf gcanvasPluginById:componentId];
+        }];
     }
     
     if( self.gcanvasObjectDict[componentId] ){
@@ -170,6 +174,8 @@ static NSMutableDictionary  *_staticModuleExistDict;
             component.glkview.delegate = weakSelf;
         });
         gcanvasInst.component = component;
+        
+        [plugin setGLKView:component.glkview];
     }
     return @"true";
 }
@@ -414,6 +420,12 @@ static NSMutableDictionary  *_staticModuleExistDict;
 }
 
 #pragma mark - Private
+- (GCanvasPlugin*)gcanvasPluginById:(NSString*)componentId{
+    GCanvasObject *gcanvasInst = self.gcanvasObjectDict[componentId];
+    GCanvasPlugin *plugin = gcanvasInst.plugin;
+    return plugin;
+}
+
 - (GCanvasObject*)gcanvasInstanceByGLKView:(GLKView*)glkview{
     __block GCanvasObject *gcanvasInst = nil;
     [self.gcanvasObjectDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasObject *obj, BOOL * _Nonnull stop) {
@@ -446,7 +458,10 @@ static NSMutableDictionary  *_staticModuleExistDict;
  * @param   component   id<GCanvasViewProtocol component bind with plugin
  */
 - (void)refreshPlugin:(GCanvasPlugin*)plugin withComponent:(id<GCanvasViewProtocol>)component{
-    CGFloat devicePixelRatio = component.devicePixelRatio;
+    CGFloat devicePixelRatio = 1.0;
+    if( plugin.contextType == GCVContextType2D ){
+        devicePixelRatio = component.devicePixelRatio;
+    }
     [plugin setDevicePixelRatio:devicePixelRatio];
     
     CGRect compFrame = component.componetFrame;

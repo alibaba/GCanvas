@@ -26,9 +26,11 @@
 @property(nonatomic, strong) NSMutableArray *renderCommandArray;
 @property(nonatomic, strong) NSMutableDictionary *textureDict;
 
+@property(nonatomic, weak) GLKView *glkview;
+
 @end
 
-
+static FetchPluginBlock gFetchPluginBlock;
 @implementation GCanvasPlugin
 
 + (void)setLogLevel:(NSUInteger)logLevel{
@@ -37,6 +39,12 @@
     [GCVLog sharedInstance].logLevel = (GCVLogLevel)logLevel;
     SetLogLevel((LogLevel)logLevel);
 }
+
++ (void)setFetchPlugin:(FetchPluginBlock)block
+{
+    gFetchPluginBlock = block;
+}
+
 
 - (instancetype)initWithComponentId:(NSString*)componentId{
     self = [super init];
@@ -188,6 +196,7 @@
     if( self.gcanvas->mContextType != 0 ){
         self.gcanvas->SetGWebGLTxtImage2DFunc(iOS_GCanvas_GWebGLTxtImage2D);
         self.gcanvas->SetGWebGLTxtSubImage2DFunc(iOS_GCanvas_GWebGLTxtSubImage2D);
+        self.gcanvas->SetGWebGLBindToGLKViewFunc(iOS_GCanvas_Bind_To_GLKView);
     } else {
         self.gcanvas->SetG2DFontDrawTextFunc(iOS_GCanvas_Draw_Text);
     }
@@ -218,6 +227,16 @@
     }
     return @"";
 }
+
+- (void)setGLKView:(GLKView*)glkview{
+    self.glkview = glkview;
+}
+
+- (GLKView*)getGLKView{
+    return self.glkview;
+}
+
+
 
 #pragma mark - iOS implementation of Font & texImage
 /**
@@ -373,5 +392,14 @@ void iOS_GCanvas_GWebGLTxtSubImage2D(GLenum target, GLint level, GLint xoffset, 
         }];
     }
 }
+
+void iOS_GCanvas_Bind_To_GLKView(std::string contextId){
+    if(gFetchPluginBlock){
+        GCanvasPlugin *plugin = gFetchPluginBlock( [NSString stringWithUTF8String:contextId.c_str()]);
+        GLKView *glkview = [plugin getGLKView];
+        [glkview bindDrawable];
+    }
+}
+
 
 @end

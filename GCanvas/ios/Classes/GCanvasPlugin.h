@@ -15,9 +15,13 @@ typedef NS_ENUM(NSUInteger, GCVContextType){
     GCVContextTypeWebGL = 1
 };
 
+@class GCanvasPlugin;
+typedef GCanvasPlugin* (^FetchPluginBlock)(NSString * componentId);
+
 @protocol GCVImageLoaderProtocol;
 
 @interface GCanvasPlugin : NSObject
+
 
 /**
  *  @abstract       set LogLevel
@@ -26,6 +30,7 @@ typedef NS_ENUM(NSUInteger, GCVContextType){
  */
 + (void)setLogLevel:(NSUInteger)logLevel;
 
++ (void)setFetchPlugin:(FetchPluginBlock)block;
 /**
  *  @abstract   init GCanvas with componentId
  *  @param      componentId   unique instance bind GCanvas
@@ -144,5 +149,12 @@ typedef NS_ENUM(NSUInteger, GCVContextType){
  *  @abstract   get webgl Sync call result
  */
 - (NSString*)getSyncResult;
+
+/**
+ *  @abstract   set GLKView
+ */
+- (void)setGLKView:(GLKView*)glkview;
+
+- (GLKView*)getGLKView;
 
 @end
