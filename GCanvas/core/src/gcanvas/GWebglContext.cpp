@@ -734,7 +734,19 @@ int bindFramebuffer(GCanvas *obj, const char *&p)
     GLuint framebuffer = tokens[1];
 
     LOG_D("[webgl::exec] glBindFramebuffer(%s, %d)", GetMacroValDebug(target), framebuffer);
-    glBindFramebuffer(target, framebuffer);
+
+#ifdef IOS
+    if ( framebuffer == 0 ){
+        GWebGLBindToGLKViewFunc func = obj->GetGWebGLBindToGLKViewFunc();
+        if(func){
+            func(obj->mContextId);
+        }
+    }else{
+#endif
+        glBindFramebuffer(target, framebuffer);
+#ifdef IOS
+    }
+#endif
     return kContinue;
 }
 
