@@ -55,7 +55,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
 
-  s.frameworks = 'Foundation','UIKit','GLKit'
+  s.frameworks = 'Foundation', 'UIKit', 'GLKit', 'OpenGLES', 'CoreText'
 
   s.library = 'stdc++'
 
