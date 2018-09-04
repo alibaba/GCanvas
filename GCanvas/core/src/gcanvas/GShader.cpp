@@ -223,10 +223,15 @@ void LinearGradientShader::calculateAttributesLocations()
     mRangeEndSlot = glGetUniformLocation(mHandle, "u_endPos");
     mStopCountSlot = glGetUniformLocation(mHandle, "u_stopCount");
     mStop0Slot = glGetUniformLocation(mHandle, "u_stop0");
-    mStop1slot = glGetUniformLocation(mHandle, "u_stop1");
-    mStop2slot = glGetUniformLocation(mHandle, "u_stop2");
+    mStop1Slot = glGetUniformLocation(mHandle, "u_stop1");
+    mStop2Slot = glGetUniformLocation(mHandle, "u_stop2");
     mStop3Slot = glGetUniformLocation(mHandle, "u_stop3");
     mStop4Slot = glGetUniformLocation(mHandle, "u_stop4");
+    mStop0= glGetUniformLocation(mHandle, "u_colorStop0");
+    mStop1= glGetUniformLocation(mHandle, "u_colorStop1");
+    mStop2= glGetUniformLocation(mHandle, "u_colorStop2");
+    mStop3= glGetUniformLocation(mHandle, "u_colorStop3");
+    mStop4= glGetUniformLocation(mHandle, "u_colorStop4");
 
     glUniform1i(mTextureSamplerSlot, 0);
     glUniform1i(mHasTextureSlot, 0);
@@ -260,6 +265,11 @@ void RadialGradientShader::calculateAttributesLocations()
     mStop2Slot = glGetUniformLocation(mHandle, "u_stop2");
     mStop3Slot = glGetUniformLocation(mHandle, "u_stop3");
     mStop4Slot = glGetUniformLocation(mHandle, "u_stop4");
+    mStop0 = glGetUniformLocation(mHandle, "u_colorStop0");
+    mStop1 = glGetUniformLocation(mHandle, "u_colorStop1");
+    mStop2 = glGetUniformLocation(mHandle, "u_colorStop2");
+    mStop3 = glGetUniformLocation(mHandle, "u_colorStop3");
+    mStop4 = glGetUniformLocation(mHandle, "u_colorStop4");
 
     glUniform1i(mTextureSamplerSlot, 0);
     glUniform1i(mHasTextureSlot, 0);

@@ -1429,8 +1429,8 @@ void GCanvasContext::UseLinearGradientPipeline()
             color[0] = stop->color.rgba.r;
             color[1] = stop->color.rgba.g;
             color[2] = stop->color.rgba.b;
-            color[3] = stop->pos;
-            mCurrentState->mShader->SetColorStop(color, i);
+            color[3] = stop->color.rgba.a;
+            mCurrentState->mShader->SetColorStop(color, i, stop->pos);
         }
     }
     if (mCurrentState != nullptr)
@@ -1474,8 +1474,8 @@ void GCanvasContext::UseRadialGradientPipeline()
             color[0] = stop->color.rgba.r;
             color[1] = stop->color.rgba.g;
             color[2] = stop->color.rgba.b;
-            color[3] = stop->pos;
-            mCurrentState->mShader->SetColorStop(color, i);
+            color[3] = stop->color.rgba.a;
+            mCurrentState->mShader->SetColorStop(color, i, stop->pos);
         }
     }
     if (mCurrentState != nullptr)
