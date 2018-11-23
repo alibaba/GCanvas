@@ -68,7 +68,7 @@ public:
 
     virtual void SetColorStopCount(int count) {}
 
-    virtual void SetColorStop(float *pack_color_stop, int id) {}
+    virtual void SetColorStop(float *pack_color_stop, int id, float stop) {}
 
     virtual void SortColorStop() {}
 
@@ -213,30 +213,37 @@ public:
 
     void SetColorStopCount(int count) { glUniform1i(mStopCountSlot, count); }
 
-    void SetColorStop(float *stop, int id)
+    void SetColorStop(float *stop, int id, float colorStop)
     {
         // stop[0-2] must be the RGB of the stop
         // stop[3] must be the position of the stop
         GLuint loc;
+        GLuint sloc;
+
         if (id == 0)
         {
             loc = mStop0Slot;
+            sloc = mStop0;
         }
         else if (id == 1)
         {
-            loc = mStop1slot;
+            loc = mStop1Slot;
+            sloc = mStop1;
         }
         else if (id == 2)
         {
-            loc = mStop2slot;
+            loc = mStop2Slot;
+            sloc = mStop2;
         }
         else if (id == 3)
         {
             loc = mStop3Slot;
+            sloc = mStop3;
         }
         else if (id == 4)
         {
             loc = mStop4Slot;
+            sloc = mStop4;
         }
         else
         {
@@ -244,6 +251,7 @@ public:
         }
 
         glUniform4f(loc, stop[0], stop[1], stop[2], stop[3]);
+        glUniform1f(sloc, colorStop);
     }
 
 protected:
@@ -259,10 +267,15 @@ protected:
     GLuint mRangeEndSlot;
     GLuint mStopCountSlot;
     GLuint mStop0Slot;
-    GLuint mStop1slot;
-    GLuint mStop2slot;
+    GLuint mStop1Slot;
+    GLuint mStop2Slot;
     GLuint mStop3Slot;
     GLuint mStop4Slot;
+    GLuint mStop0;
+    GLuint mStop1;
+    GLuint mStop2;
+    GLuint mStop3;
+    GLuint mStop4;
 
     GLuint mHasTextureSlot;
     bool mHasTextureFlag;
@@ -298,30 +311,37 @@ public:
 
     void SetColorStopCount(int count) { glUniform1i(mStopCountSlot, count); }
 
-    void SetColorStop(float *stop, int id)
+    void SetColorStop(float *stop, int id, float colorStop)
     {
         // stop[0-2] must be the RGB of the stop
         // stop[3] must be the position of the stop
         GLuint loc;
+        GLuint sloc;
+
         if (id == 0)
         {
             loc = mStop0Slot;
+            sloc = mStop0;
         }
         else if (id == 1)
         {
             loc = mStop1Slot;
+            sloc = mStop1;
         }
         else if (id == 2)
         {
             loc = mStop2Slot;
+            sloc = mStop2;
         }
         else if (id == 3)
         {
             loc = mStop3Slot;
+            sloc = mStop3;
         }
         else if (id == 4)
         {
             loc = mStop4Slot;
+            sloc = mStop4;
         }
         else
         {
@@ -329,6 +349,7 @@ public:
         }
 
         glUniform4f(loc, stop[0], stop[1], stop[2], stop[3]);
+        glUniform1f(sloc, colorStop);
     }
 
 protected:
@@ -347,6 +368,11 @@ protected:
     GLuint mStop2Slot;
     GLuint mStop3Slot;
     GLuint mStop4Slot;
+    GLuint mStop0;
+    GLuint mStop1;
+    GLuint mStop2;
+    GLuint mStop3;
+    GLuint mStop4;
 
     GLuint mHasTextureSlot;
     bool mHasTextureFlag;
