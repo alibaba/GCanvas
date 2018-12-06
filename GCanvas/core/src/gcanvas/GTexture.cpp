@@ -8,9 +8,10 @@
  */
 
 #include "GTexture.h"
-#include "../png/PngLoader.h"
+//#include "../png/PngLoader.h"
 #include "../support/Log.h"
 #include "../support/Util.h"
+#include <stdlib.h>
 
 using namespace gcanvas;
 
@@ -21,7 +22,7 @@ GTexture::GTexture(unsigned int w, unsigned int h, GLenum format,
                      GLubyte *pixels)
     : mWidth(w), mHeight(h), mFormat(format), mTextureID(0)
 {
-    createTexture(pixels);
+    CreateTexture(pixels);
 }
 
 GTexture::GTexture() : mWidth(0), mHeight(0), mFormat(0), mTextureID(0) {}
@@ -33,13 +34,13 @@ GTexture::GTexture(const char *path)
     if (loadPixelCallback == nullptr)
     {
         pixels = loadPixelsFromPNG(path, &mWidth, &mHeight);
-        createTexture(pixels);
+        CreateTexture(pixels);
         free(pixels);
     }
     else
     {
         pixels = loadPixelCallback(path, &mWidth, &mHeight);
-        createTexture(pixels);
+        CreateTexture(pixels);
         delete[] pixels;
     }
 
@@ -67,12 +68,12 @@ GLubyte *GTexture::loadPixelsFromPNG(const char *path, unsigned int *pw,
                                       unsigned int *ph)
 {
     unsigned char *buffer = nullptr;
-    int res = PngLoader::Instance().DecodePng(path, &buffer, pw, ph);
-    if (res != 0) return nullptr;
+//    int res = PngLoader::Instance().DecodePng(path, &buffer, pw, ph);
+//    if (res != 0) return nullptr;
     return buffer;
 }
 
-void GTexture::createTexture(GLubyte *pixels)
+void GTexture::CreateTexture(GLubyte *pixels)
 {
     // Release previous texture if we had one
     if (mTextureID)
@@ -225,77 +226,78 @@ GLuint TextureMgr::CreateTexture(const unsigned char *rgbaData,
 bool TextureMgr::AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,
                            unsigned int *widthPtr, unsigned int *heightPtr)
 {
-    unsigned int srcWidth = 0;
-    unsigned int srcHeight = 0;
-    unsigned int destWidth = 0;
-    unsigned int destHeight = 0;
-
-    bool success = false;
-    unsigned char *srcPixels = nullptr;
-    int error = PngLoader::Instance().DecodePng(
-        buffer, size, &srcPixels, &srcWidth, &srcHeight);
-    if (error)
-    {
-        LOG_E("[TextureMgr::AppendPng] error %d", error);
-    }
-    else
-    {
-        TextureGroup &textureGroup = mTextureGroupPool[textureGroupId];
-        textureGroup.Clear();
-
-        GLint glMax;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glMax);
-        unsigned int maxTextureSize = (unsigned int)glMax;
-
-        *widthPtr = srcWidth;
-        *heightPtr = srcHeight;
-        destWidth = std::min(srcWidth, maxTextureSize);
-        destHeight = std::min(srcHeight, maxTextureSize);
-
-        textureGroup.mSrcWidth = srcWidth;
-        textureGroup.mSrcHeight = srcHeight;
-        textureGroup.mTileWidth = destWidth;
-        textureGroup.mTileHeight = destHeight;
-
-        if (srcWidth <= maxTextureSize)
-        {
-            for (unsigned int y = 0; y < srcHeight; y += destHeight)
-            {
-                int h = std::min(srcHeight - y, destHeight);
-
-                GLuint glID = CreateTexture(srcPixels + (y * 4), srcWidth, h);
-                Texture *texture = new Texture(glID, srcWidth, h);
-                textureGroup.mVecTexture.push_back(texture);
-            }
-        }
-        else
-        {
-            GLubyte *destPixels = new GLubyte[4 * destWidth * destHeight];
-
-            for (unsigned int y = 0; y < srcHeight; y += destHeight)
-            {
-                int h = std::min(srcHeight - y, destHeight);
-                for (unsigned int x = 0; x < srcWidth; x += destWidth)
-                {
-                    int w = std::min(srcWidth - x, destWidth);
-
-                    gcanvas::GetSegmentPixel(srcPixels, srcWidth, x, y, w, h,
-                                             destPixels);
-                    GLuint glID = CreateTexture(destPixels, w, h);
-                    Texture *texture = new Texture(glID, w, h);
-                    textureGroup.mVecTexture.push_back(texture);
-                }
-            }
-            delete[] destPixels;
-        }
-
-        success = true;
-    }
-
-    if (srcPixels)
-    {
-        free(srcPixels);
-    }
-
-    return success;
+    return false;
+//    unsigned int srcWidth = 0;
+//    unsigned int srcHeight = 0;
+//    unsigned int destWidth = 0;
+//    unsigned int destHeight = 0;
+//
+//    bool success = false;
+//    unsigned char *srcPixels = nullptr;
+//    int error = PngLoader::Instance().DecodePng(
+//        buffer, size, &srcPixels, &srcWidth, &srcHeight);
+//    if (error)
+//    {
+//        LOG_E("[TextureMgr::AppendPng] error %d", error);
+//    }
+//    else
+//    {
+//        TextureGroup &textureGroup = mTextureGroupPool[textureGroupId];
+//        textureGroup.Clear();
+//
+//        GLint glMax;
+//        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glMax);
+//        unsigned int maxTextureSize = (unsigned int)glMax;
+//
+//        *widthPtr = srcWidth;
+//        *heightPtr = srcHeight;
+//        destWidth = std::min(srcWidth, maxTextureSize);
+//        destHeight = std::min(srcHeight, maxTextureSize);
+//
+//        textureGroup.mSrcWidth = srcWidth;
+//        textureGroup.mSrcHeight = srcHeight;
+//        textureGroup.mTileWidth = destWidth;
+//        textureGroup.mTileHeight = destHeight;
+//
+//        if (srcWidth <= maxTextureSize)
+//        {
+//            for (unsigned int y = 0; y < srcHeight; y += destHeight)
+//            {
+//                int h = std::min(srcHeight - y, destHeight);
+//
+//                GLuint glID = CreateTexture(srcPixels + (y * 4), srcWidth, h);
+//                Texture *texture = new Texture(glID, srcWidth, h);
+//                textureGroup.mVecTexture.push_back(texture);
+//            }
+//        }
+//        else
+//        {
+//            GLubyte *destPixels = new GLubyte[4 * destWidth * destHeight];
+//
+//            for (unsigned int y = 0; y < srcHeight; y += destHeight)
+//            {
+//                int h = std::min(srcHeight - y, destHeight);
+//                for (unsigned int x = 0; x < srcWidth; x += destWidth)
+//                {
+//                    int w = std::min(srcWidth - x, destWidth);
+//
+//                    gcanvas::GetSegmentPixel(srcPixels, srcWidth, x, y, w, h,
+//                                             destPixels);
+//                    GLuint glID = CreateTexture(destPixels, w, h);
+//                    Texture *texture = new Texture(glID, w, h);
+//                    textureGroup.mVecTexture.push_back(texture);
+//                }
+//            }
+//            delete[] destPixels;
+//        }
+//
+//        success = true;
+//    }
+//
+//    if (srcPixels)
+//    {
+//        free(srcPixels);
+//    }
+//
+//    return success;
 }

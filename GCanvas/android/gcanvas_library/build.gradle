@@ -20,7 +20,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.android.tools.build:gradle:${rootProject.extensions.sdks.Gradle}"
     }
 }
 
@@ -32,7 +32,7 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
-            jniLibs.srcDirs = ['libs']
+            jniLibs.srcDirs = ["${rootProject.projectDir}/core/distribution/libs"]
         }
     }
 
@@ -55,10 +55,30 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+//    implementation project(':core')
 }
 
 project.ext.id = rootProject.extensions.artifacts.Core
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'Rendering', 'High Performance']
 project.ext.meta.description = 'This package defines GCanvas main library.'
 apply from: "${rootProject.projectDir}/publish.gradle"
+
+android.libraryVariants.all { type ->
+    task("prepareSo${type.name.capitalize()}") {
+        copy {
+            from("${rootProject.projectDir}/core/build/intermediates/transforms/stripDebugSymbol/${type.name}/0/lib/armeabi/") {
+                include "*.so"
+            }
+
+            into "${rootProject.projectDir}/core/distribution/libs/armeabi"
+        }
+    }
+
+    project.getTasksByName("assemble${type.name}", true).any { task ->
+        task.dependsOn("prepareSo${type.name.capitalize()}")
+        task.doLast {
+            delete "${rootProject.projectDir}/core/distribution/libs/armeabi"
+        }
+    }
+}

@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <map>
 #include <cstdlib>
+#include <algorithm>
 
 GColorRGBA StrValueToColorRGBA(const char *value)
 {
@@ -377,7 +378,11 @@ GColorRGBA StrValueToColorRGBA(const char *value)
     {
         return c;
     }
-
+    
+    std::string colorVal = value;
+    colorVal.erase(std::remove(colorVal.begin(), colorVal.end(), ' '), colorVal.end() );
+    value = colorVal.c_str();
+    
     std::map< std::string, GColorRGBA >::const_iterator iter =
         colorMap.find(value);
     if (iter != colorMap.end())
@@ -413,34 +418,40 @@ GColorRGBA StrValueToColorRGBA(const char *value)
         c.rgba = {(hex & 0xff) / 255.0f, ((hex & 0xffff) >> 8) / 255.0f,
                   (hex >> 16) / 255.0f, 1.0};
     }
-
     // assume rgb(255,0,255) or rgba(255,0,255,0.5) format
     else
     {
-        int current = 0;
-        for (int i = 4; i < length && current < 4; i++)
+        if (strncmp(value, "rgb(", 4) == 0 || strncmp(value, "rgba(", 5) == 0 )
         {
-            if (current == 3)
+            int current = 0;
+            for (int i = 4; i < length && current < 4; i++)
             {
-                // If we have an alpha component, copy the rest of the wide
-                // string into a char array and use atof() to parse it.
-                char alpha[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-                for (int j = 0; i + j < length - 1 && j < 7; j++)
+                if (current == 3)
                 {
-                    alpha[j] = value[i + j];
+                    // If we have an alpha component, copy the rest of the wide
+                    // string into a char array and use atof() to parse it.
+                    char alpha[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+                    for (int j = 0; i + j < length - 1 && j < 7; j++)
+                    {
+                        alpha[j] = value[i + j];
+                    }
+                    double d = atof(alpha);
+                    if (d > 1) {
+                        d = 1;
+                    }
+                    c.components[current] = d;
+                    current++;
                 }
-                c.components[current] = atof(alpha);
-                current++;
-            }
-            else if (isdigit(value[i]))
-            {
-                c.components[current] =
-                    (c.components[current] * 10 + (value[i] - '0'));
-            }
-            else if (value[i] == ',' || value[i] == ')')
-            {
-                c.components[current] /= 255.0f;
-                current++;
+                else if (isdigit(value[i]))
+                {
+                    c.components[current] =
+                        (c.components[current] * 10 + (value[i] - '0'));
+                }
+                else if (value[i] == ',' || value[i] == ')')
+                {
+                    c.components[current] /= 255.0f;
+                    current++;
+                }
             }
         }
     }

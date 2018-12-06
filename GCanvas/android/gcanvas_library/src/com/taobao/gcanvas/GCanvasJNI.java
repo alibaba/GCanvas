@@ -24,12 +24,11 @@ import java.util.Map;
 
 public class GCanvasJNI {
     public static boolean GCanvaslibEnable = false;
-    // Native methods
-    static {
+    public static void load(){
         if(!GCanvaslibEnable){
             try {
-                System.loadLibrary("gcanvas");
                 System.loadLibrary("freetype");
+                System.loadLibrary("gcanvas");
                 GCanvaslibEnable = true;
             } catch (UnsatisfiedLinkError e) {
                 GLog.e("CANVAS", "gcanvas is not found.");
@@ -38,10 +37,15 @@ public class GCanvasJNI {
             }
         }
     }
+    // Native methods
+    static {
+        load();
+    }
 
     static Map<String, Integer> contextTypeMap = new HashMap<>();
     static Map<String, Double> devicePixelRatioMap = new HashMap<>();
     static Map<String, Boolean> qualityMap = new HashMap<>();
+
 
     public static native void setBackgroundColor(String contextID, int red, int green, int blue);
 
@@ -117,7 +121,7 @@ public class GCanvasJNI {
         String libraryPath = null;
         if (Build.VERSION.SDK_INT >= 24) {
             // Android 7 has changed security policy, different .so has different namespace.
-            libraryPath = context.getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
+            libraryPath = context.getApplicationInfo().nativeLibraryDir + "/libweexcore.so";
             GLog.i("start to load gcanvas library,path=" + libraryPath);
         }
         GCanvasJNI.registerCallback(libraryPath, Build.VERSION.SDK_INT);

@@ -7,19 +7,20 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#include <errno.h>
 #include "gcanvas/GPoint.h"
 #include "GCanvas.hpp"
 #include "gcanvas/GShaderManager.h"
-#include "png/PngLoader.h"
+//#include "png/PngLoader.h"
 #include "support/Encode.h"
 #include "support/Util.h"
+#include <sstream>
 
 #ifdef ANDROID
 
 #include "gcanvas/GFontCache.h"
 #include "support/CharacterSet.h"
 #include "GCanvasLinkNative.h"
+#include <3d/gmanager.h>
 
 #endif
 
@@ -30,6 +31,7 @@
 #endif
 
 using namespace gcanvas;
+
 
 void GCanvas::Clear() {
     LOG_D("Canvas::DoContextLost start.");
@@ -45,12 +47,17 @@ void GCanvas::Clear() {
     clearCmdQueue();
 #endif
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     LOG_D("Canvas::DoContextLost end.");
 }
 
 int g_clear_color_time = 0;
 
-GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0) {
+GCanvas::GCanvas(std::string contextId, bool flip, bool onScreen) :
+        GCanvasContext(0, 0, flip),
+        mCurrentTransform(1, 0, 0, 1, 0, 0),
+        mOnScreen(onScreen) {
     mContextId = contextId;
     mRenderCount = 0;
     mLastTime = clock();
@@ -61,13 +68,11 @@ GCanvas::GCanvas(std::string contextId) : GCanvasContext(0, 0) {
     mTyOffset = 0;
     mPixelFlipY = 0;
 
-#ifdef ANDROID
-    mJniEnv = NULL;
-#endif
-
     mContextLost = false;
     mTyOffsetFlag = false;
     g_clear_color_time = 0; // need reset by env init
+
+//    mCurTransfrom = GTransformIdentity;
 
 #ifdef ANDROID
     sem_init(&mSyncSem, 0, 0);
@@ -83,8 +88,18 @@ GCanvas::~GCanvas() {
     Clear();
 }
 
-void GCanvas::OnSurfaceChanged(int width, int height) {
+void GCanvas::OnSurfaceChanged(int x, int y, int width, int height) {
+    GLint maxRenderbufferSize;
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &maxRenderbufferSize);
+    if ((maxRenderbufferSize <= width) || (maxRenderbufferSize <= height)) {
+        LOG_D("GCanvas::OnSurfaceChanged with or height exceed the max buffersize: %d",
+              maxRenderbufferSize);
+        return;
+    }
+
     if (mWidth != width || mHeight != height) {
+        mX = x;
+        mY = y;
         mWidth = width;
         mHeight = height;
         InitializeGLEnvironment();
@@ -92,9 +107,51 @@ void GCanvas::OnSurfaceChanged(int width, int height) {
 
     if (mTyOffsetFlag) {
         mTyOffset = mHeight;
+        mCurrentTransform.ty = mTyOffset;
     }
+
     mContextLost = false;
     LOG_D("GCanvas::OnSurfaceChanged mContextLost %d", mContextLost);
+}
+
+void GCanvas::execResize(int width, int height) {
+    mWidth = width;
+    mHeight = height;
+
+    glViewport(0, 0, mWidth, mHeight);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    if (mContextType == 0) {
+        mVertexBufferIndex = 0;
+        CalculateProjectTransform(mWidth, mHeight);
+        ResetStateStack();
+        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
+        UseDefaultRenderPipeline();
+    }
+
+    mFboMap.erase(DefaultFboName);
+    InitFBO();
+    BindFBO();
+}
+
+void GCanvas::execSetShadowColor(const char *str) {
+    GColorRGBA color = StrValueToColorRGBA(str);
+    mCurrentState->mShadowColor = color;
+}
+
+void GCanvas::execSetShadowBlur(int blur) {
+    mCurrentState->mShadowBlur = blur;
+
+}
+
+void GCanvas::execSetShadowOffsetX(float x) {
+    mCurrentState->mShadowOffsetX = x;
+
+}
+
+void GCanvas::execSetShadowOffsetY(float y) {
+    mCurrentState->mShadowOffsetY = y;
+
 }
 
 void GCanvas::SetBackgroundColor(float red, float green, float blue) {
@@ -110,7 +167,8 @@ void GCanvas::SetOrtho(int width, int height) {
 }
 
 void GCanvas::AddTexture(int textureGroupId, int glID, int width, int height) {
-    LOG_D("AddTexture, Group ID = %d, GL ID = %d, width = %d, height = %d, context lost = %d", textureGroupId, glID, width, height, mContextLost);
+    LOG_D("AddTexture, Group ID = %d, GL ID = %d, width = %d, height = %d, context lost = %d",
+          textureGroupId, glID, width, height, mContextLost);
     if (mContextLost) return;
     mTextureMgr.Append(textureGroupId, glID, width, height);
 }
@@ -319,6 +377,69 @@ const char *GCanvas::parseDrawImage(const char *p, Clip *clipOut) {
     return p;
 }
 
+const char *GCanvas::parseName(const char *p, std::string &name) {
+    const char *old = p;
+    while (*p && *p != ';') {
+        ++p;
+    }
+    name.assign(old, p - old);
+    if (*p == ';') ++p;
+    return p;
+}
+
+const char *
+GCanvas::parseBindingPara(const char *p, std::string &name, float &width, float &height) {
+    const char *old = p;
+    while (*p && *p != ',') {
+        ++p;
+    }
+    name.assign(old, p - old);
+
+    if (*p == ',') ++p;
+
+
+    width = fastFloat(p);
+    while (*p && *p != ',') {
+        ++p;
+    }
+    if (*p == ',') ++p;
+    height = fastFloat(p);
+    while (*p && *p != ';') {
+        ++p;
+    }
+    if (*p == ';') ++p;
+    return p;
+}
+
+const char *
+GCanvas::parseBindingPara(const char *p, std::string &name, float &sx, float &sy, float &sw,
+                          float &sh,
+                          float &dx, float &dy, float &dw, float &dh) {
+    const char *old = p;
+    while (*p && *p != ',') {
+        ++p;
+    }
+    name.assign(old, p - old);
+
+    if (*p == ',') ++p;
+
+    float tokens[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    parseTokesOpt(tokens, &p);
+
+    sx = tokens[0];
+    sy = tokens[1];
+    sw = tokens[2];
+    sh = tokens[3];
+
+    dx = tokens[4];
+    dy = tokens[5];
+    dw = tokens[6];
+    dh = tokens[7];
+
+    if (*p == ';') ++p;
+    return p;
+}
+
 // From the current position, past semicolon or to end
 const char *GCanvas::parseUnknown(const char *p) {
     while (*p && *p != ';') {
@@ -353,9 +474,484 @@ const char *GCanvas::extractOneParameterFromCommand(char *outParameter,
     return p;
 }
 
+void GCanvas::drawFrame() {
+    SendVertexBufferToGPU();
+    ClearGeometryDataBuffers();
+}
+
+void GCanvas::execSetTransform(float a, float b, float c, float d, float tx, float ty) {
+    SendVertexBufferToGPU();
+    GTransform t = GTransform(a, c, b, d, tx, ty);
+    mCurrentState->mTransform = GTransformConcat(mProjectTransform, t);
+}
+
+void
+GCanvas::execDrawImageNew(int textureId, int textureWidth, int textureHeight, float sx, float sy,
+                          float sw, float sh, float dx, float dy, float dw, float dh, bool flipY) {
+    ImageBlur(textureWidth, textureHeight, textureId, sx, sy, sw, sh, dx, dy, dw, dh);
+    UseTextureRenderPipeline();
+    DrawImage1(textureWidth, textureHeight, textureId, sx, sy, sw, sh, dx, dy, dw, dh, flipY);
+}
+
+
+void GCanvas::execTransfrom(float a, float b, float c, float d, float tx, float ty) {
+    SendVertexBufferToGPU();
+    GTransform t = GTransform(a, c, b, d, tx, ty);
+    mCurrentState->mTransform = GTransformConcat(mCurrentState->mTransform, t);
+
+}
+
+void GCanvas::execResetTransfrom() {
+    SendVertexBufferToGPU();
+    mCurrentState->mTransform = GTransformConcat(mProjectTransform, GTransformIdentity);
+}
+
+void GCanvas::execScale(float sx, float sy) {
+    SendVertexBufferToGPU();
+    mCurrentState->mTransform = GTransformConcat(mCurrentState->mTransform,
+                                                 GTransformMakeScale(sx, sy));
+}
+
+void GCanvas::execRotate(float angle) {
+    SendVertexBufferToGPU();
+    mCurrentState->mTransform = GTransformConcat(mCurrentState->mTransform,
+                                                 GTransformMakeRotation(angle));
+}
+
+void GCanvas::execTranslate(float tx, float ty) {
+    SendVertexBufferToGPU();
+    mCurrentState->mTransform = GTransformConcat(mCurrentState->mTransform,
+                                                 GTransformMakeTranslation(tx, ty));
+
+}
+
+void GCanvas::execSave() {
+    Save();
+}
+
+void GCanvas::execRestore() {
+    Restore();
+}
+
+void GCanvas::execSetGlobalAlpha(float alpha) {
+    float a = std::min<float>(1, std::max<float>(alpha, 0));
+    SetGlobalAlpha(a);
+}
+
+void GCanvas::execSetFillStyle(const char *str) {
+    GColorRGBA color = StrValueToColorRGBA(str);
+    SetFillStyle(color);
+}
+
+void GCanvas::execSetStrokeStyle(const char *str) {
+    GColorRGBA color = StrValueToColorRGBA(str);
+    SetStrokeStyle(color);
+}
+
+void GCanvas::execSetFillStylePattern(int textureId, int width, int height, const char *repeatMode,
+                                      bool isStroke) {
+    GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+    if (style != nullptr) {
+        delete style;
+        style = nullptr;
+    }
+
+    style = new FillStylePattern(textureId, width, height, repeatMode);
+    if (isStroke) {
+        mCurrentState->mStrokeStyle = style;
+    } else {
+        mCurrentState->mFillStyle = style;
+    }
+}
+
+void GCanvas::execSetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
+                                             const float posArray[], const std::string colorArray[],
+                                             bool isStroke) {
+    GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+
+    if (style != nullptr) {
+        delete style;
+        style = nullptr;
+    }
+
+    GPoint start, end;
+    start.x = startArr[0];
+    start.y = startArr[1];
+    end.x = endArr[0];
+    end.y = endArr[1];
+
+    style = new FillStyleLinearGradient(start, end);
+    if (isStroke) {
+        mCurrentState->mStrokeStyle = style;
+    } else {
+        mCurrentState->mFillStyle = style;
+    }
+
+    for (int i = 0; i < stop_count; ++i) {
+        float pos = posArray[i];
+        std::string color = colorArray[i];
+        static_cast< FillStyleLinearGradient * >(style)->AddColorStop(pos, color);
+    }
+}
+
+void GCanvas::execSetFillStyleRadialGradient(float startArr[], float endArr[], int stop_count,
+                                             const float posArray[], const std::string colorArray[],
+                                             bool isStroke) {
+    GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+
+    if (style != nullptr) {
+        delete style;
+        style = nullptr;
+    }
+    style = new FillStyleRadialGradient(startArr, endArr);
+    if (isStroke) {
+        mCurrentState->mStrokeStyle = style;
+    } else {
+        mCurrentState->mFillStyle = style;
+    }
+
+    for (int i = 0; i < stop_count; ++i) {
+        float pos = posArray[i];
+        std::string color = colorArray[i];
+        static_cast< FillStyleRadialGradient * >(style)->AddColorStop(pos, color);
+    }
+}
+
+
+void GCanvas::execSetLineStyle(const char *str) {
+    GColorRGBA color = StrValueToColorRGBA(str);
+    SetStrokeStyle(color);
+}
+
+void GCanvas::execSetLineWidth(float w) {
+    SetLineWidth(w);
+}
+
+void GCanvas::execSetLineCap(const char *p) {
+    if (strncmp(p, "butt", 4) == 0) {
+        SetLineCap(LINE_CAP_BUTT);
+    } else if (strncmp(p, "round", 5) == 0) {
+        SetLineCap(LINE_CAP_ROUND);
+    } else if (strncmp(p, "square", 6) == 0) {
+        SetLineCap(LINE_CAP_SQUARE);
+    }
+}
+
+void GCanvas::execSetLineJoin(const char *p) {
+    if (strncmp(p, "miter", 4) == 0) {
+        SetLineJoin(LINE_JOIN_MITER);
+    } else if (strncmp(p, "bevel", 5) == 0) {
+        SetLineJoin(LINE_JOIN_BEVEL);
+    } else if (strncmp(p, "round", 5) == 0) {
+        SetLineJoin(LINE_JOIN_ROUND);
+    }
+}
+
+void GCanvas::execSetMiterLimit(float miterlimit) {
+    SetMiterLimit(miterlimit);
+}
+
+#ifdef SUPPORT_LINEDASH
+void GCanvas::execSetLineDash(std::vector<float> lineDash)
+{
+    SetLineDash(lineDash);
+}
+
+void GCanvas::execSetLineDashOffset(float lineDashOffset)
+{
+    SetLineDashOffset(lineDashOffset);
+}
+
+#endif
+
+void GCanvas::execStrokeRect(float x, float y, float w, float h) {
+    StrokeRect(x, y, w, h);
+}
+
+void GCanvas::execClearRect(float x, float y, float w, float h) {
+
+    ClearRect(x, y, w, h);
+}
+
+void GCanvas::execClip() {
+    GCanvasContext::ClipRegion();
+}
+
+void GCanvas::execResetClip() {
+    ResetClip();
+}
+
+void GCanvas::execClosePath() {
+    ClosePath();
+}
+
+void GCanvas::execMoveTo(float x, float y) {
+    MoveTo(x, y);
+}
+
+void GCanvas::execLineTo(float x, float y) {
+    LineTo(x, y);
+}
+
+void GCanvas::execQuadraticCurveTo(float cpx, float cpy, float x, float y) {
+    QuadraticCurveTo(cpx, cpy, x, y);
+}
+
+void GCanvas::execBezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y, float x, float y) {
+    BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+}
+
+void GCanvas::execArcTo(float x1, float y1, float x2, float y2, float radius) {
+    ArcTo(x1, y1, x2, y2, radius);
+}
+
+void GCanvas::execBeginPath() {
+    BeginPath();
+}
+
+void GCanvas::execFillRect(float x, float y, float w, float h) {
+    BeginPath();
+    FillRectBlur(x, y, w, h);
+    FillRect(x, y, w, h);
+}
+
+void GCanvas::execRect(float x, float y, float w, float h) {
+    Rect(x, y, w, h);
+}
+
+void GCanvas::execFill() {
+    Fill();
+}
+
+void GCanvas::execStroke() {
+    StrokeBlur();
+    Stroke();
+}
+
+void GCanvas::execArc(float x, float y, float radius, float startAngle, float endAngle,
+                      int antiClockwise) {
+    Arc(x, y, radius, startAngle, endAngle, (bool) antiClockwise);
+}
+
+void GCanvas::execSetGlobalCompositeOperation(int op) {
+    SetGlobalCompositeOperation(GCompositeOperation(op), GCompositeOperation(op));
+}
+
+void GCanvas::execSetTextAlign(int textAlign) {
+    mCurrentState->mTextAlign = GTextAlign(textAlign);
+}
+
+void GCanvas::execSetTextBaseline(int textbaseline) {
+    mCurrentState->mTextBaseline = GTextBaseline(textbaseline);
+}
+
+void GCanvas::execDrawText(const char *text, float x, float y, float maxWidth, int strLength) {
+    DrawText(text, x, y, maxWidth, false, strLength);
+}
+
+void GCanvas::execStrokeText(const char *text, float x, float y, float maxWidth, int strLength) {
+    DrawText(text, x, y, maxWidth, true, strLength);
+}
+
+float GCanvas::execMeasureTextWidth(const char *text, int strLength) {
+    if (strLength == 0) {
+        strLength = static_cast<int>(strlen(text));
+    }
+    if (mCurrentState->mFont == nullptr) {
+        mCurrentState->mFont = new GFontStyle(nullptr, mDevicePixelRatio);
+    }
+    float width = mFontManager->MeasureText(text, strLength, mCurrentState->mFont);
+//    float scale = mCurrentState->mTransform.a / mDevicePixelRatio;
+//    return width * scale * mWidth / (2.f * mDevicePixelRatio);
+    return width;
+}
+
+void GCanvas::execFont(const char *font) {
+    if (mCurrentState->mFont != nullptr) {
+        if (strcmp(mCurrentState->mFont->GetName().c_str(), font) == 0) {
+            return;
+        }
+        delete mCurrentState->mFont;
+    }
+    mCurrentState->mFont = new GFontStyle(font, mDevicePixelRatio);
+
+
+}
+
+void GCanvas::execPutImageData(const unsigned char *rgbaData, int tw,
+                               int th, int x, int y, int sx, int sy,
+                               int sw, int sh) {
+    SendVertexBufferToGPU();
+    GLuint glID = execBindImage(rgbaData, GL_RGBA, tw, th);
+    sw = sw > tw ? tw : sw;
+    sh = sh > th ? th : sh;
+    sw -= sx;
+    sh -= sy;
+    execDrawImageNew(glID, tw, th, sx, sy, sw, sh, x + sx, y + sy, sw, sh);
+
+
+    SendVertexBufferToGPU();
+    SetTexture(InvalidateTextureId);
+    glDeleteTextures(1, &glID);
+}
+
+struct RGBA {
+
+    RGBA &operator+=(int c) {
+        r += c & 0xff;
+        g += c >> 8 & 0xff;
+        b += c >> 16 & 0xff;
+        a += c >> 24 & 0xff;
+
+        return *this;
+    }
+
+    operator uint32_t() {
+        uint32_t c = 0;
+        c += r & 0xff;
+        c += g << 8 & 0xff00;
+        c += b << 16 & 0xff0000;
+        c += a << 24 & 0xff000000;
+
+        return c;
+    }
+
+    uint16_t r = 0;
+    uint16_t g = 0;
+    uint16_t b = 0;
+    uint16_t a = 0;
+};
+
+inline RGBA operator/(const RGBA &a, int b) {
+    RGBA c;
+    c.r = a.r / b;
+    c.g = a.g / b;
+    c.b = a.b / b;
+    c.a = a.a / b;
+    return c;
+}
+
+inline int GetPixel(int *pixels, int x, int y, int width, int height) {
+    if (x < 0) {
+        x = 0;
+    }
+    if (x > width - 1) {
+        x = width - 1;
+    }
+    if (y < 0) {
+        y = 0;
+    }
+    if (y > height - 1) {
+        y = height - 1;
+    }
+    return pixels[y * width + x];
+
+}
+
+inline void Sampler(int inWidth, int inHeight, int *inPixels,
+                    int outWidth, int outHeight, int *outPixels) {
+    for (int y = 0; y < outHeight; ++y) {
+        int inY = y * inHeight / outHeight;
+        int revertY = inHeight - inY - 1;
+        for (int x = 0; x < outWidth; ++x) {
+            int inX = x * inWidth / outWidth + 1;
+            RGBA pixel;
+            pixel += GetPixel(inPixels, inX, revertY, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX - 1, revertY - 1, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX, revertY - 1, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX + 1, revertY - 1, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX - 1, revertY, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX + 1, revertY, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX - 1, revertY + 1, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX, revertY + 1, inWidth, inHeight);
+            pixel += GetPixel(inPixels, inX - 1, revertY + 1, inWidth, inHeight);
+            outPixels[y * outWidth + x] = pixel / 9;
+        }
+    }
+}
+
+void GCanvas::execGetImageData(int x, int y, int width, int height, uint8_t *pixels) {
+    using namespace std;
+    SendVertexBufferToGPU();
+
+    vector<int> rawPixel;
+
+    int realX = x * mDevicePixelRatio;
+    int realY = y * mDevicePixelRatio;
+    int realWidth = width * mDevicePixelRatio;
+    int realHeight = height * mDevicePixelRatio;
+
+    rawPixel.resize(realWidth * realHeight);
+
+    glReadPixels(realX, mHeight - (realY + realHeight), realWidth, realHeight, GL_RGBA,
+                 GL_UNSIGNED_BYTE, &rawPixel[0]);
+
+
+    Sampler(realWidth, realHeight, &rawPixel[0], width, height, reinterpret_cast<int *>(pixels));
+}
+
+void GCanvas::execGetRawImageData(int width, int height, uint8_t *pixels) {
+    SendVertexBufferToGPU();
+
+
+    glReadPixels(0, 0, width, height, GL_RGBA,
+                 GL_UNSIGNED_BYTE, pixels);
+
+
+}
+
+int GCanvas::execBindImage(const unsigned char *rgbaData, GLint format, unsigned int width,
+                           unsigned int height) {
+    if (nullptr == rgbaData)
+        return (GLuint) -1;
+
+    GLuint glID;
+    glGenTextures(1, &glID);
+    glBindTexture(GL_TEXTURE_2D, glID);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, rgbaData);
+
+
+    return glID;
+}
+
+#ifdef ANDROID
+
+void GCanvas::execBeginDraw() {
+    BindFBO();
+
+}
+
+void GCanvas::execEndDraw() {
+    UnbindFBO();
+    glClearColor(mClearColor.rgba.r, mClearColor.rgba.g, mClearColor.rgba.b, mClearColor.rgba.a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (mOnScreen) {
+
+        drawFBO(DefaultFboName, COMPOSITE_OP_REPLACE);
+    }
+}
+
+int GCanvas::execGetFBOTexture() {
+    return mFboMap[DefaultFboName].mFboTexture.GetTextureID();
+
+}
+
+#endif
+
+int GCanvas::execDetachFBOTexture() {
+    return mFboMap[DefaultFboName].DetachTexture();
+
+}
 
 void GCanvas::execute2dCommands(const char *renderCommands, int length) {
     if (mContextLost) return;
+
 
     if (LOG_LEVEL_DEBUG == GetLogLevel()) {
         char log_tmp[128];
@@ -365,13 +961,13 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
 
     char tmpFont[256];
     char tmpText[1024];
-    GTransform action;
+    GTransform &action = mCurrentTransform;
 
     ClearGeometryDataBuffers();
-    ApplyTransform(1, 0, 0, 1, 0, mTyOffset);
-    action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
-    action.ty = mTyOffset;
-
+//    ApplyTransform(1, 0, 0, 1, 0, mTyOffset);
+//    action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
+//    action.ty = mTyOffset;
+    ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
     Clip clip;
     const char *p = renderCommands;
     const char *end = renderCommands + length;
@@ -389,11 +985,86 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 p++;
                 // Load the clip
                 p = parseDrawImage(p, &clip);
+
                 ApplyTransform(action.a, action.b, action.c, action.d,
                                action.tx, action.ty);
                 UseDefaultRenderPipeline();
                 DrawImage(clip.textureID, clip.cx, clip.cy, clip.cw, clip.ch,
                           clip.px, clip.py, clip.pw, clip.ph);
+//                SendVertexBufferToGPU();
+
+                break;
+            }
+            case 'Q': {
+                p++;
+
+                // bind FBO
+                std::string name;
+                float width, height;
+                p = parseBindingPara(p, name, width, height);
+
+                if (!mIsFboSupported) {
+                    break;
+                }
+                GFrameBufferObject *fbo = nullptr;
+                std::map<std::string, GFrameBufferObject>::iterator it = mFboMap.find(name);
+                if (it == mFboMap.end()) {
+                    fbo = &mFboMap[name];
+                    fbo->InitFBO(width * mDevicePixelRatio, height * mDevicePixelRatio,
+                                 StrValueToColorRGBA("transparent_white"));
+                } else {
+                    fbo = &it->second;
+                }
+                fbo->BindFBO();
+                fbo->mSavedTransform = action;
+                glViewport(0, 0, width * mDevicePixelRatio, height * mDevicePixelRatio);
+                CalculateProjectTransform(width * mDevicePixelRatio, height * mDevicePixelRatio);
+                action = GTransformIdentity;
+//                action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
+//                action.ty = (mHeight / mDevicePixelRatio - height);
+                ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
+                break;
+            }
+            case 'Y': {
+                p++;
+
+                // unbind FBO
+                std::string name;
+                p = parseName(p, name);
+
+                if (!mIsFboSupported) {
+                    break;
+                }
+                SendVertexBufferToGPU();
+                GFrameBufferObject &fbo = mFboMap[name];
+                fbo.UnbindFBO();
+                glViewport(0, 0, mWidth, mHeight);
+                action = fbo.mSavedTransform;
+                CalculateProjectTransform(mWidth, mHeight);
+
+                ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
+                break;
+            }
+            case 'I': {
+                p++;
+
+                // draw FBO
+                std::string name;
+                float sx, sy, sw, sh, dx, dy, dw, dh;
+                p = parseBindingPara(p, name, sx, sy, sw, sh, dx, dy, dw, dh);
+                if (!mIsFboSupported) {
+                    break;
+                }
+                GTexture &texture = mFboMap[name].mFboTexture;
+                drawFBO(name, COMPOSITE_OP_SOURCE_OVER,
+                        sx * 2 * mDevicePixelRatio / texture.GetWidth(),
+                        sy * 2 * mDevicePixelRatio / texture.GetHeight(),
+                        sw * mDevicePixelRatio / texture.GetWidth(),
+                        sh * mDevicePixelRatio / texture.GetHeight(),
+                        dx * 2 * mDevicePixelRatio / mWidth,
+                        dy * 2 * mDevicePixelRatio / mHeight,
+                        dw * mDevicePixelRatio / mWidth,
+                        dh * mDevicePixelRatio / mHeight);
 
                 break;
             }
@@ -753,12 +1424,14 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
             case 'L': {
                 p++;
                 Fill();
+                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
             case 'x': {
                 p++;
                 Stroke();
+                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
@@ -807,7 +1480,11 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 if (textLen > 0) {
                     strncpy(tmpText, pStart, textLen);
                     tmpText[textLen] = 0;
-                    DrawText(tmpText, tokens[0], tokens[1], tokens[2], false);
+                    float maxWidth = tokens[2];
+                    if (maxWidth < 0.0001) {
+                        maxWidth = SHRT_MAX;
+                    }
+                    DrawText(tmpText, tokens[0], tokens[1], maxWidth, false);
                 }
 
                 break;
@@ -827,8 +1504,11 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 if (textLen > 0) {
                     strncpy(tmpText, pStart, textLen);
                     tmpText[textLen] = 0;
-
-                    DrawText(tmpText, tokens[0], tokens[1], tokens[2], true);
+                    float maxWidth = tokens[2];
+                    if (maxWidth < 0.0001) {
+                        maxWidth = SHRT_MAX;
+                    }
+                    DrawText(tmpText, tokens[0], tokens[1], maxWidth, true);
                 }
 
                 break;
@@ -844,16 +1524,10 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 if (textLen > 0) {
                     strncpy(tmpFont, pStart, textLen);
                     tmpFont[textLen] = 0;
-#ifdef ANDROID
                     if (mCurrentState->mFont != nullptr) {
                         delete mCurrentState->mFont;
                     }
                     mCurrentState->mFont = new GFontStyle(tmpFont);
-#endif
-
-#ifdef IOS
-                    mCurrentState->mFontStyle = tmpFont;
-#endif
                 }
                 if (*p == ';') ++p;
 
@@ -974,7 +1648,11 @@ void GCanvas::calculateFPS() {
     }
 }
 
-void GCanvas::drawFBO() {
+
+void
+GCanvas::
+drawFBO(std::string fboName, GCompositeOperation compositeOp, float sx, float sy, float sw,
+        float sh, float dx, float dy, float dw, float dh) {
     if (!mIsFboSupported) {
         return;
     }
@@ -983,30 +1661,50 @@ void GCanvas::drawFBO() {
         return;
     }
 
-    SaveRenderPipeline();
+    Save();
+    glViewport(mX, mY, mWidth, mHeight);
+
+    GFrameBufferObject &fbo = mFboMap[fboName];
+
     UseDefaultRenderPipeline();
 
     glDisable(GL_STENCIL_TEST);
 
-    const GCompositeOperation old_op = mCurrentState->mGlobalCompositeOp;
-    SetGlobalCompositeOperation(COMPOSITE_OP_REPLACE);
+    SetGlobalCompositeOperation(compositeOp, compositeOp);
+
+#ifdef DEBUG_DRAW
+    GColorRGBA debugColor = StrValueToColorRGBA("green");
+    mCurrentState->mShader->SetOverideTextureColor(0);
+    mCurrentState->mShader->SetHasTexture(0);
+    fbo.mFboTexture.Bind();
+    
+    SetTransformOfShader(GTransformMake(1, 0, 0, 1, dx, -dy));
+    
+    PushRectangle(-1, 1-2*dh, 2 * dw, 2 * dh, sx, 1 - sh - sy, sw, sh, debugColor);
+    SendVertexBufferToGPU();
+
+#endif
 
     GColorRGBA color = StrValueToColorRGBA("white");
     mCurrentState->mShader->SetOverideTextureColor(0);
     mCurrentState->mShader->SetHasTexture(1);
-    mFboTexture.Bind();
+    fbo.mFboTexture.Bind();
 
-    SetTransformOfShader(GTransformIdentity);
+
     PushRectangle(-1, -1, 2, 2, 0, 0, 1, 1, color);
-    SendVertexBufferToGPU();
+    mCurrentState->mShader->SetTransform(GTransformIdentity);
+    glDrawArrays(GL_TRIANGLES, 0, mVertexBufferIndex);
+    mVertexBufferIndex = 0;
 
     if (HasClipRegion()) {
         glEnable(GL_STENCIL_TEST);
     }
-    SetGlobalCompositeOperation(old_op);
 
-    RestoreRenderPipeline();
+
+    glViewport(0, 0, mWidth, mHeight);
+    Restore();
 }
+
 
 void GCanvas::Render(const char *renderCommands, int length) {
     if (mContextLost) {
@@ -1021,7 +1719,9 @@ void GCanvas::Render(const char *renderCommands, int length) {
         if (length > 0) {
             calculateFPS();
             LOG_D("GCanvas::Render:[WebGL] renderCommands:%s", renderCommands);
+#ifdef ANDROID
             executeWebGLCommands(renderCommands, length);
+#endif
             if (mRenderCount < g_clear_color_time) {
                 ClearScreen(mClearColor);
                 ++mRenderCount;
@@ -1039,25 +1739,29 @@ void GCanvas::Render(const char *renderCommands, int length) {
             execute2dCommands(renderCommands, length);
         }
         UnbindFBO();
-        drawFBO();
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        drawFBO(DefaultFboName);
     }
 
     // process any capture requests
-    int i = 0;
-    while (!mCaptureParams.IsEmpty()) {
-        bool isError = true;
-        LOG_D("GCanvas::Render, about to capture");
-        isError = captureGLLayer(mCaptureParams[i]);
-
-        // create callback if we have one
-        AddCallback(mCaptureParams[i]->callbackID, mCaptureParams[i]->fileName,
-                    isError);
-
-        // delete our capture command
-        mCaptureParams.RemoveAt(i++);
-        LOG_D("CANVAS::Render, capture success, left in queue: %d",
-              mCaptureParams.GetSize());
-    }
+//    int i = 0;
+//    while (!mCaptureParams.IsEmpty())
+//    {
+//        bool isError = true;
+//        LOG_D("GCanvas::Render, about to capture");
+//        isError = captureGLLayer(mCaptureParams[i]);
+//
+//        // create callback if we have one
+//        AddCallback(mCaptureParams[i]->callbackID, mCaptureParams[i]->fileName,
+//                    isError);
+//
+//        // delete our capture command
+//        mCaptureParams.RemoveAt(i++);
+//        LOG_D("CANVAS::Render, capture success, left in queue: %d",
+//              mCaptureParams.GetSize());
+//    }
 }
 
 void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
@@ -1070,15 +1774,15 @@ void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
     }
     const TextureGroup &group = *ptr_group;
 
-    if (!group.IsSplit()){
-    #ifdef IOS
+    if (!group.IsSplit()) {
+#ifdef IOS
         std::map< int, int >::iterator iter = mOfflineTextures.find(textureId);
         if (iter != mOfflineTextures.end())
         {
             Scale(1, -1);
             mOfflineTextures.erase(iter);
         }
-    #endif
+#endif
         DrawImage1(group.mVecTexture[0]->GetWidth(),
                    group.mVecTexture[0]->GetHeight(),
                    group.mVecTexture[0]->GetGlID(), sx, sy, sw, sh, dx, dy, dw,
@@ -1108,9 +1812,9 @@ void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
                 int index = r * block_count + c;
                 int x1 = std::max(c * group.mTileWidth, static_cast<int>(sx));
                 int x2 = std::min((c + 1) * group.mTileWidth, static_cast<int>(sx + sw));
-                LOG_D( "[GCanvas::drawImage] rc:(%d, %d), x:(%d, %d), y:(%d, %d)",
-                        r, c, x1, x2, y1, y2);
-                
+                LOG_D("[GCanvas::drawImage] rc:(%d, %d), x:(%d, %d), y:(%d, %d)",
+                      r, c, x1, x2, y1, y2);
+
                 DrawImage1(group.mVecTexture[index]->GetWidth(),
                            group.mVecTexture[index]->GetHeight(),
                            group.mVecTexture[index]->GetGlID(),
@@ -1124,14 +1828,55 @@ void GCanvas::DrawImage(int textureId, float sx, float sy, float sw, float sh,
 }
 
 void GCanvas::FillRect(float x, float y, float w, float h) {
-    GColorRGBA color = mCurrentState->mFillColor;
-    color.rgba.a = static_cast<float>(color.rgba.a * mCurrentState->mGlobalAlpha);
-
-    PushRectangle(x, y, w, h, 0, 0, 1, 1, color);
+//    GColorRGBA color = BlendFillColor(this);
+//    PushRectangle(x, y, w, h, 0, 0, 1, 1, color);
+    GCanvasContext::FillRect(x, y, w, h);
 }
 
+
+//for string cmd
+void GCanvas::UsePatternRenderPipeline(int textureListId, int textureWidth, int textureHeight,
+                                       const std::string &pattern, bool isStroke) {
+    SendVertexBufferToGPU();
+
+#ifdef IOS
+    mCurrentState->mShader = GShaderManager::getSingleton()->programForKey("PATTERN");
+#endif
+
+#ifdef ANDROID
+    mCurrentState->mShader = mShaderManager->programForKey("PATTERN");
+#endif
+
+    if (nullptr == mCurrentState->mShader) {
+        return;
+    }
+    mCurrentState->mShader->Bind();
+
+    GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+    if (style != nullptr) {
+        delete style;
+        style = nullptr;
+    }
+
+    if (textureListId >= 0 && pattern != "") {
+        style = new FillStylePattern(textureListId, pattern);
+        if (isStroke) {
+            mCurrentState->mStrokeStyle = style;
+        } else {
+            mCurrentState->mFillStyle = style;
+        }
+        mCurrentState->mShader->SetRepeatMode(
+                dynamic_cast< FillStylePattern * >(style)->GetPattern());
+
+        mCurrentState->mFillColor = StrValueToColorRGBA("white");
+        mCurrentState->textureId = textureListId;
+        mCurrentState->mShader->SetTextureSize(textureWidth, textureHeight);
+    }
+}
+
+//for string cmd
 void GCanvas::UsePatternRenderPipeline(int textureListId,
-                                       const std::string &pattern) {
+                                       const std::string &pattern, bool isStroke) {
     SendVertexBufferToGPU();
 
 #ifdef IOS
@@ -1199,13 +1944,30 @@ void GCanvas::parseSetTransForTextform(
 }
 
 void GCanvas::DrawText(const char *text, float x, float y, float maxWidth,
-                       bool isStroke) {
+                       bool isStroke, int strLength) {
+    if (strLength == 0) {
+        strLength = static_cast<int>(strlen(text));
+    }
+
+    DrawTextWithLength(text, strLength, x, y, isStroke, maxWidth);
+
+}
+
+void GCanvas::DrawTextWithLength(const char *text, int strLength, float x, float y,
+                                 bool isStroke, float maxWidth) {
     const GCompositeOperation old_op = mCurrentState->mGlobalCompositeOp;
     SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
 
+    //scaleWidth
+    float measureWidth = execMeasureTextWidth(text);
+    float scaleWidth = 1.0;
+    if (measureWidth > maxWidth) {
+        scaleWidth = maxWidth / measureWidth;
+    }
+
 #ifdef ANDROID
 
-    Utf8ToUCS2 *lbData = new Utf8ToUCS2(text, strlen(text));
+    Utf8ToUCS2 *lbData = new Utf8ToUCS2(text, strLength);
 
     if (mHiQuality) {
         //  theory
@@ -1230,7 +1992,7 @@ void GCanvas::DrawText(const char *text, float x, float y, float maxWidth,
         this->Restore();
     } else {
         GCanvasContext::FillText(lbData->ucs2, lbData->ucs2len, x, y,
-                                 isStroke);
+                                 isStroke, scaleWidth);
     }
 
     delete lbData;
@@ -1239,7 +2001,7 @@ void GCanvas::DrawText(const char *text, float x, float y, float maxWidth,
 
 #ifdef IOS
     GCanvasContext::FillText((const unsigned short *)text,
-                              (unsigned int)strlen(text), x, y, isStroke);
+                              (unsigned int)strLength, x, y, isStroke, scaleWidth);
 #endif
 
     SetGlobalCompositeOperation(old_op);
@@ -1249,17 +2011,19 @@ void GCanvas::SetTyOffsetFlag(bool flag) {
     mTyOffsetFlag = flag;
     if (mTyOffsetFlag) {
         mTyOffset = mHeight;
+        mCurrentTransform.ty = mTyOffset;
     }
 }
 
 // called from JNI or Obj-C to indicate we want to readback the GL layer into a
 // file on the next render
-void GCanvas::QueueCaptureGLLayer(int x, int y, int w, int h,
-                                  const char *callbackID, const char *fn) {
-    CaptureParams *params = new CaptureParams(x, y, w, h, callbackID, fn);
-    mCaptureParams.Append(&params, 1);
-    LOG_D("Canvas.cpp::QueueCaptureGLLayer - queued");
-}
+//void GCanvas::QueueCaptureGLLayer(int x, int y, int w, int h,
+//                                  const char *callbackID, const char *fn)
+//{
+//    CaptureParams *params = new CaptureParams(x, y, w, h, callbackID, fn);
+//    mCaptureParams.Append(&params, 1);
+//    LOG_D("Canvas.cpp::QueueCaptureGLLayer - queued");
+//}
 
 void
 GCanvas::PutImageData(
@@ -1362,91 +2126,103 @@ GCanvas::GetImageData(int
 }
 
 // called from within render when QueueCaptureGLLayer has been called
-bool GCanvas::captureGLLayer(CaptureParams *params) {
-    // get the dimensions of the current viewport
-    int results[4];
-    glGetIntegerv(GL_VIEWPORT, results);
+//bool GCanvas::captureGLLayer(CaptureParams *params)
+//{
+//    return false;
+//    // get the dimensions of the current viewport
+//    int results[4];
+//    glGetIntegerv(GL_VIEWPORT, results);
+//
+//    // bounds check the parameters
+//    int x = (params->x < 0) ? 0 : params->x;
+//    int y = (params->y < 0) ? 0 : params->y;
+//    int width = (params->width == -1) ? results[2] : params->width;
+//    int height = (params->height == -1) ? results[3] : params->height;
+//    if ((x + width) > results[2])
+//    {
+//        x = 0;
+//        width = results[2];
+//    }
+//    if ((y + height) > results[3])
+//    {
+//        y = 0;
+//        height = results[3];
+//    }
+//    // flip y axis to be in openGL lower left origin
+//    y = results[3] - y - height;
+//
+//    // use glGetPixels to get the bits from the current frame buffer
+//    // Make the BYTE array, factor of 3 because it's RBG.
+//    GLubyte *pixels = new GLubyte[4 * width * height];
+//    if (!pixels)
+//    {
+//        LOG_E("Canvas::captureGLLayer Unable to allocate buffer");
+//
+//        return true;
+//    }
+//    glFinish();
+//    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+//
+//    // taken from example here:
+//    // http://www.codesampler.com/2010/11/02/introduction-to-opengl-es-2-0/
+//    // Flip and invert the PNG image since OpenGL likes to load everything
+//    // backwards from what is considered normal!
+//    int halfTheHeightInPixels = height / 2;
+//    int heightInPixels = height;
+//
+//    // Assuming RGBA for 4 components per pixel.
+//    int numColorComponents = 4;
+//
+//    // Assuming each color component is an unsigned char.
+//    int widthInChars = width * numColorComponents;
+//
+//    unsigned char *top = nullptr;
+//    unsigned char *bottom = nullptr;
+//    unsigned char temp = 0;
+//
+//    for (int h = 0; h < halfTheHeightInPixels; ++h)
+//    {
+//        top = pixels + h * widthInChars;
+//        bottom = pixels + (heightInPixels - h - 1) * widthInChars;
+//
+//        for (int w = 0; w < widthInChars; ++w)
+//        {
+//            // Swap the chars around.
+//            temp = *top;
+//            *top = *bottom;
+//            *bottom = temp;
+//
+//            ++top;
+//            ++bottom;
+//        }
+//    }
+//
+//    // use loadpng library to write the rawbits to png
+//    // Encode the image
+//    int error = PngLoader::Instance().EncodePng(params->fileName, pixels, width,
+//                                                height);
+//
+//    // Free memory
+//    // delete pixels;
+//    delete[] pixels;
+//
+//    // if there's an error, display it
+//    if (error)
+//    {
+//        LOG_D("Canvas::captureGLLayer Error %d", error);
+//        params->fileName[CaptureParams::ALLOCATED - 1] = 0;
+//        // strcpy(params->fileName, lodepng_error_text(error));
+//        return true;
+//    }
+//    else
+//    {
+//        LOG_D("Canvas::captureGLLayer png written: %s", params->fileName);
+//
+//        return false;
+//    }
+//}
 
-    // bounds check the parameters
-    int x = (params->x < 0) ? 0 : params->x;
-    int y = (params->y < 0) ? 0 : params->y;
-    int width = (params->width == -1) ? results[2] : params->width;
-    int height = (params->height == -1) ? results[3] : params->height;
-    if ((x + width) > results[2]) {
-        x = 0;
-        width = results[2];
-    }
-    if ((y + height) > results[3]) {
-        y = 0;
-        height = results[3];
-    }
-    // flip y axis to be in openGL lower left origin
-    y = results[3] - y - height;
-
-    // use glGetPixels to get the bits from the current frame buffer
-    // Make the BYTE array, factor of 3 because it's RBG.
-    GLubyte *pixels = new GLubyte[4 * width * height];
-    if (!pixels) {
-        LOG_E("Canvas::captureGLLayer Unable to allocate buffer");
-
-        return true;
-    }
-    glFinish();
-    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-    // taken from example here:
-    // http://www.codesampler.com/2010/11/02/introduction-to-opengl-es-2-0/
-    // Flip and invert the PNG image since OpenGL likes to load everything
-    // backwards from what is considered normal!
-    int halfTheHeightInPixels = height / 2;
-    int heightInPixels = height;
-
-    // Assuming RGBA for 4 components per pixel.
-    int numColorComponents = 4;
-
-    // Assuming each color component is an unsigned char.
-    int widthInChars = width * numColorComponents;
-
-    unsigned char *top = nullptr;
-    unsigned char *bottom = nullptr;
-    unsigned char temp = 0;
-
-    for (int h = 0; h < halfTheHeightInPixels; ++h) {
-        top = pixels + h * widthInChars;
-        bottom = pixels + (heightInPixels - h - 1) * widthInChars;
-
-        for (int w = 0; w < widthInChars; ++w) {
-            // Swap the chars around.
-            temp = *top;
-            *top = *bottom;
-            *bottom = temp;
-
-            ++top;
-            ++bottom;
-        }
-    }
-
-    // use loadpng library to write the rawbits to png
-    // Encode the image
-    int error = PngLoader::Instance().EncodePng(params->fileName, pixels, width,
-                                                height);
-
-    // Free memory
-    // delete pixels;
-    delete[] pixels;
-
-    // if there's an error, display it
-    if (error) {
-        LOG_D("Canvas::captureGLLayer Error %d", error);
-        params->fileName[CaptureParams::ALLOCATED - 1] = 0;
-        // strcpy(params->fileName, lodepng_error_text(error));
-        return true;
-    } else {
-        LOG_D("Canvas::captureGLLayer png written: %s", params->fileName);
-
-        return false;
-    }
-}
+#ifdef ANDROID
 
 // Get the front of the callback queue
 Callback *GCanvas::GetNextCallback() {
@@ -1472,6 +2248,8 @@ void GCanvas::AddCallback(const char *callbackID, const char *result,
     }
 }
 
+#endif
+
 void GCanvas::setSyncResult(std::string result) {
     mResult = result;
 }
@@ -1489,52 +2267,8 @@ std::string GCanvas::exeSyncCmd(int type, const char *&args) {
 
 
     if (0 == mContextType) {
-        if (type == TODATAURL) {
-            if (mWidth == 0 || mHeight == 0) {
-                return "data:,";
-            }
-
-            std::string strRet;
-            std::string result;
-            std::string finalresult;
-            GetImageData(0, 0, mWidth, mHeight, false, result);
-            LOG_D("GetImageData result=%s\n", result.c_str());
-
-            unsigned char *pngData;
-            int size = 0;
-            int error = PngLoader::Instance().EncodePng(&pngData, &size,
-                                                        (const unsigned char *) result.c_str(),
-                                                        mWidth, mHeight);
-            LOG_D("png encode error=%d,size=%d\n", error, size);
-            if (error) {
-                return "";
-            } else {
-                LOG_D("png encode error=%d,size=%d,result=%s\n", error,
-                      size, pngData);
-
-
-                int buf_size = 4 * mWidth * mHeight;
-
-                finalresult.resize(gcanvas::Base64EncodeLen(buf_size));
-                gcanvas::Base64EncodeBuf((char *) finalresult.c_str(),
-                                         (const char *) pngData,
-                                         size);
-
-                delete pngData;
-            }
-
-            strRet = "data:image/png;base64," + finalresult;
-
-            LOG_D("final result=%s\n", strRet.c_str());
-
-
-            return strRet;
-        } else {
-            return exe2dSyncCmd(type, args);
-        }
     }
 
-//    return exeWebglSyncCmd(type,args);
 
     return "";
 }
@@ -1550,30 +2284,6 @@ int GCanvas::getSyncAttrib(int type) {
 int GCanvas::getOpType(int type) {
     return type & 0x1fff;
 }
-
-JNIEnv *GCanvas::GetEnv() {
-//    JavaVM *g_JavaVM = android::AndroidRuntime::getJavaVM();
-//
-//    int status;
-//
-//    JNIEnv *envnow = NULL;
-//
-//    status = g_JavaVM->GetEnv((void **)&envnow, JNI_VERSION_1_4);
-//
-//    if(status < 0)
-//    {
-//        status = g_JavaVM->AttachCurrentThread(&envnow, NULL);
-//        if(status < 0)
-//        {
-//            return NULL;
-//        }
-//    }
-//
-//    return envnow;
-
-    return mJniEnv;
-}
-
 
 void GCanvas::signalUpGLthread() {
 
@@ -1673,14 +2383,14 @@ std::string GCanvas::metalProc(int op, int sync, std::string args) {
     return "";
 }
 
-const char *GCanvas::CallNative(int type, std::string args) {
-//    LOG_D("GCanvas::CallNative type: %d", type);
-//    LOG_D("GCanvas::CallNative mContextLost: %d, mExit: %d", mContextLost, mExit);
+const char *GCanvas::CallNative(int type, const std::string &args) {
     if (mContextLost) {
+        LOG_E("context lost, return");
         return "";
     }
 
     if (mExit) {
+        LOG_E("request exit, return");
         return "";
     }
 
@@ -1696,42 +2406,11 @@ const char *GCanvas::CallNative(int type, std::string args) {
 
     signalUpGLthread();
 
-//    LOG_D("sync flag=%d\n", sync);
 
     if (sync == SYNC) {
-
-//        LOG_D("sync op,start wait.");
-//        struct timespec ts;
-//
-//        if ( clock_gettime( CLOCK_REALTIME,&ts ) < 0 )
-//            LOG_D("gettime failed in CallNative");
-//            return "";
-//
-//        ts.tv_sec  += 1;
-//
-//        LOG_D("sync op,start timedwait.");
-//
-//        int s;
-//        while((s = sem_timedwait(&mSyncSem,&ts)) == -1 && errno == EINTR){
-//            continue;
-//        }
-//
-//        LOG_D("sync op,finished timedwait,s=%d\n",s);
-//
-//        if(s == -1) {
-//            if(errno == ETIMEDOUT) {
-//                LOG_D("callnative timeout.");
-//            } else {
-//                LOG_D("callnative unknown error.");
-//            }
-//        }
-//        waitResponse();
-//        sem_wait(&mSyncSem);
-
-        gcanvas::waitUtilTimeout(&mSyncSem,GCANVAS_TIMEOUT);
-
-//        LOG_D("sync op,finish wait.");
-
+        LOG_D("call native sync call, start wait. cmd is %s", args.c_str());
+        gcanvas::waitUtilTimeout(&mSyncSem, GCANVAS_TIMEOUT);
+        LOG_D("call native sync result: %s", mResult.c_str());
         return mResult.c_str();
     }
 
@@ -1757,11 +2436,11 @@ void GCanvas::clearCmdQueue() {
 }
 
 void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
-//    LOG_D("enter QueueProc");
+    LOG_D("enter QueueProc");
     if (queue == nullptr) {
         return;
     }
-//    LOG_D("queue is not null! %d", queue->size());
+    LOG_D("queue is not null! %d", queue->size());
     if (!queue->empty()) {
         struct GCanvasCmd *p = reinterpret_cast<struct GCanvasCmd *>(queue->front());
         int type = p->type;
@@ -1771,7 +2450,7 @@ void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
 
         std::string args = p->args;
 
-//        LOG_D("start to process queue cmd.");
+        LOG_D("start to process queue cmd.");
 
         switch (cmd) {
             case CANVAS: {
@@ -1816,9 +2495,8 @@ void GCanvas::QueueProc(std::queue<struct GCanvasCmd *> *queue) {
 }
 
 void GCanvas::LinkNativeGLProc() {
-
     if (mContextLost) {
-//        LOG_D("in LinkNativeGLProc mContextLost");
+        LOG_D("in LinkNativeGLProc mContextLost");
         clearCmdQueue();
         return;
     }
@@ -1827,7 +2505,7 @@ void GCanvas::LinkNativeGLProc() {
     std::queue<struct GCanvasCmd *> *queue = theManager->getQueueByContextId(
             mContextId);
     if (queue != nullptr) {
-//        LOG_D("in LinkNativeProc QueueProc queue");
+        LOG_D("in LinkNativeProc QueueProc queue");
         QueueProc(queue);
     }
 //    LOG_D("in LinkNativeProc QueueProc mCmdQueue");
@@ -1852,8 +2530,7 @@ void GCanvas::setContextLost(bool lost) {
 
 void GCanvas::finishProc() {
     if (mSync == SYNC) {
-//        LOG_D("LinkNativeGLProc,sync proc result=%s\n",
-//              mResult.c_str());
+        LOG_D("LinkNativeGLProc,sync proc result=%s\n", mResult.c_str());
         sem_post(&mSyncSem);
         mSync = false;
     }
@@ -1871,49 +2548,61 @@ void GCanvas::addBitmapQueue(struct BitmapCmd *p) {
 void GCanvas::bindTexture(struct BitmapCmd cmd) {
 //    while (!mBitmapQueue.empty()) {
 //        struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-        GLuint glID;
-        LOG_D("DO BIND TEXTURE. context type = %d", mContextType);
+    GLuint glID;
+    LOG_D("DO BIND TEXTURE. context type = %d", mContextType);
 
-        //step 1:bindtexture
-        if (mContextType == 0) {
-            glGenTextures(1, &glID);
-            glBindTexture(GL_TEXTURE_2D, glID);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                            GL_LINEAR_MIPMAP_NEAREST);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                            GL_LINEAR);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                            GL_CLAMP_TO_EDGE);
-            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                            GL_CLAMP_TO_EDGE);
-        }
+    //step 1:bindtexture
+    if (mContextType == 0) {
+        glGenTextures(1, &glID);
+        glBindTexture(GL_TEXTURE_2D, glID);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        GL_LINEAR_MIPMAP_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                        GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                        GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                        GL_CLAMP_TO_EDGE);
+    }
 
-        glTexImage2D(cmd.target, cmd.level, cmd.interformat, cmd.width,
-                     cmd.height, 0, cmd.format,
-                     cmd.type, cmd.Bitmap);
+    glTexImage2D(cmd.target, cmd.level, cmd.interformat, cmd.width,
+                 cmd.height, 0, cmd.format,
+                 cmd.type, cmd.Bitmap);
 
-        //step 2:save textureid
-        if(mContextType == 0) {
-            glGenerateMipmap(GL_TEXTURE_2D);
-            AddTexture(cmd.id, glID, cmd.width, cmd.height);
-        }
+    //step 2:save textureid
+    if (mContextType == 0) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+        AddTexture(cmd.id, glID, cmd.width, cmd.height);
+    }
+}
+
+void GCanvas::bindTexture(GTexture *texture) {
+
+
+    if (mContextType == 0) {
+        texture->Bind();
+//        AddTexture(texture->GetTextureID(), texture->GetTextureID(), texture->GetWidth(), texture->GetHeight());
+
+    }
+
+
 }
 
 void GCanvas::texSubImage2D(struct BitmapCmd cmd) {
 //    while (!mBitmapQueue.empty()) {
 //        struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
 
-        LOG_D("start to texSubImage2D in grenderer.");
+    LOG_D("start to texSubImage2D in grenderer.");
 
-//        glTexSubImage2D(p->target, p->level, p->xoffset, p->yoffset,
+//        glTexSubImage2D(p->target, p->level, p->µ, p->yoffset,
 //                        p->width, p->height,
 //                        p->format,
 //                        p->type, p->Bitmap);
 
-        glTexSubImage2D(cmd.target, cmd.level, cmd.xoffset, cmd.yoffset,
-                        cmd.width, cmd.height,
-                        cmd.format,
-                        cmd.type, cmd.Bitmap);
+    glTexSubImage2D(cmd.target, cmd.level, cmd.xoffset, cmd.yoffset,
+                    cmd.width, cmd.height,
+                    cmd.format,
+                    cmd.type, cmd.Bitmap);
 }
 
 
@@ -1927,49 +2616,6 @@ bool GCanvas::continueProcess() {
 
 }
 
-#endif
-
-//-------------------------------------------------------------------------------------------------
-
-CaptureParams::CaptureParams() {
-    LOG_D("CaptureParams::CaptureParams()");
-
-    int results[4];
-    glGetIntegerv(GL_VIEWPORT, results);
-    x = results[0];
-    y = results[1];
-    width = results[2];
-    height = results[3];
-    const char *defName = "screenshot.png";
-    strncpy(fileName, defName, ALLOCATED - 1);
-    fileName[ALLOCATED - 1] = 0;
-}
-
-CaptureParams::CaptureParams(int
-                             xPos, int
-                             yPos, int
-                             w, int
-                             h,
-                             const char *callback,
-                             const char *fn) {
-    LOG_D("CaptureParams::CaptureParams(int,int,int,int const char*, const "
-                  "char *)");
-
-    x = xPos;
-    y = yPos;
-    width = w;
-    height = h;
-
-    strncpy(callbackID, callback, ALLOCATED - 1);
-    callbackID[ALLOCATED - 1] = 0;
-    strncpy(fileName, fn, ALLOCATED - 1);
-    fileName[ALLOCATED - 1] = 0;
-
-    LOG_D("CaptureParams::CaptureParams(int,int,int,int const char*, const "
-                  "char *) - success");
-
-}
-
 Callback::Callback(const char *id, const char *res,
                    bool error) {
     strncpy(callbackId, id, ALLOCATED - 1);
@@ -1979,3 +2625,49 @@ Callback::Callback(const char *id, const char *res,
     result[ALLOCATED - 1] = 0;
     isError = error;
 }
+
+#endif
+
+//-------------------------------------------------------------------------------------------------
+
+//CaptureParams::CaptureParams()
+//{
+//    LOG_D("CaptureParams::CaptureParams()");
+//
+//    int results[4];
+//    glGetIntegerv(GL_VIEWPORT, results);
+//    x = results[0];
+//    y = results[1];
+//    width = results[2];
+//    height = results[3];
+//    const char *defName = "screenshot.png";
+//    strncpy(fileName, defName, ALLOCATED - 1);
+//    fileName[ALLOCATED - 1] = 0;
+//}
+//
+//CaptureParams::CaptureParams(int
+//                             xPos, int
+//                             yPos, int
+//                             w, int
+//                             h,
+//                             const char *callback,
+//                             const char *fn)
+//{
+//    LOG_D("CaptureParams::CaptureParams(int,int,int,int const char*, const "
+//                  "char *)");
+//
+//    x = xPos;
+//    y = yPos;
+//    width = w;
+//    height = h;
+//
+//    strncpy(callbackID, callback, ALLOCATED - 1);
+//    callbackID[ALLOCATED - 1] = 0;
+//    strncpy(fileName, fn, ALLOCATED - 1);
+//    fileName[ALLOCATED - 1] = 0;
+//
+//    LOG_D("CaptureParams::CaptureParams(int,int,int,int const char*, const "
+//                  "char *) - success");
+//
+//}
+//

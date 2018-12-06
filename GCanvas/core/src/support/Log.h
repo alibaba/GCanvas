@@ -17,6 +17,7 @@
 namespace gcanvas
 {
 typedef enum {
+    LOG_LEVEL_VERBOSE = -1,
     LOG_LEVEL_DEBUG = 0,
     LOG_LEVEL_INFO,
     LOG_LEVEL_WARN,
@@ -32,14 +33,14 @@ void LogExt(LogLevel logLevel, const char *tag, const char *format, ...);
 void SetLogLevel(LogLevel logLevel);
 LogLevel GetLogLevel();
 
-//#ifdef IOS
+#ifdef IOS
 //
 //#ifdef DEBUG
 //#else
-//#define DISABLE_LOG
+#define DISABLE_LOG
 //#endif
 //
-//#endif
+#endif
 
 #ifdef DISABLE_LOG
 #define LOG_D(...) ;

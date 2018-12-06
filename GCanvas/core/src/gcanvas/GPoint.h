@@ -11,11 +11,14 @@
 
 #include <cmath>
 #include <iostream>
+
 #ifndef _WIN32
 
 #ifdef ANDROID
+
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+
 #endif
 
 #ifdef IOS
@@ -33,7 +36,8 @@ typedef struct
     GLfloat y;
 } GPoint;
 
-typedef union {
+typedef union
+{
     struct
     {
         GLfloat r, g, b, a;
@@ -81,9 +85,43 @@ static inline GPoint PointNormalize(GPoint v)
         return v;
     }
 
-    v.x = (float)(v.x / ln);
-    v.y = (float)(v.y / ln);
+    v.x = (float) (v.x / ln);
+    v.y = (float) (v.y / ln);
     return v;
+}
+
+struct GRectf
+{
+    GPoint leftTop = {0, 0};
+    GPoint bottomRight = {0, 0};
+
+    float Width() const
+    {
+        return bottomRight.x - leftTop.x;
+    }
+
+    float Height() const
+    {
+        return bottomRight.y - leftTop.y;
+    }
+
+    void Enlarge(float x, float y)
+    {
+        leftTop.x -= x;
+        leftTop.y -= y;
+        bottomRight.x += x;
+        bottomRight.y += y;
+    }
+};
+
+inline GRectf operator/(const GRectf &rect, float factor)
+{
+    GRectf result = rect;
+    result.leftTop.x /= factor;
+    result.leftTop.y /= factor;
+    result.bottomRight.x /= factor;
+    result.bottomRight.y /= factor;
+    return result;
 }
 
 #endif

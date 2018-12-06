@@ -7,5 +7,5 @@ include ':android:adapters:bridge_adapter'
 
 include ':bridges:react-native-bridge:react-native-gcanvas:android'
 //include ':bridges:react-native-bridge:examples:RNGCanvasSample:android:app'
-include ':bridges:weex-bridge:android:weex_bridge'
-include ':bridges:weex-bridge:android:weex_playground'
+//include ':bridges:weex-bridge:android:weex_bridge'
+//include ':bridges:weex-bridge:android:weex_playground'

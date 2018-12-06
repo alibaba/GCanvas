@@ -100,6 +100,8 @@ public:
     GTexture();
     ~GTexture();
 
+    void CreateTexture(GLubyte *pixels);
+
     void Bind() const;
     void Unbind() const;
 
@@ -120,8 +122,17 @@ public:
 
     unsigned int size();
 
+    void Detach()
+    {
+        mTextureID = 0;
+    }
+
+    bool IsValidate()
+    {
+        return mTextureID != 0;
+    }
+
 private:
-    void createTexture(GLubyte *pixels);
     static GLubyte *(*loadPixelCallback)(const char *filePath, unsigned int *w,
                                          unsigned int *h);
     static GLubyte *loadPixelsFromPNG(const char *filePath, unsigned int *w,

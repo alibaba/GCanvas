@@ -8,78 +8,308 @@
  */
 #include "GFontCache.h"
 #include <sstream>
+#include "GSystemFontInformation.h"
+#include <assert.h>
+#include "support/Log.h"
 
 static GFontCache *sSharedFontInstance;
 
-GFontCache *GFontCache::sharedInstance()
-{
-    if (sSharedFontInstance == nullptr)
-    {
-        sSharedFontInstance = new GFontCache;
-    }
-    return sSharedFontInstance;
-}
+using namespace gcanvas;
 
-void GFontCache::ClearInstance()
+//GFontCache *GFontCache::sharedInstance(GFontManager &fontManager)
+//{
+//    if (sSharedFontInstance == nullptr)
+//    {
+//        sSharedFontInstance = new GFontCache(fontManager);
+//    }
+//    return sSharedFontInstance;
+//}
+//
+//void GFontCache::ClearInstance()
+//{
+//    delete sSharedFontInstance;
+//    sSharedFontInstance = nullptr;
+//}
+
+GFontCache::GFontCache(GFontManager &fontManager) : mFontManager(fontManager)
 {
-    delete sSharedFontInstance;
-    sSharedFontInstance = nullptr;
+
 }
 
 GFontCache::~GFontCache() { clear(); }
 
 void GFontCache::clear()
 {
-    std::map< std::string, GFont * >::iterator iter = mFontCache.begin();
+    std::map<std::string, GFontSet>::iterator iter = mFontCache.begin();
     for (; iter != mFontCache.end(); ++iter)
     {
-        delete iter->second;
-        iter->second = nullptr;
+        delete iter->second.font;
+        delete iter->second.fallbackFont;
     }
 
     mFontCache.clear();
 }
 
 #ifdef GFONT_LOAD_BY_FREETYPE
-GFont *GFontCache::GetOrCreateFont(const std::string contextId,const std::string &fontName,
-                                     const float size)
+
+GFont *
+GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFontStyle *fontStyle,
+                            wchar_t charCode, const float size)
 {
-    char temp[256];
-    snprintf(temp, 256, "%f_%s_%s", size, fontName.c_str(),contextId.c_str());
-
-    std::string key(temp);
-
-    std::map< std::string, GFont * >::iterator iter = mFontCache.find(key);
+    char key[256] = {0};
+    snprintf(key, 256, "%s_%s_%f_%d", contextId.c_str(),
+             fontStyle->GetFamily().c_str(),
+             size, fontStyle->GetWeight());
+    std::map<std::string, GFontSet>::iterator iter = mFontCache.find(key);
     if (iter != mFontCache.end())
     {
-        return iter->second;
+        if (iter->second.font->IsGlyphExistedInFont(charCode))
+        {
+            return iter->second.font;
+
+        }
+        if (iter->second.fallbackFont)
+        {
+            return iter->second.fallbackFont;
+        }
+
     }
 
-    GFont *font = new GFont(fontName.c_str(), size);
-    mFontCache.insert(std::pair< std::string, GFont * >(key, font));
-    return font;
-}
-#else
-GFont *GFontCache::getOrCreateFont(const std::string &key)
-{
-    std::map< std::string, GFont * >::iterator iter = m_fontCache.find(key);
-    if (iter != m_fontCache.end())
+    const char *defaultSystemFontLocation = "/system/fonts/";
+
+    auto systemFontLocation = SystemFontInformation::GetSystemFontInformation()
+            ->GetSystemFontLocation();
+    const char *currentFontLocation = (systemFontLocation != nullptr)
+                                      ? systemFontLocation
+                                      : defaultSystemFontLocation;
+
+    const char *currentFontFile = nullptr;
+
+
+    auto fontFamily = SystemFontInformation::GetSystemFontInformation()->FindFontFamily(
+            fontStyle->GetFamily().c_str());
+
+    if (fontFamily != nullptr)
     {
-        return iter->second;
+        currentFontFile = fontFamily->MatchFamilyStyle(*fontStyle);
     }
 
-    GFont *font = new GFont(key.c_str());
-    m_fontCache.insert(std::pair< std::string, GFont * >(key, font));
+    if (nullptr != currentFontFile)
+    {
+        currentFontFile = TrySpecFont(charCode, size, currentFontLocation,
+                                      currentFontFile);
+    }
+
+    if (currentFontFile == nullptr)
+    {
+        currentFontFile = TryDefaultFont(charCode, size, currentFontLocation);
+        if (nullptr == currentFontFile)
+        {
+            currentFontFile = TryDefaultFallbackFont(charCode, size, currentFontLocation);
+            if (nullptr == currentFontFile)
+            {
+                currentFontFile = TryOtherFallbackFont(context, charCode, size, currentFontLocation,
+                                                       fontStyle);
+            }
+        }
+    }
+
+    std::string fontFileFullPath = currentFontLocation;
+    if (currentFontFile[0] == '/')
+    {
+        fontFileFullPath = currentFontFile;
+
+    }
+    else
+    {
+        fontFileFullPath += currentFontFile;
+
+    }
+
+    GFont *font = new GFont(context, mFontManager, fontFileFullPath.c_str(), size);
+    GFontSet &fontSet = mFontCache[key];
+    if (fontSet.font)
+    {
+        fontSet.fallbackFont = font;
+    }
+    else
+    {
+        fontSet.font = font;
+    }
     return font;
 }
+
+char *GFontCache::TrySpecFont(const wchar_t charCode, const float size,
+                              const char *currentFontLocation,
+                              const char *specFontFile)
+{
+    std::string fontFileFullPath = currentFontLocation;
+    if (specFontFile[0] == '/')
+    {
+        fontFileFullPath = specFontFile;
+
+    }
+    else
+    {
+        fontFileFullPath += specFontFile;
+
+    }
+
+    bool exist = IsGlyphExistedInFont(charCode, size, fontFileFullPath);
+    if (exist)
+    {
+        return (char *) specFontFile;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+char *GFontCache::TryDefaultFont(const wchar_t charCode, const float size,
+                                 const char *currentFontLocation)
+{
+    auto defaultFontFile =
+            SystemFontInformation::GetSystemFontInformation()->GetDefaultFontFile();
+    if (defaultFontFile == nullptr)
+    {
+        return nullptr;
+    }
+
+    std::string fontFileFullPath = currentFontLocation;
+    fontFileFullPath += defaultFontFile;
+
+    bool exist = this->IsGlyphExistedInFont(charCode, size, fontFileFullPath);
+    if (exist)
+    {
+        return defaultFontFile;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+char *GFontCache::TryDefaultFallbackFont(const wchar_t charCode,
+                                         const float size,
+                                         const char *currentFontLocation)
+{
+    auto defaultFontFile = "DroidSans.ttf";
+
+    std::string fontFileFullPath = currentFontLocation;
+    fontFileFullPath += defaultFontFile;
+
+    bool exist = this->IsGlyphExistedInFont(charCode, size, fontFileFullPath);
+    if (exist)
+    {
+        return (char *) defaultFontFile;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+char *GFontCache::TryOtherFallbackFont(GCanvasContext *context, const wchar_t charCode,
+                                       const float size,
+                                       const char *currentFontLocation, GFontStyle *fontStyle)
+{
+    return SystemFontInformation::GetSystemFontInformation()
+            ->GetClosestFontFamily(context, currentFontLocation, charCode, size,
+                                   *fontStyle);
+}
+
+bool GFontCache::IsGlyphExistedInFont(const wchar_t charCode,
+                                      const float size,
+                                      const std::string &filename)
+{
+    FT_Library library;
+    FT_Face face;
+    bool existed = true;
+
+    if (!LoadFace(&library, filename.c_str(), size, &face))
+    {
+        return false;
+    }
+
+    FT_UInt glyphIndex = FT_Get_Char_Index(face, charCode);
+    if (glyphIndex == 0)
+    {
+        existed = false;
+    }
+
+    FT_Done_Face(face);
+    FT_Done_FreeType(library);
+
+    return existed;
+}
+
+const char *getErrorMessage(FT_Error err)
+{
+#undef __FTERRORS_H__
+#define FT_ERRORDEF(e, v, s)  case e: return s;
+#define FT_ERROR_START_LIST     switch (err) {
+#define FT_ERROR_END_LIST       }
+
+#include FT_ERRORS_H
+    return "(Unknown error)";
+}
+
+bool GFontCache::LoadFace(FT_Library *library, const char *filename,
+                          const float size, FT_Face *face)
+{
+    size_t hres = 64;
+    FT_Matrix matrix = {(int) ((1.0 / hres) * 0x10000L), (int) ((0.0) * 0x10000L),
+                        (int) ((0.0) * 0x10000L), (int) ((1.0) * 0x10000L)};
+
+    assert(library);
+    assert(filename);
+    assert(size);
+
+    FT_Error error = FT_Init_FreeType(library);
+    if (error)
+    {
+        return false;
+    }
+
+    error = FT_New_Face(*library, filename, 0, face);
+    if (error)
+    {
+        LOG_E("load font %s error:%s", filename, getErrorMessage(error));
+        assert(filename == 0);
+        FT_Done_FreeType(*library);
+        return false;
+    }
+
+    error = FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
+    if (error)
+    {
+        FT_Done_Face(*face);
+        FT_Done_FreeType(*library);
+        return false;
+    }
+
+    error = FT_Set_Char_Size(*face, (int) (size * 64), 0, (FT_UInt) 72 * hres, 72);
+    if (error)
+    {
+        FT_Done_Face(*face);
+        FT_Done_FreeType(*library);
+        return false;
+    }
+
+    FT_Set_Transform(*face, &matrix, nullptr);
+
+    return true;
+}
+
 #endif
 
 void GFontCache::ReadyToRemoveCacheForFonts(
-        const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted)
+        const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke)
 {
     if (mCachedPages.size() == 3)
     {
-        RemoveCacheForFonts(mCachedPages.front());
+        RemoveCacheForFonts(mCachedPages.front(), isStroke);
         mCachedPages.pop();
     }
 
@@ -87,18 +317,18 @@ void GFontCache::ReadyToRemoveCacheForFonts(
 }
 
 void GFontCache::RemoveCacheForFonts(
-        const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted)
+        const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke)
 {
-    std::map< GFont *, std::vector< wchar_t > >::const_iterator iter =
-        fontsToBeDeleted.begin();
+    std::map<GFont *, std::vector<wchar_t> >::const_iterator iter =
+            fontsToBeDeleted.begin();
     for (; iter != fontsToBeDeleted.end(); ++iter)
     {
         GFont *font = iter->first;
-        const std::vector< wchar_t > &vecChars = iter->second;
-        std::vector< wchar_t >::const_iterator charIter = vecChars.begin();
+        const std::vector<wchar_t> &vecChars = iter->second;
+        std::vector<wchar_t>::const_iterator charIter = vecChars.begin();
         for (; charIter != vecChars.end(); ++charIter)
         {
-            font->RemoveGlyph(*charIter);
+            font->RemoveGlyph(*charIter, isStroke);
         }
     }
 }

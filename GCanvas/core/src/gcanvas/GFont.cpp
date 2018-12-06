@@ -10,41 +10,59 @@
 #include "GCanvas2dContext.h"
 #include <assert.h>
 #include "../GCanvas.hpp"
+
 #ifdef GFONT_LOAD_BY_FREETYPE
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_STROKER_H
 
 #undef __FTERRORS_H__
-#define FT_ERRORDEF( e, v, s )  { e, s },
+#define FT_ERRORDEF(e, v, s)  { e, s },
 #define FT_ERROR_START_LIST     {
 #define FT_ERROR_END_LIST       { 0, 0 } };
-const struct {
-    int          code;
-    const char*  message;
+const struct
+{
+    int code;
+    const char *message;
 } FT_Errors[] =
+
 #include FT_ERRORS_H
+
 #endif
 
 #define PT_TO_PX(pt) ceilf((pt) * (1.0f + (1.0f / 3.0f)))
 
-void * (*GFont::getFontCallback)(const char *fontDefinition) = nullptr;
+        void * (*GFont::getFontCallback)(
+const char *fontDefinition
+) = nullptr;
+
 bool (*GFont::getFontImageCallback)(void *font, wchar_t charcode,
-                                     int &ftBitmapWidth, int &ftBitmapHeight,
-                                     unsigned char *&bitmapBuffer, int &left,
-                                     int &top, float &advanceX,
-                                     float &advanceY) = nullptr;
+                                    int &ftBitmapWidth, int &ftBitmapHeight,
+                                    unsigned char *&bitmapBuffer, int &left,
+                                    int &top, float &advanceX,
+                                    float &advanceY) = nullptr;
 
 GFontMetrics::GFontMetrics() : unitsPerEM(0), ascender(0.0f), descender(0.0f)
 {
 }
 
 #ifdef GFONT_LOAD_BY_FREETYPE
-GFont::GFont(const char *fontName, const float size)
-    : mPointSize(size), mFontName(fontName), mHinting(1), mOutlineType(0),
-      mOutlineThickness(0), mFont(0)
+
+GFont::GFont(GCanvasContext *context,
+             GFontManager& fontManager,
+             const char *fontName,
+             const float size)
+        : mContext(context),
+          mFontManager(fontManager),
+          mPointSize(size),
+          mFontName(fontName),
+          mHinting(1),
+          mOutlineType(1),
+          mOutlineThickness(1)
 {
 }
+
 #else
 GFont::GFont(const char *fontDefinition)
     : m_fontDefinition(fontDefinition), m_font(0)
@@ -52,23 +70,26 @@ GFont::GFont(const char *fontDefinition)
 }
 #endif
 
-GFont::~GFont() {}
+GFont::~GFont()
+{
+    FT_Done_Face(mFace);
+    FT_Done_FreeType(mLibrary);
+}
 
 void GFont::DrawText(wchar_t text, GCanvasContext *context, float &x, float y,
-                      GColorRGBA color)
+                     GColorRGBA color, bool isStroke)
 {
-    const GGlyph *glyph = GetGlyph(text);
+    const GGlyph *glyph = GetGlyph(text, isStroke);
     if (glyph != nullptr)
     {
         drawGlyph(glyph, context, x, y, color);
         x += glyph->advanceX;
     }
 
-    context->SendVertexBufferToGPU();
 }
 
 void GFont::DrawText(const wchar_t *text, GCanvasContext *context, float &x,
-                      float y, GColorRGBA color)
+                     float y, GColorRGBA color, bool isStroke)
 {
     if (text == nullptr || wcslen(text) == 0)
     {
@@ -77,7 +98,7 @@ void GFont::DrawText(const wchar_t *text, GCanvasContext *context, float &x,
 
     for (size_t i = 0; i < wcslen(text); ++i)
     {
-        const GGlyph *glyph = GetGlyph(text[i]);
+        const GGlyph *glyph = GetGlyph(text[i],isStroke);
 
         if (glyph != nullptr)
         {
@@ -86,24 +107,23 @@ void GFont::DrawText(const wchar_t *text, GCanvasContext *context, float &x,
         }
     }
 
-    context->SendVertexBufferToGPU();
 }
 
 void GFont::drawGlyph(const GGlyph *glyph, GCanvasContext *context, float x,
-                       float y, GColorRGBA color)
+                      float y, GColorRGBA color)
 {
     context->SetTexture(glyph->texture);
 
-    float x0 = (float)(x + glyph->offsetX);
-    float y0 = (float)(y + glyph->height - glyph->offsetY);
-    float x1 = (float)(x0 + glyph->width);
-    float y1 = (float)(y0 - glyph->height);
+    float x0 = (float) (x + glyph->offsetX);
+    float y0 = (float) (y - glyph->offsetY);
+    float w = glyph->width;
+    float h = glyph->height;
     float s0 = glyph->s0;
     float t0 = glyph->t0;
     float s1 = glyph->s1;
     float t1 = glyph->t1;
 
-    context->PushRectangle(x0, y1, x1 - x0, y0 - y1, s0, t0, s1 - s0, t1 - t0,
+    context->PushRectangle(x0, y0, w, h, s0, t0, s1 - s0, t1 - t0,
                            color);
 }
 
@@ -118,22 +138,27 @@ void GFont::SetFontCallback(
     GFont::getFontImageCallback = getFontImageCB;
 }
 
-const GGlyph *GFont::GetGlyph(const wchar_t charcode)
+const GGlyph *GFont::GetGlyph(const wchar_t charcode, bool isStroke)
 {
-    std::map< wchar_t, GGlyph >::const_iterator iter = mGlyphs.find(charcode);
-    if (iter != mGlyphs.end())
+    const GGlyph *glyph = mFontManager.mGlyphCache.GetGlyph(mFontName, charcode,
+                                                            mPointSize, isStroke);
+    if (glyph)
     {
-        return &(iter->second);
+        return glyph;
+
     }
 
+
 #ifdef GFONT_LOAD_BY_FREETYPE
+
     wchar_t buffer[2] = {0, 0};
     buffer[0] = charcode;
-    loadGlyphs(buffer);
+    loadGlyphs(buffer, isStroke);
+    glyph = mFontManager.mGlyphCache.GetGlyph(mFontName, charcode, mPointSize, isStroke);
+    assert(glyph);
+    return glyph;
 
-    iter = mGlyphs.find(charcode);
-    assert(iter != mGlyphs.end());
-    return &(iter->second);
+
 #else
     bool found = false;
     if (nullptr == m_font && nullptr != getFontCallback)
@@ -162,106 +187,87 @@ const GGlyph *GFont::GetGlyph(const wchar_t charcode)
 #endif
 }
 
-void GFont::RemoveGlyph(const wchar_t charcode) { mGlyphs.erase(charcode); }
+void GFont::RemoveGlyph(const wchar_t charcode, bool isStroke)
+{
+    mFontManager.mGlyphCache.Erase(mFontName, charcode, mPointSize, isStroke);
+}
 
 void GFont::LoadGlyph(wchar_t charcode, int ftBitmapWidth, int ftBitmapHeight,
-                       unsigned char *bitmapBuffer, int left, int top,
-                       float advanceX, float advanceY)
+                      unsigned char *bitmapBuffer, int left, int top,
+                      float advanceX, float advanceY, bool isStroke)
 {
 
-    GTexture *texture =
-        new GTexture(ftBitmapWidth, ftBitmapHeight, GL_ALPHA, bitmapBuffer);
+    GTexture *texture = mContext->GetFontTexture();
+    GTreemap &treemap = mFontManager.mTreemap;
 
-    GGlyph glyph;
-    glyph.charcode = charcode;
-    glyph.texture = texture;
-    glyph.width = ftBitmapWidth;
-    glyph.height = ftBitmapHeight;
-    glyph.outlineType = 0;
-    glyph.outlineThickness = 0;
-    glyph.offsetX = left;
-    glyph.offsetY = top;
-    glyph.s0 = 0;
-    glyph.t0 = 0;
-    glyph.s1 = 1;
-    glyph.t1 = 1;
-    glyph.advanceX = advanceX;
-    glyph.advanceY = advanceY;
+    GRect rect;
+    GSize size(ftBitmapWidth, ftBitmapHeight);
+    bool failed = true;
+    while (failed)
+    {
+        failed = !treemap.Add(size, rect);
+        if (failed)
+        {
+            mContext->SendVertexBufferToGPU();
+            treemap.Clear();
+            mFontManager.mGlyphCache.ClearGlyphsTexture();
+        }
+        else
+        {
+            texture->UpdateTexture(bitmapBuffer, rect.x, rect.y, rect.width, rect.height);
+            GGlyph glyph;
+            glyph.charcode = charcode;
+            glyph.texture = texture;
+            glyph.bitmapBuffer = new unsigned char[ftBitmapWidth * ftBitmapHeight];
+            memcpy(glyph.bitmapBuffer, bitmapBuffer, ftBitmapWidth * ftBitmapHeight);
 
-    mGlyphs.insert(std::pair< wchar_t, GGlyph >(glyph.charcode, glyph));
+            glyph.width = ftBitmapWidth;
+            glyph.height = ftBitmapHeight;
+            glyph.outlineType = 0;
+            glyph.outlineThickness = 0;
+            glyph.offsetX = left;
+            glyph.offsetY = top;
+            glyph.s0 = (float) rect.x / treemap.GetWidth();
+            glyph.t0 = (float) rect.y / treemap.GetHeight();
+            glyph.s1 = (float) (rect.x + rect.width) / treemap.GetWidth();
+            glyph.t1 = (float) (rect.y + rect.height) / treemap.GetHeight();
+            glyph.advanceX = advanceX;
+            glyph.advanceY = advanceY;
+
+            mFontManager.mGlyphCache.Insert(mFontName, glyph.charcode, mPointSize, isStroke, glyph);
+        }
+
+    }
+
 }
+
 
 #ifdef GFONT_LOAD_BY_FREETYPE
-bool GFont::loadFace(FT_Library *library, const char *filename,
-                      const float size, FT_Face *face)
+
+
+
+void GFont::loadGlyphs(const wchar_t *charcodes,bool isStroke)
 {
-    size_t hres = 64;
-    FT_Matrix matrix = {(int)((1.0 / hres) * 0x10000L), (int)((0.0) * 0x10000L),
-                        (int)((0.0) * 0x10000L), (int)((1.0) * 0x10000L)};
 
-    assert(library);
-    assert(filename);
-    assert(size);
-
-    /* Initialize library */
-    FT_Error error = FT_Init_FreeType(library);
-    if (error)
-    {
-        return false;
-    }
-
-    /* Load face */
-    error = FT_New_Face(*library, filename, 0, face);
-    if (error)
-    {
-        LOG_D(filename);
-        assert(filename == 0);
-        FT_Done_FreeType(*library);
-        return false;
-    }
-
-    /* Select charmap */
-    error = FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
-    if (error)
-    {
-        FT_Done_Face(*face);
-        FT_Done_FreeType(*library);
-        return false;
-    }
-
-    /* Set char size */
-    error =
-        FT_Set_Char_Size(*face, (int)(size * 64), 0, (FT_UInt)72 * hres, 72);
-    if (error)
-    {
-        FT_Done_Face(*face);
-        FT_Done_FreeType(*library);
-        return false;
-    }
-
-    /* Set transform matrix */
-    FT_Set_Transform(*face, &matrix, nullptr);
-
-    return true;
-}
-
-void GFont::loadGlyphs(const wchar_t *charcodes)
-{
-    FT_Library library;
-    FT_Face face;
     FT_Glyph ft_glyph;
     FT_GlyphSlot slot;
     FT_Bitmap ft_bitmap;
 
     assert(charcodes);
 
-    if (!loadFace(&library, mFontName.c_str(), mPointSize, &face))
+    if (mFace)
+    {
+    }
+    else if (!LoadFace( mFontName.c_str(), mPointSize, &mFace))
     {
         return;
     }
 
+    FT_Library library=mLibrary;
+    FT_Face face=mFace;
+
     FT_Int32 flags = 0;
-    if (mOutlineType > 0)
+    if (isStroke )
     {
         flags |= FT_LOAD_NO_BITMAP;
     }
@@ -292,44 +298,24 @@ void GFont::loadGlyphs(const wchar_t *charcodes)
         FT_Error error = FT_Load_Glyph(face, glyph_index, flags);
         if (error)
         {
-            FT_Done_Face(face);
-            FT_Done_FreeType(library);
             return;
         }
 
-        if (mOutlineType == 0)
+        if (isStroke)
         {
-            slot = face->glyph;
-            ft_bitmap = slot->bitmap;
-            ft_bitmap_width = slot->bitmap.width;
-            ft_bitmap_rows = slot->bitmap.rows;
-            ft_bitmap_pitch = slot->bitmap.pitch;
-            ft_glyph_top = slot->bitmap_top;
-            ft_glyph_left = slot->bitmap_left;
-
-            (void)ft_bitmap_pitch;
-        }
-        else
-        {
-            FT_Stroker stroker;
-            FT_BitmapGlyph ft_bitmap_glyph;
-            error = FT_Stroker_New(library, &stroker);
-            if (error)
+            if(mStroker)
             {
-                FT_Done_Face(face);
-                FT_Stroker_Done(stroker);
-                FT_Done_FreeType(library);
+
+            }
+            else if (!LoadStroke( mFontName.c_str(), mPointSize, &mStroker))
+            {
                 return;
             }
-            FT_Stroker_Set(stroker, (int)(mOutlineThickness * 64),
-                           FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND,
-                           0);
+            FT_Stroker stroker=mStroker;
+            FT_BitmapGlyph ft_bitmap_glyph;
             error = FT_Get_Glyph(face->glyph, &ft_glyph);
             if (error)
             {
-                FT_Done_Face(face);
-                FT_Stroker_Done(stroker);
-                FT_Done_FreeType(library);
                 return;
             }
 
@@ -347,56 +333,171 @@ void GFont::loadGlyphs(const wchar_t *charcodes)
             }
             if (error)
             {
-                FT_Done_Face(face);
-                FT_Stroker_Done(stroker);
-                FT_Done_FreeType(library);
                 return;
             }
 
             error = FT_Glyph_To_Bitmap(&ft_glyph, FT_RENDER_MODE_NORMAL, 0, 1);
             if (error)
             {
-                FT_Done_Face(face);
-                FT_Stroker_Done(stroker);
-                FT_Done_FreeType(library);
                 return;
             }
 
-            ft_bitmap_glyph = (FT_BitmapGlyph)ft_glyph;
+            ft_bitmap_glyph = (FT_BitmapGlyph) ft_glyph;
             ft_bitmap = ft_bitmap_glyph->bitmap;
             ft_bitmap_width = ft_bitmap.width;
             ft_bitmap_rows = ft_bitmap.rows;
             ft_bitmap_pitch = ft_bitmap.pitch;
             ft_glyph_top = ft_bitmap_glyph->top;
             ft_glyph_left = ft_bitmap_glyph->left;
-            FT_Stroker_Done(stroker);
+        }
+        else
+        {
+            slot = face->glyph;
+            ft_bitmap = slot->bitmap;
+            ft_bitmap_width = slot->bitmap.width;
+            ft_bitmap_rows = slot->bitmap.rows;
+            ft_bitmap_pitch = slot->bitmap.pitch;
+            ft_glyph_top = slot->bitmap_top;
+            ft_glyph_left = slot->bitmap_left;
+
+            (void) ft_bitmap_pitch;
         }
 
         slot = face->glyph;
-        float advanceX = (float)(slot->advance.x / 64.0f);
-        float advanceY = (float)(slot->advance.y / 64.0f);
+        float advanceX = (float) (slot->advance.x / 64.0f);
+        float advanceY = (float) (slot->advance.y / 64.0f);
 
         LoadGlyph(charcodes[i], ft_bitmap_width, ft_bitmap_rows,
                   ft_bitmap.buffer, ft_glyph_left, ft_glyph_top, advanceX,
-                  advanceY);
+                  advanceY,  isStroke);
 
-        if (mOutlineType > 0)
+        if (isStroke )
         {
             FT_Done_Glyph(ft_glyph);
         }
     }
 
-    if (FT_IS_SCALABLE(face))
     {
         this->mFontMetrics.unitsPerEM = face->units_per_EM;
         // 26.6 pixel format: convert it from font units
         this->mFontMetrics.ascender =
-            (float)(face->size->metrics.ascender) / 64.0f;
+                (float) (face->size->metrics.ascender) / 64.0f;
         this->mFontMetrics.descender =
-            (float)(face->size->metrics.descender) / 64.0f;
+                (float) (face->size->metrics.descender) / 64.0f;
     }
 
-    FT_Done_Face(face);
-    FT_Done_FreeType(library);
+}
+
+const std::string &GFont::GetFontName() const
+{
+    return mFontName;
+}
+
+bool GFont::IsGlyphExistedInFont(const wchar_t charCode)
+{
+    if (mLibrary)
+    {
+        assert(mFace);
+    }
+    else
+    {
+        if (!LoadFace(mFontName.c_str(), mPointSize, &mFace))
+        {
+            return false;
+        }
+
+    }
+
+    FT_UInt glyphIndex = FT_Get_Char_Index(mFace, charCode);
+    if (glyphIndex == 0)
+    {
+        return false;
+    }
+
+
+    return true;
+}
+
+bool GFont::LoadFace(const char *filename,
+                     const float size, FT_Face *face)
+{
+    size_t hres = 64;
+    FT_Matrix matrix = {(int) ((1.0 / hres) * 0x10000L), (int) ((0.0) * 0x10000L),
+                        (int) ((0.0) * 0x10000L), (int) ((1.0) * 0x10000L)};
+
+    assert(filename);
+    assert(size);
+
+    FT_Error error = FT_Init_FreeType(&mLibrary);
+    if (error)
+    {
+        return false;
+    }
+
+    error = FT_New_Face(mLibrary, filename, 0, face);
+    if (error)
+    {
+        assert(filename == 0);
+        FT_Done_FreeType(mLibrary);
+        return false;
+    }
+
+    error = FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
+    if (error)
+    {
+        FT_Done_Face(*face);
+        FT_Done_FreeType(mLibrary);
+        return false;
+    }
+
+    error = FT_Set_Char_Size(*face, (int) (size * 64), 0, (FT_UInt) 72 * hres, 72);
+    if (error)
+    {
+        FT_Done_Face(*face);
+        FT_Done_FreeType(mLibrary);
+        return false;
+    }
+
+    FT_Set_Transform(*face, &matrix, nullptr);
+
+    return true;
+}
+
+bool GFont::LoadStroke(const char *filename,
+                     const float size, FT_Stroker *stroker)
+{
+
+    assert(filename);
+    assert(size);
+
+    FT_Error error  ;
+    if(!mLibrary)
+    {
+         error = FT_Init_FreeType(&mLibrary);
+        if (error)
+        {
+            return false;
+        }
+
+    }
+
+    error = FT_Stroker_New(mLibrary, stroker);
+    if (error)
+    {
+        FT_Stroker_Done(*stroker);
+        return false;
+    }
+
+    FT_Stroker_Set(*stroker, (int) (mOutlineThickness * 64),
+                   FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND,
+                   0);
+    if (error)
+    {
+        FT_Stroker_Done(*stroker);
+        return false;
+    }
+
+
+    return true;
 }
 #endif

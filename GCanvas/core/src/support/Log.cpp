@@ -38,7 +38,7 @@ int TransLogLevel(LogLevel logLevel)
 
 void LogExt(LogLevel logLevel, const char *tag, const char *format, ...)
 {
-    if (g_log_level > logLevel) return;
+//    if (g_log_level > logLevel) return;
 
     va_list va;
     char buffer[1024];

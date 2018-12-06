@@ -20,19 +20,20 @@ varying vec4 v_desColor;            \n\
 varying vec2 v_texCoord;            \n\
 uniform sampler2D u_texture;        \n\
 uniform bool b_hasTexture;          \n\
-uniform bool b_overrideTextureColor;     \n\
+uniform bool b_overrideTextureColor;\n\
 uniform vec4 v_textureColor;        \n\
 void main()                         \n\
 {                                   \n\
    vec4 texColor;                   \n\
-   if (b_hasTexture) {                                              \n\
-       texColor = texture2D( u_texture, v_texCoord);                \n\
-       if (b_overrideTextureColor) {                                     \n\
-           gl_FragColor = vec4(v_desColor.rgb, texColor.a);     \n\
-       } else {                                                     \n\
-           gl_FragColor = vec4(texColor.rgb, v_desColor.a * texColor.a);     \n\
-       }                                \n\
-   } else {                             \n\
-       gl_FragColor = v_desColor;       \n\
-   }                                    \n\
+   if (b_hasTexture) {                                  \n\
+       texColor = texture2D( u_texture, v_texCoord);    \n\
+       float alpha = v_desColor.a * texColor.a;         \n\
+       if (b_overrideTextureColor) {                    \n\
+            gl_FragColor = vec4(v_desColor.rgb*texColor.a, alpha); \n\
+       } else {                                         \n\
+           gl_FragColor = vec4(texColor.rgb, alpha);    \n\
+       }                                                \n\
+   } else {                                             \n\
+       gl_FragColor = v_desColor;                       \n\
+   }                                                    \n\
 }"

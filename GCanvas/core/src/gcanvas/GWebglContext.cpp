@@ -7,6 +7,7 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
+
 #include <iostream>
 #ifndef _WIN32
 #ifdef ANDROID
@@ -734,7 +735,19 @@ int bindFramebuffer(GCanvas *obj, const char *&p)
     GLuint framebuffer = tokens[1];
 
     LOG_D("[webgl::exec] glBindFramebuffer(%s, %d)", GetMacroValDebug(target), framebuffer);
-    glBindFramebuffer(target, framebuffer);
+
+#ifdef IOS
+    if ( framebuffer == 0 ){
+        GWebGLBindToGLKViewFunc func = obj->GetGWebGLBindToGLKViewFunc();
+        if(func){
+            func(obj->mContextId);
+        }
+    }else{
+#endif
+        glBindFramebuffer(target, framebuffer);
+#ifdef IOS
+    }
+#endif
     return kContinue;
 }
 
@@ -3462,29 +3475,16 @@ int GCanvas::executeWebGLCommands(const char *&cmd, int length)
 
         if( index >=1 &&  index < WEBGL_API_COUNT ) //webgl
         {
-//            struct timeval before;
-//            struct timeval after;
-//            gettimeofday(&before, NULL);
-//            LOG_D("logtest: sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, before.tv_sec, before.tv_usec);
-//            gettimeofday(&after, NULL);
-//            LOG_D("logtest cost: sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
             ParseTokensSkip(cmd);
-//            gettimeofday(&after, NULL);
-//            LOG_D("before parseToken: sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
             if (NULL == g_webglFuncMap[index])
             {
 //                LOG_W("[executeWebGLCommands] uncomplete cmd index:%d", index);
                 return -1;
             };
-            int error1 = glGetError();
-//            gettimeofday(&before, NULL);
+//            int error1 = glGetError();
             g_webglFuncMap[index](this, cmd);
-//            int ret = g_webglFuncMap[index](this, cmd);
-//            gettimeofday(&after, NULL);
-//            LOG_D("before webglFuncMapCall: sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
-            int error2 = glGetError();
-            LOG_D("beofre error: %d, after error: %d",error1, error2);
-//            return ret;
+//            int error2 = glGetError();
+//            LOG_D("beofre error: %d, after error: %d",error1, error2);
         }
         else if( index >= WEBGL_EXT_API_OFFSET && index < WEBGL_EXT_API_MAX_INDEX ) //extension
         {
@@ -3564,4 +3564,3 @@ void GCanvas::initWebglExt()
     glIsVertexArrayOESv = (PFNGLISVERTEXARRAYOESPROC)eglGetProcAddress ( "glIsVertexArrayOES" );
 }
 #endif
-

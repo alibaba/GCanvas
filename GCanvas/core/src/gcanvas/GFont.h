@@ -14,97 +14,21 @@
 #include <vector>
 #include "GPoint.h"
 #include "GTexture.h"
+#include "GGlyphCache.h"
+#include "GTreemap.h"
 
 #define GFONT_LOAD_BY_FREETYPE
 
 #ifdef GFONT_LOAD_BY_FREETYPE
 #include <ft2build.h>
 #include <freetype/freetype.h>
+#include <freetype/ftstroke.h>
 #endif
 
-#define G_FONT_TEXTURE_SIZE 256
 
 class GCanvasContext;
 
-typedef struct
-{
-    /**
-     * Wide character this glyph represents
-     */
-    wchar_t charcode;
 
-
-    GTexture *texture;
-
-    /**
-     * Glyph's width in pixels.
-     */
-    size_t width;
-
-    /**
-     * Glyph's height in pixels.
-     */
-    size_t height;
-
-    /**
-     * Glyph's left bearing expressed in integer pixels.
-     */
-    int offsetX;
-
-    /**
-     * Glyphs's top bearing expressed in integer pixels.
-     *
-     * Remember that this is the distance from the baseline to the top-most
-     * glyph scanline, upwards y coordinates being positive.
-     */
-    int offsetY;
-
-    /**
-     * For horizontal text layouts, this is the horizontal distance (in
-     * fractional pixels) used to increment the pen position when the glyph is
-     * drawn as part of a string of text.
-     */
-    float advanceX;
-
-    /**
-     * For vertical text layouts, this is the vertical distance (in fractional
-     * pixels) used to increment the pen position when the glyph is drawn as
-     * part of a string of text.
-     */
-    float advanceY;
-
-    /**
-     * First normalized texture coordinate (x) of top-left corner
-     */
-    float s0;
-
-    /**
-     * Second normalized texture coordinate (y) of top-left corner
-     */
-    float t0;
-
-    /**
-     * First normalized texture coordinate (x) of bottom-right corner
-     */
-    float s1;
-
-    /**
-     * Second normalized texture coordinate (y) of bottom-right corner
-     */
-    float t1;
-
-    /**
-     * Glyph outline type (0 = None, 1 = line, 2 = inner, 3 = outer)
-     */
-    int outlineType;
-
-    /**
-     * Glyph outline thickness
-     */
-    float outlineThickness;
-
-    unsigned int size();
-} GGlyph;
 
 typedef struct GFontMetrics
 {
@@ -118,29 +42,34 @@ typedef struct GFontMetrics
     float descender;
 } GFontMetrics;
 
+class GFontManager;
+
 class GFont
 {
 public:
 #ifdef GFONT_LOAD_BY_FREETYPE
-    GFont(const char *fontName, const float size);
+    GFont(GCanvasContext* context, GFontManager& fontManager, const char *fontName, const float size);
 #else
     GFont(const char *fontDefinition);
 #endif
     ~GFont();
 
     void DrawText(wchar_t text, GCanvasContext *context, float &x, float y,
-                  GColorRGBA color);
+                  GColorRGBA color, bool isStroke);
     void DrawText(const wchar_t *text, GCanvasContext *context, float &x,
-                  float y, GColorRGBA color);
+                  float y, GColorRGBA color, bool isStroke);
 
-    const GGlyph *GetGlyph(const wchar_t charcode);
-    void RemoveGlyph(const wchar_t charcode);
+    const GGlyph *GetGlyph(const wchar_t charcode, bool isStroke);
+    void RemoveGlyph(const wchar_t charcode, bool isStroke);
 
     void LoadGlyph(wchar_t charcode, int ftBitmapWidth, int ftBitmapHeight,
                    unsigned char *bitmapBuffer, int left, int top,
-                   float advanceX, float advanceY);
+                   float advanceX, float advanceY, bool isStroke);
+    void LoadGlyphTexture( GGlyph& glyph);
 
     GFontMetrics *GetMetrics() { return &mFontMetrics; }
+
+    const std::string &GetFontName() const;
 
     static void
     SetFontCallback(void *(*getFontCallback)(const char *fontDefinition),
@@ -149,9 +78,11 @@ public:
                             int &ftBitmapHeight, unsigned char *&bitmapBuffer,
                             int &left, int &top, float &advanceX, float &advanceY));
 
+    bool IsGlyphExistedInFont(const wchar_t charCode);
 private:
     void drawGlyph(const GGlyph *glyph, GCanvasContext *context, float x,
                    float y, GColorRGBA color);
+
     static void *(*getFontCallback)(const char *fontDefinition);
     static bool (*getFontImageCallback)(void *font, wchar_t charcode,
                                         int &ftBitmapWidth, int &ftBitmapHeight,
@@ -159,12 +90,17 @@ private:
                                         int &top, float &advanceX,
                                         float &advanceY);
 #ifdef GFONT_LOAD_BY_FREETYPE
-    void loadGlyphs(const wchar_t *charcodes);
-    static bool loadFace(FT_Library *library, const char *filename,
-                         const float size, FT_Face *face);
+    void loadGlyphs(const wchar_t *charcodes,bool isStroke);
+
 #endif
+    bool LoadStroke(const char *filename, const float size,
+                    FT_Stroker *stroker);
+    bool LoadFace(const char *filename, const float size,
+                  FT_Face *face);
 
 private:
+    GCanvasContext* mContext;
+    GFontManager& mFontManager;
 #ifdef GFONT_LOAD_BY_FREETYPE
     float mPointSize;
     std::string mFontName;
@@ -175,9 +111,11 @@ private:
 #endif
 
     std::string mFontDefinition;
-    void *mFont;
     GFontMetrics mFontMetrics;
-    std::map< wchar_t, GGlyph > mGlyphs;
+
+    FT_Library mLibrary= nullptr;
+    FT_Face mFace= nullptr;
+    FT_Stroker mStroker= nullptr;
 };
 
 #endif

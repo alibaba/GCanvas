@@ -16,7 +16,7 @@ GRenderer::GRenderer(std::string key) : m_egl_context(0),
                                         m_window(0) {
     pthread_mutex_init(&m_mutex, 0);
     sem_init(&m_SyncSem, 0, 0);
-    sem_init(&m_dummy,0,0);
+    sem_init(&m_dummy, 0, 0);
     this->m_contextid = key;
 }
 
@@ -59,7 +59,7 @@ bool GRenderer::initialize() {
     GLfloat ratio;
 
 
-    if(m_egl_display == EGL_NO_DISPLAY) {
+    if (m_egl_display == EGL_NO_DISPLAY) {
         if ((display = eglGetDisplay(EGL_DEFAULT_DISPLAY)) == EGL_NO_DISPLAY) {
             LOG_D("getdisplay failed.");
             return false;
@@ -85,7 +85,7 @@ bool GRenderer::initialize() {
         return false;
     }
 
-    if(m_egl_surface == EGL_NO_SURFACE) {
+    if (m_egl_surface == EGL_NO_SURFACE) {
         ANativeWindow_setBuffersGeometry(m_window, 0, 0, format);
 
         if (!(surface = eglCreateWindowSurface(display, config, m_window, 0))) {
@@ -98,7 +98,7 @@ bool GRenderer::initialize() {
         surface = m_egl_surface;
     }
 
-    if(m_egl_context == EGL_NO_CONTEXT) {
+    if (m_egl_context == EGL_NO_CONTEXT) {
         EGLint AttribList[] = {
                 EGL_CONTEXT_CLIENT_VERSION, 2,
                 EGL_NONE
@@ -155,9 +155,23 @@ void GRenderer::stop() {
     pthread_cond_signal(&m_cond);
 
     LOG_D("nofity finished.");
-//    pthread_mutex_unlock(&m_mutex);
+    if (m_started) {
+        LOG_D("join thread");
+        pthread_join(m_thread_id, 0);
+    } else {
+        LOG_D("thread require exit.");
+        if (m_proxy) {
+            m_proxy->setContextLost(true);
+            m_proxy->setThreadExit();
+            m_proxy->finishProc();
+        }
 
-    pthread_join(m_thread_id, 0);
+        surfaceExit();
+        m_requestSurfaceDestroy = false;
+        m_initialized = false;
+
+        destroy();
+    }
 
     LOG_D("finish stop thread.");
 }
@@ -175,7 +189,7 @@ void GRenderer::destroy() {
 
     LOG_D("context destroy in thread.");
 
-    if(m_egl_context != EGL_NO_CONTEXT) {
+    if (m_egl_context != EGL_NO_CONTEXT) {
         LOG_D("context destroy start in thread.");
         eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglDestroyContext(m_egl_display, m_egl_context);
@@ -188,7 +202,7 @@ void GRenderer::destroy() {
 void GRenderer::surfaceExit() {
     LOG_D("surface destroy in thread.");
 
-    if(m_egl_display != EGL_NO_DISPLAY) {
+    if (m_egl_display != EGL_NO_DISPLAY) {
         LOG_D("surface destroy start in thread.");
 //        eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 //        eglDestroyContext(m_egl_display, m_egl_context);
@@ -203,14 +217,14 @@ void GRenderer::surfaceExit() {
 }
 
 void GRenderer::drawFrame() {
-    struct timeval before;
-    struct timeval after;
-    gettimeofday(&before, NULL);
+//    struct timeval before;
+//    struct timeval after;
+//    gettimeofday(&before, NULL);
     if (m_proxy) {
-//        LOG_D("start to linkNativeGLProc.");
+        LOG_D("start to linkNativeGLProc.");
         m_proxy->LinkNativeGLProc();
     }
-    gettimeofday(&after, NULL);
+//    gettimeofday(&after, NULL);
 //    LOG_D("before drawFrame: sec = %d, usec = %d, after sec = %d, usec = %d", before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
 }
 
@@ -221,75 +235,51 @@ void GRenderer::renderLoop() {
             m_proxy->finishProc();
         }
 
-        if((m_requestInitialize || m_initialized)&& m_viewportchanged) {
+        if (m_viewportchanged) {
             if (!m_initialized) {
-//                LOG_D("on initialize in thread.");
                 initialize();
                 m_initialized = true;
                 if (m_proxy) m_proxy->setContextLost(false);
             }
 
-            if (!m_proxy) {
-//                LOG_D("create canvas in thread.");
-                m_proxy = new gcanvas_proxy(m_contextid, this);
-                m_proxy->mContextType = m_context_type;
-                GCanvasManager *m = GCanvasManager::GetManager();
-                m->addCanvas(m_proxy);
+//            if (!m_proxy) {
+//                m_proxy = new gcanvas_proxy(m_contextid, this);
+//                m_proxy->mContextType = m_context_type;
+//                GCanvasManager *m = GCanvasManager::GetManager();
+//                m->addCanvas(m_proxy);
+//
+//                m_createCanvas = true;
+//                m_viewportchanged = true;
+//
+//                m_sendEvent = true;
+//                sem_post(&m_SyncSem);
+//            }
 
-                m_createCanvas = true;
-                m_viewportchanged = true;
+            m_proxy->OnSurfaceChanged(0, 0, m_width, m_height);
+            m_proxy->SetClearColor(mClearColor);
+            m_proxy->SetDevicePixelRatio(m_device_pixel_ratio);
+            m_viewportchanged = false;
 
-//                LOG_D("set sendEvent flag in canvas initialized.");
+            if (!m_requestInitialize) {
                 m_sendEvent = true;
-                sem_post(&m_SyncSem);
+                m_requestInitialize = true;
             }
 
-            if (m_viewportchanged) {
-//                LOG_D("onsurface changed in thread. w = %d, h = %d", m_width, m_height);
-                m_proxy->SetClearColor(mClearColor);
-                m_proxy->SetDevicePixelRatio(m_device_pixel_ratio);
-                m_proxy->OnSurfaceChanged(m_width, m_height);
-
-                m_viewportchanged = false;
-
-                if(m_requestInitialize){
-//                    LOG_D("set sendEvent flag in viewport changed.");
-                    m_sendEvent = true;
-                }
-
-                m_proxy->OnSurfaceChanged(m_width, m_height);
-
-                sem_post(&m_SyncSem);
-            }
-
-            m_requestInitialize = false;
+            sem_post(&m_SyncSem);
         }
 
-//        if(m_requestSurfaceDestroy) {
-//            if(m_proxy) m_proxy->setContextLost(true);
-//
-//            surfaceExit();
-//            m_requestSurfaceDestroy = false;
-//            m_initialized = false;
 
-//            sem_post(&m_SyncSem);
-//        }
-
-//        LOG_D("pthread mutex lock.");
         pthread_mutex_lock(&m_mutex);
 
         if (!m_proxy || (m_proxy && !m_proxy->continueProcess() &&
-            !m_viewportchanged && !m_requestSurfaceDestroy && mBitmapQueue.empty())) {
-//            LOG_D("pthread start to wait.");
+                         !m_viewportchanged && !m_requestSurfaceDestroy && mBitmapQueue.empty())) {
             pthread_cond_wait(&m_cond, &m_mutex);
         }
 
-//        LOG_D("pthread receive signal,start to process cmd.");
 
-        if (m_bindtexture) {
+        if (m_bindtexture && m_egl_surface != EGL_NO_SURFACE) {
             while (!mBitmapQueue.empty()) {
                 struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-//                LOG_D("start to bindtexture in grenderer.");
                 m_proxy->bindTexture(*p);
 
                 mBitmapQueue.pop();
@@ -300,10 +290,9 @@ void GRenderer::renderLoop() {
             sem_post(&m_SyncSem);
         }
 
-        if (m_subImage2D) {
+        if (m_subImage2D && m_egl_surface != EGL_NO_SURFACE) {
             while (!mBitmapQueue.empty()) {
                 struct BitmapCmd *p = reinterpret_cast<struct BitmapCmd * >(mBitmapQueue.front());
-//                LOG_D("start to subTexImage2D in grenderer.");
                 m_proxy->texSubImage2D(*p);
 
                 mBitmapQueue.pop();
@@ -315,27 +304,24 @@ void GRenderer::renderLoop() {
         }
 
         if (m_egl_display) {
-//            LOG_D("start to draw frame in thread.");
             drawFrame();
             if (m_refresh) {
-                struct timeval before;
-                struct timeval after;
-                gettimeofday(&before, NULL);
+//                struct timeval before;
+//                struct timeval after;
+//                gettimeofday(&before, NULL);
 //                LOG_D("start to swap buffer.");
                 if (!eglSwapBuffers(m_egl_display, m_egl_surface)) {
                 }
-                gettimeofday(&after, NULL);
+//                gettimeofday(&after, NULL);
 //                LOG_D("swapbuffer before sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
+
                 m_refresh = false;
             }
         }
 
 
-//        LOG_D("pthread finished process cmd.");
-
         pthread_mutex_unlock(&m_mutex);
 
-//        LOG_D("pthread mutex unlock.");
     }
 
     if (m_requestExit) {
@@ -377,54 +363,51 @@ void GRenderer::setRefreshFlag(bool refresh) {
 //    LOG_D("setRefreshFlag in grenderer.flag=%d\n", refresh);
 }
 
-void GRenderer::requestCreateCanvas(std::string contextid) {
-
-    LOG_D("start to lock.");
-//    pthread_mutex_lock(&m_mutex);
-
+void GRenderer::requestCreateCanvas(const std::string contextid) {
     m_contextid = contextid;
-//    m_createCanvas = true;
-    LOG_D("start to signal thread.");
-//    pthread_cond_signal(&m_cond);
-    LOG_D("end to signal thread.");
 
-//    sem_wait(&m_SyncSem);
-
-    if(!m_createCanvas) {
+    if (!m_createCanvas) {
         LOG_D("start to wait response from thread.");
-        m_requestInitialize = true;
+//        m_requestInitialize = true;
+
+        if (!m_proxy) {
+            m_proxy = new gcanvas_proxy(m_contextid, this);
+            m_proxy->mContextType = m_context_type;
+            GCanvasManager *m = GCanvasManager::GetManager();
+            m->addCanvas(m_proxy);
+
+            m_createCanvas = true;
+//            m_viewportchanged = true;
+
+            m_sendEvent = true;
+//            sem_post(&m_SyncSem);
+        }
 
         pthread_cond_signal(&m_cond);
-
-        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+//
+//        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+//
+//        LOG_D("end to wait response.");
     }
-
-    LOG_D("end to wait response.");
-
-//    pthread_mutex_unlock(&m_mutex);
-    LOG_D("end lock.");
 }
 
 void GRenderer::requestViewportChanged() {
-//    pthread_mutex_lock(&m_mutex);
-
+    LOG_D("requestViewportChanged");
     m_viewportchanged = true;
     pthread_cond_signal(&m_cond);
-
-    waitUtilTimeout(&m_SyncSem,GCANVAS_TIMEOUT);
-
-//    pthread_mutex_unlock(&m_mutex);
+    waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
 }
 
 void GRenderer::waitResponse() {
     LOG_D("wait response in grenderer start.");
 //    sem_wait(&m_SyncSem);
-    gcanvas::waitUtilTimeout(&m_SyncSem,GCANVAS_TIMEOUT);
+    gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
 
     LOG_D("wait response in grenderer finished.");
 }
 
-void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id,int target, int level, int internalformat,
+void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id, int target, int level,
+                            int internalformat,
                             int format, int type) {
 
     AndroidBitmapInfo info;
@@ -434,22 +417,20 @@ void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id,int target, int 
     if (info.width <= 0 || info.height <= 0 ||
         (info.format != ANDROID_BITMAP_FORMAT_RGB_565 &&
          info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) &&
-         info.format != ANDROID_BITMAP_FORMAT_RGBA_4444) {
+        info.format != ANDROID_BITMAP_FORMAT_RGBA_4444) {
         return;
     } else {
-        if(info.format == ANDROID_BITMAP_FORMAT_RGB_565){
+        if (info.format == ANDROID_BITMAP_FORMAT_RGB_565) {
             LOG_D("the bitmap is rgb format.");
             format = GL_RGB;
             internalformat = GL_RGB;
-            // fix image with format 565 color confusion
-            type = GL_UNSIGNED_SHORT_5_6_5;
-        } else if(info.format == ANDROID_BITMAP_FORMAT_RGBA_8888 ||
-                  info.format == ANDROID_BITMAP_FORMAT_RGBA_4444){
+        } else if (info.format == ANDROID_BITMAP_FORMAT_RGBA_8888 ||
+                   info.format == ANDROID_BITMAP_FORMAT_RGBA_4444) {
             LOG_D("the bitmap is rgba format.");
             format = GL_RGBA;
             internalformat = GL_RGBA;
         } else {
-            LOG_W("the bitmap format=%d not support.",info.format);
+            LOG_W("the bitmap format=%d not support.", info.format);
             return;
         }
     }
@@ -484,19 +465,19 @@ void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id,int target, int 
 //    mBitmapCmd.type = type;
 //    mBitmapCmd.id = id;
 
-    if(this->m_proxy != nullptr) {
+    if (this->m_proxy != nullptr) {
         mBitmapQueue.push(p);
 //    if(this->m_proxy != nullptr) {
 //        this->m_proxy->addBitmapQueue(p);
         m_bindtexture = true;
 
         LOG_D("start to require bindtexure,width=%d,height=%d,target=%d,level=%d,internalformat=%d,format=%d,type=%d\n",
-                info.width, info.height, target, level, internalformat, format, type);
+              info.width, info.height, target, level, internalformat, format, type);
 //    pthread_mutex_lock(&m_mutex);
         pthread_cond_signal(&m_cond);
 //    sem_wait(&m_SyncSem);
 
-    gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
 
 //    memset(&mBitmapCmd,0,sizeof(struct BitmapCmd));
 
@@ -508,8 +489,10 @@ void GRenderer::bindTexture(JNIEnv *env, jobject bitmap, int id,int target, int 
     }
 }
 
-void GRenderer::texSubImage2D(JNIEnv *env, jobject bitmap, int id,int target, int level, int xoffset,int yoffset,
-                            int format, int type) {
+void
+GRenderer::texSubImage2D(JNIEnv *env, jobject bitmap, int id, int target, int level, int xoffset,
+                         int yoffset,
+                         int format, int type) {
 
     AndroidBitmapInfo info;
     memset(&info, 0, sizeof(info));
@@ -553,22 +536,21 @@ void GRenderer::texSubImage2D(JNIEnv *env, jobject bitmap, int id,int target, in
 //    mBitmapCmd.type = type;
 //    mBitmapCmd.id = id;
 
-    if(this->m_proxy != nullptr) {
+    if (this->m_proxy != nullptr) {
         mBitmapQueue.push(p);
-
-    //    this->m_proxy->addBitmapQueue(p);
+        //    this->m_proxy->addBitmapQueue(p);
 
         m_subImage2D = true;
 
         LOG_D("start to require texSubImage2D,width=%d,height=%d,target=%d,level=%d,xoffset=%d,yoffset=%d,format=%d,type=%d\n",
-               info.width, info.height, target, level, xoffset,yoffset,format, type);
-    //    pthread_mutex_lock(&m_mutex);
+              info.width, info.height, target, level, xoffset, yoffset, format, type);
+        //    pthread_mutex_lock(&m_mutex);
         pthread_cond_signal(&m_cond);
-    //    sem_wait(&m_SyncSem);
+        //    sem_wait(&m_SyncSem);
 
-        gcanvas::waitUtilTimeout(&m_SyncSem,GCANVAS_TIMEOUT);
+        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
 
-    //    memset(&mBitmapCmd,0,sizeof(struct BitmapCmd));
+        //    memset(&mBitmapCmd,0,sizeof(struct BitmapCmd));
 
         LOG_D("finish wait in texSubImage2D.");
 //    pthread_mutex_unlock(&m_mutex);
@@ -578,20 +560,20 @@ void GRenderer::texSubImage2D(JNIEnv *env, jobject bitmap, int id,int target, in
     }
 }
 
-void GRenderer::surfaceDestroy(){
+void GRenderer::surfaceDestroy() {
     LOG_D("surface destroy request in grenderer.");
 //    pthread_mutex_lock(&m_mutex);
 
     m_requestSurfaceDestroy = true;
 
     pthread_cond_signal(&m_cond);
-
-    gcanvas::waitUtilTimeout(&m_SyncSem,GCANVAS_TIMEOUT);
-
+    if (m_started) {
+        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+    }
 //    pthread_mutex_unlock(&m_mutex);
 }
 
-bool GRenderer::sendEvent(){
+bool GRenderer::sendEvent() {
     bool ret = m_sendEvent;
     m_sendEvent = false;
 
@@ -600,7 +582,7 @@ bool GRenderer::sendEvent(){
 
 void GRenderer::setDevicePixelRatio(const float ratio) {
     this->m_device_pixel_ratio = ratio;
-    if(m_proxy){
+    if (m_proxy) {
         m_proxy->SetDevicePixelRatio(ratio);
     }
 }

@@ -52,9 +52,14 @@ static inline GTransform GTransformMakeTranslation(float tx, float ty)
  t' = [ sx 0 0 sy 0 0 ] */
 static inline GTransform GTransformMakeScale(float sx, float sy)
 {
-    GTransform trans(sx, 0, 0, sy, 0, 0);
-    return trans;
+    return GTransform(sx, 0, 0, sy, 0, 0);
 }
+
+static inline float GTransformGetScale(const GTransform& t)
+{
+    return sqrt(t.a*t.a+t.d*t.d);
+}
+
 
 /* Return a transform which rotates by `angle' radians:
  t' = [ cos(angle) sin(angle) -sin(angle) cos(angle) 0 0 ] */
@@ -64,8 +69,8 @@ static inline GTransform GTransformMakeRotation(float angle)
     double sinAngle = sin(angle);
     GTransform trans;
     trans.a = (float)cosAngle;
-    trans.b = (float)sinAngle;
-    trans.c = (float)-sinAngle;
+    trans.b = (float)-sinAngle;
+    trans.c = (float)sinAngle;
     trans.d = (float)cosAngle;
     trans.tx = trans.ty = (float)0.0;
     return trans;
@@ -98,22 +103,21 @@ static inline GTransform GTransformTranslate(GTransform t, float tx,
 /* Scale `t' by `(sx, sy)' and return the result:
  t' = [ sx 0 0 sy 0 0 ] * t */
 
-static inline GTransform GTransformScale(GTransform t, float sx, float sy)
+static inline GTransform GTransformScale(GTransform& t, float sx, float sy)
 {
-    GTransform result;
-    result.a = sx * t.a;
-    result.b = sy * t.b;
-    result.c = sx * t.c;
-    result.d = sy * t.d;
-    result.tx = sx * t.tx;
-    result.ty = sy * t.ty;
-    return result;
+    t.a = sx * t.a;
+    t.b = sy * t.b;
+    t.c = sx * t.c;
+    t.d = sy * t.d;
+    t.tx = sx * t.tx;
+    t.ty = sy * t.ty;
+    return t;
 }
 
 /* Rotate `t' by `angle' radians and return the result:
  t' =  [ cos(angle) sin(angle) -sin(angle) cos(angle) 0 0 ] * t */
 
-static inline GTransform GTransformRotate(GTransform t, float angle)
+static inline GTransform GTransformRotate(const GTransform& t, float angle)
 {
     double cosAngle = cos(angle);
     double sinAngle = sin(angle);
@@ -130,15 +134,15 @@ static inline GTransform GTransformRotate(GTransform t, float angle)
 
 /* Concatenate `t2' to `t1' and return the result:
  t' = t1 * t2 */
-static inline GTransform GTransformConcat(GTransform t1, GTransform t2)
+static inline GTransform GTransformConcat(const GTransform& t1, const GTransform& t2)
 {
     GTransform result;
-    result.a = t1.a * t2.a + t1.c * t2.b;
-    result.b = t1.b * t2.a + t1.d * t2.b;
-    result.c = t1.a * t2.c + t1.c * t2.d;
-    result.d = t1.b * t2.c + t1.d * t2.d;
-    result.tx = t1.a * t2.tx + t1.c * t2.ty + t1.tx;
-    result.ty = t1.b * t2.tx + t1.d * t2.ty + t1.ty;
+    result.a = t1.a * t2.a + t1.b * t2.c;
+    result.b = t1.a * t2.b + t1.b * t2.d;
+    result.c = t1.c * t2.a + t1.d * t2.c;
+    result.d = t1.c * t2.b + t1.d * t2.d;
+    result.tx = t1.a * t2.tx + t1.b * t2.ty + t1.tx;
+    result.ty = t1.c * t2.tx + t1.d * t2.ty + t1.ty;
     return result;
 }
 

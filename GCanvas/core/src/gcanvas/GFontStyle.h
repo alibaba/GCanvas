@@ -18,7 +18,7 @@ namespace gcanvas
 class GFontStyle final
 {
 public:
-    GFontStyle(const char *font = nullptr);
+    GFontStyle(const char *font = nullptr, float ratio = 1.0);
     ~GFontStyle();
 
     enum class Style
@@ -57,15 +57,17 @@ public:
 
     float GetSize() { return mSize; }
 
-    std::string GetFamily() { return mFamily; }
-
+    std::string GetFamily() const { return mFamily; }
+    
+    std::string GetName() const { return mFontName; }
 private:
     void Initialize(const char *font);
-
+    std::string mFontName;
     Style mStyle;
     Variant mVariant;
     Weight mWeight;
     float mSize;
+    float mRatio;
     std::string mFamily;
 };
 }

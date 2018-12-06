@@ -56,9 +56,18 @@ public:
 
     void ClipRegion(GCanvasContext *context);
 
+
+    void DrawPolygons2DToContextPass(GCanvasContext *context, GColorRGBA color, bool isStencilPass);
+
     void DrawPolygons2DToContext(GCanvasContext *context);
 
+    std::vector<tSubPath> *DrawLineDash(GCanvasContext *context);
+    
+    void CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std::vector<GVertex> *vertexVec);
+    
     void DrawLinesToContext(GCanvasContext *context);
+
+    void GetRect(GRectf& rect);
 
     static void SubdivideCubicTo(GPath *path, GPoint points[4], int level = 4);
 
@@ -78,15 +87,15 @@ private:
                          float y3, float x4, float y4, int level);
 
     void drawArcToContext(GCanvasContext *context, GPoint point, GPoint p1,
-                          GPoint p2, GColorRGBA color);
+                          GPoint p2, GColorRGBA color, std::vector<GVertex> *vec);
 
     void drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
                            const GPoint &p1, const GPoint &p2,
-                           GColorRGBA color);
+                           GColorRGBA color, std::vector<GVertex> *vec);
 
     void drawLineCap(GCanvasContext *context, const GPoint &center,
                      const GPoint &p1, const GPoint &p2, float deltaX,
-                     float deltaY, GColorRGBA color);
+                     float deltaY, GColorRGBA color, std::vector<GVertex> *vec);
 
     float calcPointAngle(const GPoint &director, const GPoint &center);
 
