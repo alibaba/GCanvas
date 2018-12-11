@@ -27,6 +27,12 @@ public class GLog {
 
 	public static int logLevel = LEVEL_INFO;
 
+	public static IGLogger customLog = null;
+
+	public static void setCustomLogImpl(IGLogger log) {
+		customLog = log;
+	}
+
 	public static void setLevel(String level) {
 		if (level == null) {
 			return;
@@ -54,26 +60,44 @@ public class GLog {
 	}
 
 	public static void force(String Tag, String message) {
-		Log.e(Tag, message);
+		eInner(Tag, message);
 	}
 
 	public static void i(String message) {
-		GLog.i(TAG, message);
+		iInner(TAG, message);
 	}
 
 	public static void i(String Tag, String message) {
 		if (logLevel == LEVEL_FORCE) {
 			GLog.force(Tag, message);
 		} else if (logLevel <= LEVEL_INFO) {
-			Log.i(Tag, message);
+			iInner(Tag, message);
 		}
 	}
 
+
 	public static void i(String Tag, String message, Throwable e) {
 		if (logLevel <= LEVEL_INFO) {
-			Log.i(Tag, message, e);
+			iInner(Tag, message, e);
 		}
 	}
+
+	private static void iInner(String tag, String message) {
+		if (customLog != null) {
+			customLog.i(tag, message);
+		} else {
+			Log.i(tag, message);
+		}
+	}
+
+	private static void iInner(String tag, String message, Throwable e) {
+		if (customLog != null) {
+			customLog.i(tag, message, e);
+		} else {
+			Log.i(tag, message, e);
+		}
+	}
+
 
 	public static void d(String message) {
 		GLog.d(TAG, message);
@@ -83,13 +107,29 @@ public class GLog {
 		if (logLevel == LEVEL_FORCE) {
 			GLog.force(Tag, message);
 		} else if (logLevel <= LEVEL_DEBUG) {
-			Log.i(Tag, message);
+			dInner(Tag, message);
 		}
 	}
 
 	public static void d(String Tag, String message, Throwable e) {
 		if (logLevel <= LEVEL_DEBUG) {
-			Log.i(Tag, message, e);
+			dInner(Tag, message, e);
+		}
+	}
+
+	private static void dInner(String tag, String message) {
+		if (customLog != null) {
+			customLog.d(tag, message);
+		} else {
+			Log.d(tag, message);
+		}
+	}
+
+	private static void dInner(String tag, String message, Throwable e) {
+		if (customLog != null) {
+			customLog.d(tag, message, e);
+		} else {
+			Log.d(tag, message, e);
 		}
 	}
 
@@ -99,15 +139,32 @@ public class GLog {
 
 	public static void e(String Tag, String message) {
 		if (logLevel <= LEVEL_ERROR) {
-			Log.e(Tag, message);
+			eInner(Tag, message);
 		}
 	}
 
 	public static void e(String Tag, String message, Throwable e) {
 		if (logLevel <= LEVEL_ERROR) {
-			Log.e(Tag, message, e);
+			eInner(Tag, message, e);
 		}
 	}
+
+	private static void eInner(String tag, String message) {
+		if (customLog != null) {
+			customLog.e(tag, message);
+		} else {
+			Log.e(tag, message);
+		}
+	}
+
+	private static void eInner(String tag, String message, Throwable e) {
+		if (customLog != null) {
+			customLog.e(tag, message, e);
+		} else {
+			Log.e(tag, message, e);
+		}
+	}
+
 
 	public static void w(String message) {
 		GLog.w(TAG, message);
@@ -117,13 +174,29 @@ public class GLog {
 		if (logLevel == LEVEL_FORCE) {
 			GLog.force(Tag, message);
 		} else if (logLevel <= LEVEL_WARN) {
-			Log.w(Tag, message);
+			wInner(Tag, message);
 		}
 	}
 
 	public static void w(String Tag, String message, Throwable e) {
 		if (logLevel <= LEVEL_WARN) {
-			Log.w(Tag, message, e);
+			wInner(Tag, message, e);
+		}
+	}
+
+	private static void wInner(String tag, String message) {
+		if (customLog != null) {
+			customLog.w(tag, message);
+		} else {
+			Log.w(tag, message);
+		}
+	}
+
+	private static void wInner(String tag, String message, Throwable e) {
+		if (customLog != null) {
+			customLog.w(tag, message, e);
+		} else {
+			Log.w(tag, message, e);
 		}
 	}
 
@@ -135,13 +208,29 @@ public class GLog {
 		if (logLevel == LEVEL_FORCE) {
 			GLog.force(Tag, message);
 		} else if (logLevel <= LEVEL_VERBOSE) {
-			Log.v(Tag, message);
+			vInner(Tag, message);
 		}
 	}
 
 	public static void v(String Tag, String message, Throwable e) {
 		if (logLevel <= LEVEL_VERBOSE) {
-			Log.v(Tag, message, e);
+			vInner(Tag, message, e);
+		}
+	}
+
+	private static void vInner(String tag, String message) {
+		if (customLog != null) {
+			customLog.v(tag, message);
+		} else {
+			Log.v(tag, message);
+		}
+	}
+
+	private static void vInner(String tag, String message, Throwable e) {
+		if (customLog != null) {
+			customLog.v(tag, message, e);
+		} else {
+			Log.v(tag, message, e);
 		}
 	}
 
