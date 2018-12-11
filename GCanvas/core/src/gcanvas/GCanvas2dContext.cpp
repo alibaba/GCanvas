@@ -1263,17 +1263,25 @@ void GCanvasContext::LineTo(float x, float y) { mPath.LineTo(x, y); }
 
 void GCanvasContext::QuadraticCurveTo(float cpx, float cpy, float x, float y)
 {
-    float scale = mCurrentState->mTransform.a * mCurrentState->mTransform.a +
-                  mCurrentState->mTransform.d * mCurrentState->mTransform.d;
+    // mTranform is ProjectTransform, restore to trivial scale parameter.
+    float xscale = mCurrentState->mTransform.a * mWidth/(2.f * mDevicePixelRatio);
+    float scale = xscale;
+    float yscale = mCurrentState->mTransform.d * mHeight/(-2.f * mDevicePixelRatio);
+    if (yscale > scale) {
+        scale = yscale;
+    }
     mPath.QuadraticCurveTo(cpx, cpy, x, y, scale);
 }
 
 void GCanvasContext::BezierCurveTo(float cp1x, float cp1y, float cp2x,
                                     float cp2y, float x, float y)
 {
-    float scale = mCurrentState->mTransform.a * mCurrentState->mTransform.a +
-                  mCurrentState->mTransform.d * mCurrentState->mTransform.d;
-    scale = 1 / sqrtf(scale);
+    float xscale = mCurrentState->mTransform.a * mWidth/(2.f * mDevicePixelRatio);
+    float scale = xscale;
+    float yscale = mCurrentState->mTransform.d * mHeight/(-2.f * mDevicePixelRatio);
+    if (yscale > scale) {
+        scale = yscale;
+    }
     mPath.BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y, scale);
 }
 
@@ -1430,8 +1438,7 @@ void GCanvasContext::UseLinearGradientPipeline()
             color[1] = stop->color.rgba.g;
             color[2] = stop->color.rgba.b;
             color[3] = stop->color.rgba.a;
-            mCurrentState->mShader->SetColorStop(color, i, stop->pos);
-        }
+            mCurrentState->mShader->SetColorStop(color, i, stop->pos);        }
     }
     if (mCurrentState != nullptr)
     {
@@ -1475,7 +1482,7 @@ void GCanvasContext::UseRadialGradientPipeline()
             color[1] = stop->color.rgba.g;
             color[2] = stop->color.rgba.b;
             color[3] = stop->color.rgba.a;
-            mCurrentState->mShader->SetColorStop(color, i, stop->pos);
+            mCurrentState->mShader->SetColorStop(color, i, stop->pos);            
         }
     }
     if (mCurrentState != nullptr)

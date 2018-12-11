@@ -9,6 +9,7 @@
 #include "GPath.h"
 #include "GCanvas2dContext.h"
 #include "GTriangulate.h"
+#include "../support/Log.h"
 
 const float ERROR_DEVIATION = 1e-6;
 const float PI_1 = M_PI;
@@ -85,15 +86,23 @@ void GPath::Close() {
     EndSubPath();
 }
 
+// curve recursive algorithm reference from http://www.antigrain.com/research/adaptive_bezier/index.html
 void GPath::QuadraticCurveTo(float cpx, float cpy, float x, float y,
                              float scale) {
     mDistanceTolerance = G_PATH_DISTANCE_EPSILON / scale;
     mDistanceTolerance *= mDistanceTolerance;
-
+#ifdef DEBUG
+    mIterateCount = 0;
+#endif 
     recursiveQuadratic(mCurrentPosition.x, mCurrentPosition.y, cpx, cpy, x, y,
                        0);
+    
+#if DEBUG
+    LOG_D("QuadraticCurveTo iterate count:%d", mIterateCount);
+#endif
     push(x, y);
 }
+
 
 void GPath::recursiveQuadratic(float x1, float y1, float x2, float y2,
                                float x3, float y3, int level) {
@@ -107,7 +116,9 @@ void GPath::recursiveQuadratic(float x1, float y1, float x2, float y2,
     float dx = x3 - x1;
     float dy = y3 - y1;
     float d = fabsf(((x2 - x3) * dy - (y2 - y3) * dx));
-
+#ifdef DEBUG
+    mIterateCount++;
+#endif
     if (d > G_PATH_COLLINEARITY_EPSILON) {
         // Regular care
         if (d * d <= mDistanceTolerance * (dx * dx + dy * dy)) {
@@ -131,46 +142,29 @@ void GPath::recursiveQuadratic(float x1, float y1, float x2, float y2,
     }
 }
 
-//void GPath::BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y,
-//                           float x, float y, float scale)
-//{
-//    mDistanceTolerance = G_PATH_DISTANCE_EPSILON / scale;
-//    mDistanceTolerance *= mDistanceTolerance;
-//
-//    recursiveBezier(mCurrentPosition.x, mCurrentPosition.y, cp1x, cp1y, cp2x,
-//                    cp2y, x, y, 8);
-//    push(x, y);
-//}
-
 void GPath::BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y,
                           float x, float y, float scale) {
     mDistanceTolerance = G_PATH_DISTANCE_EPSILON / scale;
     mDistanceTolerance *= mDistanceTolerance;
+#ifdef DEBUG
+    mIterateCount = 0;
+#endif
+    recursiveBezier(mCurrentPosition.x, mCurrentPosition.y, cp1x, cp1y, cp2x, cp2y, x, y,
+                       0);
 
-    GPoint points[4] = {
-            PointMake(mCurrentPosition.x, mCurrentPosition.y),
-            PointMake(cp1x, cp1y),
-            PointMake(cp2x, cp2y),
-            PointMake(x, y),
-    };
-
-//    tSubPath &curPath = GetCurPath();
-//    curPath.points.push_back(points[1]);
-//    curPath.points.push_back(points[2]);
-//    curPath.points.push_back(points[3]);
-//    push(points[1]);
-//    push(points[2]);
-//    push(points[3]);
-//    recursiveBezier(mCurrentPosition.x, mCurrentPosition.y, cp1x, cp1y, cp2x,
-//                    cp2y, x, y, 0);
-    SubdivideCubicTo(this, points);
+#if DEBUG
+    LOG_D("BezierCurveTo iterate count:%d", mIterateCount);
+#endif
     push(x, y);
 }
 
 void GPath::recursiveBezier(float x1, float y1, float x2, float y2, float x3,
                 float y3, float x4, float y4, int level) {
-    // Based on http://www.antigrain.com/research/adaptive_bezier/index.html
-
+    
+#ifdef DEBUG
+    mIterateCount++;
+#endif
+    
 //     Calculate all the mid-points of the line segments
     float x12 = (x1 + x2) / 2;
     float y12 = (y1 + y2) / 2;
@@ -379,8 +373,7 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context) {
         Vector2dVector result;
         if (iter->isClosed) {
             pts.pop_back();
-            Triangulate::Process(
-                    pts, result);
+            Triangulate::Process(pts, result);
             pts.push_back(pts[0]);
         } else {
             Triangulate::Process(pts, result);
@@ -594,6 +587,9 @@ void GPath::drawLineCap(GCanvasContext *context, const GPoint &center,
 }
 
 void GPath::SubdivideCubicTo(GPath *path, GPoint points[4], int level) {
+#ifdef DEBUG
+    path->mIterateCount++;
+#endif
     tSubPath &curPath = path->GetCurPath();
     if (--level >= 0) {
         GPoint tmp[7];
@@ -602,10 +598,12 @@ void GPath::SubdivideCubicTo(GPath *path, GPoint points[4], int level) {
         SubdivideCubicTo(path, &tmp[0], level);
         SubdivideCubicTo(path, &tmp[3], level);
     } else {
-
-        curPath.points.push_back(points[1]);
-        curPath.points.push_back(points[2]);
-        curPath.points.push_back(points[3]);
+        path->push(points[1]);
+        path->push(points[2]);
+        path->push(points[3]);
+//        curPath.points.push_back(points[1]);
+//        curPath.points.push_back(points[2]);
+//        curPath.points.push_back(points[3]);
     }
 }
 
@@ -630,9 +628,6 @@ void GPath::ChopCubicAt(GPoint src[4], GPoint dst[7], float t) {
 }
 
 GPoint GPath::interp(const GPoint &v0, const GPoint &v1, const GPoint &t) {
-//    GPoint tmp = PointSub(v1, v0);
-//    tmp = PointMultiply(tmp, t);
-//    return PointAdd(tmp, v0);
     return PointMake(v0.x + (v1.x - v0.x) * t.x, v0.y + (v1.y - v0.y) * t.y);
 }
 

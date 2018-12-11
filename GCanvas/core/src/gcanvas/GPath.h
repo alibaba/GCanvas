@@ -15,7 +15,7 @@
 #include <vector>
 
 #define G_PATH_RECURSION_LIMIT 8
-#define G_PATH_DISTANCE_EPSILON 1.0f
+#define G_PATH_DISTANCE_EPSILON 0.5f
 #define G_PATH_COLLINEARITY_EPSILON FLT_EPSILON
 #define G_PATH_STEPS_FOR_CIRCLE 48.0f
 #define G_PATH_ANGLE_EPSILON = 0.01;
@@ -99,6 +99,9 @@ private:
     tSubPath mCurPath;
     std::vector<tSubPath> mPathStack;
     float mDistanceTolerance;
+#ifdef DEBUG
+    int mIterateCount;
+#endif
 };
 
 #endif
