@@ -22,7 +22,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.ImageView;
 import com.taobao.weex.WXSDKInstance;
-import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.component.WXImage;
 import com.taobao.weex.ui.component.WXVContainer;
 
@@ -31,8 +30,8 @@ import com.taobao.weex.ui.component.WXVContainer;
  */
 public class FrescoImageComponent extends WXImage {
 
-  public FrescoImageComponent(WXSDKInstance instance, WXDomObject node, WXVContainer parent) {
-    super(instance, node, parent);
+  public FrescoImageComponent(WXSDKInstance instance, WXVContainer parent, BasicComponentData basicComponentData) {
+    super(instance, parent, basicComponentData);
   }
 
   @Override
