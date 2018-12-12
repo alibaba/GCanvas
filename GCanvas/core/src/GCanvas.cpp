@@ -612,17 +612,6 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 p++;
                 char str[128];
                 float start[3], end[3];
-                // first triple define the `end` range
-                // second triple define the `start` range
-                p = extractOneParameterFromCommand(str, p);
-                p++;
-                end[0] = atoi(str);
-                p = extractOneParameterFromCommand(str, p);
-                p++;
-                end[1] = atoi(str);
-                p = extractOneParameterFromCommand(str, p);
-                p++;
-                end[2] = atoi(str);
                 p = extractOneParameterFromCommand(str, p);
                 p++;
                 start[0] = atoi(str);
@@ -632,6 +621,15 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
                 p = extractOneParameterFromCommand(str, p);
                 p++;
                 start[2] = atoi(str);
+                p = extractOneParameterFromCommand(str, p);
+                p++;
+                end[0] = atoi(str);
+                p = extractOneParameterFromCommand(str, p);
+                p++;
+                end[1] = atoi(str);
+                p = extractOneParameterFromCommand(str, p);
+                p++;
+                end[2] = atoi(str);
                 p = extractOneParameterFromCommand(str, p);
                 p++;
                 const int stop_count = atoi(str);

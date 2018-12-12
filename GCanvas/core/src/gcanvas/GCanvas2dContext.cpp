@@ -1457,7 +1457,7 @@ void GCanvasContext::UseRadialGradientPipeline()
 #ifdef ANDROID
     mCurrentState->mShader = mShaderManager->programForKey("RADIAL");
 #endif
-
+    
     if (mCurrentState->mShader != nullptr)
     {
         mCurrentState->mShader->Bind();
@@ -1466,23 +1466,25 @@ void GCanvasContext::UseRadialGradientPipeline()
         mCurrentState->mFillStyle->IsRadialGradient())
     {
         FillStyleRadialGradient *grad =
-            dynamic_cast< FillStyleRadialGradient * >(
-                mCurrentState->mFillStyle);
-        mCurrentState->mShader->SetRange(grad->GetStartPos(),
-                                         grad->GetEndPos());
+        dynamic_cast< FillStyleRadialGradient * >(
+                                                  mCurrentState->mFillStyle);
+        // first triple define the `end` range
+        // second triple define the `start` range
+        mCurrentState->mShader->SetRange(grad->GetEndPos(), grad->GetStartPos());
         mCurrentState->mShader->SetColorStopCount(grad->GetColorStopCount());
-
+        
         const int count = grad->GetColorStopCount();
         for (int i = 0; i < count; ++i)
         {
             const FillStyleRadialGradient::ColorStop *stop =
-                grad->GetColorStop(i);
+            grad->GetColorStop(i);
             float color[4];
             color[0] = stop->color.rgba.r;
             color[1] = stop->color.rgba.g;
             color[2] = stop->color.rgba.b;
             color[3] = stop->color.rgba.a;
-            mCurrentState->mShader->SetColorStop(color, i, stop->pos);            
+            // reverse the offset and index
+            mCurrentState->mShader->SetColorStop(color, count-1-i, 1-stop->pos);
         }
     }
     if (mCurrentState != nullptr)
