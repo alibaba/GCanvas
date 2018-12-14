@@ -20,6 +20,7 @@
 #import "WXGCanvasComponent.h"
 #import <GLKit/GLKit.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#import <WeexSDK/WeexSDK.h>
 
 #import <GCanvas/GCVCommon.h>
 #import <GCanvas/GCanvasModule.h>
@@ -27,6 +28,7 @@
 @interface WXGCanvasComponent()
 
 @property (nonatomic, strong) GLKView   *glkview;
+@property (nonatomic, assign) CGSize    viewSize;
 @property (nonatomic, assign) CGRect    componetFrame;
 @property (nonatomic, assign) BOOL      isOffscreen;
 
@@ -58,31 +60,29 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     GCVLOG_METHOD(@"ref=%@, type=%@, styles=%@, attributes=%@, events=%@, weexInstance=%@", ref, type, styles, attributes, events, weexInstance)
     self = [super initWithRef:ref type:type styles:styles attributes:attributes events:events weexInstance:weexInstance];
     if (self ){
-        CGPoint origin = [[UIScreen mainScreen] bounds].origin;
-        CGSize size = [[UIScreen mainScreen] bounds].size;
-        
-        if( styles[@"left"] ){
-            origin.x = [styles[@"left"] floatValue];
-        }
-        
-        if( styles[@"top"] ){
-            origin.y = [styles[@"top"] floatValue];
-        }
-        
-        if( styles[@"width"] ){
-            size.width = [styles[@"width"] floatValue];
-        }
-        
-        if( styles[@"height"] ){
-            size.height = [styles[@"height"] floatValue];
-        }
-        
         //indicate offscreen gcanvas, while set offscreen=1 in styles
         if( styles[@"offscreen"] ){
             self.isOffscreen = [styles[@"offscreen"] integerValue] == 1;
         }
         
-        self.componetFrame = CGRectMake(origin.x, origin.y, size.width, size.height);
+        //get style from flexCssNode
+        CGSize size = [[UIScreen mainScreen] bounds].size;
+        float x=0, y=0;
+        if (!isnan(_flexCssNode->getStylePositionLeft())) {
+            x = _flexCssNode->getStylePositionLeft();
+        }
+        if(!isnan(_flexCssNode->getStylePositionTop())){
+            y = _flexCssNode->getStylePositionTop();
+        }
+        if(!isnan(_flexCssNode->getStyleWidth())){
+            size.width = _flexCssNode->getStyleWidth();
+        }
+        if(!isnan(_flexCssNode->getStyleHeight())){
+            size.height = _flexCssNode->getStyleHeight();
+        }
+        self.viewSize = size;
+        float r = self.weexInstance.pixelScaleFactor;
+        self.componetFrame = CGRectMake(x, y, size.width/r, size.height/r);
         self.needChangeEAGLContenxt = YES;
     }
     
@@ -96,10 +96,11 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 
 - (UIView *)loadView{
     if( !self.glkview ){
-        GLKView *glkview = [[GLKView alloc] initWithFrame:self.componetFrame];
+        GLKView *glkview = [[GLKView alloc] initWithFrame:CGRectMake(0, 0, self.viewSize.width, self.viewSize.height)];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
+        glkview.drawableStencilFormat = GLKViewDrawableStencilFormat8;
         glkview.backgroundColor = [UIColor clearColor];
         
         self.glkview = glkview;

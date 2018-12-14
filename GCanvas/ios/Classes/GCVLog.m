@@ -7,7 +7,10 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
+
 #import "GCVCommon.h"
+
+#ifdef ENABLE_GCVLOG
 
 @implementation GCVLog
 
@@ -43,3 +46,5 @@
 }
 
 @end
+
+#endif

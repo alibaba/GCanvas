@@ -478,10 +478,10 @@ export default class WebGLRenderingContext {
         )
     }
 
-    framebufferRenderbuffer = function (target, attachment, textarget, texture) {
+    framebufferRenderbuffer = function (target, attachment, textarget, texture, level) {
         WebGLRenderingContext.GBridge.callNative(
             this._canvas.id,
-            GLmethod.framebufferRenderbuffer + ',' + target + ',' + attachment + ',' + textarget + ',' + (texture ? texture.id : 0),
+            GLmethod.framebufferRenderbuffer + ',' + target + ',' + attachment + ',' + textarget + ',' + (texture ? texture.id : 0) + ',' + level,
             true
         )
     }
@@ -836,10 +836,7 @@ export default class WebGLRenderingContext {
             this._canvas.id,
             GLmethod.readPixels + ',' + x + ',' + y + ',' + width + ',' + height + ',' + format + ',' + type
         )
-        const [rType, ...data] = result.split(',');
-        for (let i = 0; i < data.length; i++) {
-            pixels[i] = parseInt(data[i]);
-        }
+        return result;
     }
 
     renderbufferStorage = function (target, internalFormat, width, height) {

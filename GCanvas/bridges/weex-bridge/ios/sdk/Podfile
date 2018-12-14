@@ -3,10 +3,10 @@ platform :ios, '7.0'
 inhibit_all_warnings!
 
 def common
-    pod 'WeexSDK', :git=>'git@github.com:apache/incubator-weex.git'
-	pod 'WeexPluginLoader'#, '0.0.1.18'
+    pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
     pod 'GCanvas', :path=>'../../../../../'
     pod 'SDWebImage', '3.7.5'
+    pod 'WeexSDK', '0.20.1'#, :git=>'git@github.com:apache/incubator-weex.git'
 end
 
 target 'WeexGcanvas' do

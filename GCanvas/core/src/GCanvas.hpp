@@ -20,9 +20,18 @@
 
 #include <queue>
 #include "gcanvas/GCanvas2dContext.h"
-#include "support/DynArray.h"
-#include "support/Log.h"
+
+#ifdef ANDROID
+#include "./support/DynArray.h"
+#include "./support/Log.h"
+#include "./export.h"
+#endif
+
+#ifdef IOS
+#include "DynArray.h"
+#include "Log.h"
 #include "export.h"
+#endif
 
 using namespace gcanvas;
 
@@ -147,10 +156,10 @@ public:
                             bool isStroke=false, float maxWidth=SHRT_MAX);
 
     void FillRect(float x, float y, float w, float h);
-#ifdef ANDROID
-
+    
     void GetAllParameter(std::string &ret);
 
+#ifdef ANDROID
     void AddCallback(const char *callbackID, const char *result, bool isError);
     Callback *GetNextCallback();
     void PopCallbacks();
@@ -202,10 +211,10 @@ public:
     void initWebglExt();
 
     const char *CallNative(int type, const std::string &args);
-
-    int executeWebGLCommands(const char *&cmd, int length);
-
+    
 #endif
+
+
 
 private:
     void drawFBO(std::string fboName, GCompositeOperation compositeOp = COMPOSITE_OP_SOURCE_OVER,
@@ -215,6 +224,8 @@ private:
     void calculateFPS();
 
     void execute2dCommands(const char *renderCommands, int length);
+    
+    int executeWebGLCommands(const char *&cmd, int length);
 
     bool isCmd(const char *in, const char *match) { return in[0] == match[0]; }
 

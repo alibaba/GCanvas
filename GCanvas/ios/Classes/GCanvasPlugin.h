@@ -10,14 +10,25 @@
 #import <Foundation/Foundation.h>
 #import <GLKit/GLKit.h>
 
+
+extern void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, void* context, void* fontContext);
+extern void iOS_GCanvas_GWebGLTxtImage2D(GLenum target, GLint level, GLenum internalformat,
+                                  GLenum format, GLenum type,  const char *src);
+extern void iOS_GCanvas_GWebGLTxtSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
+                                     GLenum format, GLenum type,  const char *src);
+
 typedef NS_ENUM(NSUInteger, GCVContextType){
     GCVContextType2D    = 0,
     GCVContextTypeWebGL = 1
 };
 
+@class GCanvasPlugin;
+typedef GCanvasPlugin* (^FetchPluginBlock)(NSString * componentId);
+
 @protocol GCVImageLoaderProtocol;
 
 @interface GCanvasPlugin : NSObject
+
 
 /**
  *  @abstract       set LogLevel
@@ -26,6 +37,7 @@ typedef NS_ENUM(NSUInteger, GCVContextType){
  */
 + (void)setLogLevel:(NSUInteger)logLevel;
 
++ (void)setFetchPlugin:(FetchPluginBlock)block;
 /**
  *  @abstract   init GCanvas with componentId
  *  @param      componentId   unique instance bind GCanvas
@@ -144,5 +156,12 @@ typedef NS_ENUM(NSUInteger, GCVContextType){
  *  @abstract   get webgl Sync call result
  */
 - (NSString*)getSyncResult;
+
+/**
+ *  @abstract   set GLKView
+ */
+- (void)setGLKView:(GLKView*)glkview;
+
+- (GLKView*)getGLKView;
 
 @end

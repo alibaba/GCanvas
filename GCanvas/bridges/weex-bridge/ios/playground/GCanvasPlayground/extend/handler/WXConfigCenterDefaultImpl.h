@@ -18,7 +18,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "WXConfigCenterProtocol.h"
+#import <WeexSDK/WXConfigCenterProtocol.h>
 
 @interface WXConfigCenterDefaultImpl : NSObject<WXConfigCenterProtocol>
 
