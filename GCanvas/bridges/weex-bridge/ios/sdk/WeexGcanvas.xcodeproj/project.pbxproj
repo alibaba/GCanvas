@@ -10,7 +10,7 @@
 		167A902A23FF95F55EE49181 /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AA79D7936ED98F635C0AE12 /* libPods-WeexGcanvas.a */; };
 		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
 		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
-		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */; };
+		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */; };
 		C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */; };
 		C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */; };
 /* End PBXBuildFile section */
@@ -22,7 +22,7 @@
 		C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43139561E954ACB008B80D0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasComponent.h; sourceTree = "<group>"; };
-		C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasComponent.m; sourceTree = "<group>"; };
+		C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WXGCanvasComponent.mm; sourceTree = "<group>"; };
 		C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
 		C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -71,7 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */,
-				C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */,
+				C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */,
 				C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */,
 				C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */,
 			);
@@ -199,7 +199,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -210,7 +210,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */,
-				C431395E1E954ACB008B80D0 /* WXGCanvasComponent.m in Sources */,
+				C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

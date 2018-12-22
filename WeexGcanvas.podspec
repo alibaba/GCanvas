@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
  # s.source =  { :path => '.' }
   s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }
 
-  s.source_files  = "GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.{h,m}"
+  s.source_files  = "GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.{h,m,mm}"
 
   s.public_header_files = 'GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.h'
 

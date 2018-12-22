@@ -30,7 +30,6 @@
 
 #import "WXImgLoaderDefaultImpl.h"
 #import "WXEventModule.h"
-#import "WXConfigCenterProtocol.h"
 #import "WXConfigCenterDefaultImpl.h"
 
 

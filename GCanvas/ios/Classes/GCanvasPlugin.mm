@@ -26,17 +26,26 @@
 @property(nonatomic, strong) NSMutableArray *renderCommandArray;
 @property(nonatomic, strong) NSMutableDictionary *textureDict;
 
+@property(nonatomic, weak) GLKView *glkview;
+
 @end
 
-
+static FetchPluginBlock gFetchPluginBlock;
 @implementation GCanvasPlugin
 
 + (void)setLogLevel:(NSUInteger)logLevel{
     if( logLevel < LOG_LEVEL_DEBUG || logLevel > LOG_LEVEL_FATAL ) return;
-    
+#ifdef DEBUG
     [GCVLog sharedInstance].logLevel = (GCVLogLevel)logLevel;
+#endif
     SetLogLevel((LogLevel)logLevel);
 }
+
++ (void)setFetchPlugin:(FetchPluginBlock)block
+{
+    gFetchPluginBlock = block;
+}
+
 
 - (instancetype)initWithComponentId:(NSString*)componentId{
     self = [super init];
@@ -68,8 +77,10 @@
 
 - (void)setFrame:(CGRect)frame{
     if( !self.gcanvas ) return;
-    self.gcanvas->OnSurfaceChanged(frame.size.width, frame.size.height);
+    if( !self.gcanvasInited ){
+    self.gcanvas->OnSurfaceChanged(0, 0, frame.size.width, frame.size.height);
     self.gcanvasInited = YES;
+    }
 }
 
 - (void)setClearColor:(UIColor*)color{
@@ -126,9 +137,9 @@
     gcanvas::GCanvasManager* manager = gcanvas::GCanvasManager::GetManager();
     manager->RemoveCanvas([self.componentId UTF8String]);
     
-    if( manager->canvasCount() <= 0 ){
-        [[GCVFont sharedInstance] cleanFont];
-    }
+//    if( manager->canvasCount() <= 0 ){
+//        [[GCVFont sharedInstance] cleanFont];
+//    }
     
     @synchronized(self){
         [self.textureDict enumerateKeysAndObjectsUsingBlock:^(id  key, id value, BOOL * _Nonnull stop) {
@@ -188,8 +199,9 @@
     if( self.gcanvas->mContextType != 0 ){
         self.gcanvas->SetGWebGLTxtImage2DFunc(iOS_GCanvas_GWebGLTxtImage2D);
         self.gcanvas->SetGWebGLTxtSubImage2DFunc(iOS_GCanvas_GWebGLTxtSubImage2D);
+        self.gcanvas->SetGWebGLBindToGLKViewFunc(iOS_GCanvas_Bind_To_GLKView);
     } else {
-        self.gcanvas->SetG2DFontDrawTextFunc(iOS_GCanvas_Draw_Text);
+//        self.gcanvas->SetG2DFontDrawTextFunc(iOS_GCanvas_Draw_Text);
     }
 }
 
@@ -205,7 +217,7 @@
 
 - (GLuint)textureId{
     if( !self.gcanvas ) return 0;
-    return self.gcanvas->mFboTexture.GetTextureID();
+    return self.gcanvas->GetFboTexture()->GetTextureID();
 }
 
 - (NSString*)getSyncResult{
@@ -219,6 +231,16 @@
     return @"";
 }
 
+- (void)setGLKView:(GLKView*)glkview{
+    self.glkview = glkview;
+}
+
+- (GLKView*)getGLKView{
+    return self.glkview;
+}
+
+
+
 #pragma mark - iOS implementation of Font & texImage
 /**
  * Draw GCanvas2D Text with GCVFont.
@@ -231,17 +253,21 @@
  * @param context       see GCanvasContext
  *
  */
-void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, GCanvasContext *context){
-    LOG_D("[iOS_GCanvas_Draw_Text] text[%d]=%s, point=(%.2f, %.2f)", text_length, text, x, y);
+void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, GCanvasContext *context, void* fontContext){
+    //    LOG_D("[iOS_GCanvas_Draw_Text] text[%d]=%s, point=(%.2f, %.2f)", text_length, text, x, y);
     if (text == nullptr || text_length == 0) {
         return;
     }
     
+    //    GCanvasContext *context = (GCanvasContext*)ctx;
+    
     GCanvasState *current_state_ = context->GetCurrentState();
-    GCVFont *curFont = [GCVFont sharedInstance];
-    [curFont resetWithFontStyle:current_state_->mFontStyle.c_str() isStroke:isStroke deviceRatio:context->mDevicePixelRatio];
+    //    GCVFont *curFont = [GCVFont sharedInstance];
+    GCVFont *curFont = (__bridge GCVFont*)fontContext;
+    
+    [curFont resetWithFontStyle:current_state_->mFont isStroke:isStroke context:context];
     NSString *string = [[NSString alloc] initWithBytes:text length:text_length encoding:NSUTF8StringEncoding];
-    GFontLayout *fontLayout = [curFont getLayoutForString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFontStyle.c_str()]];
+    GFontLayout *fontLayout = [curFont getLayoutForString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()]];
     CGPoint destPoint = [curFont adjustTextPenPoint:CGPointMake(x, y)
                                           textAlign:current_state_->mTextAlign
                                            baseLine:current_state_->mTextBaseline
@@ -249,31 +275,29 @@ void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length,
     
     current_state_->mShader->SetOverideTextureColor(1);
     
-    NSInteger i = 0;
-    NSUInteger glyphCount = fontLayout.glyphCount;
-    GFontGlyphLayout *layoutBuffer2 = (GFontGlyphLayout *)fontLayout.glyphLayout.bytes;
     glActiveTexture(GL_TEXTURE0);
-    while( i < glyphCount ) {
-        GFontGlyphLayout *gl = &layoutBuffer2[i];
-        current_state_->mShader->SetHasTexture(1);
-        glBindTexture(GL_TEXTURE_2D, gl->textureIndex);
-        
-        // Go through glyphs while the texture stays the same
-        while( i < glyphCount && gl->textureIndex == layoutBuffer2[i].textureIndex ) {
-            GFontGlyphInfo *glyphInfo = layoutBuffer2[i].info;
-            float gx = destPoint.x + layoutBuffer2[i].xpos + glyphInfo->x;
-            float gy = destPoint.y - (glyphInfo->h + glyphInfo->y);
-            context->PushRectangle(gx, gy, glyphInfo->w, glyphInfo->h, glyphInfo->tx,
-                                   glyphInfo->ty+glyphInfo->th, glyphInfo->tw, -glyphInfo->th,
-                                   context->GetFillStyle());
-            context->SendVertexBufferToGPU();
-            i++;
-        }
-    }
-    context->SendVertexBufferToGPU();
-    current_state_->mShader->SetOverideTextureColor(0);
+    
+    [curFont drawString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()] withLayout:fontLayout withPosition:destPoint];
+    
+    
 }
 
+float iOS_GCanvas_Mesure_Text(const char *text, unsigned int text_length, GCanvasContext *context, void* fontContext){
+    if (text == nullptr || text_length == 0) {
+        return 0;
+    }
+    
+    
+    GCanvasState *current_state_ = context->GetCurrentState();
+    //    GCVFont *curFont = [GCVFont sharedInstance];
+    GCVFont *curFont = (__bridge GCVFont*)fontContext;
+    
+    [curFont resetWithFontStyle:current_state_->mFont isStroke:false context:context];
+    NSString *string = [[NSString alloc] initWithBytes:text length:text_length encoding:NSUTF8StringEncoding];
+    GFontLayout *fontLayout = [curFont getLayoutForString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()]];
+    
+    return fontLayout.metrics.width;
+}
 
 /**
  * Fetch GCVImageCache by image source, create texImage2D with imageData.
@@ -300,17 +324,16 @@ void iOS_GCanvas_GWebGLTxtImage2D(GLenum target, GLint level, GLenum internalfor
         
         CGRect rect = CGRectMake(0, 0, width, height);
         CGBitmapInfo info =  kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big;
-        void* imageData = malloc(width * height * 4);
+        NSMutableData *pixelData = [NSMutableData dataWithLength:width*height*4];
         
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGContextRef context = CGBitmapContextCreate(imageData, width, height, 8, 4 * width, colorSpace, info);
+        CGContextRef context = CGBitmapContextCreate(pixelData.mutableBytes, width, height, 8, 4 * width, colorSpace, info);
         CGColorSpaceRelease(colorSpace);
         CGContextClearRect(context, rect);
         CGContextDrawImage(context, rect, imageCache.image.CGImage);
         CGContextRelease(context);
         
-        glTexImage2D(target, level, internalformat, width, height, 0, format, type, imageData);
-        free(imageData);
+        glTexImage2D(target, level, internalformat, width, height, 0, format, type, pixelData.bytes);
     };
     
     if( imageCache ) {
@@ -350,17 +373,16 @@ void iOS_GCanvas_GWebGLTxtSubImage2D(GLenum target, GLint level, GLint xoffset, 
         
         CGRect rect = CGRectMake(0, 0, width, height);
         CGBitmapInfo info =  kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big;
-        void* imageData = malloc(width * height * 4);
-        
+        NSMutableData *pixelData = [NSMutableData dataWithLength:width*height*4];
+
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGContextRef context = CGBitmapContextCreate(imageData, width, height, 8, 4 * width, colorSpace, info);
+        CGContextRef context = CGBitmapContextCreate(pixelData.mutableBytes, width, height, 8, 4 * width, colorSpace, info);
         CGColorSpaceRelease(colorSpace);
         CGContextClearRect(context, rect);
         CGContextDrawImage(context, rect, imageCache.image.CGImage);
         CGContextRelease(context);
         
-        glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, imageData);
-        free(imageData);
+        glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixelData.bytes);
     };
 
     if( imageCache ){
@@ -373,5 +395,14 @@ void iOS_GCanvas_GWebGLTxtSubImage2D(GLenum target, GLint level, GLint xoffset, 
         }];
     }
 }
+
+void iOS_GCanvas_Bind_To_GLKView(std::string contextId){
+    if(gFetchPluginBlock){
+        GCanvasPlugin *plugin = gFetchPluginBlock( [NSString stringWithUTF8String:contextId.c_str()]);
+        GLKView *glkview = [plugin getGLKView];
+        [glkview bindDrawable];
+    }
+}
+
 
 @end

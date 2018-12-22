@@ -25,10 +25,11 @@ Pod::Spec.new do |s|
  # s.source =  { :path => '.' }
   s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }
 
-  s.source_files = 'GCanvas/ios/Classes/**/*.{h,m,mm}',
+  s.source_files = 'GCanvas/ios/Classes/*.{h,m,mm}',
                    'GCanvas/core/src/GCanvas.{hpp,cpp}',
                    'GCanvas/core/src/GCanvasManager.{h,cpp}',
                    'GCanvas/core/src/gcanvas/shaders/*.glsl',
+                   'GCanvas/core/src/gcanvas/GFrameBufferObject.{h,cpp}',
                    'GCanvas/core/src/gcanvas/GCanvas2dContext.{h,cpp}',
                    'GCanvas/core/src/gcanvas/GConvert.{h,cpp}',
                    'GCanvas/core/src/gcanvas/GFillStyle.h',
@@ -41,13 +42,17 @@ Pod::Spec.new do |s|
                    'GCanvas/core/src/gcanvas/GTransform.h',
                    'GCanvas/core/src/gcanvas/GTriangulate.{h,cpp}',
                    'GCanvas/core/src/gcanvas/GWebglContext.{h,cpp}',
-                   'GCanvas/core/src/memory/*.h',
-                   'GCanvas/core/src/png/**/*.*',
+                   'GCanvas/core/src/gcanvas/GFrameBufferObject.{h,cpp}',
+                   'GCanvas/core/src/gcanvas/GFontManager.h',
+                   'GCanvas/core/src/gcanvas/GGlyphCache.{h,cpp}',
+                   'GCanvas/core/src/gcanvas/GTreemap.{h,cpp}',
+                   'GCanvas/core/src/gcanvas/GFontStyle.{h,cpp}',
+                   'GCanvas/core/src/gcanvas/GStrSeparator.{h,cpp}',
                    'GCanvas/core/src/support/DynArray.h',
                    'GCanvas/core/src/support/Encode.{h,cpp}',
-                   'GCanvas/core/src/support/Lesser.h',
                    'GCanvas/core/src/support/Log.{h,cpp}',
-                   'GCanvas/core/src/support/Util.{h,cpp}'
+                   'GCanvas/core/src/support/Util.{h,cpp}',
+                   'GCanvas/core/src/platform/iOS/GFontManager.mm'
 
   s.public_header_files = 'GCanvas/ios/Classes/**/*.h', 'GCanvas/core/src/gcanvas/GTextDefine.h'
 
@@ -55,7 +60,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
 
-  s.frameworks = 'Foundation','UIKit','GLKit'
+  s.frameworks = 'Foundation','UIKit','GLKit', 'CoreMedia', 'AVFoundation'
 
   s.library = 'stdc++'
 

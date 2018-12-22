@@ -6,7 +6,9 @@ target 'GCanvasPlayground' do
   pod 'WXDevtool', :configurations => ['Debug']
   pod 'SocketRocket'
   pod 'ATSDK-Weex'
-  
+  pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
+  pod 'WeexSDK'#, '0.20.1'#, :git=>'git@github.com:apache/incubator-weex.git'
+
   #pod 'WeexGcanvas'
   pod 'WeexGcanvas', :path=>'../../../../../'
   pod 'GCanvas', :path=>'../../../../../'

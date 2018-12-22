@@ -1424,14 +1424,14 @@ void GCanvas::execute2dCommands(const char *renderCommands, int length) {
             case 'L': {
                 p++;
                 Fill();
-                BeginPath();
+//                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
             case 'x': {
                 p++;
                 Stroke();
-                BeginPath();
+//                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
@@ -1719,9 +1719,7 @@ void GCanvas::Render(const char *renderCommands, int length) {
         if (length > 0) {
             calculateFPS();
             LOG_D("GCanvas::Render:[WebGL] renderCommands:%s", renderCommands);
-#ifdef ANDROID
             executeWebGLCommands(renderCommands, length);
-#endif
             if (mRenderCount < g_clear_color_time) {
                 ClearScreen(mClearColor);
                 ++mRenderCount;

@@ -25,6 +25,18 @@
 		A23717082020165B00A27353 /* GCanvasObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F62020165A00A27353 /* GCanvasObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A23717092020165B00A27353 /* GCVCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A23716F72020165B00A27353 /* GCVCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A248AF632021AE7B00218A11 /* GCanvasModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A248AF612021AE7B00218A11 /* GCanvasModuleProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A251753E21C3A82B002E3BE2 /* GFontManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = A251753B21C3A82B002E3BE2 /* GFontManager.mm */; };
+		A251754B21C3A86F002E3BE2 /* GFrameBufferObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A251754021C3A86B002E3BE2 /* GFrameBufferObject.cpp */; };
+		A251754C21C3A86F002E3BE2 /* GFontStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A251754121C3A86B002E3BE2 /* GFontStyle.cpp */; };
+		A251754D21C3A86F002E3BE2 /* GGlyphCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A251754221C3A86B002E3BE2 /* GGlyphCache.cpp */; };
+		A251754E21C3A86F002E3BE2 /* GTreemap.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754321C3A86B002E3BE2 /* GTreemap.h */; };
+		A251754F21C3A86F002E3BE2 /* GFontStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754421C3A86C002E3BE2 /* GFontStyle.h */; };
+		A251755021C3A86F002E3BE2 /* GFontManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754521C3A86C002E3BE2 /* GFontManager.h */; };
+		A251755121C3A86F002E3BE2 /* GGlyphCache.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754621C3A86C002E3BE2 /* GGlyphCache.h */; };
+		A251755221C3A86F002E3BE2 /* GStrSeparator.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754721C3A86C002E3BE2 /* GStrSeparator.h */; };
+		A251755321C3A86F002E3BE2 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A251754821C3A86C002E3BE2 /* GFrameBufferObject.h */; };
+		A251755421C3A86F002E3BE2 /* GTreemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A251754921C3A86C002E3BE2 /* GTreemap.cpp */; };
+		A251755521C3A86F002E3BE2 /* GStrSeparator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A251754A21C3A86F002E3BE2 /* GStrSeparator.cpp */; };
 		A25CDD242020642A00174CB1 /* GTriangulate.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC572020642A00174CB1 /* GTriangulate.h */; };
 		A25CDD262020642A00174CB1 /* GTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC592020642A00174CB1 /* GTransform.h */; };
 		A25CDD282020642A00174CB1 /* GTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC5B2020642A00174CB1 /* GTexture.h */; };
@@ -51,20 +63,9 @@
 		A25CDD472020642A00174CB1 /* GTextDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC7B2020642A00174CB1 /* GTextDefine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25CDD482020642A00174CB1 /* GPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC7C2020642A00174CB1 /* GPath.cpp */; };
 		A25CDD4A2020642A00174CB1 /* GCanvas.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC7E2020642A00174CB1 /* GCanvas.hpp */; };
-		A25CDD4B2020642A00174CB1 /* AutoPtr.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC802020642A00174CB1 /* AutoPtr.h */; };
-		A25CDD4C2020642A00174CB1 /* IDelete.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC812020642A00174CB1 /* IDelete.h */; };
-		A25CDD4D2020642A00174CB1 /* RefCount.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC822020642A00174CB1 /* RefCount.h */; };
-		A25CDD5B2020642A00174CB1 /* IPngCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC922020642A00174CB1 /* IPngCoder.h */; };
-		A25CDD5C2020642A00174CB1 /* LodePngCoder.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC932020642A00174CB1 /* LodePngCoder.h */; };
-		A25CDD5D2020642A00174CB1 /* LodePngCoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC942020642A00174CB1 /* LodePngCoder.cpp */; };
-		A25CDD5E2020642A00174CB1 /* PngLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC952020642A00174CB1 /* PngLoader.cpp */; };
-		A25CDD5F2020642A00174CB1 /* PngLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC962020642A00174CB1 /* PngLoader.h */; };
-		A25CDD602020642A00174CB1 /* lodepng.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC982020642A00174CB1 /* lodepng.h */; };
-		A25CDD612020642A00174CB1 /* lodepng.c in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC992020642A00174CB1 /* lodepng.c */; };
 		A25CDD622020642A00174CB1 /* GCanvasManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC9A2020642A00174CB1 /* GCanvasManager.h */; };
 		A25CDD642020642A00174CB1 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC9D2020642A00174CB1 /* Log.cpp */; };
 		A25CDD652020642A00174CB1 /* Util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDC9E2020642A00174CB1 /* Util.cpp */; };
-		A25CDD662020642A00174CB1 /* Lesser.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDC9F2020642A00174CB1 /* Lesser.h */; };
 		A25CDD6C2020642A00174CB1 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDCA52020642A00174CB1 /* Log.h */; };
 		A25CDD6E2020642A00174CB1 /* DynArray.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDCA72020642A00174CB1 /* DynArray.h */; };
 		A25CDD6F2020642A00174CB1 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDCA82020642A00174CB1 /* Util.h */; };
@@ -94,6 +95,18 @@
 		A23716F62020165A00A27353 /* GCanvasObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasObject.h; sourceTree = "<group>"; };
 		A23716F72020165B00A27353 /* GCVCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCVCommon.h; sourceTree = "<group>"; };
 		A248AF612021AE7B00218A11 /* GCanvasModuleProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCanvasModuleProtocol.h; sourceTree = "<group>"; };
+		A251753B21C3A82B002E3BE2 /* GFontManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GFontManager.mm; sourceTree = "<group>"; };
+		A251754021C3A86B002E3BE2 /* GFrameBufferObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFrameBufferObject.cpp; sourceTree = "<group>"; };
+		A251754121C3A86B002E3BE2 /* GFontStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFontStyle.cpp; sourceTree = "<group>"; };
+		A251754221C3A86B002E3BE2 /* GGlyphCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GGlyphCache.cpp; sourceTree = "<group>"; };
+		A251754321C3A86B002E3BE2 /* GTreemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTreemap.h; sourceTree = "<group>"; };
+		A251754421C3A86C002E3BE2 /* GFontStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFontStyle.h; sourceTree = "<group>"; };
+		A251754521C3A86C002E3BE2 /* GFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFontManager.h; sourceTree = "<group>"; };
+		A251754621C3A86C002E3BE2 /* GGlyphCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GGlyphCache.h; sourceTree = "<group>"; };
+		A251754721C3A86C002E3BE2 /* GStrSeparator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GStrSeparator.h; sourceTree = "<group>"; };
+		A251754821C3A86C002E3BE2 /* GFrameBufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFrameBufferObject.h; sourceTree = "<group>"; };
+		A251754921C3A86C002E3BE2 /* GTreemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GTreemap.cpp; sourceTree = "<group>"; };
+		A251754A21C3A86F002E3BE2 /* GStrSeparator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GStrSeparator.cpp; sourceTree = "<group>"; };
 		A25CDC572020642A00174CB1 /* GTriangulate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTriangulate.h; sourceTree = "<group>"; };
 		A25CDC592020642A00174CB1 /* GTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTransform.h; sourceTree = "<group>"; };
 		A25CDC5B2020642A00174CB1 /* GTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTexture.h; sourceTree = "<group>"; };
@@ -120,20 +133,9 @@
 		A25CDC7B2020642A00174CB1 /* GTextDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTextDefine.h; sourceTree = "<group>"; };
 		A25CDC7C2020642A00174CB1 /* GPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPath.cpp; sourceTree = "<group>"; };
 		A25CDC7E2020642A00174CB1 /* GCanvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCanvas.hpp; sourceTree = "<group>"; };
-		A25CDC802020642A00174CB1 /* AutoPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoPtr.h; sourceTree = "<group>"; };
-		A25CDC812020642A00174CB1 /* IDelete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDelete.h; sourceTree = "<group>"; };
-		A25CDC822020642A00174CB1 /* RefCount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCount.h; sourceTree = "<group>"; };
-		A25CDC922020642A00174CB1 /* IPngCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPngCoder.h; sourceTree = "<group>"; };
-		A25CDC932020642A00174CB1 /* LodePngCoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LodePngCoder.h; sourceTree = "<group>"; };
-		A25CDC942020642A00174CB1 /* LodePngCoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LodePngCoder.cpp; sourceTree = "<group>"; };
-		A25CDC952020642A00174CB1 /* PngLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PngLoader.cpp; sourceTree = "<group>"; };
-		A25CDC962020642A00174CB1 /* PngLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PngLoader.h; sourceTree = "<group>"; };
-		A25CDC982020642A00174CB1 /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
-		A25CDC992020642A00174CB1 /* lodepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lodepng.c; sourceTree = "<group>"; };
 		A25CDC9A2020642A00174CB1 /* GCanvasManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasManager.h; sourceTree = "<group>"; };
 		A25CDC9D2020642A00174CB1 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
 		A25CDC9E2020642A00174CB1 /* Util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Util.cpp; sourceTree = "<group>"; };
-		A25CDC9F2020642A00174CB1 /* Lesser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lesser.h; sourceTree = "<group>"; };
 		A25CDCA52020642A00174CB1 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
 		A25CDCA72020642A00174CB1 /* DynArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynArray.h; sourceTree = "<group>"; };
 		A25CDCA82020642A00174CB1 /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
@@ -215,6 +217,22 @@
 			path = Classes;
 			sourceTree = "<group>";
 		};
+		A251753921C3A82B002E3BE2 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				A251753A21C3A82B002E3BE2 /* iOS */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		A251753A21C3A82B002E3BE2 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A251753B21C3A82B002E3BE2 /* GFontManager.mm */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
 		A25CDC3E2020642A00174CB1 /* core */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,13 +245,12 @@
 		A25CDC422020642A00174CB1 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				A251753921C3A82B002E3BE2 /* platform */,
 				A25CDC542020642A00174CB1 /* gcanvas */,
 				A25CDCAF2020642A00174CB1 /* GCanvas.cpp */,
 				A25CDC7E2020642A00174CB1 /* GCanvas.hpp */,
 				A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */,
 				A25CDC9A2020642A00174CB1 /* GCanvasManager.h */,
-				A25CDC7F2020642A00174CB1 /* memory */,
-				A25CDC912020642A00174CB1 /* png */,
 				A25CDC9C2020642A00174CB1 /* support */,
 			);
 			path = src;
@@ -247,6 +264,13 @@
 				A25CDC682020642A00174CB1 /* GConvert.cpp */,
 				A25CDC5D2020642A00174CB1 /* GConvert.h */,
 				A25CDC602020642A00174CB1 /* GFillStyle.h */,
+				A251754521C3A86C002E3BE2 /* GFontManager.h */,
+				A251754121C3A86B002E3BE2 /* GFontStyle.cpp */,
+				A251754421C3A86C002E3BE2 /* GFontStyle.h */,
+				A251754021C3A86B002E3BE2 /* GFrameBufferObject.cpp */,
+				A251754821C3A86C002E3BE2 /* GFrameBufferObject.h */,
+				A251754221C3A86B002E3BE2 /* GGlyphCache.cpp */,
+				A251754621C3A86C002E3BE2 /* GGlyphCache.h */,
 				A25CDC7C2020642A00174CB1 /* GPath.cpp */,
 				A25CDC6A2020642A00174CB1 /* GPath.h */,
 				A25CDC5F2020642A00174CB1 /* GPoint.cpp */,
@@ -255,10 +279,14 @@
 				A25CDC632020642A00174CB1 /* GShader.h */,
 				A25CDC782020642A00174CB1 /* GShaderManager.cpp */,
 				A25CDC662020642A00174CB1 /* GShaderManager.h */,
+				A251754A21C3A86F002E3BE2 /* GStrSeparator.cpp */,
+				A251754721C3A86C002E3BE2 /* GStrSeparator.h */,
 				A25CDC7B2020642A00174CB1 /* GTextDefine.h */,
 				A25CDC752020642A00174CB1 /* GTexture.cpp */,
 				A25CDC5B2020642A00174CB1 /* GTexture.h */,
 				A25CDC592020642A00174CB1 /* GTransform.h */,
+				A251754921C3A86C002E3BE2 /* GTreemap.cpp */,
+				A251754321C3A86B002E3BE2 /* GTreemap.h */,
 				A25CDC652020642A00174CB1 /* GTriangulate.cpp */,
 				A25CDC572020642A00174CB1 /* GTriangulate.h */,
 				A25CDC772020642A00174CB1 /* GWebglContext.cpp */,
@@ -279,45 +307,12 @@
 			path = shaders;
 			sourceTree = "<group>";
 		};
-		A25CDC7F2020642A00174CB1 /* memory */ = {
-			isa = PBXGroup;
-			children = (
-				A25CDC802020642A00174CB1 /* AutoPtr.h */,
-				A25CDC812020642A00174CB1 /* IDelete.h */,
-				A25CDC822020642A00174CB1 /* RefCount.h */,
-			);
-			path = memory;
-			sourceTree = "<group>";
-		};
-		A25CDC912020642A00174CB1 /* png */ = {
-			isa = PBXGroup;
-			children = (
-				A25CDC922020642A00174CB1 /* IPngCoder.h */,
-				A25CDC942020642A00174CB1 /* LodePngCoder.cpp */,
-				A25CDC932020642A00174CB1 /* LodePngCoder.h */,
-				A25CDC952020642A00174CB1 /* PngLoader.cpp */,
-				A25CDC962020642A00174CB1 /* PngLoader.h */,
-				A25CDC972020642A00174CB1 /* thirdparty */,
-			);
-			path = png;
-			sourceTree = "<group>";
-		};
-		A25CDC972020642A00174CB1 /* thirdparty */ = {
-			isa = PBXGroup;
-			children = (
-				A25CDC992020642A00174CB1 /* lodepng.c */,
-				A25CDC982020642A00174CB1 /* lodepng.h */,
-			);
-			path = thirdparty;
-			sourceTree = "<group>";
-		};
 		A25CDC9C2020642A00174CB1 /* support */ = {
 			isa = PBXGroup;
 			children = (
 				A25CDCA72020642A00174CB1 /* DynArray.h */,
 				A25CDCA92020642A00174CB1 /* Encode.cpp */,
 				A25CDCAA2020642A00174CB1 /* Encode.h */,
-				A25CDC9F2020642A00174CB1 /* Lesser.h */,
 				A25CDC9D2020642A00174CB1 /* Log.cpp */,
 				A25CDCA52020642A00174CB1 /* Log.h */,
 				A25CDC9E2020642A00174CB1 /* Util.cpp */,
@@ -333,41 +328,39 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A25CDD662020642A00174CB1 /* Lesser.h in Headers */,
+				A251755121C3A86F002E3BE2 /* GGlyphCache.h in Headers */,
 				A25CDD2A2020642A00174CB1 /* GConvert.h in Headers */,
 				A25CDD452020642A00174CB1 /* GCanvas2dContext.h in Headers */,
 				A25CDD402020642A00174CB1 /* GWebglContext.h in Headers */,
-				A25CDD4C2020642A00174CB1 /* IDelete.h in Headers */,
 				A25CDD6F2020642A00174CB1 /* Util.h in Headers */,
 				A248AF632021AE7B00218A11 /* GCanvasModuleProtocol.h in Headers */,
-				A25CDD5F2020642A00174CB1 /* PngLoader.h in Headers */,
 				A25CDD472020642A00174CB1 /* GTextDefine.h in Headers */,
 				A23717032020165B00A27353 /* GCVLog.h in Headers */,
 				A25CDD4A2020642A00174CB1 /* GCanvas.hpp in Headers */,
 				A23717072020165B00A27353 /* GCanvasSDK.h in Headers */,
+				A251754E21C3A86F002E3BE2 /* GTreemap.h in Headers */,
 				A25CDD622020642A00174CB1 /* GCanvasManager.h in Headers */,
 				A23717092020165B00A27353 /* GCVCommon.h in Headers */,
 				A25CDD282020642A00174CB1 /* GTexture.h in Headers */,
 				A23716FE2020165B00A27353 /* GCVFont.h in Headers */,
 				A23717022020165B00A27353 /* GCanvasModule.h in Headers */,
 				A23717082020165B00A27353 /* GCanvasObject.h in Headers */,
-				A25CDD5C2020642A00174CB1 /* LodePngCoder.h in Headers */,
-				A25CDD602020642A00174CB1 /* lodepng.h in Headers */,
 				A25CDD6C2020642A00174CB1 /* Log.h in Headers */,
 				A25CDD242020642A00174CB1 /* GTriangulate.h in Headers */,
 				A25CDD6E2020642A00174CB1 /* DynArray.h in Headers */,
 				A25CDD712020642A00174CB1 /* Encode.h in Headers */,
 				A23717042020165B00A27353 /* GCanvasViewProtocol.h in Headers */,
+				A251755221C3A86F002E3BE2 /* GStrSeparator.h in Headers */,
 				A23717002020165B00A27353 /* GCanvasPlugin.h in Headers */,
-				A25CDD5B2020642A00174CB1 /* IPngCoder.h in Headers */,
 				A25CDD362020642A00174CB1 /* GPoint.h in Headers */,
 				A25CDD2D2020642A00174CB1 /* GFillStyle.h in Headers */,
-				A25CDD4B2020642A00174CB1 /* AutoPtr.h in Headers */,
 				A25CDD372020642A00174CB1 /* GPath.h in Headers */,
 				A25CDD262020642A00174CB1 /* GTransform.h in Headers */,
 				A25CDD302020642A00174CB1 /* GShader.h in Headers */,
-				A25CDD4D2020642A00174CB1 /* RefCount.h in Headers */,
+				A251755321C3A86F002E3BE2 /* GFrameBufferObject.h in Headers */,
+				A251754F21C3A86F002E3BE2 /* GFontStyle.h in Headers */,
 				A25CDD332020642A00174CB1 /* GShaderManager.h in Headers */,
+				A251755021C3A86F002E3BE2 /* GFontManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,27 +439,30 @@
 			files = (
 				A23716FF2020165B00A27353 /* GCVCommon.m in Sources */,
 				A25CDD322020642A00174CB1 /* GTriangulate.cpp in Sources */,
+				A251755421C3A86F002E3BE2 /* GTreemap.cpp in Sources */,
 				A23716FD2020165B00A27353 /* GCanvasModule.m in Sources */,
 				A25CDD442020642A00174CB1 /* GShaderManager.cpp in Sources */,
+				A251754B21C3A86F002E3BE2 /* GFrameBufferObject.cpp in Sources */,
 				A25CDD412020642A00174CB1 /* GTexture.cpp in Sources */,
+				A251754C21C3A86F002E3BE2 /* GFontStyle.cpp in Sources */,
+				A251753E21C3A82B002E3BE2 /* GFontManager.mm in Sources */,
 				A25CDD482020642A00174CB1 /* GPath.cpp in Sources */,
-				A25CDD612020642A00174CB1 /* lodepng.c in Sources */,
 				A23717062020165B00A27353 /* GCVFont.mm in Sources */,
+				A251755521C3A86F002E3BE2 /* GStrSeparator.cpp in Sources */,
 				A25CDD702020642A00174CB1 /* Encode.cpp in Sources */,
 				A25CDD642020642A00174CB1 /* Log.cpp in Sources */,
 				A25CDD3A2020642A00174CB1 /* GCanvas2dContext.cpp in Sources */,
-				A25CDD5E2020642A00174CB1 /* PngLoader.cpp in Sources */,
 				A25CDD2C2020642A00174CB1 /* GPoint.cpp in Sources */,
 				A23717012020165B00A27353 /* GCanvasObject.m in Sources */,
 				A25CDD392020642A00174CB1 /* GShader.cpp in Sources */,
 				A25CDD352020642A00174CB1 /* GConvert.cpp in Sources */,
-				A25CDD5D2020642A00174CB1 /* LodePngCoder.cpp in Sources */,
 				A25CDD762020642A00174CB1 /* GCanvas.cpp in Sources */,
 				A25CDD652020642A00174CB1 /* Util.cpp in Sources */,
 				A23716FC2020165B00A27353 /* GCVLog.m in Sources */,
 				A23717052020165B00A27353 /* GCanvasPlugin.mm in Sources */,
 				A25CDD732020642A00174CB1 /* GCanvasManager.cpp in Sources */,
 				A25CDD432020642A00174CB1 /* GWebglContext.cpp in Sources */,
+				A251754D21C3A86F002E3BE2 /* GGlyphCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

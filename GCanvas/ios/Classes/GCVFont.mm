@@ -8,11 +8,12 @@
  */
 
 #import "GCVFont.h"
-#import "GCVCommon.h"
 
 #include <malloc/malloc.h>
 #include <unordered_map>
 
+#include "GFontStyle.h"
+#include "GCanvas2dContext.h"
 
 #define GCV_FONT_TEXTURE_SIZE 1024
 #define GCV_FONT_GLYPH_PADDING 2
@@ -35,7 +36,7 @@
 
 #pragma mark - GCVFont
 @interface GCVFont() {
-    float txLineX, txLineY, txLineH;
+//    float txLineX, txLineY, txLineH;
     BOOL useSingleGlyphTextures;
     
     // Font preferences
@@ -46,105 +47,162 @@
     CGPoint *positionsBuffer;
     std::unordered_map<int, GFontGlyphInfo> glyphInfoMap;//作为成员变量，是防止数据提前析构
     
-    //font texture cache
-    NSMutableDictionary *fontTextureCache;
-    
     //font cache
     NSMutableDictionary *fontCache;
+    
+    NSString *curFontName;
+
 }
 
 @property (nonatomic, assign) BOOL isStroke;
 @property (nonatomic, assign) CTFontRef ctMainFont;
 
+
 @end
 
 @implementation GCVFont
-
-+ (instancetype)sharedInstance{
-    GCVSharedInstanceIMP;
+{
+    NSString            *_key;
 }
 
-- (instancetype)init{
+@synthesize context;
+@synthesize glyphCache;
+@synthesize treemap;
+
+//+ (instancetype)sharedInstance{
+//    static id sharedInstance = nil;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        sharedInstance = [[self alloc] init];
+//    });
+//    return sharedInstance;
+//}
+
+//+ (void)setGCVFont:(GCVFont*)font forKey:(NSString*)key{
+//    if( !staticFontInstaceDict ){
+//        staticFontInstaceDict = NSMutableDictionary.dictionary;
+//    }
+//    staticFontInstaceDict[key] = font;
+//}
+//
+//+ (GCVFont*)gcvFontObjectForKey:(NSString*)key{
+//    return staticFontInstaceDict[key];
+//}
+
+static NSMutableDictionary *staticFontInstaceDict;
++ (instancetype)createGCFontWithKey:(NSString*)key
+{
+    if( !staticFontInstaceDict ){
+        staticFontInstaceDict = NSMutableDictionary.dictionary;
+    }
+    GCVFont *gcvFont = [[GCVFont alloc] initWithKey:key];
+    staticFontInstaceDict[key] = gcvFont;
+    return gcvFont;
+}
+
++ (GCVFont*)getGCVFontWithKey:(NSString*)key{
+    return staticFontInstaceDict[key];
+}
+
++ (void)removeGCVFontWithKey:(NSString*)key{
+    return [staticFontInstaceDict removeObjectForKey:key];
+}
+
+
+- (instancetype)initWithKey:(NSString*)key{
     if( self = [super init] ){
-        fontTextureCache = NSMutableDictionary.dictionary;
+        _key = key;
         fontCache = NSMutableDictionary.dictionary;
     }
     return self;
 }
 
 - (void)dealloc{
-    CFRelease(self.ctMainFont);
-    fontTextureCache = nil;
+    if( self.ctMainFont ){
+        CFRelease(self.ctMainFont);
+    }
     fontCache = nil;
 }
 
 - (void)cleanFont{
     @synchronized(self){
-        [fontTextureCache enumerateKeysAndObjectsUsingBlock:^(NSString *fontKey, NSMutableDictionary *textureMap, BOOL * _Nonnull stop) {
-            [textureMap enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id glayphTextureId, BOOL * _Nonnull stop) {
-                GLuint textureId = (GLuint)[glayphTextureId integerValue];
-                glDeleteTextures(1, (const GLuint*)&textureId);
-            }];
-            [textureMap removeAllObjects];
-        }];
-        [fontTextureCache removeAllObjects];        
+        [GCVFont removeGCVFontWithKey:_key];
         [fontCache removeAllObjects];
     }
 }
 
-- (void)resetWithFontStyle:(const char *)fontStyle isStroke:(BOOL)isStroke deviceRatio:(CGFloat)deviceRatio{
-    self.isStroke = isStroke;
-    glyphPadding = GCV_FONT_GLYPH_PADDING + (isStroke ? lineWidth : 0);
+- (CTFontRef)createFontFromStyle:(gcanvas::GFontStyle*)fontStyle
+{
+    NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
+    //family
+    NSString *family = [NSString stringWithUTF8String:fontStyle->GetFamily().c_str()];
+    attrs[(NSString*)kCTFontFamilyNameAttribute] = family;
+    
+    //size
+    attrs[(NSString*)kCTFontSizeAttribute] = @(fontStyle->GetSize());
 
-    contentScale = deviceRatio;
-    lineWidth=1;
-    useSingleGlyphTextures = true;
-    
-    float size = 0;
-    char name[64]="";
-    char ptx;
-    const char *start = fontStyle;
-    while(*start != '\0' && !isdigit(*start)){ start++; } // skip to the first digit
-    sscanf( start, "%fp%1[tx]%*[\"' ]%63[^\"']", &size, &ptx, name); // matches: 10.5p[tx] 'some font'
-    
-    if( ptx == 't' ) { // pt or px?
-        size = ceilf(size*4.0/3.0);
+    CTFontSymbolicTraits symbolicTraits = 0;
+    if( fontStyle->GetWeight()==gcanvas::GFontStyle::Weight::BOLD )
+    {
+        symbolicTraits |= kCTFontBoldTrait;
     }
     
-    NSString *fontStyleKey = [NSString stringWithUTF8String:fontStyle];
-    CTFontRef fontRef = (__bridge CTFontRef)([fontCache objectForKey:fontStyleKey]);
+    BOOL isItalic = NO;
+    if ( fontStyle->GetStyle()==gcanvas::GFontStyle::Style::ITALIC)
+    {
+        isItalic = YES;
+        symbolicTraits |= kCTFontItalicTrait;
+    }
+    
+    //kCTFontMonoSpaceTrait kCTFontCondensedTrait kCTFontExpandedTrait
+    
+    if (symbolicTraits)
+    {
+        NSDictionary *traits = @{(NSString*)kCTFontSymbolicTrait:@(symbolicTraits)};
+        attrs[(NSString*)kCTFontTraitsAttribute] = traits;
+    }
+    
+    CTFontDescriptorRef fontDesc = CTFontDescriptorCreateWithAttributes((CFDictionaryRef)attrs);
+    
+    CGAffineTransform matrix;
+    if (isItalic)
+    {
+        matrix = CGAffineTransformMake(1, 0, tan(15*M_PI/180), 1, 0, 0);
+    }
+    
+    CTFontRef curFont = CTFontCreateWithFontDescriptor(fontDesc, 0, isItalic ? &matrix : NULL );
+    return curFont;
+}
+
+- (void)resetWithFontStyle:(gcanvas::GFontStyle *)fontStyle isStroke:(BOOL)isStroke context:(void*)context{
+    
+    self.isStroke = isStroke;
+    GCanvasContext *canvasContext = (GCanvasContext*)context;
+    contentScale = 1;
+    lineWidth = canvasContext->LineWidth() * canvasContext->mDevicePixelRatio;
+    useSingleGlyphTextures = true;
+    
+    glyphPadding = GCV_FONT_GLYPH_PADDING + (isStroke ? lineWidth : 0);
+    
+    const std::string& name = fontStyle->GetName();
+    curFontName = [NSString stringWithUTF8String:name.c_str()];
+    CTFontRef fontRef = (__bridge CTFontRef)([fontCache objectForKey:curFontName]);
     if( fontRef ){
         self.ctMainFont = fontRef;
-        pointSize=size;
+        pointSize = fontStyle->GetSize();
         ascent = CTFontGetAscent(self.ctMainFont);
         descent = CTFontGetDescent(self.ctMainFont);
         xHeight = CTFontGetXHeight(self.ctMainFont);
         return;
     }
     
-    
-    NSString *fontName = [NSString stringWithUTF8String:name];
-    CTFontRef curFont = CTFontCreateWithName((CFStringRef)fontName, size, NULL);
-    
-    GCVLOG_D(@"fontStyle=%s, size=%.2f, ptx=%c, name=%s, curFont=%@", fontStyle, size, ptx, name, curFont);
+    CTFontRef curFont = [self createFontFromStyle:fontStyle];
     if (curFont){
-        uint32_t boldFlag = strstr(fontStyle, "bold")?kCTFontBoldTrait:0;
-        uint32_t italicFlag = (strstr(fontStyle, "italic")||strstr(fontStyle, "oblique"))?kCTFontTraitItalic:0;
         
-        if (boldFlag||italicFlag){
-            CTFontRef newFont = CTFontCreateCopyWithSymbolicTraits(curFont, 0.0, NULL, boldFlag|italicFlag, boldFlag|italicFlag);
-            CFStringRef newName = CTFontCopyPostScriptName(newFont);
-            GCVLOG_D(@"newName=%@", newName);
-            CFRelease(curFont);
-            curFont = CTFontCreateWithName(newName, size, NULL);
-            CFRelease(newFont);
-            CFRelease(newName);
-        }
-        
-        [fontCache setObject:(__bridge id)curFont forKey:fontStyleKey];
+        [fontCache setObject:(__bridge id)curFont forKey:curFontName];
         
         self.ctMainFont = curFont;
-        pointSize=size;
+        pointSize = fontStyle->GetSize();
         ascent = CTFontGetAscent(self.ctMainFont);
         descent = CTFontGetDescent(self.ctMainFont);
         xHeight = CTFontGetXHeight(self.ctMainFont);
@@ -161,30 +219,113 @@
 
 - (GFontLayout *)getLayoutForString:(NSString *)string withFontStyle:(NSString*)fontStyle
 {
-    GCVFont *curFont = self;
 
+
+    GTextMetrics metrics = {
+        .width = 0,
+        .ascent = 0,
+        .descent = 0,
+    };
+//    // Create a layout buffer large enough to hold all glyphs for this line
+//    NSInteger lineGlyphCount = CTLineGetGlyphCount(line);
+//    size_t layoutBufferSize = sizeof(GFontGlyphLayout) * lineGlyphCount;
+    NSMutableData *layoutData = [NSMutableData dataWithCapacity:string.length];
+
+//    // Create the layout object and add it to the cache
+    GFontLayout *fontLayout = [[GFontLayout alloc] init];
+    fontLayout.glyphLayout = layoutData;
+    fontLayout.glyphCount = 0;
+  
+    int offsetX=0;
+
+    
+    NSInteger i,n=[string length];
+    unichar c;
+    for(i=0;i<n;i++){
+        c=[string characterAtIndex:i];
+        [self getGlyphForChar:c withFontStyle:fontStyle withFontLayout:fontLayout withOffsetX:&offsetX];
+        ++fontLayout.glyphCount;
+    }
+    
+   
+    metrics.width=offsetX+2*glyphPadding;
+    fontLayout.metrics = metrics;
+
+    
+    return fontLayout;
+}
+
+- (void )drawString:(NSString *)string withFontStyle:(NSString*)fontStyle withLayout:(GFontLayout*)fontLayout withPosition:(CGPoint)destPoint
+{
+    int offsetX=0;
+    
+    GColorRGBA color = self.isStroke ? BlendStrokeColor(context) : BlendFillColor(context);
+
+    NSInteger i,n=[string length];
+    unichar c;
+    for(i=0;i<n;i++){
+        c=[string characterAtIndex:i];
+        
+        const GGlyph *pGlyph = glyphCache->GetGlyph([fontStyle UTF8String], c, pointSize, self.isStroke);
+        if( pGlyph ){
+            GFontGlyphLayout gl;
+            
+            gl.info=*pGlyph;
+            gl.xpos = offsetX;
+            offsetX+=gl.info.advanceX;
+            
+            context->SetTexture(gl.info.texture);
+            
+            GGlyph &glyphInfo = gl.info;
+            float gx = destPoint.x + gl.xpos + glyphInfo.offsetX;
+            float gy = destPoint.y - (glyphInfo.height + glyphInfo.offsetY);
+            context->PushRectangle(gx, gy, glyphInfo.width, glyphInfo.height, glyphInfo.s0,
+                                   glyphInfo.t1, glyphInfo.s1-glyphInfo.s0, glyphInfo.t0-glyphInfo.t1,
+                                   color);
+        }
+    }
+}
+
+- (void) getGlyphForChar:(wchar_t)c withFontStyle:(NSString*)fontStyle withFontLayout:(GFontLayout *) fontLayout withOffsetX:(int*) offsetX
+{
+    GTextMetrics metrics=fontLayout.metrics ;
+    NSMutableData *layoutData = fontLayout.glyphLayout;
+
+    const GGlyph *pGlyph = glyphCache->GetGlyph([fontStyle UTF8String], c, pointSize, self.isStroke);
+    if (pGlyph)
+    {
+        GFontGlyphLayout gl;
+        
+        gl.info=*pGlyph;
+        gl.xpos = *offsetX;
+        *offsetX+=gl.info.advanceX;
+        metrics.ascent = MAX(metrics.ascent, gl.info.height + gl.info.offsetY - glyphPadding);
+        metrics.descent = MAX(metrics.descent, -gl.info.offsetY - glyphPadding);
+        
+        NSData * data = [NSData dataWithBytes:&gl length:sizeof(gl)];
+        [layoutData appendData:data];
+        return ;
+        
+    }
+
+    
+    GCVFont *curFont = self;
+    
+    NSString* nsString =[[NSString alloc] initWithBytes:&c length:sizeof(c) encoding:NSUTF32LittleEndianStringEncoding];
+    
+    if (!nsString) {
+        return;
+    }
     // Create attributed line
     NSAttributedString *attributes = [[NSAttributedString alloc]
-                                      initWithString:string
+                                      initWithString:nsString
                                       attributes:@{ (id)kCTFontAttributeName: (__bridge id)curFont.ctMainFont }];
     
     CTLineRef line = CTLineCreateWithAttributedString((CFAttributedStringRef)attributes);
     
-    // Get line metrics; sadly, ascent and descent are broken: 'ascent' equals
-    // the total height (i.e. what should be ascent + descent) and 'descent'
-    // is always the maximum descent of the font - no matter if you have
-    // descending characters or not.
-    // So, we have to collect those infos ourselfs from the glyphs.
-    GTextMetrics metrics = {
-        .width = static_cast<float>(CTLineGetTypographicBounds(line, NULL, NULL, NULL)),
-        .ascent = 0,
-        .descent = 0,
-    };
+
     // Create a layout buffer large enough to hold all glyphs for this line
-    NSInteger lineGlyphCount = CTLineGetGlyphCount(line);
-    size_t layoutBufferSize = sizeof(GFontGlyphLayout) * lineGlyphCount;
-    NSMutableData *layoutData = [NSMutableData dataWithLength:layoutBufferSize];
-    GFontGlyphLayout *layoutBuffer = (GFontGlyphLayout *)layoutData.mutableBytes;
+//    NSInteger lineGlyphCount = CTLineGetGlyphCount(line);
     
     // Go through all runs for this line
     CFArrayRef runs = CTLineGetGlyphRuns(line);
@@ -194,6 +335,7 @@
     int layoutIndex = 0;
     for( int i = 0; i < runCount; i++ ) {
         CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs, i);
+//        CFRange str = CTRunGetStringRange(run);
         NSInteger runGlyphCount = CTRunGetGlyphCount(run);
         CTFontRef runFont = (CTFontRef)CFDictionaryGetValue(CTRunGetAttributes(run), kCTFontAttributeName);
         // Fetch glyphs buffer
@@ -220,86 +362,49 @@
         // Go through all glyphs for this run, create the textures and collect the glyph
         // info and positions as well as the max ascent and descent
         for( int g = 0; g < runGlyphCount; g++ ) {
-            GFontGlyphLayout *gl = &layoutBuffer[layoutIndex];
-            gl->glyph = glyphs[g];
-            gl->xpos = positions[g].x;
-            gl->info = &glyphInfoMap[gl->glyph];
-            gl->textureIndex = [curFont createGlyph:gl->glyph withFont:runFont withFontStyle:fontStyle glyphInfo:gl->info];
-            metrics.ascent = MAX(metrics.ascent, gl->info->h + gl->info->y - glyphPadding);
-            metrics.descent = MAX(metrics.descent, -gl->info->y - glyphPadding);
+            GFontGlyphLayout gl;
+
+            CGGlyph glyph = glyphs[g];
+            gl.info.charcode=c;
+            gl.xpos = positions[g].x + *offsetX;
+
+            [curFont createGlyph:glyph withFont:runFont withFontStyle:fontStyle glyphInfo:&gl.info];
+            *offsetX+=gl.info.advanceX;
+            metrics.ascent = MAX(metrics.ascent, gl.info.height + gl.info.offsetY - glyphPadding);
+            metrics.descent = MAX(metrics.descent, -gl.info.offsetY - glyphPadding);
             layoutIndex++;
+            
+            NSData * data = [NSData dataWithBytes:&gl length:sizeof(gl)];
+            [layoutData appendData:data];
         }
     }
     // Create the layout object and add it to the cache
-    GFontLayout *fontLayout = [[GFontLayout alloc] init];
-    fontLayout.glyphLayout = layoutData;
-    fontLayout.glyphCount = lineGlyphCount;
     fontLayout.metrics = metrics;
     
     CFRelease(line);
     
-    return fontLayout;
 }
 
-
-- (GLuint)createGlyph:(CGGlyph)glyph withFont:(CTFontRef)font withFontStyle:(NSString*)fontStyle glyphInfo:(GFontGlyphInfo *)glyphInfo
+- (void)createGlyph:(CGGlyph)glyph withFont:(CTFontRef)font withFontStyle:(NSString*)fontStyle glyphInfo:(GGlyph *)glyphInfo
 {
-    if( !fontTextureCache[fontStyle] ){
-        fontTextureCache[fontStyle] = NSMutableDictionary.dictionary;
-    }
-
     CGRect bbRect;
     CTFontGetBoundingRectsForGlyphs(font, kCTFontOrientationDefault, &glyph, &bbRect, 1);
+    CGSize advance;
+    CTFontGetAdvancesForGlyphs(font, kCTFontOrientationDefault, &glyph, &advance, 1);
+    glyphInfo->advanceX=advance.width;
+    glyphInfo->advanceY=advance.height;
     
     // Add some padding around the glyphs
-    glyphInfo->y = floorf(bbRect.origin.y) - glyphPadding;
-    glyphInfo->x = floorf(bbRect.origin.x) - glyphPadding;
-    glyphInfo->w = bbRect.size.width + glyphPadding * 2;
-    glyphInfo->h = bbRect.size.height + glyphPadding * 2;
+    glyphInfo->offsetY = floorf(bbRect.origin.y) - glyphPadding;
+    glyphInfo->offsetX = floorf(bbRect.origin.x) - glyphPadding;
+    glyphInfo->width = bbRect.size.width + glyphPadding * 2;
+    glyphInfo->height = bbRect.size.height + glyphPadding * 2;
     
     // Size needed for this glyph in pixels; must be a multiple of 8 for CG
-    int pxWidth = floorf((glyphInfo->w * contentScale) / 8 + 1) * 8;
-    int pxHeight = floorf((glyphInfo->h * contentScale) / 8 + 1) * 8;
+    int pxWidth = floorf( (glyphInfo->width * contentScale)/8 + 1) * 8;
+    int pxHeight = floorf( (glyphInfo->height * contentScale)/8 + 1) * 8;
     
-    // Do we need to create a new texture to hold this glyph?
-    NSMutableDictionary *textureCache = fontTextureCache[fontStyle];
-    BOOL createNewTexture = (textureCache.count == 0 || useSingleGlyphTextures);
-    
-    if( txLineX + pxWidth > GCV_FONT_TEXTURE_SIZE ) {
-        // New line
-        txLineX = 0.0f;
-        txLineY += txLineH;
-        txLineH = 0.0f;
-        
-        // Line exceeds texture height? -> new texture
-        if( txLineY + pxHeight > GCV_FONT_TEXTURE_SIZE) {
-            createNewTexture = YES;
-        }
-    }
-    
-    txLineX = txLineY = txLineH = 0;
-    int textureWidth = GCV_FONT_TEXTURE_SIZE, textureHeight = GCV_FONT_TEXTURE_SIZE;
-    
-    // In single glyph mode, create a new texture for each glyph in the glyph's size
-    if( useSingleGlyphTextures ) {
-        textureWidth = pxWidth;
-        textureHeight = pxHeight;
-    }
-    
-    GLuint textureId = (GLuint)([textureCache[@(glyph)] integerValue]);
-    if( textureId == 0 ) {
-        glGenTextures(1, &textureId);
-        glBindTexture(GL_TEXTURE_2D, textureId);
-        textureCache[@(glyph)] = @(textureId);
-    } else {
-        glBindTexture(GL_TEXTURE_2D, textureId);
-    }
-    
-    glyphInfo->textureIndex = textureCache.count; // 0 is reserved, index starts at 1
-    glyphInfo->tx = ((txLineX+1) / textureWidth);
-    glyphInfo->ty = ((txLineY+1) / textureHeight);
-    glyphInfo->tw = (glyphInfo->w / textureWidth) * contentScale,
-    glyphInfo->th = (glyphInfo->h / textureHeight) * contentScale;
+ 
     
     NSMutableData *pixels = [NSMutableData dataWithLength:pxWidth * pxHeight];
     
@@ -320,23 +425,20 @@
     }
     
     // Render glyph and update the texture
-    CGPoint p = CGPointMake(-glyphInfo->x, -glyphInfo->y);
+    CGPoint p = CGPointMake(-glyphInfo->offsetX, -glyphInfo->offsetY);
     CTFontDrawGlyphs(font, &glyph, &p, 1, context);
     
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, pxWidth, pxHeight, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels.bytes);
+    glyphInfo->width = pxWidth;
+    glyphInfo->height = pxHeight;
 
-    // Update texture coordinates
-    txLineX += pxWidth;
-    txLineH = MAX( txLineH, pxHeight );
-    
+        {
+            glyphInfo->texture = nullptr;
+            glyphInfo->bitmapBuffer = new unsigned char[pxWidth* pxHeight];
+            memcpy(glyphInfo->bitmapBuffer, pixels.bytes, pxWidth* pxHeight);
+            glyphCache->Insert([fontStyle UTF8String], glyphInfo->charcode, pointSize, self.isStroke, *glyphInfo);
+        }
     CGContextRelease(context);
     
-    return textureId;
 }
 
 -(CGPoint)adjustTextPenPoint:(CGPoint)srcPoint
