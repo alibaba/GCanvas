@@ -191,10 +191,12 @@ void GRenderer::destroy() {
 
     LOG_D("context destroy in thread.");
 
-    if (m_egl_context != EGL_NO_CONTEXT && m_egl_display != EGL_NO_DISPLAY) {
+    if (m_egl_context != EGL_NO_CONTEXT) {
         LOG_D("context destroy start in thread.");
         eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        eglDestroyContext(m_egl_display, m_egl_context);
+        if (m_egl_display != EGL_NO_DISPLAY) {
+            eglDestroyContext(m_egl_display, m_egl_context);
+        }
         eglTerminate(m_egl_display);
         m_egl_context = EGL_NO_CONTEXT;
         m_egl_display = EGL_NO_DISPLAY;
@@ -204,7 +206,7 @@ void GRenderer::destroy() {
 void GRenderer::surfaceExit() {
     LOG_D("surface destroy in thread.");
 
-    if (m_egl_display != EGL_NO_DISPLAY) {
+    if (m_egl_display != EGL_NO_DISPLAY && m_egl_surface != EGL_NO_SURFACE) {
         LOG_D("surface destroy start in thread.");
 //        eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 //        eglDestroyContext(m_egl_display, m_egl_context);
