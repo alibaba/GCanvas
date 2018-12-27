@@ -20,7 +20,6 @@ package com.alibaba.weex.extend.component;
 
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.JSMethod;
-import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.component.WXDiv;
 import com.taobao.weex.ui.component.WXVContainer;
 import com.taobao.weex.utils.WXLogUtils;
@@ -31,8 +30,8 @@ import com.taobao.weex.utils.WXLogUtils;
 
 public class WXComponentSyncTest extends WXDiv {
 
-    public WXComponentSyncTest(WXSDKInstance instance, WXDomObject dom, WXVContainer parent) {
-        super(instance, dom, parent);
+    public WXComponentSyncTest(WXSDKInstance instance, WXVContainer parent, BasicComponentData basicComponentData) {
+        super(instance, parent, basicComponentData);
     }
 
     @JSMethod (uiThread = false)

@@ -62,10 +62,12 @@ bool GRenderer::initialize() {
     if (m_egl_display == EGL_NO_DISPLAY) {
         if ((display = eglGetDisplay(EGL_DEFAULT_DISPLAY)) == EGL_NO_DISPLAY) {
             LOG_D("getdisplay failed.");
+            destroy();
             return false;
         }
         if (!eglInitialize(display, 0, 0)) {
             LOG_D("egl initialize failed.");
+            destroy();
             return false;
         }
 
@@ -192,7 +194,9 @@ void GRenderer::destroy() {
     if (m_egl_context != EGL_NO_CONTEXT) {
         LOG_D("context destroy start in thread.");
         eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        eglDestroyContext(m_egl_display, m_egl_context);
+        if (m_egl_display != EGL_NO_DISPLAY) {
+            eglDestroyContext(m_egl_display, m_egl_context);
+        }
         eglTerminate(m_egl_display);
         m_egl_context = EGL_NO_CONTEXT;
         m_egl_display = EGL_NO_DISPLAY;
@@ -202,7 +206,7 @@ void GRenderer::destroy() {
 void GRenderer::surfaceExit() {
     LOG_D("surface destroy in thread.");
 
-    if (m_egl_display != EGL_NO_DISPLAY) {
+    if (m_egl_display != EGL_NO_DISPLAY && m_egl_surface != EGL_NO_SURFACE) {
         LOG_D("surface destroy start in thread.");
 //        eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 //        eglDestroyContext(m_egl_display, m_egl_context);
@@ -237,8 +241,12 @@ void GRenderer::renderLoop() {
 
         if (m_viewportchanged) {
             if (!m_initialized) {
-                initialize();
-                m_initialized = true;
+                bool result = initialize();
+                m_initialized = result;
+
+                if (!result) {
+                    break;
+                }
                 if (m_proxy) m_proxy->setContextLost(false);
             }
 
@@ -334,9 +342,10 @@ void GRenderer::renderLoop() {
 
         surfaceExit();
         m_requestSurfaceDestroy = false;
+        if (m_initialized) {
+            destroy();
+        }
         m_initialized = false;
-
-        destroy();
     }
 }
 

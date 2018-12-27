@@ -21,6 +21,7 @@ import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.Destroyable;
 import com.taobao.weex.common.WXModule;
 import com.taobao.weex.ui.component.WXComponent;
+import com.taobao.weex.utils.WXViewUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,8 +89,14 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
 
             Display display = ((Activity) getContext()).getWindowManager().getDefaultDisplay();
 
-            int width = display.getWidth();
-            double devicePixelRatio = width / 750.0;
+            int width = WXViewUtils.getScreenWidth(this.getContext());
+
+            float viewPort = 750.0f;
+            if (mOutRef != null && mOutRef.get() != null) {
+                viewPort = mOutRef.get().mWXSDKInstance != null ? mOutRef.get().mWXSDKInstance.getInstanceViewPortWidth() : viewPort;
+            }
+
+            double devicePixelRatio = width * 1.0 / viewPort;
 
             GLog.d(TAG, "enable width " + width);
             GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
@@ -278,8 +285,15 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
          */
         Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
 
-        int width = display.getWidth();
-        double devicePixelRatio = width / 750.0;
+
+        int width = WXViewUtils.getScreenWidth(ctx);
+
+        float viewPort = 750.0f;
+        viewPort = mWXSDKInstance != null ? mWXSDKInstance.getInstanceViewPortWidth() : viewPort;
+
+        double devicePixelRatio = width * 1.0 / viewPort;
+
+
 
         GLog.d(TAG, "enable width " + width);
         GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
