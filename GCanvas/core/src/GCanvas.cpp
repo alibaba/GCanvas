@@ -2406,10 +2406,16 @@ const char *GCanvas::CallNative(int type, const std::string &args) {
 
 
     if (sync == SYNC) {
-        LOG_D("call native sync call, start wait. cmd is %s", args.c_str());
+//        LOG_D("call native sync call, start wait. cmd is %s", args.c_str());
         gcanvas::waitUtilTimeout(&mSyncSem, GCANVAS_TIMEOUT);
-        LOG_D("call native sync result: %s", mResult.c_str());
-        return mResult.c_str();
+//        LOG_D("call native sync result: %s", mResult.c_str());
+        if (mResult.length() > 0) {
+            char *resultChar = new char[mResult.length() + 1];
+            strcpy(resultChar, mResult.c_str());
+            return resultChar;
+        } else {
+            return "";
+        }
     }
 
     return nullptr;
