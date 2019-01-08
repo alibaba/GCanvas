@@ -35,8 +35,6 @@ typedef const char *(*FunType)(const char *, int, const char *);
 
 typedef void (*RegisterFunc)(FunType fp);
 
-RegisterFunc weexFuc = NULL;
-
 RegisterFunc dlopen_weex_so_above_android_7(const char *soPath) {
     RegisterFunc result = (RegisterFunc) ali::getSymbolAddr((char *) "Inject_GCanvasFunc",
                                                             (char *) soPath, "libweexcore.so");
@@ -59,10 +57,7 @@ void RegisterCallNativeCallback_belowN() {
         return;
     }
 
-    if (!weexFuc || weexFuc != func) {
-        func(GCanvasLinkNative::CallNative);
-        weexFuc = func;
-    }
+    func(GCanvasLinkNative::CallNative);
 
     dlclose(handle);
 }
@@ -323,7 +318,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
         }
         executeCallbacks(je, contextId);
     }
-
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_surfaceChanged(
@@ -473,6 +467,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setFallbackFont(
         jstring system_font_location) {
     // fallback_font_file_jvm is managed by JVM.
     const char *fallback_font_file_jvm = je->GetStringUTFChars(fallback_font_file, 0);
+    LOG_D("fallback_font_file is %s", fallback_font_file_jvm);
     if (fallback_font_file_jvm == nullptr)
         return; // return if memory overflows.
 
@@ -774,10 +769,7 @@ Java_com_taobao_gcanvas_GCanvasJNI_registerCallback(JNIEnv *je, jclass jc, jstri
             LOG_E("can not find Inject_GCanvasFunc address.");
         } else {
             LOG_D("call Inject_GCanvasFunc success.");
-            if(!weexFuc || weexFuc != func){
-                func(GCanvasLinkNative::CallNative);
-                weexFuc = func;
-            }
+            func(GCanvasLinkNative::CallNative);
         }
     } else {
         LOG_D("Register for Android N Below");

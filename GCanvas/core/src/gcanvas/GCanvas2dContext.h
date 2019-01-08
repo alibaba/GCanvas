@@ -129,7 +129,7 @@ public:
     GColorRGBA mStrokeColor;
 
     GColorRGBA mShadowColor;
-    int mShadowBlur;
+    float mShadowBlur;
     float mShadowOffsetX;
     float mShadowOffsetY;
 

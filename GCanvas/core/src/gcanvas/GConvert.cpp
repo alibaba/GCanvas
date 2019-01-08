@@ -11,6 +11,9 @@
 #include <map>
 #include <cstdlib>
 #include <algorithm>
+#include <cstring>
+
+using namespace std;
 
 GColorRGBA StrValueToColorRGBA(const char *value)
 {

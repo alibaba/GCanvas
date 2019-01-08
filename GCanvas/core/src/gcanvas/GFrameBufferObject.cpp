@@ -9,25 +9,22 @@
 #include "GFrameBufferObject.h"
 #include "../support/Log.h"
 #include "GConvert.h"
+#include <cstring>
 
 #define OES_PACKED_DEPTH_STENCIL "GL_OES_packed_depth_stencil"
 
-GFrameBufferObject::GFrameBufferObject()
-{
+using namespace std;
 
+GFrameBufferObject::GFrameBufferObject() {
 }
 
-
-GFrameBufferObject::~GFrameBufferObject()
-{
-    if (mFboFrame)
-    {
+GFrameBufferObject::~GFrameBufferObject() {
+    if (mFboFrame) {
         glDeleteFramebuffers(1, &mFboFrame);
         mFboFrame = 0;
     }
 
-    if (mFboStencil)
-    {
+    if (mFboStencil) {
         glDeleteRenderbuffers(1, &mFboStencil);
         mFboStencil = 0;
     }
@@ -37,8 +34,7 @@ GFrameBufferObject::~GFrameBufferObject()
     mFboTexture.Unbind();
 }
 
-bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color)
-{
+bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color) {
     mWidth = width;
     mHeight = height;
 
@@ -58,8 +54,7 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color)
     const char *extString = (const char *) glGetString(GL_EXTENSIONS);
     bool OES_packed_depth_stencil = (strstr(extString, OES_PACKED_DEPTH_STENCIL) != 0);
 
-    if (OES_packed_depth_stencil)
-    {
+    if (OES_packed_depth_stencil) {
         glGenRenderbuffers(1, &mFboStencil);
         glBindRenderbuffer(GL_RENDERBUFFER, mFboStencil);
         glRenderbufferStorage(GL_RENDERBUFFER,
@@ -69,9 +64,7 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color)
                                   GL_RENDERBUFFER, mFboStencil);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT,
                                   GL_RENDERBUFFER, mFboStencil);
-    }
-    else
-    {
+    } else {
         glGenRenderbuffers(1, &mFboStencil);
         glBindRenderbuffer(GL_RENDERBUFFER, mFboStencil);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8,
@@ -80,22 +73,19 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color)
                                   GL_RENDERBUFFER, mFboStencil);
     }
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
         mIsFboSupported = false;
 
         LOG_D("failed to make complete framebuffer object %x", status);
         LOG_D("FBO fail ! fboFrame = %d, fboTexture = %d, fboStencial = "
-                      "%d, w = %d, h = %d",
+              "%d, w = %d, h = %d",
               mFboFrame, mFboTexture.GetTextureID(), mFboStencil,
               mFboTexture.GetWidth(), mFboTexture.GetHeight());
-    }
-    else
-    {
+    } else {
         mIsFboSupported = true;
 
         LOG_D("FBO complete! fboFrame = %d, fboTexture = %d, fboStencial = "
-                      "%d, w = %d, h = %d",
+              "%d, w = %d, h = %d",
               mFboFrame, mFboTexture.GetTextureID(), mFboStencil,
               mFboTexture.GetWidth(), mFboTexture.GetHeight());
     }
@@ -110,18 +100,15 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color)
     return mIsFboSupported;
 }
 
-void GFrameBufferObject::BindFBO()
-{
-    if (!mIsFboSupported)
-    {
+void GFrameBufferObject::BindFBO() {
+    if (!mIsFboSupported) {
         return;
     }
 
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mSaveFboFrame);
     glBindFramebuffer(GL_FRAMEBUFFER, mFboFrame);
 
-    if (!mFboTexture.IsValidate())
-    {
+    if (!mFboTexture.IsValidate()) {
         mFboTexture.CreateTexture(nullptr);
         mFboTexture.Bind();
 
@@ -134,51 +121,41 @@ void GFrameBufferObject::BindFBO()
 
 }
 
-void GFrameBufferObject::UnbindFBO()
-{
-    if (!mIsFboSupported)
-    {
+void GFrameBufferObject::UnbindFBO() {
+    if (!mIsFboSupported) {
         return;
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, mSaveFboFrame);
 }
 
-int GFrameBufferObject::DetachTexture()
-{
+int GFrameBufferObject::DetachTexture() {
     int id = mFboTexture.GetTextureID();
     mFboTexture.Detach();
     return id;
 }
 
-inline void GFrameBufferObjectDeleter(GFrameBufferObjectPool::Map *pool, GFrameBufferObject *fbo)
-{
+inline void GFrameBufferObjectDeleter(GFrameBufferObjectPool::Map *pool, GFrameBufferObject *fbo) {
     pool->insert(GFrameBufferObjectPool::Map::value_type(
             GFrameBufferObjectPool::Key(fbo->Width(), fbo->Height()), fbo));
 }
 
-inline int GetNoSmall2PowNum(int num)
-{
+inline int GetNoSmall2PowNum(int num) {
     if (num <= 1) return num;
-    if (num & (num - 1))
-    {
+    if (num & (num - 1)) {
         int r = 1;
-        while (num)
-        {
+        while (num) {
             num >>= 1;
             r <<= 1;
         }
         return r;
-    }
-    else
-    {
+    } else {
         return num;
     }
 }
 
 
-GFrameBufferObjectPtr GFrameBufferObjectPool::GetFrameBuffer(int width, int height)
-{
+GFrameBufferObjectPtr GFrameBufferObjectPool::GetFrameBuffer(int width, int height) {
     using namespace std::placeholders;  // 对于 _1, _2, _3...
 
     auto deleter = std::bind(GFrameBufferObjectDeleter, &mPool, _1);
@@ -187,8 +164,7 @@ GFrameBufferObjectPtr GFrameBufferObjectPool::GetFrameBuffer(int width, int heig
     int twoPowerHeight = GetNoSmall2PowNum(height);
 
     auto i = mPool.find(Key(twoPowerWidth, twoPowerHeight));
-    if (i == mPool.end())
-    {
+    if (i == mPool.end()) {
 
         GFrameBufferObjectPtr fbo(new GFrameBufferObject(), deleter);
         fbo->InitFBO(twoPowerWidth, twoPowerHeight,

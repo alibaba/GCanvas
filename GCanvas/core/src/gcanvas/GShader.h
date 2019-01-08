@@ -215,13 +215,11 @@ public:
     {
         glUniform1f(mXDeltaSlot, x);
         glUniform1f(mYDeltaSlot, y);
-
     }
 
     void SetWeight(float w[], int count)
     {
         glUniform1fv(mWeightSlot, count, w);
-
     }
 
 

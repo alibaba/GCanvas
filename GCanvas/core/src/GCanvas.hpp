@@ -477,7 +477,7 @@ public:
     API_EXPORT void execStroke();
 
     API_EXPORT void
-    execArc(float x, float y, float radius, float startAngle, float endAngle, int antiClockwise);
+    execArc(float x, float y, float radius, float startAngle, float endAngle, bool antiClockwise);
 
     API_EXPORT void execSetGlobalCompositeOperation(int op);
 
@@ -519,7 +519,7 @@ public:
 
     API_EXPORT void execSetShadowColor(const char *str);
 
-    API_EXPORT void execSetShadowBlur(int blur);
+    API_EXPORT void execSetShadowBlur(float blur);
 
     API_EXPORT void execSetShadowOffsetX(float x);
 

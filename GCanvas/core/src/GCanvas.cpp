@@ -139,9 +139,8 @@ void GCanvas::execSetShadowColor(const char *str) {
     mCurrentState->mShadowColor = color;
 }
 
-void GCanvas::execSetShadowBlur(int blur) {
+void GCanvas::execSetShadowBlur(float blur) {
     mCurrentState->mShadowBlur = blur;
-
 }
 
 void GCanvas::execSetShadowOffsetX(float x) {
@@ -729,8 +728,8 @@ void GCanvas::execStroke() {
 }
 
 void GCanvas::execArc(float x, float y, float radius, float startAngle, float endAngle,
-                      int antiClockwise) {
-    Arc(x, y, radius, startAngle, endAngle, (bool) antiClockwise);
+                      bool antiClockwise) {
+    Arc(x, y, radius, startAngle, endAngle, antiClockwise);
 }
 
 void GCanvas::execSetGlobalCompositeOperation(int op) {
@@ -774,8 +773,6 @@ void GCanvas::execFont(const char *font) {
         delete mCurrentState->mFont;
     }
     mCurrentState->mFont = new GFontStyle(font, mDevicePixelRatio);
-
-
 }
 
 void GCanvas::execPutImageData(const unsigned char *rgbaData, int tw,
@@ -924,7 +921,6 @@ int GCanvas::execBindImage(const unsigned char *rgbaData, GLint format, unsigned
 
 void GCanvas::execBeginDraw() {
     BindFBO();
-
 }
 
 void GCanvas::execEndDraw() {

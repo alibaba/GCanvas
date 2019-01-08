@@ -66,7 +66,6 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
         if (iter->second.font->IsGlyphExistedInFont(charCode))
         {
             return iter->second.font;
-
         }
         if (iter->second.fallbackFont)
         {
@@ -123,7 +122,6 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
     else
     {
         fontFileFullPath += currentFontFile;
-
     }
 
     GFont *font = new GFont(context, mFontManager, fontFileFullPath.c_str(), size);
@@ -200,12 +198,10 @@ char *GFontCache::TryDefaultFallbackFont(const wchar_t charCode,
     fontFileFullPath += defaultFontFile;
 
     bool exist = this->IsGlyphExistedInFont(charCode, size, fontFileFullPath);
-    if (exist)
-    {
+    if (exist) {
         return (char *) defaultFontFile;
     }
-    else
-    {
+    else {
         return nullptr;
     }
 }

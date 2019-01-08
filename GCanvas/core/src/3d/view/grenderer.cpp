@@ -61,10 +61,12 @@ bool GRenderer::initialize() {
 
     if (m_egl_display == EGL_NO_DISPLAY) {
         if ((display = eglGetDisplay(EGL_DEFAULT_DISPLAY)) == EGL_NO_DISPLAY) {
+            destroy();
             LOG_D("getdisplay failed.");
             return false;
         }
         if (!eglInitialize(display, 0, 0)) {
+            destroy();
             LOG_D("egl initialize failed.");
             return false;
         }
@@ -159,7 +161,7 @@ void GRenderer::stop() {
         LOG_D("join thread");
         pthread_join(m_thread_id, 0);
     } else {
-        LOG_D("thread require exit.");
+        LOG_D("thread require exit on Stop");
         if (m_proxy) {
             m_proxy->setContextLost(true);
             m_proxy->setThreadExit();
@@ -189,9 +191,12 @@ void GRenderer::destroy() {
 
     LOG_D("context destroy in thread.");
 
-    if (m_egl_context != EGL_NO_CONTEXT) {
+    if (m_egl_context != EGL_NO_CONTEXT && m_egl_display != EGL_NO_DISPLAY) {
         LOG_D("context destroy start in thread.");
         eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if(m_egl_surface != EGL_NO_SURFACE){
+            eglDestroySurface(m_egl_display, m_egl_surface);
+        }
         eglDestroyContext(m_egl_display, m_egl_context);
         eglTerminate(m_egl_display);
         m_egl_context = EGL_NO_CONTEXT;
@@ -201,8 +206,7 @@ void GRenderer::destroy() {
 
 void GRenderer::surfaceExit() {
     LOG_D("surface destroy in thread.");
-
-    if (m_egl_display != EGL_NO_DISPLAY) {
+    if (m_egl_display != EGL_NO_DISPLAY && m_egl_surface != EGL_NO_SURFACE) {
         LOG_D("surface destroy start in thread.");
 //        eglMakeCurrent(m_egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 //        eglDestroyContext(m_egl_display, m_egl_context);
@@ -231,14 +235,29 @@ void GRenderer::drawFrame() {
 void GRenderer::renderLoop() {
     while (!m_requestExit) {
 
+        pthread_mutex_lock(&m_mutex);
+
+        if (!m_proxy || (m_proxy && !m_proxy->continueProcess() &&
+                         !m_viewportchanged && !m_requestSurfaceDestroy)) {
+            pthread_cond_wait(&m_cond, &m_mutex);
+        }
+
+
+        if(m_requestSurfaceDestroy && !m_requestExit){
+            pthread_cond_wait(&m_cond, &m_mutex);
+        }
+
         if (m_proxy != nullptr) {
             m_proxy->finishProc();
         }
 
         if (m_viewportchanged) {
             if (!m_initialized) {
-                initialize();
-                m_initialized = true;
+                bool initResult = initialize();
+                m_initialized = initResult;
+                if (!initResult) {
+                    break;
+                }
                 if (m_proxy) m_proxy->setContextLost(false);
             }
 
@@ -268,13 +287,6 @@ void GRenderer::renderLoop() {
             sem_post(&m_SyncSem);
         }
 
-
-        pthread_mutex_lock(&m_mutex);
-
-        if (!m_proxy || (m_proxy && !m_proxy->continueProcess() &&
-                         !m_viewportchanged && !m_requestSurfaceDestroy && mBitmapQueue.empty())) {
-            pthread_cond_wait(&m_cond, &m_mutex);
-        }
 
 
         if (m_bindtexture && m_egl_surface != EGL_NO_SURFACE) {
@@ -314,14 +326,11 @@ void GRenderer::renderLoop() {
                 }
 //                gettimeofday(&after, NULL);
 //                LOG_D("swapbuffer before sec = %d, usec = %d, after sec = %d, usec = %d",before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
-
                 m_refresh = false;
             }
         }
 
-
         pthread_mutex_unlock(&m_mutex);
-
     }
 
     if (m_requestExit) {
@@ -567,9 +576,9 @@ void GRenderer::surfaceDestroy() {
     m_requestSurfaceDestroy = true;
 
     pthread_cond_signal(&m_cond);
-    if (m_started) {
-        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
-    }
+//    if (m_started) {
+//        gcanvas::waitUtilTimeout(&m_SyncSem, GCANVAS_TIMEOUT);
+//    }
 //    pthread_mutex_unlock(&m_mutex);
 }
 
