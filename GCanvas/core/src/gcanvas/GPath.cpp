@@ -14,6 +14,32 @@ const float ERROR_DEVIATION = 1e-6;
 const float PI_1 = M_PI;
 const float PI_2 = 2.f * PI_1;
 const int DEFAULT_STEP_COUNT = 100;
+static bool isSamePoint(GPoint& p1, GPoint& p2, float min)
+{
+    return abs(p1.x - p2.x) < min && abs(p1.y - p2.y) < min;
+}
+
+static bool isNan(const GPoint& p)
+{
+    return std::isnan(p.x) || std::isnan(p.y);
+}
+
+
+static bool hasSamePoint(GPoint& p1, GPoint& p2, GPoint& p3, float minValue)
+{
+    return isSamePoint(p1, p2, minValue) || isSamePoint(p2, p3, minValue) || isSamePoint(p1, p3, minValue);
+}
+
+
+static bool isTrianglePointsValid(GPoint& p1, GPoint& p2, GPoint& p3, float minValue)
+{
+    if (isNan(p1) || isNan(p3) || isNan(p2))
+    {
+        return false;
+    }
+    return hasSamePoint(p1, p2, p3, minValue) ? false : true;
+}
+
 
 GPath::GPath() { Reset(); }
 
@@ -464,7 +490,28 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context)
 
 
 void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
-                             GPoint p1, GPoint p2, GColorRGBA color, std::vector<GVertex> *vec) {
+                             GPoint p1, GPoint p2, GColorRGBA color, std::vector<GVertex> *vec, float samePointThreshold) {
+    // 高性能版本，提前过滤无效数据
+    bool fixAndroidCompatible = false;
+#ifdef ANDROID
+    fixAndroidCompatible = true;
+#endif
+
+    float minValue = samePointThreshold;
+    // LOG_I("drawArcToContext p1(%f,%f),p2(%f,%f),p3(%f,%f)", p1.x, p1.y, p2.x, p2.y, point.x,point.y);
+    if (fixAndroidCompatible && (isSamePoint(point, p1, minValue) || isSamePoint(p1, p2, minValue) || isSamePoint(point, p2, minValue)))
+    {
+        // LOG_I("isSamePoint, exit: ");
+        return;
+    }
+
+    // 过滤nan数据
+    if (isNan(point) || isNan(p1) || isNan(p2))
+    {
+        // LOG_I("isNan check true");
+        return;
+    }
+
     float width2 = context->LineWidth();
     if( width2 >= 2 ){
         width2 /= 2.f;
@@ -472,8 +519,6 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
 
     GPoint v1 = PointNormalize(PointSub(p1, point)),
             v2 = PointNormalize(PointSub(p2, point));
-
-    float angle1 = atan2(1.0f, 0.0f) - atan2(v1.x, -v1.y);
 
     float angle2;
     if (v1.x == -v2.x && v1.y == -v2.y) {
@@ -483,29 +528,50 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
     }
 
     // 1 step per 5 pixel
-    int numSteps = (int)std::min<float>(64, std::max<float>(20, (angle2 * width2) / 5.0f) );
-    
-    // calculate angle step
-    float step = (angle2 / numSteps);
+    float needStep =  (angle2 * width2) / 5.0f;
+    int numSteps = 0;
+    if (fixAndroidCompatible)
+    {
+        if (needStep < minValue)
+        {
+            numSteps = 0;
+        }
+        else if (needStep < 1)
+        {
+            numSteps = 1;
+        }
+        else
+        {
+            numSteps = (int)std::min<float>(64, std::max<float>(20, needStep));
+        }
+    }
+    else
+    {
+        numSteps = (int)std::min<float>(64, std::max<float>(20, needStep));
+    }
 
-    // starting point
-    float angle = angle1;
+    // LOG_E("needStep=%f, steps=%i", needStep, numSteps);
+    if (numSteps > 0)
+    {
+        // calculate angle step
+        float step = (angle2 / numSteps);
+        float angle1 = atan2(1.0f, 0.0f) - atan2(v1.x, -v1.y);
+        // starting point
+        float angle = angle1;
 
-    GPoint arcP1 = {point.x + cosf(angle) * width2,
-                    point.y - sinf(angle) * width2};
-    GPoint arcP2;
+        GPoint arcP1 = {point.x + cosf(angle) * width2,
+                        point.y - sinf(angle) * width2};
+        GPoint arcP2;
+        for (int i = 0; i < numSteps; i++) {
+            angle += step;
+            arcP2 = PointMake(point.x + cosf(angle) * width2,
+                              point.y - sinf(angle) * width2);
 
-    for (int i = 0; i < numSteps; i++) {
-        angle += step;
-        arcP2 = PointMake(point.x + cosf(angle) * width2,
-                          point.y - sinf(angle) * width2);
-
-        context->PushTriangle(arcP1, point, arcP2, color, vec);
-
-        arcP1 = arcP2;
+            context->PushTriangle(arcP1, point, arcP2, color, vec);
+            arcP1 = arcP2;
+        }
     }
 }
-
 #ifdef SUPPORT_LINEDASH
 std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
 {
@@ -641,6 +707,7 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
 {
     float lineWidth = context->LineWidth() * 0.5;
     
+    float minValidValue = 0.000001;
     std::vector<tSubPath> *pathStack = &mPathStack;
     // 设置了lineDash的情况下，先由lineDash处理path
 #ifdef SUPPORT_LINEDASH
@@ -671,7 +738,7 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
             float deltaX = stopPoint.x - startPoint.x;
             float deltaY = stopPoint.y - startPoint.y;
             float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
-            if (length < 0.000001) {
+            if (length < minValidValue) {
                 continue;
             }
             float temp = deltaX;
@@ -742,11 +809,13 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
             }
             
             if (context->LineJoin() == LINE_JOIN_ROUND) {
-                drawArcToContext(context, stopPoint, joinP1, joinP2, color, vertexVec);
+                drawArcToContext(context, stopPoint, joinP1, joinP2, color, vertexVec, minValidValue);
             } else if (context->LineJoin() == LINE_JOIN_MITER) {
                 drawLineJoinMiter(context, stopPoint, joinP2, joinP1, color, vertexVec);
             } else if (context->LineJoin() == LINE_JOIN_BEVEL) {
-                context->PushTriangle(stopPoint, joinP1, joinP2, color, vertexVec);
+                if (isTrianglePointsValid(stopPoint, joinP1, joinP2, minValidValue)) {
+                    context->PushTriangle(stopPoint, joinP1, joinP2, color, vertexVec);
+                }
             }
         }
     }
@@ -855,17 +924,25 @@ void GPath::drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
             center.x + cosf(miterAngle) * miterLen * lineWidth,
             center.y + sinf(miterAngle) * miterLen * lineWidth};
 
+#ifdef ANDROID
+    // fix 兼容性问题(oppo a59等机型opengl不识别无效点)
+    if (isNan(p1) || isNan(p2) || isNan(center) || isNan(miterPoint)) {
+        return;
+    }
+#endif
+    
     context->PushQuad(center, p1, miterPoint, p2, color, vec);
 }
 
 void GPath::drawLineCap(GCanvasContext *context, const GPoint &center,
                         const GPoint &p1, const GPoint &p2, float deltaX,
-                        float deltaY, GColorRGBA color, std::vector<GVertex> *vec) {
+                        float deltaY, GColorRGBA color, std::vector<GVertex> *vec,
+                        float samePointThreshold) {
     if (context->LineCap() == LINE_CAP_SQUARE) {
         context->PushQuad(p1, p2, PointMake(p2.x + deltaX, p2.y + deltaY),
                           PointMake(p1.x + deltaX, p1.y + deltaY), color, vec);
     } else if (context->LineCap() == LINE_CAP_ROUND) {
-        drawArcToContext(context, center, p1, p2, color, vec);
+        drawArcToContext(context, center, p1, p2, color, vec, samePointThreshold);
     }
 }
 
