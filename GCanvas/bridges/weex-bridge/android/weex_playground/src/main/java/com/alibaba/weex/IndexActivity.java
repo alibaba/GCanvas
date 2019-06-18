@@ -178,11 +178,11 @@ public class IndexActivity extends AbstractWeexActivity {
     super.onException(wxsdkInstance,s,s1);
     mProgressBar.setVisibility(View.GONE);
     mTipView.setVisibility(View.VISIBLE);
-    if (TextUtils.equals(s, WXRenderErrorCode.WX_NETWORK_ERROR)) {
-      mTipView.setText(R.string.index_tip);
-    } else {
-      mTipView.setText("render error:" + s1);
-    }
+//    if (TextUtils.equals(s, WXRenderErrorCode.WX_NETWORK_ERROR)) {
+//      mTipView.setText(R.string.index_tip);
+//    } else {
+//      mTipView.setText("render error:" + s1);
+//    }
   }
 
   @Override

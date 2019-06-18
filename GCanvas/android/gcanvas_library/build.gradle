@@ -20,7 +20,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:${rootProject.extensions.sdks.Gradle}"
+        classpath "com.android.tools.build:gradle:3.2.1"
     }
 }
 
@@ -43,6 +43,7 @@ android {
     buildTypes {
         debug {
             debuggable true
+            minifyEnabled false
         }
         release {
             debuggable false
