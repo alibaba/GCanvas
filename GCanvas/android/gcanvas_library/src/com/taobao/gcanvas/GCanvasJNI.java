@@ -121,7 +121,8 @@ public class GCanvasJNI {
         String libraryPath = null;
         if (Build.VERSION.SDK_INT >= 24) {
             // Android 7 has changed security policy, different .so has different namespace.
-            libraryPath = context.getApplicationInfo().nativeLibraryDir + "/libweexcore.so";
+//            libraryPath = context.getApplicationInfo().nativeLibraryDir + "/libweexcore.so";
+            libraryPath = context.getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
             GLog.i("start to load gcanvas library,path=" + libraryPath);
         }
         GCanvasJNI.registerCallback(libraryPath, Build.VERSION.SDK_INT);

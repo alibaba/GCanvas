@@ -73,6 +73,7 @@ def pomConfig = {
 }
 
 publishing {
+    println("$buildDir/outputs/aar/${project.name}-release.aar")
     publications {
         maven(MavenPublication) {
             groupId group
