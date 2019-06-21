@@ -517,6 +517,9 @@ void GPath::DrawLinesToContext(GCanvasContext *context) {
             float deltaX = stopPoint.x - startPoint.x;
             float deltaY = stopPoint.y - startPoint.y;
             float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
+            if (length < minValidValue) {
+                continue;
+            }
             float temp = deltaX;
             deltaX = deltaY * lineWidth / length;
             deltaY = temp * lineWidth / length;
