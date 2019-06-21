@@ -78,7 +78,7 @@ private:
                          float y3, float x4, float y4, int level);
 
     void drawArcToContext(GCanvasContext *context, GPoint point, GPoint p1,
-                          GPoint p2, GColorRGBA color);
+                          GPoint p2, GColorRGBA color, float samePointThreshold = 0.0001f);
 
     void drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
                            const GPoint &p1, const GPoint &p2,
@@ -86,7 +86,7 @@ private:
 
     void drawLineCap(GCanvasContext *context, const GPoint &center,
                      const GPoint &p1, const GPoint &p2, float deltaX,
-                     float deltaY, GColorRGBA color);
+                     float deltaY, GColorRGBA color, float samePointThreshold = 0.0001f);
 
     float calcPointAngle(const GPoint &director, const GPoint &center);
 
