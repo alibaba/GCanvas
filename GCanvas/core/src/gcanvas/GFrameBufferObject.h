@@ -17,7 +17,6 @@
 #include "GTransform.h"
 #include <map>
 #include <set>
-#include <memory>
 
 
 class GFrameBufferObject
@@ -27,13 +26,20 @@ public:
 
     ~GFrameBufferObject();
 
-    bool InitFBO(int width, int height, GColorRGBA color);
+    bool InitFBO(int width, int height, GColorRGBA color, std::string appInfo = "");
+
+    bool InitFBO(int width, int height, GColorRGBA color, bool enableMsaa, std::string appInfo = "");
 
     void BindFBO();
 
     void UnbindFBO();
 
+    void DeleteFBO();
+
     int DetachTexture();
+
+    void GLClearScreen(GColorRGBA color);
+
 
     int Width()
     {
@@ -63,6 +69,7 @@ public:
     }
 
     bool mIsFboSupported = true;
+
     GTexture mFboTexture;
     GLuint mFboFrame = 0;
     GLuint mFboStencil = 0;

@@ -30,6 +30,8 @@
 #include <GLES2/gl2.h>
 #endif
 
+#include "GContext2dType.h"
+
 typedef struct
 {
     GLfloat x;

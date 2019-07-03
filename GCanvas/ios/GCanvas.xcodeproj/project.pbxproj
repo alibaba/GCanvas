@@ -73,6 +73,11 @@
 		A25CDD712020642A00174CB1 /* Encode.h in Headers */ = {isa = PBXBuildFile; fileRef = A25CDCAA2020642A00174CB1 /* Encode.h */; };
 		A25CDD732020642A00174CB1 /* GCanvasManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */; };
 		A25CDD762020642A00174CB1 /* GCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25CDCAF2020642A00174CB1 /* GCanvas.cpp */; };
+		A280E9E622CB459300155588 /* GCanvasState.h in Headers */ = {isa = PBXBuildFile; fileRef = A280E9E322CB459300155588 /* GCanvasState.h */; };
+		A280E9E722CB459300155588 /* GContext2dType.h in Headers */ = {isa = PBXBuildFile; fileRef = A280E9E422CB459300155588 /* GContext2dType.h */; };
+		A280E9E822CB459300155588 /* GCanvasState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A280E9E522CB459300155588 /* GCanvasState.cpp */; };
+		A280E9EA22CB45B600155588 /* export.h in Headers */ = {isa = PBXBuildFile; fileRef = A280E9E922CB45B600155588 /* export.h */; };
+		A280E9EC22CB45E700155588 /* GCanvas_Weex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A280E9EB22CB45E700155588 /* GCanvas_Weex.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -143,6 +148,11 @@
 		A25CDCAA2020642A00174CB1 /* Encode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Encode.h; sourceTree = "<group>"; };
 		A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasManager.cpp; sourceTree = "<group>"; };
 		A25CDCAF2020642A00174CB1 /* GCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvas.cpp; sourceTree = "<group>"; };
+		A280E9E322CB459300155588 /* GCanvasState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasState.h; sourceTree = "<group>"; };
+		A280E9E422CB459300155588 /* GContext2dType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GContext2dType.h; sourceTree = "<group>"; };
+		A280E9E522CB459300155588 /* GCanvasState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasState.cpp; sourceTree = "<group>"; };
+		A280E9E922CB45B600155588 /* export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = export.h; sourceTree = "<group>"; };
+		A280E9EB22CB45E700155588 /* GCanvas_Weex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvas_Weex.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,10 +255,12 @@
 		A25CDC422020642A00174CB1 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				A251753921C3A82B002E3BE2 /* platform */,
 				A25CDC542020642A00174CB1 /* gcanvas */,
+				A251753921C3A82B002E3BE2 /* platform */,
+				A280E9E922CB45B600155588 /* export.h */,
 				A25CDCAF2020642A00174CB1 /* GCanvas.cpp */,
 				A25CDC7E2020642A00174CB1 /* GCanvas.hpp */,
+				A280E9EB22CB45E700155588 /* GCanvas_Weex.cpp */,
 				A25CDCAC2020642A00174CB1 /* GCanvasManager.cpp */,
 				A25CDC9A2020642A00174CB1 /* GCanvasManager.h */,
 				A25CDC9C2020642A00174CB1 /* support */,
@@ -261,6 +273,9 @@
 			children = (
 				A25CDC6D2020642A00174CB1 /* GCanvas2dContext.cpp */,
 				A25CDC792020642A00174CB1 /* GCanvas2dContext.h */,
+				A280E9E522CB459300155588 /* GCanvasState.cpp */,
+				A280E9E322CB459300155588 /* GCanvasState.h */,
+				A280E9E422CB459300155588 /* GContext2dType.h */,
 				A25CDC682020642A00174CB1 /* GConvert.cpp */,
 				A25CDC5D2020642A00174CB1 /* GConvert.h */,
 				A25CDC602020642A00174CB1 /* GFillStyle.h */,
@@ -329,6 +344,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A251755121C3A86F002E3BE2 /* GGlyphCache.h in Headers */,
+				A280E9E722CB459300155588 /* GContext2dType.h in Headers */,
 				A25CDD2A2020642A00174CB1 /* GConvert.h in Headers */,
 				A25CDD452020642A00174CB1 /* GCanvas2dContext.h in Headers */,
 				A25CDD402020642A00174CB1 /* GWebglContext.h in Headers */,
@@ -336,12 +352,14 @@
 				A248AF632021AE7B00218A11 /* GCanvasModuleProtocol.h in Headers */,
 				A25CDD472020642A00174CB1 /* GTextDefine.h in Headers */,
 				A23717032020165B00A27353 /* GCVLog.h in Headers */,
+				A280E9E622CB459300155588 /* GCanvasState.h in Headers */,
 				A25CDD4A2020642A00174CB1 /* GCanvas.hpp in Headers */,
 				A23717072020165B00A27353 /* GCanvasSDK.h in Headers */,
 				A251754E21C3A86F002E3BE2 /* GTreemap.h in Headers */,
 				A25CDD622020642A00174CB1 /* GCanvasManager.h in Headers */,
 				A23717092020165B00A27353 /* GCVCommon.h in Headers */,
 				A25CDD282020642A00174CB1 /* GTexture.h in Headers */,
+				A280E9EA22CB45B600155588 /* export.h in Headers */,
 				A23716FE2020165B00A27353 /* GCVFont.h in Headers */,
 				A23717022020165B00A27353 /* GCanvasModule.h in Headers */,
 				A23717082020165B00A27353 /* GCanvasObject.h in Headers */,
@@ -445,6 +463,7 @@
 				A251754B21C3A86F002E3BE2 /* GFrameBufferObject.cpp in Sources */,
 				A25CDD412020642A00174CB1 /* GTexture.cpp in Sources */,
 				A251754C21C3A86F002E3BE2 /* GFontStyle.cpp in Sources */,
+				A280E9EC22CB45E700155588 /* GCanvas_Weex.cpp in Sources */,
 				A251753E21C3A82B002E3BE2 /* GFontManager.mm in Sources */,
 				A25CDD482020642A00174CB1 /* GPath.cpp in Sources */,
 				A23717062020165B00A27353 /* GCVFont.mm in Sources */,
@@ -462,6 +481,7 @@
 				A23717052020165B00A27353 /* GCanvasPlugin.mm in Sources */,
 				A25CDD732020642A00174CB1 /* GCanvasManager.cpp in Sources */,
 				A25CDD432020642A00174CB1 /* GWebglContext.cpp in Sources */,
+				A280E9E822CB459300155588 /* GCanvasState.cpp in Sources */,
 				A251754D21C3A86F002E3BE2 /* GGlyphCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -583,6 +603,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 					IOS,
+					GCANVAS_WEEX,
 				);
 				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -614,7 +635,10 @@
 				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = IOS;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					IOS,
+					GCANVAS_WEEX,
+				);
 				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";

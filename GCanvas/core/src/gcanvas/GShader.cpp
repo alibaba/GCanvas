@@ -9,7 +9,6 @@
 
 #include "GShader.h"
 #include "../support/Log.h"
-#include <cstring>
 
 #ifdef ANDROID
 
@@ -28,13 +27,12 @@
         }                                                                      \
     } while (false)
 
-using namespace std;
-
 #ifdef ANDROID
 
 bool GShader::initWithPreCompiledProgramByteArray(
         const char *shaderName, const GLchar *vShaderByteArray,
-        const GLchar *fShaderByteArray) {
+        const GLchar *fShaderByteArray)
+{
     mHandle = glCreateProgram();
     bool haveProgram = GPreCompiledShaders::getInstance()->LoadProgram(mHandle, shaderName);
 
@@ -49,29 +47,34 @@ extern bool g_use_pre_compile;
 
 GShader::GShader(const char *name, const char *vertexShaderSrc,
                  const char *fragmentShaderSrc)
-        : mHandle(0), mName(name) {
+        : mHandle(0), mName(name)
+{
 #ifdef ANDROID
     std::string shaderName = SHADER_NAME_PREFIX + mName;
 
-    if (g_use_pre_compile) {
+    if (g_use_pre_compile)
+    {
         if (GPreCompiledShaders::getInstance()
                     ->GetSupportPreCompiledShaders() &&
             initWithPreCompiledProgramByteArray(
-                    shaderName.c_str(), vertexShaderSrc, fragmentShaderSrc)) {
+                    shaderName.c_str(), vertexShaderSrc, fragmentShaderSrc))
+        {
             return;
         }
     }
 #endif
-
+    
     GLuint vertexShader = compileShader(vertexShaderSrc, GL_VERTEX_SHADER);
-    if (vertexShader == 0) {
-        LOG_W("Failed to compile vertext shader!");
+    if (vertexShader == 0)
+    {
+        LOG_EXCEPTION("", "shader_compile_fail", "type: vertex, name:%s, glGetError:%x", name, glGetError());
         return;
     }
 
     GLuint fragmentShader = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
-    if (fragmentShader == 0) {
-        LOG_W("Failed to compile fragment shader!");
+    if (fragmentShader == 0)
+    {
+        LOG_EXCEPTION("", "shader_compile_fail", "type: fragment, name:%s, glGetError:%x", name, glGetError());
         return;
     }
 
@@ -85,35 +88,42 @@ GShader::GShader(const char *name, const char *vertexShaderSrc,
 
     GLint linkSuccess;
     glGetProgramiv(mHandle, GL_LINK_STATUS, &linkSuccess);
-    if (linkSuccess == GL_FALSE) {
+    if (linkSuccess == GL_FALSE)
+    {
         GLchar message[256];
         glGetProgramInfoLog(mHandle, sizeof(message), 0, &message[0]);
-        LOG_E("<%s link error>: %s", name, message);
+        LOG_EXCEPTION("", "program_link_fail", "name:%s, error:%x", name, message);
         glDeleteProgram(mHandle);
         mHandle = 0;
         return;
     }
 #ifdef ANDROID
-    else {
+    else
+    {
         if (g_use_pre_compile &&
             GPreCompiledShaders::getInstance()
-                    ->GetSupportPreCompiledShaders()) {
+                    ->GetSupportPreCompiledShaders())
+        {
             GPreCompiledShaders::getInstance()->AddProgram(mHandle, mName);
         }
     }
 #endif
 }
 
-GShader::~GShader() {
-    if (mHandle != 0) {
+GShader::~GShader()
+{
+    if (mHandle != 0)
+    {
         glDeleteProgram(mHandle);
         mHandle = 0;
     }
 }
 
-GLuint GShader::compileShader(const char *shader, GLenum shaderType) {
+GLuint GShader::compileShader(const char *shader, GLenum shaderType)
+{
     GLuint shaderHandle = glCreateShader(shaderType);
-    if (shaderHandle == 0) {
+    if (shaderHandle == 0)
+    {
         return 0;
     }
 
@@ -123,24 +133,26 @@ GLuint GShader::compileShader(const char *shader, GLenum shaderType) {
 
     GLint compileResult;
     glGetShaderiv(shaderHandle, GL_COMPILE_STATUS, &compileResult);
-    if (compileResult == GL_FALSE) {
+    if (compileResult == GL_FALSE)
+    {
         GLchar message[2048];
         int len = 0;
         glGetShaderInfoLog(shaderHandle, sizeof(message), &len, &message[0]);
-        LOG_W("<%s compile error>: %s", shader, message);
+        LOG_EXCEPTION("", "shader_compile_fail", "error:%s", message);
         glDeleteShader(shaderHandle);
         return 0;
     }
     return shaderHandle;
 }
 
-void GShader::Bind() {
-//    LOG_D("webgl::exec  in onSurfaceChange mHandle: %d",mHandle);
+void GShader::Bind()
+{
     glUseProgram(mHandle);
     RestoreShaderState();
 }
 
-void GShader::SetTransform(const GTransform &trans) {
+void GShader::SetTransform(const GTransform &trans)
+{
 
     GLfloat m[16] = {0.0f};
     m[0] = trans.a;
@@ -153,19 +165,22 @@ void GShader::SetTransform(const GTransform &trans) {
 
 
     glUniformMatrix4fv(GetTransformSlot(), 1, GL_FALSE, &(m[0]));
+
 }
 
 void GShader::calculateAttributesLocations() {}
 
 DefaultShader::DefaultShader(const char *name, const char *vertexShaderSrc,
                              const char *fragmentShaderSrc)
-        : GShader(name, vertexShaderSrc, fragmentShaderSrc) {
+        : GShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
 DefaultShader::~DefaultShader() {}
 
-void DefaultShader::calculateAttributesLocations() {
+void DefaultShader::calculateAttributesLocations()
+{
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
@@ -189,11 +204,14 @@ void DefaultShader::calculateAttributesLocations() {
 
 TextureShader::TextureShader(const char *name, const char *vertexShaderSrc,
                              const char *fragmentShaderSrc)
-        : GShader(name, vertexShaderSrc, fragmentShaderSrc) {
+        : GShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
-void TextureShader::calculateAttributesLocations() {
+
+void TextureShader::calculateAttributesLocations()
+{
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
@@ -203,12 +221,15 @@ void TextureShader::calculateAttributesLocations() {
 }
 
 ShadowShader::ShadowShader(const char *name, const char *vertexShaderSrc,
-                           const char *fragmentShaderSrc)
-        : GShader(name, vertexShaderSrc, fragmentShaderSrc) {
+                             const char *fragmentShaderSrc)
+        : GShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
-void ShadowShader::calculateAttributesLocations() {
+
+void ShadowShader::calculateAttributesLocations()
+{
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
@@ -222,11 +243,13 @@ void ShadowShader::calculateAttributesLocations() {
 
 PatternShader::PatternShader(const char *name, const char *vertexShaderSrc,
                              const char *fragmentShaderSrc)
-        : GShader(name, vertexShaderSrc, fragmentShaderSrc) {
+        : GShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
-void PatternShader::calculateAttributesLocations() {
+void PatternShader::calculateAttributesLocations()
+{
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
@@ -237,19 +260,21 @@ void PatternShader::calculateAttributesLocations() {
     mTextureSizeSlot = glGetUniformLocation(mHandle, "textureSize");
     mPatternAlphaSlot = glGetUniformLocation(mHandle, "u_patternAlpha");
 
+    glUseProgram(mHandle);
     SetRepeatMode("no-repeat");
 }
 
 
 GradientShader::GradientShader(const char *name,
                                const char *vertexShaderSrc,
-                               const char *fragmentShaderSrc) : GShader(name, vertexShaderSrc,
-                                                                        fragmentShaderSrc) {
+                               const char *fragmentShaderSrc):GShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
 
-void GradientShader::calculateAttributesLocations() {
+void GradientShader::calculateAttributesLocations()
+{
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
     mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
@@ -277,14 +302,17 @@ void GradientShader::calculateAttributesLocations() {
     mHasTextureFlag = false;
 }
 
+
 LinearGradientShader::LinearGradientShader(const char *name,
                                            const char *vertexShaderSrc,
                                            const char *fragmentShaderSrc)
-        : GradientShader(name, vertexShaderSrc, fragmentShaderSrc) {
+        : GradientShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
-void LinearGradientShader::calculateAttributesLocations() {
+void LinearGradientShader::calculateAttributesLocations()
+{
     mRangeStartSlot = glGetUniformLocation(mHandle, "u_startPos");
     mRangeEndSlot = glGetUniformLocation(mHandle, "u_endPos");
     GradientShader::calculateAttributesLocations();
@@ -294,11 +322,13 @@ void LinearGradientShader::calculateAttributesLocations() {
 RadialGradientShader::RadialGradientShader(const char *name,
                                            const char *vertexShaderSrc,
                                            const char *fragmentShaderSrc)
-        : GradientShader(name, vertexShaderSrc, fragmentShaderSrc) {
+        : GradientShader(name, vertexShaderSrc, fragmentShaderSrc)
+{
     calculateAttributesLocations();
 }
 
-void RadialGradientShader::calculateAttributesLocations() {
+void RadialGradientShader::calculateAttributesLocations()
+{
     mStartSlot = glGetUniformLocation(mHandle, "u_startPos");
     mEndSlot = glGetUniformLocation(mHandle, "u_endPos");
     GradientShader::calculateAttributesLocations();

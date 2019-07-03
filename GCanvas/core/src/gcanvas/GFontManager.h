@@ -19,6 +19,9 @@
 
 class GCanvasContext;
 
+#define FontTextureWidth        2048
+#define FontTextureHeight       2048
+
 
 namespace gcanvas
 {
@@ -30,8 +33,8 @@ class GFontCache;
 class GFontManager
 {
 public:
-    static const int FontTextureWidth = 2048;
-    static const int FontTextureHeight = 2048;
+//    static const int FontTextureWidth = 2048;
+//    static const int FontTextureHeight = 2048;
 
     static GFontManager *NewInstance(GCanvasContext *context);
 

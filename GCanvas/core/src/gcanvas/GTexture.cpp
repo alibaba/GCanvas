@@ -11,7 +11,6 @@
 //#include "../png/PngLoader.h"
 #include "../support/Log.h"
 #include "../support/Util.h"
-#include <stdlib.h>
 
 using namespace gcanvas;
 
@@ -73,8 +72,12 @@ GLubyte *GTexture::loadPixelsFromPNG(const char *path, unsigned int *pw,
     return buffer;
 }
 
-void GTexture::CreateTexture(GLubyte *pixels)
+void GTexture::CreateTexture(GLubyte *pixels, const char *appInfo)
 {
+    char defaultInfo[] = "";
+    if (!appInfo) {
+        appInfo = defaultInfo;
+    }
     // Release previous texture if we had one
     if (mTextureID)
     {
@@ -87,23 +90,42 @@ void GTexture::CreateTexture(GLubyte *pixels)
 
     if ((int)mWidth > maxTextureSize || (int)mHeight > maxTextureSize)
     {
+        LOG_EXCEPTION(appInfo, "texture_size_exceed", "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth, mHeight, maxTextureSize);
         return;
     }
 
+    GLenum glerror = 0;
     int boundTexture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
 
     glGenTextures(1, &mTextureID);
+    if (mTextureID <= 0) {
+        LOG_EXCEPTION(appInfo, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glGetError());
+    }
     glBindTexture(GL_TEXTURE_2D, mTextureID);
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
+
+
     glTexImage2D(GL_TEXTURE_2D, 0, mFormat, (GLsizei)mWidth,
                  (GLsizei)mHeight, 0, mFormat, GL_UNSIGNED_BYTE, pixels);
 
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glBindTexture(GL_TEXTURE_2D, (GLuint)boundTexture);
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
     glFlush();
 }
 
@@ -202,25 +224,6 @@ const TextureGroup *TextureMgr::Get(int id) const
         return &(itr->second);
     }
     return nullptr;
-}
-
-GLuint TextureMgr::CreateTexture(const unsigned char *rgbaData,
-                                 unsigned int width, unsigned int height)
-{
-    if (nullptr == rgbaData)
-        return (GLuint)-1;
-
-    GLuint glID;
-    glGenTextures(1, &glID);
-    glBindTexture(GL_TEXTURE_2D, glID);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, rgbaData);
-    return glID;
 }
 
 bool TextureMgr::AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,

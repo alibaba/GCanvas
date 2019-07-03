@@ -23,7 +23,11 @@ uniform bool b_premultipliedAlpha;  \n\
 void main()                         \n\
 {                                   \n\
     vec4 texColor;                  \n\
-    texColor = texture2D( u_texture, v_texCoord);   \n\
+    if(v_texCoord.x < 0.0 || v_texCoord.x > 1.0 || v_texCoord.y < 0.0 || v_texCoord.y > 1.0) { \n\
+        texColor = vec4(0.0,0.0,0.0,0.0); \n\
+    }else{ \n\
+        texColor = texture2D(u_texture, v_texCoord);   \n\
+    } \n\
     if(b_premultipliedAlpha){                       \n\
         texColor = texColor * v_desColor.a;         \n\
     }else{                                          \n\

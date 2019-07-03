@@ -37,15 +37,15 @@ typedef void (*RegisterFunc)(FunType fp);
 
 RegisterFunc dlopen_weex_so_above_android_7(const char *soPath) {
     RegisterFunc result = (RegisterFunc) ali::getSymbolAddr((char *) "Inject_GCanvasFunc",
-                                                            (char *) soPath, "libweexjsc.so");
+                                                            (char *) soPath, "libweexcore.so");
     LOG_E("result is 0x%x", result);
     return result;
 }
 
 void RegisterCallNativeCallback_belowN() {
-    void *handle = dlopen("libweexjsc.so", RTLD_NOW);
+    void *handle = dlopen("libweexcore.so", RTLD_NOW);
     if (!handle) {
-        LOG_D("load libweexjsc.so failed,error=%s\n", dlerror());
+        LOG_D("load libweexcore.so failed,error=%s\n", dlerror());
         dlclose(handle);
         return;
     }
@@ -119,6 +119,7 @@ void executeCallbacks(JNIEnv *je, jstring contextId) {
 
 extern int g_js_version;
 
+#ifdef GCANVAS_WEEX
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_newCanvas(
         JNIEnv *je, jclass jc, jstring contextId, jint jsVersion, jstring clearColor) {
     LOG_D("Canvas JNI::newCanvas. jsVer=%d", jsVersion);
@@ -337,8 +338,8 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_surfaceChanged(
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_captureGLLayer(
         JNIEnv *je, jclass jc, jstring contextId, jstring callbackId, jint x,
         jint y, jint w, jint h, jstring fileName) {
-    LOG_D("Canvas JNI::captureGLLayer");
-
+//    LOG_D("Canvas JNI::captureGLLayer");
+//
 //    GCanvasManager *theManager = GCanvasManager::GetManager();
 //    char *cid = jstringToString(je, contextId);
 //    string canvasId = cid;
@@ -461,13 +462,15 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getImageData(
     theCanvas->GetImageData(x, y, width, height, true, strRet);
     return je->NewStringUTF(strRet.c_str());
 }
+#endif
+
+
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setFallbackFont(
         JNIEnv *je, jclass jc, jstring fallback_font_file,
         jstring system_font_location) {
     // fallback_font_file_jvm is managed by JVM.
     const char *fallback_font_file_jvm = je->GetStringUTFChars(fallback_font_file, 0);
-    LOG_D("fallback_font_file is %s", fallback_font_file_jvm);
     if (fallback_font_file_jvm == nullptr)
         return; // return if memory overflows.
 
@@ -565,9 +568,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setLogLevel(
         JNIEnv *je, jclass jc, jstring logLevel) {
     char *level = jstringToString(je, logLevel);
 
-    if (strcmp(level, "force") == 0)
-        SetLogLevel(LOG_LEVEL_VERBOSE);
-    else if (strcmp(level, "debug") == 0)
+    if (strcmp(level, "debug") == 0)
         SetLogLevel(LOG_LEVEL_DEBUG);
     else if (strcmp(level, "info") == 0)
         SetLogLevel(LOG_LEVEL_INFO);
@@ -581,6 +582,8 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setLogLevel(
     free(level);
     return;
 }
+
+#ifdef GCANVAS_WEEX
 
 extern bool g_use_pre_compile;
 extern std::string g_shader_cache_path;
@@ -665,17 +668,17 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_exeSyncCmd
     return nullptr;
 }
 
-extern int g_encode_type;
-extern int g_clear_color_time;
+//extern int g_encode_type;
+//extern int g_clear_color_time;
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setConfig(
         JNIEnv *je, jclass jc, jstring key, jint value) {
     char *configKey = jstringToString(je, key);
     LOG_D("Canvas JNI::setConfig %s=%d", configKey, value);
     if (0 == strcmp(configKey, "encode_type")) {
-        g_encode_type = value;
+//        g_encode_type = value;
     } else if (0 == strcmp(configKey, "clear_color_time")) {
-        g_clear_color_time = value;
+//        g_clear_color_time = value;
     }
     free(configKey);
 }

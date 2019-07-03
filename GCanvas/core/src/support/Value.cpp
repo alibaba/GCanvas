@@ -9,13 +9,10 @@
 #include "Value.h"
 #include <iomanip>
 #include <sstream>
-#include <cstring>
 
 #ifndef FLT_EPSILON
 #define FLT_EPSILON 1.192092896e-07F
 #endif
-
-using namespace std;
 
 Value::Value(const Value &other) : mType(Type::NONE) { *this = other; }
 

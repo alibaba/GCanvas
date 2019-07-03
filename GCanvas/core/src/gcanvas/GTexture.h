@@ -78,8 +78,6 @@ class TextureMgr
 {
 public:
     TextureMgr();
-    static GLuint CreateTexture(const unsigned char *rgbaData,
-                                unsigned int width, unsigned int height);
     bool AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,
                    unsigned int *widthPtr, unsigned int *heightPtr);
     void Append(int id, int glID, int width, int height);
@@ -100,7 +98,7 @@ public:
     GTexture();
     ~GTexture();
 
-    void CreateTexture(GLubyte *pixels);
+    void CreateTexture(GLubyte *pixels, const char *appInfo = NULL);
 
     void Bind() const;
     void Unbind() const;

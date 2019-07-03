@@ -30,7 +30,9 @@ struct GTransform
 };
 
 /* The identity transform: [ 1 0 0 1 0 0 ]. */
-const GTransform GTransformIdentity(1, 0, 0, 1, 0, 0);
+//const GTransform GTransformIdentity(1, 0, 0, 1, 0, 0);
+
+#define  GTransformIdentity  GTransform(1, 0, 0, 1, 0, 0)
 
 /* Return the transform [ a b c d tx ty ]. */
 static inline GTransform GTransformMake(float a, float b, float c, float d,
@@ -149,11 +151,11 @@ static inline GTransform GTransformConcat(const GTransform& t1, const GTransform
 /* Transform `point' by `t' and return the result:
  p' = p * t
  where p = [ x y 1 ]. */
-static inline GPoint GPointApplyGTransform(GPoint point, GTransform t)
+static inline GPoint GPointApplyGTransform(float x, float y, GTransform t)
 {
     GPoint p;
-    p.x = (float)((double)t.a * point.x + (double)t.c * point.y + t.tx);
-    p.y = (float)((double)t.b * point.x + (double)t.d * point.y + t.ty);
+    p.x = (float)((double)t.a * x + (double)t.c * y + t.tx);
+    p.y = (float)((double)-t.b * x + (double)t.d * y + t.ty);
     return p;
 }
 

@@ -17,6 +17,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <export.h>
 
 #endif
 
@@ -29,13 +30,6 @@
 #include <GLES2/gl2.h>
 #endif
 
-#include "GShader.h"
-#include "GPath.h"
-#include "GTransform.h"
-#include "GFillStyle.h"
-#include "GFrameBufferObject.h"
-#include "GFontStyle.h"
-
 #ifdef ANDROID
 
 #include "GFont.h"
@@ -45,114 +39,15 @@
 #endif
 
 
-#include "GTextDefine.h"
+#include "GCanvasState.h"
+#include "GFrameBufferObject.h"
 #include "GTexture.h"
 #include "GConvert.h"
 #include "GTreemap.h"
 #include "GFontManager.h"
 
-const GColorRGBA DEFAULT_CLEAR_COLOR =
-        StrValueToColorRGBA("transparent_white");
-
-typedef enum
-{
-    LINE_CAP_BUTT = 0,
-    LINE_CAP_ROUND,
-    LINE_CAP_SQUARE
-} GLineCap;
-
-typedef enum
-{
-    LINE_JOIN_MITER = 0,
-    LINE_JOIN_BEVEL,
-    LINE_JOIN_ROUND
-} GLineJoin;
-
-typedef enum
-{
-    DIRECTION_INHERIT,
-    DIRECTION_LEFT_TO_RIGHT,
-    DIRECTION_RIGHT_TO_LEFT
-} GDirection;
-
-typedef enum
-{
-    COMPOSITE_OP_SOURCE_OVER = 0,
-    COMPOSITE_OP_LIGHTER = 1,
-    COMPOSITE_OP_DARKER = 2,
-    COMPOSITE_OP_DESTINATION_OUT = 3,
-    COMPOSITE_OP_DESTINATION_OVER = 4,
-    COMPOSITE_OP_SOURCE_ATOP = 5,
-    COMPOSITE_OP_XOR = 6,
-    COMPOSITE_OP_REPLACE = 7,
-    COMPOSITE_OP_ALPHA = 8,
-    COMPOSITE_OP_ADD = 9,
-    COMPOSITE_OP_SOURCE_OUT = 10,
-    COMPOSITE_OP_DESTINATION_IN = 11,
-    COMPOSITE_OP_NONE,
-} GCompositeOperation;
-
-static const struct
-{
-    GLenum source;
-    GLenum destination;
-} GCompositeOperationFuncs[] = {
-        {GL_ONE,           GL_ONE_MINUS_SRC_ALPHA}, //0
-        {GL_SRC_ALPHA,           GL_ONE}, //1
-        {GL_DST_COLOR,           GL_ONE_MINUS_SRC_ALPHA}, //2
-        {GL_ZERO,                GL_ONE_MINUS_SRC_ALPHA}, //3
-        {GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA}, //4
-        {GL_DST_ALPHA,           GL_ZERO}, //5
-        {GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA}, //6
-        {GL_ONE,                 GL_ZERO}, //7
-        {GL_SRC_ALPHA,           GL_DST_ALPHA}, //8
-        {GL_ONE,                 GL_ONE}, //9
-        {GL_ONE_MINUS_DST_ALPHA, GL_ZERO},//10
-        {GL_ZERO,                GL_SRC_ALPHA},//11
-};
-
-const int InvalidateTextureId = -1;
-
-class GCanvasState
-{
-public:
-    GCanvasState();
-
-    GCanvasState(const GCanvasState &state);
-
-    GCanvasState &operator=(const GCanvasState &state);
-
-    ~GCanvasState();
-
-    GCompositeOperation mGlobalCompositeOp;
-    GColorRGBA mFillColor;
-    GColorRGBA mStrokeColor;
-
-    GColorRGBA mShadowColor;
-    float mShadowBlur;
-    float mShadowOffsetX;
-    float mShadowOffsetY;
-
-    float mGlobalAlpha;
-    float mLineWidth;
-    GLineCap mLineCap;
-    GLineJoin mLineJoin;
-    float mMiterLimit;
-    std::vector<float> mLineDash;
-    float mLineDashOffset;
-    gcanvas::GFontStyle *mFont;
-
-    GTextAlign mTextAlign;
-    GTextBaseline mTextBaseline;
-    GTransform mTransform;
-    GTransform mClipTransform;
-    GPath *mClipPath;
-    GShader *mShader;
-    GFillStyle *mFillStyle;
-    GFillStyle *mStrokeStyle;
-    int textureId = InvalidateTextureId;
-
-};
+//const GColorRGBA DEFAULT_CLEAR_COLOR =
+//        StrValueToColorRGBA("transparent_white");
 
 //typedef void (*G2DFontDrawTextFunc)(const unsigned short *text, unsigned int textLength, float x,
 //                                    float y, bool isStroke, GCanvasContext *canvasContext, void *fontContext);
@@ -178,15 +73,32 @@ public:
     static const int GCANVAS_STATE_STACK_SIZE = 16;
     static const int GCANVAS_VERTEX_BUFFER_SIZE = 2048;
 
-    GCanvasContext(short w, short h, bool flip);
+    GCanvasContext(short w, short h, bool flip, std::string appInfo = "", bool useFbo = true);
 
     virtual ~GCanvasContext();
 
-    void SetDevicePixelRatio(const float ratio);
-    void CalculateProjectTransform(int w, int h);
+    API_EXPORT void SetDevicePixelRatio(const float ratio);
+    API_EXPORT void SetCanvasDimension(const int w, const int h, bool resetStatus = false);
+    // 获取canvas画布尺寸
+    API_EXPORT int GetCanvasWidth();
+    API_EXPORT int GetCanvasHeight();
+    API_EXPORT float GetDevicePixelRatio();
 
+    API_EXPORT bool IsUseFbo();
+
+    API_EXPORT void SendVertexBufferToGPU(const GLenum geometry_type = GL_TRIANGLES);
+
+    float GetCanvasDimensionWidthScale();
+    float GetCanvasDimensionHeightScale();
+
+    void UpdateProjectTransform();
+    GTransform CalculateProjectTransform(int width, int height);
+    float GetCurrentScaleX();
+    float GetCurrentScaleY();
 
     bool InitializeGLEnvironment();
+
+    bool InitializeGLShader();
 
     void ResetStateStack();
 
@@ -205,7 +117,7 @@ public:
     void UseTextureRenderPipeline();
 
     void UseShadowRenderPipeline();
-
+    
     void UseShadowRenderPipeline(double radius);
 
     void UsePatternRenderPipeline(bool isStroke=false);
@@ -222,15 +134,20 @@ public:
 
     void ClearGeometryDataBuffers();
 
-    void SendVertexBufferToGPU(const GLenum geometry_type = GL_TRIANGLES);
 
     void PushTriangle(GPoint v1, GPoint v2, GPoint v3, GColorRGBA color, std::vector<GVertex> *vec = NULL);
 
     void PushQuad(GPoint v1, GPoint v2, GPoint v3, GPoint v4,
                   GColorRGBA color, std::vector<GVertex> *vec = NULL);
 
+    //FBO的尺寸与texture尺寸一致
     void PushRectangle(float x, float y, float w, float h, float tx, float ty,
                        float tw, float th, GColorRGBA color, bool flipY=false);
+    
+    //FBO的尺寸与texture尺寸一致, 通常GetFrameBuffer创建的FBO的尺寸与实际texture尺寸(2的次方)不一致，tw,th是FBO尺寸与texture尺寸的比例
+    void PushRectangle4TextureArea(float x, float y, float w, float h, float tx, float ty,
+                                   float tw, float th, GColorRGBA color, bool flipY=false);
+    
     void PushReverseRectangle(float x, float y, float w, float h, float tx, float ty,
                               float tw, float th, GColorRGBA color);
 
@@ -239,6 +156,7 @@ public:
     void PushVertexs(const std::vector<GVertex> &vertexs);
 
     void PushTriangleFanPoints(const std::vector<GPoint> &points, GColorRGBA color);
+
 
 
     short Width() { return mWidth; }
@@ -291,30 +209,33 @@ public:
 
     void SetFillStyle(GColorRGBA c);
 
-    void SetClearColor(const GColorRGBA &c);
+    API_EXPORT void SetClearColor(const GColorRGBA &c);
 
     GColorRGBA GetClearColor() const { return mClearColor; }
 
     void ClearScreen(const GColorRGBA &color);
 
-    void ClearRect(float x, float y, float w, float h);
+    API_EXPORT void ClearRect(float x, float y, float w, float h);
 
     void FillRect(float x, float y, float w, float h);
 
-    void Blur(const GRectf &rect, float blur, float scale, std::function<void()> f,
-              GFrameBufferObjectPtr &originFbo);
-
-    void Blur(const GRectf &rect, float blur, std::function<void()> f);
+    void Blur(const GRectf &rect, float blur, std::function<void()> draw, GFrameBufferObjectPtr &outputFbo, bool isOnScreen, float scale);
+    
+    void DrawBlur(const GRectf &rect, float blur, std::function<void()> draw);
+    
+    void DrawShadow(const GRectf &rect, std::function<void()> drawFun);
 
     void FillRectBlur(float x, float y, float w, float h);
-
+    
     void StrokeRect(float x, float y, float w, float h);
+    
+    void StrokeRectBlur(float x, float y, float w, float h);
 
     void ImageBlur(float w, float h, int TextureId, float sx,
                    float sy, float sw, float sh, float dx,
                    float dy, float dw, float dh);
 
-    void Fill();
+    void Fill(GFillRule rule=FILL_RULE_NONZERO);
 
     void FillBlur();
 
@@ -323,6 +244,8 @@ public:
     void StrokeBlur();
 
     void ClipRegion();
+    
+    void ClipRegionNew(GFillRule rule=FILL_RULE_NONZERO);
 
     void BeforeClip();
 
@@ -372,7 +295,6 @@ public:
 
     void SetMiterLimit(float limit) { mCurrentState->mMiterLimit = limit; }
     
-#ifdef SUPPORT_LINEDASH
     void SetLineDash(std::vector<float> lineDash) {mCurrentState->mLineDash = lineDash;}
     
     std::vector<float> LineDash() const {
@@ -385,7 +307,6 @@ public:
         return mCurrentState->mLineDashOffset;
     }
 
-#endif
     GTextAlign TextAlign() const { return mCurrentState->mTextAlign; }
 
     void SetTextAlign(GTextAlign align) { mCurrentState->mTextAlign = align; }
@@ -476,6 +397,14 @@ public:
 
     GFont *GetFontByCharCode(wchar_t charCode);
 
+
+
+    inline void SetEnableFboMsaa(bool v)
+    {
+        mEnableFboMsaa = v;
+    }
+
+
 //    void SetOverideTextureColor(int value);
 #endif
 
@@ -523,7 +452,6 @@ public:
     GTexture *GetFontTexture();
 
 protected:
-//    G2DFontDrawTextFunc g2d_font_draw_text_func_;
     GWebGLTxtImage2DFunc gwebgl_txtImage_2d_func_;
     GWebGLTxtSubImage2DFunc gwebgl_txtsubImage_2d_func_;
 #ifdef IOS
@@ -540,6 +468,10 @@ public:
 
     short GetHeight() const { return mHeight; }
 
+    void SetWidth(short v)  { mWidth = v; }
+
+    void SetHeight(short v)  { mHeight = v; }
+
 protected:
     GTransform mProjectTransform;
     GPath mPath;
@@ -549,7 +481,8 @@ protected:
 
     int mVertexBufferIndex;
     GShader *mSaveShader;
-
+    bool mSaveIsStroke;
+    
     GColorRGBA mClearColor;
     std::map<std::string, GFrameBufferObject> mFboMap;
 
@@ -560,12 +493,25 @@ protected:
 #ifdef ANDROID
     GShaderManager *mShaderManager;
 #endif
+
     GTexture *mFontTexture = nullptr;
 
+    bool mEnableFboMsaa = false;
+    // 控制是否开启使用FBO渲染
+    bool mUseFBO = true;
+
 public:
+    // 用于业务层埋点
+    std::string mAppInfo = "";
+    
     bool mHiQuality;
     GCanvasState *mCurrentState;
+    // 设备像素密度
     float mDevicePixelRatio;
+    // canvas draw尺寸
+    int mCanvasWidth = 0;
+    int mCanvasHeight = 0;
+
     int mContextType; // 0--2d;1--webgl
     bool mContextLost;
 
@@ -574,19 +520,23 @@ public:
 
     GVertex CanvasVertexBuffer[GCanvasContext::GCANVAS_VERTEX_BUFFER_SIZE];
 
-#ifdef ANDROID
-private:
-    void adjustTextPenPoint(std::vector<GFont *> font,
-                            const unsigned short *text,
-                            unsigned int textLength,
-            /*out*/ float &x,
-            /*out*/ float &y);
-
-#endif
+//#ifdef ANDROID
+//private:
+//    void adjustTextPenPoint(std::vector<GFont *> font,
+//                            const unsigned short *text,
+//                            unsigned int textLength,
+//            /*out*/ float &x,
+//            /*out*/ float &y);
+//
+//#endif
 
 private:
     bool mFlip;
+
+    bool isGLInited = false;
+
     GFrameBufferObjectPool mFrameBufferPool;
+
 };
 
 #endif /* defined(__GCanvas__GCanvasContext__) */

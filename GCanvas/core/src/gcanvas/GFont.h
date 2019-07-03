@@ -111,6 +111,7 @@ private:
 #endif
 
     std::string mFontDefinition;
+    bool mHasSetMetrics;
     GFontMetrics mFontMetrics;
 
     FT_Library mLibrary= nullptr;

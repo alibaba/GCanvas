@@ -21,16 +21,17 @@ public:
     GCanvasManager();
     virtual ~GCanvasManager();
 
-    void NewCanvas(std::string canvasId, bool onScreen=true);
-    void RemoveCanvas(std::string canvasId);
-    GCanvas *GetCanvas(std::string canvasId);
+    void NewCanvas(const std::string canvasId, bool onScreen=true, std::string appInfo = "");
+	
+    void RemoveCanvas(const std::string canvasId);
+    GCanvas *GetCanvas(const std::string canvasId);
     void addCanvas(GCanvas *p);
     int canvasCount();
     void Clear();
 #ifdef ANDROID
-    void AddtoQueue(std::string contextId,struct GCanvasCmd *);
-    std::queue<struct GCanvasCmd *> * getQueueByContextId(std::string contextId);
-    void clearQueueByContextId(std::string contextId);
+    void AddtoQueue(const std::string contextId,struct GCanvasCmd *);
+    std::queue<struct GCanvasCmd *> * getQueueByContextId(const std::string contextId);
+    void clearQueueByContextId(const std::string contextId);
     void clearQueue(std::queue<struct GCanvasCmd *> *queue);
 #endif
     static GCanvasManager *GetManager();
@@ -42,8 +43,6 @@ protected:
     std::map<std::string,std::queue<struct GCanvasCmd *> *> mCmdQueue;
 #endif
     
-private:
-    static std::auto_ptr<GCanvasManager> sCanvasMgr;
 };
 }
 

@@ -1,4 +1,7 @@
 source 'https://github.com/CocoaPods/Specs.git'
+ali_source 'alibaba-specs' #集团内部仓库
+ali_source 'alibaba-specs-mirror' #官方镜像仓库
+
 platform :ios, '8.0'
 inhibit_all_warnings!
 
@@ -8,6 +11,8 @@ target 'GCanvasPlayground' do
   pod 'ATSDK-Weex'
   pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
   pod 'WeexSDK'#, '0.20.1'#, :git=>'git@github.com:apache/incubator-weex.git'
+
+  pod 'SDWebImage', '3.7.5'
 
   #pod 'WeexGcanvas'
   pod 'WeexGcanvas', :path=>'../../../../../'

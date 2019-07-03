@@ -21,8 +21,6 @@
 
 @property(nonatomic, strong) NSString *componentId;
 @property(nonatomic, assign) GCanvas *gcanvas;
-@property(nonatomic, assign) BOOL gcanvasInited;
-
 @property(nonatomic, strong) NSMutableArray *renderCommandArray;
 @property(nonatomic, strong) NSMutableDictionary *textureDict;
 
@@ -30,7 +28,6 @@
 
 @end
 
-static FetchPluginBlock gFetchPluginBlock;
 @implementation GCanvasPlugin
 
 + (void)setLogLevel:(NSUInteger)logLevel{
@@ -41,9 +38,15 @@ static FetchPluginBlock gFetchPluginBlock;
     SetLogLevel((LogLevel)logLevel);
 }
 
++ (FetchPluginBlock)GetFetchPluginBlock{
+    static FetchPluginBlock gFetchPluginBlock;
+    return gFetchPluginBlock;
+}
+
 + (void)setFetchPlugin:(FetchPluginBlock)block
 {
-    gFetchPluginBlock = block;
+    FetchPluginBlock fetchPluginBlock = [self GetFetchPluginBlock];
+    fetchPluginBlock = block;
 }
 
 
@@ -259,10 +262,7 @@ void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length,
         return;
     }
     
-    //    GCanvasContext *context = (GCanvasContext*)ctx;
-    
     GCanvasState *current_state_ = context->GetCurrentState();
-    //    GCVFont *curFont = [GCVFont sharedInstance];
     GCVFont *curFont = (__bridge GCVFont*)fontContext;
     
     [curFont resetWithFontStyle:current_state_->mFont isStroke:isStroke context:context];
@@ -287,9 +287,7 @@ float iOS_GCanvas_Mesure_Text(const char *text, unsigned int text_length, GCanva
         return 0;
     }
     
-    
     GCanvasState *current_state_ = context->GetCurrentState();
-    //    GCVFont *curFont = [GCVFont sharedInstance];
     GCVFont *curFont = (__bridge GCVFont*)fontContext;
     
     [curFont resetWithFontStyle:current_state_->mFont isStroke:false context:context];
@@ -397,8 +395,9 @@ void iOS_GCanvas_GWebGLTxtSubImage2D(GLenum target, GLint level, GLint xoffset, 
 }
 
 void iOS_GCanvas_Bind_To_GLKView(std::string contextId){
-    if(gFetchPluginBlock){
-        GCanvasPlugin *plugin = gFetchPluginBlock( [NSString stringWithUTF8String:contextId.c_str()]);
+    if( [GCanvasPlugin GetFetchPluginBlock] ){
+        FetchPluginBlock block = [GCanvasPlugin GetFetchPluginBlock];
+        GCanvasPlugin *plugin = block([NSString stringWithUTF8String:contextId.c_str()]);
         GLKView *glkview = [plugin getGLKView];
         [glkview bindDrawable];
     }

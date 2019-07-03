@@ -15,12 +15,8 @@
 #include "shaders/texture.glsl"
 #include "shaders/shadow.glsl"
 
-#include <cstring>
-
 #ifdef ANDROID
-
 #include "GPreCompiledShaders.h"
-
 bool g_use_pre_compile = false;
 #endif
 
@@ -46,38 +42,45 @@ void GShaderManager::release()
 }
 #endif
 
-using namespace std;
-
-void GShaderManager::addProgram(const std::string &key, GShader *program) {
-    std::map<std::string, GShader *>::iterator iter =
-            mProgramCaches.find(key);
-    if (iter == mProgramCaches.end()) {
+void GShaderManager::addProgram(const std::string &key, GShader *program)
+{
+    std::map< std::string, GShader * >::iterator iter =
+        mProgramCaches.find(key);
+    if (iter == mProgramCaches.end())
+    {
         mProgramCaches.insert(
-                std::pair<std::string, GShader *>(key, program));
-    } else if (iter->second != program) {
+            std::pair< std::string, GShader * >(key, program));
+    }
+    else if (iter->second != program)
+    {
         delete (iter->second);
         iter->second = program;
     }
 }
 
-GShader *GShaderManager::programForKey(const std::string &key) {
-    std::map<std::string, GShader *>::iterator iter =
-            mProgramCaches.find(key);
-    if (iter == mProgramCaches.end()) {
+GShader *GShaderManager::programForKey(const std::string &key)
+{
+    std::map< std::string, GShader * >::iterator iter =
+        mProgramCaches.find(key);
+    if (iter == mProgramCaches.end())
+    {
         return nullptr;
     }
 
     return iter->second;
 }
 
-GShaderManager::GShaderManager() {
+GShaderManager::GShaderManager()
+{
 #ifdef ANDROID
-    if (g_use_pre_compile) {
-        const char *extString = (const char *) glGetString(GL_EXTENSIONS);
+    if (g_use_pre_compile)
+    {
+        const char *extString = (const char *)glGetString(GL_EXTENSIONS);
         bool isPreCompileSupported =
-                (strstr(extString, "GL_OES_get_program_binary") != 0);
+            (strstr(extString, "GL_OES_get_program_binary") != 0);
 
-        if (isPreCompileSupported) {
+        if (isPreCompileSupported)
+        {
             GPreCompiledShaders::getInstance()->SetSupportPreCompiledShaders(
                     true);
         }
@@ -87,31 +90,36 @@ GShaderManager::GShaderManager() {
     loadDefaultShaders();
 
 #ifdef ANDROID
-    if (g_use_pre_compile) {
+    if (g_use_pre_compile)
+    {
         if (GPreCompiledShaders::getInstance()
-                ->GetSupportPreCompiledShaders()) {
+                ->GetSupportPreCompiledShaders())
+        {
             GPreCompiledShaders::getInstance()->SavePreCompiledShaders();
         }
     }
 #endif
 }
 
-GShaderManager::~GShaderManager() {
-    std::map<std::string, GShader *>::iterator iter =
-            mProgramCaches.begin();
-    for (; iter != mProgramCaches.end(); ++iter) {
+GShaderManager::~GShaderManager()
+{
+    std::map< std::string, GShader * >::iterator iter =
+        mProgramCaches.begin();
+    for (; iter != mProgramCaches.end(); ++iter)
+    {
         delete iter->second;
         iter->second = nullptr;
     }
 }
 
-void GShaderManager::loadDefaultShaders() {
+void GShaderManager::loadDefaultShaders()
+{
     GShader *program =
-            new DefaultShader(DEFAULT_SHADER, DEFAULT_SHADER_VS, DEFAULT_SHADER_PS);
+        new DefaultShader(DEFAULT_SHADER, DEFAULT_SHADER_VS, DEFAULT_SHADER_PS);
     addProgram(DEFAULT_SHADER, program);
 
     program =
-            new TextureShader(TEXTURE_SHADER, TEXTURE_SHADER_VS, TEXTURE_SHADER_PS);
+        new TextureShader(TEXTURE_SHADER, TEXTURE_SHADER_VS, TEXTURE_SHADER_PS);
     addProgram(TEXTURE_SHADER, program);
 
     program =

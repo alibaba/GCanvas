@@ -30,6 +30,9 @@ typedef GCanvasPlugin* (^FetchPluginBlock)(NSString * componentId);
 @interface GCanvasPlugin : NSObject
 
 
+@property(nonatomic, assign) BOOL gcanvasInited;
+
+
 /**
  *  @abstract       set LogLevel
  *

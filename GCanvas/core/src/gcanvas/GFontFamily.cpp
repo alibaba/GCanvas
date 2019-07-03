@@ -7,11 +7,8 @@
  * the LICENSE file in the root directory of this source tree.
  */
 #include <ctype.h>
-#include <cstring>
 
 #include "GFontFamily.h"
-
-using namespace std;
 
 namespace gcanvas
 {

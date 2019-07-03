@@ -7,6 +7,7 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
+#ifdef GCANVAS_WEEX
 
 #include <iostream>
 
@@ -23,7 +24,7 @@
 #endif
 
 #ifdef IOS
-                                                                                                                        #include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #endif
 
@@ -53,7 +54,7 @@ PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOESv;
 #define WEBGL_EXT_API_MAX_INDEX (WEBGL_EXT_API_OFFSET+WEBGL_EXT_API_COUNT)
 
 #define WEBGL_API_COUNT     137 //(1 + 136)
-int g_encode_type = 0;
+#define g_encode_type       0
 
 
 namespace gcanvas {
@@ -986,7 +987,7 @@ namespace gcanvas {
         LOG_D("[webgl::exec] glBindFramebuffer(%s, %d)", GetMacroValDebug(target), framebuffer);
 
 #ifdef IOS
-                                                                                                                                if ( framebuffer == 0 ){
+    if ( framebuffer == 0 ){
         GWebGLBindToGLKViewFunc func = obj->GetGWebGLBindToGLKViewFunc();
         if(func){
             func(obj->mContextId);
@@ -2726,7 +2727,7 @@ namespace gcanvas {
             }
 
 #ifdef IOS
-                                                                                                                                    GWebGLTxtImage2DFunc func = obj->GetGWebGLTxtImage2DFunc();
+        GWebGLTxtImage2DFunc func = obj->GetGWebGLTxtImage2DFunc();
         if (func)
         {
             func(target, level, internalformat, format, type, src.c_str());
@@ -2840,7 +2841,7 @@ namespace gcanvas {
             }
 
 #ifdef IOS
-                                                                                                                                    GWebGLTxtSubImage2DFunc func = obj->GetGWebGLTxtSubImage2DFunc();
+        GWebGLTxtSubImage2DFunc func = obj->GetGWebGLTxtSubImage2DFunc();
         if (func)
         {
             func(target, level, xoffset, yoffset, format, type, src.c_str());
@@ -3652,5 +3653,9 @@ void GCanvas::initWebglExt() {
             "glDeleteVertexArraysOES");
     glIsVertexArrayOESv = (PFNGLISVERTEXARRAYOESPROC) eglGetProcAddress("glIsVertexArrayOES");
 }
+
+#endif
+
+
 
 #endif

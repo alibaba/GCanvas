@@ -13,11 +13,11 @@
 
 #include "../../GCanvas.hpp"
 
-#import "../../../../ios/Classes/GCVFont.h"
+#import "GCVFont.h"
 
 
-void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, GCanvasContext *context, void* fontContext);
-float iOS_GCanvas_Mesure_Text(const char *text, unsigned int text_length, GCanvasContext *context, void* fontContext);
+extern void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, GCanvasContext *context, void* fontContext);
+extern float iOS_GCanvas_Mesure_Text(const char *text, unsigned int text_length, GCanvasContext *context, void* fontContext);
 
 
 

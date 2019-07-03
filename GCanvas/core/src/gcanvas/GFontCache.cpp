@@ -198,10 +198,12 @@ char *GFontCache::TryDefaultFallbackFont(const wchar_t charCode,
     fontFileFullPath += defaultFontFile;
 
     bool exist = this->IsGlyphExistedInFont(charCode, size, fontFileFullPath);
-    if (exist) {
+    if (exist)
+    {
         return (char *) defaultFontFile;
     }
-    else {
+    else
+    {
         return nullptr;
     }
 }

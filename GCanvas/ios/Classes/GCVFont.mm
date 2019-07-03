@@ -89,23 +89,27 @@
 //    return staticFontInstaceDict[key];
 //}
 
-static NSMutableDictionary *staticFontInstaceDict;
++ (NSMutableDictionary*)staticFontInstaceDict{
+    static NSMutableDictionary *fontInstanceDict;
+    if( !fontInstanceDict ){
+        fontInstanceDict = NSMutableDictionary.dictionary;
+    }
+    return fontInstanceDict;
+}
+
 + (instancetype)createGCFontWithKey:(NSString*)key
 {
-    if( !staticFontInstaceDict ){
-        staticFontInstaceDict = NSMutableDictionary.dictionary;
-    }
     GCVFont *gcvFont = [[GCVFont alloc] initWithKey:key];
-    staticFontInstaceDict[key] = gcvFont;
+    self.staticFontInstaceDict[key] = gcvFont;
     return gcvFont;
 }
 
 + (GCVFont*)getGCVFontWithKey:(NSString*)key{
-    return staticFontInstaceDict[key];
+    return self.staticFontInstaceDict[key];
 }
 
 + (void)removeGCVFontWithKey:(NSString*)key{
-    return [staticFontInstaceDict removeObjectForKey:key];
+    return [self.staticFontInstaceDict removeObjectForKey:key];
 }
 
 
@@ -171,6 +175,12 @@ static NSMutableDictionary *staticFontInstaceDict;
     }
     
     CTFontRef curFont = CTFontCreateWithFontDescriptor(fontDesc, 0, isItalic ? &matrix : NULL );
+    
+    if( fontDesc )
+    {
+        CFRelease(fontDesc);
+    }
+    
     return curFont;
 }
 

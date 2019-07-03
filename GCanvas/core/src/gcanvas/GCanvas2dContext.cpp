@@ -49,169 +49,36 @@ const struct
 
 using namespace gcanvas;
 
-static const int FontTextureWidth = 2048;
-static const int FontTextureHeight = 2048;
+//static const int FontTextureWidth = 2048;
+//static const int FontTextureHeight = 2048;
+
+#define FontTextureWidth        2048
+#define FontTextureHeight       2048
+
 
 #define OES_PACKED_DEPTH_STENCIL "GL_OES_packed_depth_stencil"
 
-GCanvasState::GCanvasState()
+GBlendOperationFuncs GCompositeOperationFuncs(int index)
 {
-    mGlobalCompositeOp = COMPOSITE_OP_NONE;
-    mFillColor.rgba = {0.0f, 0.0f, 0.0f, 1.0f};
-    mStrokeColor.rgba = {0.0f, 0.0f, 0.0f, 1.0f};
-    mGlobalAlpha = 1.0;
-    mLineWidth = 1;
-    mLineCap = LINE_CAP_BUTT;
-    mLineJoin = LINE_JOIN_MITER;
-    mMiterLimit = 10;
-    mLineDashOffset = 0;
-
-    mFont = nullptr; // delay-load: "10px sans-serif"
-
-    mTextAlign = TEXT_ALIGN_START;
-    mTextBaseline = TEXT_BASELINE_ALPHABETIC;
-    mTransform = GTransformIdentity;
-    mClipTransform = GTransformIdentity;
-    mClipPath = nullptr;
-    mShader = nullptr;
-    mFillStyle = nullptr;
-    mStrokeStyle = nullptr;
-
-    mShadowColor = StrValueToColorRGBA("transparent");
-    mShadowBlur = 0;
-    mShadowOffsetX = 0;
-    mShadowOffsetY = 0;
-
+    static GBlendOperationFuncs funcs[] = {
+        {GL_ONE,           GL_ONE_MINUS_SRC_ALPHA}, //0
+        {GL_SRC_ALPHA,           GL_ONE}, //1
+        {GL_DST_COLOR,           GL_ONE_MINUS_SRC_ALPHA}, //2
+        {GL_ZERO,                GL_ONE_MINUS_SRC_ALPHA}, //3
+        {GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA}, //4
+        {GL_DST_ALPHA,           GL_ZERO}, //5
+        {GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA}, //6
+        {GL_ONE,                 GL_ZERO}, //7
+        {GL_SRC_ALPHA,           GL_DST_ALPHA}, //8
+        {GL_ONE,                 GL_ONE}, //9
+        {GL_ONE_MINUS_DST_ALPHA, GL_ZERO},//10
+        {GL_ZERO,                GL_SRC_ALPHA},//11
+    };
+    
+    if( index < 0 || index > 11 ) index = 0;
+    
+    return funcs[index];
 }
-
-GCanvasState::GCanvasState(const GCanvasState &state)
-{
-    mGlobalCompositeOp = state.mGlobalCompositeOp;
-    mFillColor.rgba = state.mFillColor.rgba;
-    mStrokeColor.rgba = state.mStrokeColor.rgba;
-    mGlobalAlpha = state.mGlobalAlpha;
-    mLineWidth = state.mLineWidth;
-    mLineCap = state.mLineCap;
-    mLineJoin = state.mLineJoin;
-    mMiterLimit = state.mMiterLimit;
-    mShader = state.mShader;
-
-    mFillStyle = nullptr;
-    if (state.mFillStyle != nullptr)
-    {
-        mFillStyle = state.mFillStyle->Clone();
-    }
-    mStrokeStyle = nullptr;
-    if ( state.mStrokeStyle != nullptr )
-    {
-        mStrokeStyle = state.mStrokeStyle->Clone();
-    }
-
-    if (state.mFont != nullptr)
-    {
-        mFont = new GFontStyle(*state.mFont);
-    }
-    else
-    {
-        mFont = nullptr;
-    }
-
-    mTextAlign = state.mTextAlign;
-    mTextBaseline = state.mTextBaseline;
-    mTransform = state.mTransform;
-
-    mClipTransform = state.mClipTransform;
-    if (state.mClipPath != nullptr)
-    {
-        mClipPath = new GPath(*(state.mClipPath));
-    }
-    else
-    {
-        mClipPath = nullptr;
-    }
-    textureId = state.textureId;
-
-    mShadowColor = state.mShadowColor;
-    mShadowBlur = state.mShadowBlur;
-    mShadowOffsetX = state.mShadowOffsetX;
-    mShadowOffsetY = state.mShadowOffsetY;
-
-}
-
-GCanvasState &GCanvasState::operator=(const GCanvasState &state)
-{
-    mGlobalCompositeOp = state.mGlobalCompositeOp;
-    mFillColor.rgba = state.mFillColor.rgba;
-    mStrokeColor.rgba = state.mStrokeColor.rgba;
-    mGlobalAlpha = state.mGlobalAlpha;
-    mLineWidth = state.mLineWidth;
-    mLineCap = state.mLineCap;
-    mLineJoin = state.mLineJoin;
-    mMiterLimit = state.mMiterLimit;
-    mShader = state.mShader;
-
-    mFillStyle = nullptr;
-    if (state.mFillStyle != nullptr)
-    {
-        mFillStyle = state.mFillStyle->Clone();
-    }
-    mStrokeStyle = nullptr;
-    if (state.mStrokeStyle != nullptr)
-    {
-        mStrokeStyle = state.mStrokeStyle->Clone();
-    }
-    if (mFont != nullptr)
-    {
-        delete mFont;
-        mFont = nullptr;
-    }
-
-    if (state.mFont != nullptr)
-    {
-        mFont = new GFontStyle(*state.mFont);
-    }
-
-
-    mTextAlign = state.mTextAlign;
-    mTextBaseline = state.mTextBaseline;
-    mTransform = state.mTransform;
-
-    mClipTransform = state.mClipTransform;
-    if (mClipPath != nullptr)
-    {
-        delete mClipPath;
-        mClipPath = nullptr;
-    }
-
-    if (state.mClipPath != nullptr)
-    {
-        mClipPath = new GPath(*(state.mClipPath));
-    }
-    mShadowColor = state.mShadowColor;
-    mShadowBlur = state.mShadowBlur;
-    mShadowOffsetX = state.mShadowOffsetX;
-    mShadowOffsetY = state.mShadowOffsetY;
-
-    return *this;
-}
-
-GCanvasState::~GCanvasState()
-{
-    if (mClipPath != nullptr)
-    {
-        delete mClipPath;
-    }
-    if (mFont != nullptr)
-    {
-        delete mFont;
-        mFont = nullptr;
-    }
-    if (mFillStyle != nullptr)
-    {
-        delete mFillStyle;
-    }
-}
-
 
 GColorRGBA BlendColor(GCanvasContext *context, GColorRGBA color )
 {
@@ -340,23 +207,23 @@ void GCanvasContext::FillText(const unsigned short *text, unsigned int text_leng
     mCurrentState->mShader->SetOverideTextureColor(0);
 }
 
-
-GCanvasContext::GCanvasContext(short w, short h, bool flip)
+GCanvasContext::GCanvasContext(short w, short h, bool flip, std::string appInfo, bool useFBO)
         : mIsFboSupported(true), mWidth(w), mHeight(h), mCurrentState(nullptr),
           mHasClipRegion(false), mHiQuality(false), mVertexBufferIndex(0),
           mSaveShader(nullptr),
-          mClearColor(DEFAULT_CLEAR_COLOR), 
-		  mDevicePixelRatio(1.f), 
-		  mContextType(0), //默认值设置为2D
-          mFlip(flip)
+          mClearColor(GColorTransparentWhite),
+          mDevicePixelRatio(1.f),
+          mContextType(0), //默认值设置为2D
+          mFlip(flip),
+          mAppInfo(appInfo),
+          mUseFBO(useFBO)
 {
-
     if (mWidth > 0 && mHeight > 0)
     {
-        CalculateProjectTransform(w, h);
+        UpdateProjectTransform();
         InitFBO();
     }
-
+    
     mFontManager = GFontManager::NewInstance(this);
 #ifdef ANDROID
     mShaderManager = nullptr;
@@ -368,10 +235,106 @@ GCanvasContext::GCanvasContext(short w, short h, bool flip)
 void GCanvasContext::SetDevicePixelRatio(const float ratio)
 {
     mDevicePixelRatio = ratio;
-    CalculateProjectTransform(mWidth, mHeight);
+    UpdateProjectTransform();
 }
 
-void GCanvasContext::CalculateProjectTransform(int w, int h)
+
+void GCanvasContext::SetCanvasDimension(const int w, const int h, bool resetStatus)
+{
+    LOG_I("GCanvasContext.SetDimension:%i,%i", w, h);
+    // 如果设置为0, 表示取当前view尺寸
+    mCanvasWidth = w;
+    mCanvasHeight = h;
+    UpdateProjectTransform();
+
+    if (mCurrentState != nullptr)
+    {
+        // LOG_W("SetCanvasDimension: change currentState");
+        GTransform old = mCurrentState->mTransform;
+        mCurrentState->mTransform = mProjectTransform;
+        if (!GTransformEqualToTransform(old, mCurrentState->mTransform))
+        {
+            // LOG_W("SetCanvasDimension: SetTransformOfShader to: %p", &mProjectTransform);
+            // 更新 shader transform
+            SetTransformOfShader(mCurrentState->mTransform);
+        }
+    }
+
+    // 恢复到默认状态并清除当前已渲染内容
+    if (resetStatus)
+    {
+        // 恢复到初始状态
+        mVertexBufferIndex = 0;
+        ResetStateStack();
+        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
+        UseDefaultRenderPipeline();
+        ClearScreen(mClearColor);
+    }
+}
+
+float GCanvasContext::GetCanvasDimensionWidthScale()
+{
+    if (mWidth <= 0)
+    {
+        return mDevicePixelRatio;
+    }
+    else
+    {
+        int canvasWidth = GetCanvasWidth();
+        return mDevicePixelRatio * mWidth / canvasWidth;
+    }
+}
+
+
+float GCanvasContext::GetCanvasDimensionHeightScale()
+{
+    if (mHeight <= 0)
+    {
+        return mDevicePixelRatio;
+    }
+    else
+    {
+        int canvasHeight = GetCanvasHeight();
+        return mDevicePixelRatio * mHeight / canvasHeight;
+    }
+}
+
+
+int GCanvasContext::GetCanvasWidth()
+{
+    return mCanvasWidth <= 0 ? mWidth : mCanvasWidth;
+}
+
+
+int GCanvasContext::GetCanvasHeight()
+{
+    return mCanvasHeight <= 0 ? mHeight : mCanvasHeight;
+}
+
+
+float GCanvasContext::GetDevicePixelRatio()
+{
+    return mDevicePixelRatio;
+}
+
+
+bool GCanvasContext::IsUseFbo()
+{
+    return mUseFBO;
+}
+
+void GCanvasContext::UpdateProjectTransform()
+{
+    int w = GetCanvasWidth();
+    int h = GetCanvasHeight();
+    if (w <= 0 || h <= 0) {
+        return;
+    }
+
+    mProjectTransform = CalculateProjectTransform(w, h);
+}
+
+GTransform GCanvasContext::CalculateProjectTransform(int w, int h)
 {
     GTransform t = GTransformIdentity;
     if (mFlip)
@@ -388,8 +351,33 @@ void GCanvasContext::CalculateProjectTransform(int w, int h)
 
         t = GTransformTranslate(t, -1.f, 1.f);
     }
+    return t;
+}
 
-    mProjectTransform = t;
+float GCanvasContext::GetCurrentScaleX()
+{
+    int w = GetCanvasWidth();
+    if (mCurrentState != nullptr && w > 0)
+    {
+        return mCurrentState->mTransform.a / (2.f * mDevicePixelRatio / GetCanvasWidth());
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+float GCanvasContext::GetCurrentScaleY()
+{
+    int h = GetCanvasHeight();
+    if (mCurrentState != nullptr && h > 0)
+    {
+        return mCurrentState->mTransform.d / (-2.f * mDevicePixelRatio / h);
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 void GCanvasContext::DeleteFBO()
@@ -410,20 +398,26 @@ void GCanvasContext::InitFBO()
 {
     if (0 != mContextType) return;
 
+    if (!mUseFBO)
+    {
+        return;
+    }
+
     if (!mIsFboSupported)
     {
         return;
     }
+
     if (mFboMap.find(DefaultFboName) == mFboMap.end())
     {
     #if ANDROID
-        mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight, StrValueToColorRGBA("transparent"));
+        mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight,
+                                                          GColorTransparent, mEnableFboMsaa, mAppInfo);
     #else
-        mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight, mClearColor);
+        mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight,
+                                                          mClearColor, false, mAppInfo);
     #endif
     }
-
-
 }
 
 void GCanvasContext::BindFBO()
@@ -468,19 +462,13 @@ bool GCanvasContext::InitializeGLEnvironment()
     { // only 2D need to init
         return true;
     }
-    LOG_D("initializeGLEnvironment");
-
-#ifdef ANDROID
-    if (mShaderManager == nullptr)
-    {
-        mShaderManager = new GShaderManager();
-    }
-#endif
+    LOG_I("initializeGLEnvironment");
 
     if (mWidth > 0 && mHeight > 0)
     {
         InitFBO();
     }
+
     glEnable(GL_BLEND);
     glDepthFunc(GL_ALWAYS);
     glActiveTexture(GL_TEXTURE0);
@@ -489,13 +477,33 @@ bool GCanvasContext::InitializeGLEnvironment()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    CalculateProjectTransform(mWidth, mHeight);
-    ResetStateStack();
-    SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
+    UpdateProjectTransform();
+
+    // 只有首次初始化才需要更新gl状态
+    if (!isGLInited) {
+        // 初始化绘制配置和状态, 不能重复执行
+        ResetStateStack();
+        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
+        InitializeGLShader();
+
+        isGLInited = true;
+    }
+
+    return true;
+}
+
+
+bool GCanvasContext::InitializeGLShader()
+{
+#ifdef ANDROID
+    if (mShaderManager == nullptr)
+    {
+        mShaderManager = new GShaderManager();
+    }
+#endif
 
     UsePatternRenderPipeline();
-    if (nullptr == mCurrentState->mShader)
-    {
+    if (nullptr == mCurrentState->mShader) {
         return false;
     }
     BindVertexBuffer();
@@ -544,6 +552,13 @@ void GCanvasContext::ClearGeometryDataBuffers()
     mVertexBufferIndex = 0;
 }
 
+
+/**
+ * 重置gcanvas绘制配置为默认状态，只在初始化和dimension变化时才能触发
+ * 1.重置canvas配置有：fillStyle/strokeStyle,lineJoin/miter,textAlign,字体配置，阴影配置,
+ * globalCompositeOperation,clip等
+ * 2.夹带更新变换的逻辑
+*/
 void GCanvasContext::ResetStateStack()
 {
     mPath.Reset();
@@ -568,7 +583,7 @@ void GCanvasContext::ResetStateStack()
 
     if (!hasOldState)
     {
-        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
+        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
     }
 
     if (!hasOldState ||
@@ -580,7 +595,8 @@ void GCanvasContext::ResetStateStack()
     SetClipFlag(false);
     if (mCurrentState->mClipPath != nullptr)
     {
-        mCurrentState->mClipPath->ClipRegion(this);
+        mCurrentState->mClipPath->DrawPolygons2DToContextNew(this, mCurrentState->mClipPath->mFillRule, FILL_TARGET_DEPTH);
+//        mCurrentState->mClipPath->ClipRegion(this);
         SetClipFlag(true);
     }
 }
@@ -638,10 +654,10 @@ void GCanvasContext::SetTexture(const GTexture *texture)
 
 void GCanvasContext::SetTexture(int textureId)
 {
-    if (mCurrentState->textureId != textureId)
+    if (mCurrentState->mTextureId != textureId)
     {
         SendVertexBufferToGPU();
-        mCurrentState->textureId = textureId;
+        mCurrentState->mTextureId = textureId;
     }
 }
 
@@ -656,10 +672,10 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
         return;
     }
     mCurrentState->mShader->SetTransform(mCurrentState->mTransform);
-    mCurrentState->mShader->SetHasTexture(mCurrentState->textureId != InvalidateTextureId);
-    if (mCurrentState->textureId != InvalidateTextureId)
+    mCurrentState->mShader->SetHasTexture(mCurrentState->mTextureId != InvalidateTextureId);
+    if (mCurrentState->mTextureId != InvalidateTextureId)
     {
-        glBindTexture(GL_TEXTURE_2D, mCurrentState->textureId);
+        glBindTexture(GL_TEXTURE_2D, mCurrentState->mTextureId);
     }
 
     glDrawArrays(geometry_type, 0, mVertexBufferIndex);
@@ -790,6 +806,51 @@ void GCanvasContext::PushRectangle(float x, float y, float w, float h,
     vb[0].color = vb[1].color = vb[2].color = vb[3].color = vb[4].color =
     vb[5].color = color;
 
+    mVertexBufferIndex += 6;
+}
+
+void GCanvasContext::PushRectangle4TextureArea(float x, float y, float w, float h, float tx, float ty,
+                                               float tw, float th, GColorRGBA color, bool flipY)
+{
+    if (mVertexBufferIndex >= GCANVAS_VERTEX_BUFFER_SIZE - 6)
+    {
+        SendVertexBufferToGPU();
+    }
+    
+    if (flipY)
+    {
+        ty = th - ty; //th is ratio to texture
+        th *= -1;
+    }
+    
+    
+    GPoint p11 = PointMake(x, y);
+    GPoint p21 = PointMake(x + w, y);
+    GPoint p12 = PointMake(x, y + h);
+    GPoint p22 = PointMake(x + w, y + h);
+    
+    GPoint t11 = PointMake(tx, ty);
+    GPoint t21 = PointMake(tx + tw, ty);
+    GPoint t12 = PointMake(tx, ty + th);
+    GPoint t22 = PointMake(tx + tw, ty + th);
+    
+    GVertex *vb = &CanvasVertexBuffer[mVertexBufferIndex];
+    vb[0].pos = p11;
+    vb[0].uv = t11;
+    vb[1].pos = p21;
+    vb[1].uv = t21;
+    vb[2].pos = p12;
+    vb[2].uv = t12;
+    
+    vb[3].pos = p21;
+    vb[3].uv = t21;
+    vb[4].pos = p12;
+    vb[4].uv = t12;
+    vb[5].pos = p22;
+    vb[5].uv = t22;
+    vb[0].color = vb[1].color = vb[2].color = vb[3].color = vb[4].color =
+    vb[5].color = color;
+    
     mVertexBufferIndex += 6;
 }
 
@@ -941,16 +1002,19 @@ bool GCanvasContext::Restore()
     mCurrentState = &mStateStack.back();
 
     auto op=mCurrentState->mGlobalCompositeOp;
-    glBlendFuncSeparate(GCompositeOperationFuncs[op].source,
-                        GCompositeOperationFuncs[op].destination,
-                        GCompositeOperationFuncs[op].source,
-                        GCompositeOperationFuncs[op].destination);
+    
+    GBlendOperationFuncs funcs = GCompositeOperationFuncs(op);
+    
+    glBlendFuncSeparate(funcs.source, funcs.destination,
+                        funcs.source, funcs.destination);
 
     SetClipFlag(false);
     if (mCurrentState->mClipPath)
     {
-        SetTransformOfShader(mCurrentState->mClipTransform);
-        mCurrentState->mClipPath->ClipRegion(this);
+//        SetTransformOfShader(mCurrentState->mClipTransform);
+//        mCurrentState->mClipPath->ClipRegion(this);
+//        mCurrentState->mClipPath->DrawPolygons2DToContextNew(this, mCurrentState->mClipPath->mFillRule);
+        mCurrentState->mClipPath->DrawPolygons2DToContextNew(this, mCurrentState->mClipPath->mFillRule, FILL_TARGET_DEPTH);
         SetClipFlag(true);
     }
 
@@ -1016,7 +1080,7 @@ void GCanvasContext::SetTransformOfShader(const GTransform &trans)
     if (mCurrentState != nullptr && mCurrentState->mShader != nullptr)
     {
 
-        GShader *shader = dynamic_cast<GShader *>(mCurrentState->mShader);
+        GShader *shader = mCurrentState->mShader;
         if (nullptr == shader)
         {
             LOG_I("SetTransformOfShader ===> shader is null");
@@ -1064,16 +1128,18 @@ GCanvasContext::SetGlobalCompositeOperation(GCompositeOperation op, GCompositeOp
         return;
     }
     SendVertexBufferToGPU();
+    
+    GBlendOperationFuncs funcs = GCompositeOperationFuncs(op);
+    
 #ifdef ANDROID
-    glBlendFuncSeparate(GCompositeOperationFuncs[op].source,
-                        GCompositeOperationFuncs[op].destination,
-                        GCompositeOperationFuncs[alphaOp].source,
-                        GCompositeOperationFuncs[alphaOp].destination);
+    GBlendOperationFuncs alphaFuncs = GCompositeOperationFuncs(alphaOp);
+
+    glBlendFuncSeparate(funcs.source, funcs.destination,
+                        alphaFuncs.source, alphaFuncs.destination);
 #endif
 
 #ifdef IOS
-    glBlendFunc(GCompositeOperationFuncs[op].source,
-                GCompositeOperationFuncs[op].destination);
+    glBlendFunc(funcs.source, funcs.destination);
 #endif
     mCurrentState->mGlobalCompositeOp = op;
 }
@@ -1086,10 +1152,12 @@ GCanvasContext::SetGlobalCompositeOperationSeprate(GCompositeOperation op, GComp
         return;
     }
     SendVertexBufferToGPU();
-    glBlendFuncSeparate(GCompositeOperationFuncs[op].source,
-                        GCompositeOperationFuncs[op].destination,
-                        GCompositeOperationFuncs[alphaOp].source,
-                        GCompositeOperationFuncs[alphaOp].destination);
+    
+    GBlendOperationFuncs funcs = GCompositeOperationFuncs(op);
+    GBlendOperationFuncs alphaFuncs = GCompositeOperationFuncs(alphaOp);
+    
+    glBlendFuncSeparate(funcs.source, funcs.destination,
+                        alphaFuncs.source, alphaFuncs.destination);
     mCurrentState->mGlobalCompositeOp = op;
 }
 
@@ -1097,7 +1165,8 @@ GCanvasContext::SetGlobalCompositeOperationSeprate(GCompositeOperation op, GComp
 
 void GCanvasContext::ClearRect(float x, float y, float w, float h)
 {
-    if( x == 0 && y == 0  && SIZE_EPSILON>fabs(w*mDevicePixelRatio-mWidth) && SIZE_EPSILON>fabs(h*mDevicePixelRatio-mHeight) ){
+    if( x == 0 && y == 0  && SIZE_EPSILON>fabs(w * GetCanvasDimensionWidthScale() - mWidth) &&
+            SIZE_EPSILON>fabs(h * GetCanvasDimensionHeightScale() - mHeight) ){
         ClearScreen(mClearColor);
         return;
     }
@@ -1110,26 +1179,65 @@ void GCanvasContext::ClearRect(float x, float y, float w, float h)
 
     PushRectangle(x, y, w, h, 0, 0, 0, 0, mClearColor);
 
-    SetGlobalCompositeOperation(oldOp);
+    SetGlobalCompositeOperation(oldOp, oldOp);
 }
 
-void GCanvasContext::Blur(const GRectf &rect, float blur, float scale,
-                          std::function<void()> draw, GFrameBufferObjectPtr &outputFbo)
+void GCanvasContext::DrawFBOToFBO(GFrameBufferObject &src, GFrameBufferObject &dest)
+{
+    glViewport(0, 0, dest.ExpectedWidth(), dest.ExpectedHeight());
+    
+    SetGlobalCompositeOperation(COMPOSITE_OP_REPLACE, COMPOSITE_OP_REPLACE);
+    
+    PushRectangle4TextureArea(-1, -1, 2, 2, 0, 0,
+                              static_cast<float >(src.ExpectedWidth()) / src.Width(),
+                              static_cast<float >(src.ExpectedHeight()) / src.Height(),
+                              GColorWhite);
+    mCurrentState->mShader->SetTransform(GTransformIdentity);
+    glBindTexture(GL_TEXTURE_2D, src.mFboTexture.GetTextureID());
+    glDrawArrays(GL_TRIANGLES, 0, mVertexBufferIndex);
+    mVertexBufferIndex = 0;
+}
+
+void GCanvasContext::PrepareDrawElemetToFBO(GFrameBufferObject &fbo)
+{
+    glViewport(0, 0, fbo.ExpectedWidth(), fbo.ExpectedHeight());
+    GTransform &t = mCurrentState->mTransform;
+    t = CalculateProjectTransform(fbo.ExpectedWidth(), fbo.ExpectedHeight());
+    //    t = GTransformIdentity;
+    //    t = GTransformScale(t, 2.f * mDevicePixelRatio  / fbo.ExpectedWidth(),
+    //                        2.f * mDevicePixelRatio / fbo.ExpectedHeight());
+    //    t = GTransformTranslate(t, -1.f, -1.f);
+}
+
+void GCanvasContext::DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, float w, float h,
+                                     GColorRGBA color)
+{
+    SetTexture(fbo.mFboTexture.GetTextureID());
+    PushRectangle4TextureArea(x, y, w, h, 0, 0,
+                              static_cast<float >(fbo.ExpectedWidth()) / fbo.Width(),
+                              static_cast<float >(fbo.ExpectedHeight()) / fbo.Height(),
+                              color, true);
+    
+}
+
+void GCanvasContext::Blur(const GRectf &rect, float blur,
+                std::function<void()> draw, GFrameBufferObjectPtr &outputFbo, bool isOnScreen, float scale)
 {
     const float Step = 5;
-
-
+    blur /= 2.5f;
+    
     GFrameBufferObjectPtr originFbo;
     float blurStep;
-    float scaleFactor=1;
-    if ((blur * scale) > Step)
+    float scaleFactor = 1;
+    if (blur * scale > Step)
     {
-        Blur(rect / Step, blur, scale / Step, draw, originFbo);
+        Blur(rect/ Step, blur, draw, originFbo, false, scale / Step);
         blurStep = Step;
-        scaleFactor=1/Step;
+        scaleFactor = 1 / Step;
     }
     else
     {
+        // 画上原始图元
         originFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
         originFbo->BindFBO();
         glClearColor(0, 0, 0, 0);
@@ -1137,128 +1245,117 @@ void GCanvasContext::Blur(const GRectf &rect, float blur, float scale,
         Save();
         PrepareDrawElemetToFBO(*originFbo);
         UseDefaultRenderPipeline();
-        mCurrentState->mFillColor = StrValueToColorRGBA("white");
         Translate(-rect.leftTop.x, -rect.leftTop.y);
         Scale(scale, scale);
         draw();
         Restore();
         originFbo->UnbindFBO();
-
+        
         blurStep = blur * scale;
     }
+    
     Save();
-    UseShadowRenderPipeline(blurStep*2.5);
-
+    UseShadowRenderPipeline(blurStep * 2.5);
+    
+    // 水平blur
     auto shadowFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
-
     shadowFbo->BindFBO();
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     mCurrentState->mShader->SetDelta(scaleFactor / originFbo->Width(), 0);
     DrawFBOToFBO(*originFbo, *shadowFbo);
     shadowFbo->UnbindFBO();
-
-
-    outputFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
-
-    outputFbo->BindFBO();
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    mCurrentState->mShader->SetDelta(0, 1.0f / shadowFbo->Height());
-    DrawFBOToFBO(*shadowFbo, *outputFbo);
-    outputFbo->UnbindFBO();
-
-    Restore();
-}
-
-void GCanvasContext::Blur(const GRectf &rect, float blur, std::function<void()> draw)
-{
-    const float Step = 5;
-    blur/=2.5f;
-
-    GFrameBufferObjectPtr originFbo;
-    float blurStep;
-    float scaleFactor=1;
-    if (blur > Step)
-    {
-        Blur(rect / Step, blur, 1.0f / Step, draw, originFbo);
-        blurStep = Step;
-        scaleFactor=1/Step;
+    
+    // 垂直blur
+    if (isOnScreen) {
+        // 渲染到在屏
+        SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
+        glViewport(0, 0, mWidth, mHeight);
+        mCurrentState->mShader->SetDelta(0, 1.0f / shadowFbo->Height());
+        DrawFBOToScreen(*shadowFbo, rect.leftTop.x + mCurrentState->mShadowOffsetX,
+                        rect.leftTop.y + mCurrentState->mShadowOffsetY,
+                        rect.Width(), rect.Height(), mCurrentState->mShadowColor);
     }
-    else
-    {
-
-        originFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
-        originFbo->BindFBO();
+    else {
+        // 渲染到离屏
+        outputFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
+        outputFbo->BindFBO();
         glClearColor(0, 0, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        Save();
-        PrepareDrawElemetToFBO(*originFbo);
-        UseDefaultRenderPipeline();
-        mCurrentState->mFillColor = StrValueToColorRGBA("white");
-        Translate(-rect.leftTop.x, -rect.leftTop.y);
-        draw();
-        Restore();
-        originFbo->UnbindFBO();
-
-        blurStep = blur;
+        mCurrentState->mShader->SetDelta(0, 1.0f / shadowFbo->Height());
+        DrawFBOToFBO(*shadowFbo, *outputFbo);
+        outputFbo->UnbindFBO();
     }
-    Save();
-    UseShadowRenderPipeline(blurStep*2.5);
-//    UseTextureRenderPipeline();
-
-    auto shadowFbo = mFrameBufferPool.GetFrameBuffer(rect.Width(), rect.Height());
-
-    shadowFbo->BindFBO();
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    mCurrentState->mShader->SetDelta(scaleFactor / originFbo->Width(), 0);
-//    mCurrentState->mShader->SetDelta(0, 1.0f / originFbo->Height());
-    DrawFBOToFBO(*originFbo, *shadowFbo);
-    shadowFbo->UnbindFBO();
-
-
-    SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
-    glViewport(0, 0, mWidth, mHeight);
-    mCurrentState->mShader->SetDelta(0, 1.0f / shadowFbo->Height());
-    DrawFBOToScreen(*shadowFbo, rect.leftTop.x + mCurrentState->mShadowOffsetX,
-                    rect.leftTop.y + mCurrentState->mShadowOffsetY,
-                    rect.Width(), rect.Height(), mCurrentState->mShadowColor);
-
+    
     Restore();
-
 }
 
-void GCanvasContext::FillRectBlur(float x, float y, float w, float h)
+void GCanvasContext::DrawBlur(const GRectf &rect, float blur, std::function<void()> draw)
+{
+    GFrameBufferObjectPtr originFbo;
+    Blur(rect, blur, draw, originFbo, true, 1.0);
+}
+
+void GCanvasContext::DrawShadow(const GRectf &rect, std::function<void()> drawFun)
 {
     if (mCurrentState->mShadowColor.rgba.a > 0.01)
     {
         SendVertexBufferToGPU();
-        if (mCurrentState->mShadowBlur == 0)
+        GColorRGBA fillColor = mCurrentState->mFillColor;
+        GColorRGBA strokeColor = mCurrentState->mStrokeColor;
+        mCurrentState->mFillColor = mCurrentState->mShadowColor;
+        mCurrentState->mFillColor.rgba.a *= fillColor.rgba.a;
+        mCurrentState->mStrokeColor = mCurrentState->mShadowColor;
+        mCurrentState->mStrokeColor.rgba.a *= strokeColor.rgba.a;
+        if (mCurrentState->mShadowBlur < 0.01)
         {
+            // 无需模糊，直接绘制
             Save();
             UseDefaultRenderPipeline();
             Translate(mCurrentState->mShadowOffsetX, mCurrentState->mShadowOffsetY);
-            mCurrentState->mFillColor = mCurrentState->mShadowColor;
-            FillRect(x, y, w, h);
+            drawFun();
             Restore();
         }
         else
         {
             float old_dpr = mDevicePixelRatio;
             SetDevicePixelRatio(1.0);
-            GRectf rect;
-            rect.leftTop = {x, y};
-            rect.bottomRight = {x + w, y + h};
-
-            rect.Enlarge(mCurrentState->mShadowBlur * 4, mCurrentState->mShadowBlur * 4);
-            Blur(rect, mCurrentState->mShadowBlur, [=]() {
-                FillRect(x, y, w, h);
+            GRectf shadowRect = rect;
+            shadowRect.Enlarge(mCurrentState->mShadowBlur * 4, mCurrentState->mShadowBlur * 4);
+            DrawBlur(shadowRect, mCurrentState->mShadowBlur, [=]() {
+                drawFun();
             });
             SetDevicePixelRatio(old_dpr);
         }
+        mCurrentState->mFillColor = fillColor;
+        mCurrentState->mStrokeColor = strokeColor;
     }
+}
 
+void GCanvasContext::FillRectBlur(float x, float y, float w, float h)
+{
+    if (mCurrentState->mShadowColor.rgba.a > 0.01)
+    {
+        GRectf rect;
+        rect.leftTop = {x, y};
+        rect.bottomRight = {x + w, y + h};
+        DrawShadow(rect, [=]() {
+            FillRect(x, y, w, h);
+        });
+    }
+}
+
+void GCanvasContext::StrokeRectBlur(float x, float y, float w, float h)
+{
+    if (mCurrentState->mShadowColor.rgba.a > 0.01)
+    {
+        GRectf rect;
+        rect.leftTop = {x, y};
+        rect.bottomRight = {x + w, y + h};
+        DrawShadow(rect, [=]() {
+            StrokeRect(x, y, w, h);
+        });
+    }
 }
 
 void GCanvasContext::ImageBlur(float w, float h, int textureId, float sx,
@@ -1267,33 +1364,45 @@ void GCanvasContext::ImageBlur(float w, float h, int textureId, float sx,
 {
     if (mCurrentState->mShadowColor.rgba.a > 0.01)
     {
-        SendVertexBufferToGPU();
-        if (mCurrentState->mShadowBlur == 0)
-        {
-            Save();
-            Translate(mCurrentState->mShadowOffsetX, mCurrentState->mShadowOffsetY);
-            mCurrentState->mFillColor = mCurrentState->mShadowColor;
-
+        GRectf rect;
+        rect.leftTop = {dx, dy};
+        rect.bottomRight = {dx + dw, dy + dh};
+        if (mCurrentState->mShadowBlur < 0.01) {
+            // 强制走blur情况下，fbo拷贝那一套
+            mCurrentState->mShadowBlur = 1;
+        }
+        DrawShadow(rect, [=]() {
             UseTextureRenderPipeline();
-            DrawImage1(w, h, textureId, sx, sy, sw, sh, dx, dy, dw, dh);
+            
+            GColorRGBA color = BlendFillColor(this);
+            SetTexture(textureId);
+            PushRectangle(dx, dy, dw, dh, sx / w, sy / h, sw / w, sh / h, color, false);
+        });
+    }
+}
 
-            Restore();
-        }
-        else
-        {
-            float old_dpr = mDevicePixelRatio;
-            SetDevicePixelRatio(1.0);
-            GRectf rect;
-            rect.leftTop = {dx, dy};
-            rect.bottomRight = {dx + dw, dy + dh};
+void GCanvasContext::StrokeBlur()
+{
+    if (mCurrentState->mShadowColor.rgba.a > 0.01)
+    {
+        GRectf rect;
+        mPath.GetRect(rect);
+        DrawShadow(rect, [=]() {
+            mPath.DrawLinesToContext(this);
+        });
+    }
+}
 
-            rect.Enlarge(mCurrentState->mShadowBlur * 4, mCurrentState->mShadowBlur * 4);
-            Blur(rect, mCurrentState->mShadowBlur, [=]() {
-                UseTextureRenderPipeline();
-                DrawImage1(w, h, textureId, sx, sy, sw, sh, dx, dy, dw, dh);
-            });
-            SetDevicePixelRatio(old_dpr);
-        }
+void GCanvasContext::FillBlur()
+{
+    if (mCurrentState->mShadowColor.rgba.a > 0.01)
+    {
+        GRectf rect;
+        mPath.GetRect(rect);
+        DrawShadow(rect, [=]() {
+//            mPath.DrawPolygons2DToContext(this);
+            mPath.DrawPolygons2DToContextNew(this, mPath.mFillRule);
+        });
     }
 }
 
@@ -1345,125 +1454,19 @@ void GCanvasContext::StrokeRect(float x, float y, float w, float h)
 
 void GCanvasContext::BeginPath() { mPath.Reset(); }
 
-void GCanvasContext::DrawFBOToFBO(GFrameBufferObject &src, GFrameBufferObject &dest)
+void GCanvasContext::Fill(GFillRule rule)
 {
-    glViewport(0, 0, dest.ExpectedWidth(), dest.ExpectedHeight());
-
-    SetGlobalCompositeOperation(COMPOSITE_OP_REPLACE, COMPOSITE_OP_REPLACE);
-    
-    PushRectangle(-1, -1, 2, 2, 0, 0,
-                  static_cast<float >(src.ExpectedWidth()) / src.Width(),
-                  static_cast<float >(src.ExpectedHeight()) / src.Height(),
-                  StrValueToColorRGBA("white"));
-    mCurrentState->mShader->SetTransform(GTransformIdentity);
-    glBindTexture(GL_TEXTURE_2D, src.mFboTexture.GetTextureID());
-    glDrawArrays(GL_TRIANGLES, 0, mVertexBufferIndex);
-    mVertexBufferIndex = 0;
-}
-
-void GCanvasContext::PrepareDrawElemetToFBO(GFrameBufferObject &fbo)
-{
-    glViewport(0, 0, fbo.ExpectedWidth(), fbo.ExpectedHeight());
-
-
-    GTransform &t = mCurrentState->mTransform;
-    t = GTransformIdentity;
-    t = GTransformScale(t, 2.f * mDevicePixelRatio / fbo.ExpectedWidth(),
-                        2.f * mDevicePixelRatio / fbo.ExpectedHeight());
-
-    t = GTransformTranslate(t, -1.f, -1.f);
-}
-
-void GCanvasContext::DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, float w, float h,
-                                     GColorRGBA color)
-{
-
-
-    SetTexture(fbo.mFboTexture.GetTextureID());
-    PushRectangle(x, y, w, h, 0, 0,
-                  static_cast<float >(fbo.ExpectedWidth()) / fbo.Width(),
-                  static_cast<float >(fbo.ExpectedHeight()) / fbo.Height(),
-                  color);
-
-}
-
-void GCanvasContext::FillBlur()
-{
-    if (mCurrentState->mShadowColor.rgba.a > 0.01)
-    {
-        SendVertexBufferToGPU();
-        if (mCurrentState->mShadowBlur == 0)
-        {
-            Save();
-            UseDefaultRenderPipeline();
-            mCurrentState->mFillColor = mCurrentState->mShadowColor;
-            mPath.DrawPolygons2DToContext(this);
-            Restore();
-        }
-        else
-        {
-            float old_dpr = mDevicePixelRatio;
-            SetDevicePixelRatio(1.0);
-
-            GRectf rect;
-            rect.leftTop = {static_cast<float>(mWidth), static_cast<float>(mHeight)};
-            mPath.GetRect(rect);
-            rect.Enlarge(mCurrentState->mShadowBlur * 4, mCurrentState->mShadowBlur * 4);
-            Blur(rect, mCurrentState->mShadowBlur, [=]() {
-                mPath.DrawPolygons2DToContext(this);
-
-            });
-            SetDevicePixelRatio(old_dpr);
-
-        }
-    }
-
-}
-
-void GCanvasContext::Fill()
-{
-    mPath.Close();
+//    mPath.Close();
     FillBlur();
     ApplyFillStylePipeline();
-    mPath.DrawPolygons2DToContext(this);
+//    mPath.DrawPolygons2DToContext(this);
+    mPath.DrawPolygons2DToContextNew(this, rule);
 }
 
 void GCanvasContext::Stroke()
 {
     ApplyFillStylePipeline(true);
     mPath.DrawLinesToContext(this);
-}
-
-void GCanvasContext::StrokeBlur()
-{
-    if (mCurrentState->mShadowColor.rgba.a > 0.01)
-    {
-        SendVertexBufferToGPU();
-        if (mCurrentState->mShadowBlur == 0)
-        {
-            Save();
-            UseDefaultRenderPipeline();
-            mCurrentState->mFillColor = mCurrentState->mShadowColor;
-            mPath.DrawLinesToContext(this);
-            Restore();
-        }
-        else
-        {
-            float old_dpr = mDevicePixelRatio;
-            SetDevicePixelRatio(1.0);
-
-            GRectf rect;
-            rect.leftTop = {static_cast<float>(mWidth), static_cast<float>(mHeight)};
-            mPath.GetRect(rect);
-            rect.Enlarge(mCurrentState->mShadowBlur * 4, mCurrentState->mShadowBlur * 4);
-            Blur(rect, mCurrentState->mShadowBlur, [=]() {
-                mPath.DrawLinesToContext(this);
-
-            });
-            SetDevicePixelRatio(old_dpr);
-
-        }
-    }
 }
 
 void GCanvasContext::ClipRegion()
@@ -1478,11 +1481,24 @@ void GCanvasContext::ClipRegion()
 
     mPath.Close();
     mCurrentState->mClipPath = new GPath(mPath);
-    mCurrentState->mClipTransform = mCurrentState->mTransform;
     mCurrentState->mClipPath->ClipRegion(this);
     SetClipFlag(true);
 
     AfterClip();
+}
+
+void GCanvasContext::ClipRegionNew(GFillRule rule)
+{
+    if (mCurrentState->mClipPath)
+    {
+        delete mCurrentState->mClipPath;
+        mCurrentState->mClipPath = nullptr;
+    }
+
+    mPath.Close();
+    mCurrentState->mClipPath = new GPath(mPath);
+    mCurrentState->mClipPath->mFillRule = rule;
+    mCurrentState->mClipPath->DrawPolygons2DToContextNew(this, rule, FILL_TARGET_DEPTH);
 }
 
 
@@ -1535,18 +1551,22 @@ void GCanvasContext::DrawCanvas(float w, float h, int textureId, float sx,
     SendVertexBufferToGPU();
 }
 
+
+/**
+ * drawImage实现
+ * sx, sw 支持为负值，sw, sh必须为正数
+ */
 void GCanvasContext::DrawImage1(float w, float h, int TextureId, float sx,
                                 float sy, float sw, float sh, float dx,
                                 float dy, float dw, float dh, bool flipY)
 {
-    GColorRGBA color = BlendWhiteColor(this);
-//    SetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
-
-    {
-        SetTexture(TextureId);
-        PushRectangle(dx, dy, dw, dh, sx / w, sy / h, sw / w, sh / h, color, flipY);
+    if (TextureId <= 0) {
+        LOG_EXCEPTION("", "texture invalid", "<function:%s>", __FUNCTION__);
     }
 
+    GColorRGBA color = BlendWhiteColor(this);
+    SetTexture(TextureId);
+    PushRectangle(dx, dy, dw, dh, sx / w, sy / h, sw / w, sh / h, color, flipY);
 }
 
 void GCanvasContext::ClosePath() { mPath.Close(); }
@@ -1634,12 +1654,37 @@ void GCanvasContext::SetStrokeStyle(const GColorRGBA& c)
 void GCanvasContext::SaveRenderPipeline()
 {
     mSaveShader = mCurrentState->mShader;
+    mSaveIsStroke = mCurrentState->mStrokeStyle != nullptr;
 }
 
 void GCanvasContext::RestoreRenderPipeline()
 {
-    mCurrentState->mShader = mSaveShader;
-    mCurrentState->mShader->Bind();
+    std::string name = mSaveShader->GetName();
+    
+    if( name == "PATTERN" )
+    {
+        UsePatternRenderPipeline(mSaveIsStroke);
+    }
+    else if( name == "TEXTURE" )
+    {
+        UseTextureRenderPipeline();
+    }
+    else if( name == "SHADOW" )
+    {
+        UseShadowRenderPipeline();
+    }
+    else if( name == "LINEAR" )
+    {
+        UseLinearGradientPipeline(mSaveIsStroke);
+    }
+    else if( name == "RADIAL" )
+    {
+        UseRadialGradientPipeline(mSaveIsStroke);
+    }
+    else
+    {
+        UseDefaultRenderPipeline();
+    }
 }
 
 void GCanvasContext::UseDefaultRenderPipeline()
@@ -1758,23 +1803,23 @@ void GCanvasContext::UsePatternRenderPipeline(bool isStroke)
         SendVertexBufferToGPU();
         mCurrentState->mShader = newShader;
         mCurrentState->mShader->Bind();
-    }
-    
-    //Pattern
-    GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
-    if ( style != nullptr && style->IsPattern() )
-    {
-        FillStylePattern *pattern = dynamic_cast< FillStylePattern * >(style);
-        if (pattern)
+
+        //Pattern
+        GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+        if ( style != nullptr && style->IsPattern() )
         {
-            mCurrentState->mShader->SetRepeatMode(pattern->GetPattern());
-            mCurrentState->textureId = pattern->GetTextureListID();
-            mCurrentState->mShader->SetTextureSize(pattern->GetTextureWidth(), pattern->GetTextureHeight());
-            //Pattern Alpha
-            PatternShader *patternShader = dynamic_cast< PatternShader* >(mCurrentState->mShader);
-            if (patternShader)
+            FillStylePattern *pattern = dynamic_cast<FillStylePattern*>(style);
+            if (pattern)
             {
-                patternShader->SetPatternAlpha(GlobalAlpha());
+                mCurrentState->mShader->SetRepeatMode(pattern->GetPattern());
+                mCurrentState->mTextureId = pattern->GetTextureListID();
+                mCurrentState->mShader->SetTextureSize(pattern->GetTextureWidth(), pattern->GetTextureHeight());
+                //Pattern Alpha
+                PatternShader *patternShader = dynamic_cast<PatternShader*>(mCurrentState->mShader);
+                if (patternShader)
+                {
+                    patternShader->SetPatternAlpha(GlobalAlpha());
+                }
             }
         }
     }

@@ -14,23 +14,33 @@
 using namespace std;
 using namespace gcanvas;
 
-/*static*/
-std::auto_ptr<GCanvasManager> GCanvasManager::sCanvasMgr;
+typedef struct {
+    std::shared_ptr<GCanvasManager> sCanvasMgr;
+} GCanvasManagerWrapStruct;
+
+
+GCanvasManagerWrapStruct StaticManager(){
+    static GCanvasManagerWrapStruct s;
+    if( s.sCanvasMgr.get() == nullptr ){
+        s.sCanvasMgr = std::shared_ptr<GCanvasManager>(new GCanvasManager());
+    }
+    return s;
+}
 
 /*static*/
 GCanvasManager *GCanvasManager::GetManager()
 {
-    if ( sCanvasMgr.get() == nullptr) {
-        sCanvasMgr = std::auto_ptr<GCanvasManager>(new GCanvasManager());
-    }
-    return sCanvasMgr.get();
+    GCanvasManagerWrapStruct s = StaticManager();
+    return s.sCanvasMgr.get();
 }
 
 /*static*/
 void GCanvasManager::Release()
 {
-    if ( sCanvasMgr.get() != nullptr) {
-        sCanvasMgr.reset();
+    GCanvasManagerWrapStruct s = StaticManager();
+
+    if ( s.sCanvasMgr.get() != nullptr) {
+        s.sCanvasMgr.reset();
     }
 }
 
@@ -43,18 +53,18 @@ GCanvasManager::~GCanvasManager()
     Clear();
 }
 
-void GCanvasManager::NewCanvas(string canvasId, bool onScreen)
+void GCanvasManager::NewCanvas(const string canvasId, bool onScreen, std::string appInfo)
 {
     LOG_D("new canvas");
     GCanvas *c = GetCanvas(canvasId);
     if (!c)
     {
-        c = new GCanvas(canvasId, !onScreen, onScreen);
+        c = new GCanvas(canvasId, !onScreen, appInfo);
         mCanvases[canvasId] = c;
     }
 }
 
-void GCanvasManager::RemoveCanvas(string canvasId)
+void GCanvasManager::RemoveCanvas(const string canvasId)
 {
     std::map< string, GCanvas * >::iterator it = mCanvases.find(canvasId);
     if (it != mCanvases.end())
@@ -74,7 +84,7 @@ void GCanvasManager::RemoveCanvas(string canvasId)
 
 }
 
-GCanvas *GCanvasManager::GetCanvas(string canvasId)
+GCanvas *GCanvasManager::GetCanvas(const string canvasId)
 {
     std::map< string, GCanvas * >::iterator it = mCanvases.find(canvasId);
     if (it != mCanvases.end())
@@ -111,7 +121,7 @@ void GCanvasManager::Clear()
 }
 
 #ifdef ANDROID
-void GCanvasManager::AddtoQueue(std::string contextId,struct GCanvasCmd *p){
+void GCanvasManager::AddtoQueue(const std::string contextId,struct GCanvasCmd *p){
     std::map< string, std::queue<struct GCanvasCmd *> *>::iterator it = mCmdQueue.find(contextId);
     if (it != mCmdQueue.end()) {
         std::queue<struct GCanvasCmd *> *queue = it->second;
@@ -123,7 +133,7 @@ void GCanvasManager::AddtoQueue(std::string contextId,struct GCanvasCmd *p){
     }
 }
 
-std::queue<struct GCanvasCmd *> * GCanvasManager::getQueueByContextId(std::string contextId){
+std::queue<struct GCanvasCmd *> * GCanvasManager::getQueueByContextId(const std::string contextId){
     std::map< string, std::queue<struct GCanvasCmd *> *>::iterator it = mCmdQueue.find(contextId);
     if (it != mCmdQueue.end()) {
         std::queue<struct GCanvasCmd *> *queue =  it->second;
@@ -143,7 +153,7 @@ void GCanvasManager::clearQueue(std::queue<struct GCanvasCmd *> *queue){
     }
 }
 
-void GCanvasManager::clearQueueByContextId(std::string contextId){
+void GCanvasManager::clearQueueByContextId(const std::string contextId){
     std::queue<struct GCanvasCmd *> *queue = getQueueByContextId(contextId);
     if(queue != nullptr) {
         clearQueue(queue);
