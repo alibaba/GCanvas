@@ -37,15 +37,15 @@ typedef void (*RegisterFunc)(FunType fp);
 
 RegisterFunc dlopen_weex_so_above_android_7(const char *soPath) {
     RegisterFunc result = (RegisterFunc) ali::getSymbolAddr((char *) "Inject_GCanvasFunc",
-                                                            (char *) soPath, "libweexcore.so");
+                                                            (char *) soPath, "libweexjsc.so");
     LOG_E("result is 0x%x", result);
     return result;
 }
 
 void RegisterCallNativeCallback_belowN() {
-    void *handle = dlopen("libweexcore.so", RTLD_NOW);
+    void *handle = dlopen("libweexjsc.so", RTLD_NOW);
     if (!handle) {
-        LOG_D("load libweexcore.so failed,error=%s\n", dlerror());
+        LOG_D("load libweexjsc.so failed,error=%s\n", dlerror());
         dlclose(handle);
         return;
     }
@@ -802,3 +802,4 @@ Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring c
 
     return 0;
 }
+#endif
