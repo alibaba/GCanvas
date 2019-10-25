@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.license = {
     :type => 'Copyright',
     :text => <<-LICENSE
-           Alibaba-INC copyright
+           Alibaba Inc. Copyright
     LICENSE
   }
 
