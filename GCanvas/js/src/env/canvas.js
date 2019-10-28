@@ -3,6 +3,7 @@ import GContextWebGL from '../context-webgl/RenderingContext';
 
 export default class GCanvas {
 
+    // static GBridge = null;
 
     id = null;
 
@@ -40,26 +41,22 @@ export default class GCanvas {
 
             GCanvas.GBridge.callSetContextType(this.id, 1); // 0 for 2d; 1 for webgl
         } else if (type.match(/2d/i)) {
-            if (this.context2d) {
-                context = this.context2d;
-            } else {
-                this.context2d = context = new GContext2D(this);
-                context.componentId = this.id;
+            context = new GContext2D(this);
 
-                const render = () => {
+            context.componentId = this.id;
 
-                    const commands = context._drawCommands;
-                    context._drawCommands = '';
+            const render = () => {
 
-                    GCanvas.GBridge.render2d(this.id, commands);
-                    this._needRender = false;
+                const commands = context._drawCommands;
+                context._drawCommands = '';
 
-                }
-                setInterval(render, 16);
+                GCanvas.GBridge.render2d(this.id, commands);
+                this._needRender = false;
 
-                GCanvas.GBridge.callSetContextType(this.id, 0);
             }
+            setInterval(render, 16);
 
+            GCanvas.GBridge.callSetContextType(this.id, 0);
         } else {
             throw new Error('not supported context ' + type);
         }
@@ -67,4 +64,10 @@ export default class GCanvas {
         return context;
 
     }
+
+    reset() {
+        GCanvas.GBridge.callReset(this.id);
+    }
+
+
 }

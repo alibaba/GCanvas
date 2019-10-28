@@ -14,8 +14,6 @@ namespace gcanvas
 {
 #ifdef ANDROID
 GFontFamily::GFontFamily(std::list< const char * > &fontFamily)
-    : mFontNormal(nullptr), mFontBold(nullptr), mFontItalic(nullptr),
-      mFontBoldItalic(nullptr)
 {
     matchFontFamily(fontFamily);
 }
@@ -24,6 +22,7 @@ const char *GFontFamily::MatchFamilyStyle(GFontStyle &fontStyle)
 {
     bool italic = false;
     bool bold = false;
+    bool light = false;
 
     int style = (int)fontStyle.GetStyle();
     if ((style & (int)GFontStyle::Style::ITALIC) ||
@@ -35,9 +34,14 @@ const char *GFontFamily::MatchFamilyStyle(GFontStyle &fontStyle)
     int weight = (int)fontStyle.GetWeight();
     if (weight)
     {
-        if (weight > (int)GFontStyle::Weight::MEDIUM)
+        if (weight > static_cast<int>(GFontStyle::Weight::MEDIUM))
         {
             bold = true;
+        }
+        else if(weight < static_cast<int>(GFontStyle::Weight::NORMAL))
+        {
+            light = true;
+
         }
     }
 
@@ -71,7 +75,13 @@ const char *GFontFamily::MatchFamilyStyle(GFontStyle &fontStyle)
             closest = this->mFontItalic;
         }
     }
-
+    else if (light)
+    {
+        if (this->mFontLight != nullptr)
+        {
+            closest = this->mFontLight;
+        }
+    }
     return closest;
 }
 
@@ -79,6 +89,7 @@ void GFontFamily::matchFontFamily(std::list<const char *> &fontFamily)
 {
     const char *italic = "italic";
     const char *bold = "bold";
+    const char *light = "light";
     for (auto it = fontFamily.begin(); it != fontFamily.end(); ++it)
     {
         int length = strlen(*it);
@@ -104,6 +115,10 @@ void GFontFamily::matchFontFamily(std::list<const char *> &fontFamily)
         {
             this->mFontItalic = *it;
         }
+        else if (strstr(fontFileLowerCase, light))
+        {
+            this->mFontLight = *it;
+        }
         else
         {
             this->mFontNormal = *it;
@@ -118,6 +133,10 @@ char *GFontFamily::GetProperFontFile()
     if (this->mFontNormal != nullptr)
     {
         return (char *)this->mFontNormal;
+    }
+    if (this->mFontLight != nullptr)
+    {
+        return (char *)this->mFontLight;
     }
     if (this->mFontBold != nullptr)
     {

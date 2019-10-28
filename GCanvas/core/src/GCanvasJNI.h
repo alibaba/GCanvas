@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+#ifdef GCANVAS_WEEX
+
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_newCanvas(JNIEnv *,
                                                                     jclass,
                                                                     jstring,
@@ -109,15 +111,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_captureGLLayer(
 
 /*
  * Class:     com_taobao_gcanvas_GCanvasJNI
- * Method:    contextLost
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_contextLost(JNIEnv *,
-                                                                      jclass,
-                                                                      jstring);
-
-/*
- * Class:     com_taobao_gcanvas_GCanvasJNI
  * Method:    release
  * Signature: ()V
  */
@@ -148,6 +141,7 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getImageData(
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setDevicePixelRatio(
         JNIEnv *je, jclass jc, jstring contextId, jdouble ratio);
+#endif
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setFallbackFont(
         JNIEnv *je, jclass jc, jstring fallback_font_name,
@@ -161,6 +155,8 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_addFallbackFontFamily(
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setLogLevel(
         JNIEnv *je, jclass jc, jstring logLevel);
+
+#ifdef GCANVAS_WEEX
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setPreCompilePath(
         JNIEnv *je, jclass jc, jstring path);
@@ -187,18 +183,14 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_texSubImage2D(
         jint target, jint level, jint xoffset, jint yoffset, jint format, jint type);
 
 
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getWindvaneNativeFuncPtr(
-        JNIEnv *je, jclass jc);
-
 JNIEXPORT bool JNICALL Java_com_taobao_gcanvas_GCanvasJNI_sendEvent(
 		JNIEnv *je, jclass jc, jstring contextId);
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_registerCallback(JNIEnv *je, jclass jc, jstring soPath, jint version);
 
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_destroyWVGRef(
-		JNIEnv *je, jclass jc);
-
 JNIEXPORT jint JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring contextId);
+
+#endif
 
 #ifdef __cplusplus
 }

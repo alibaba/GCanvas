@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Adapter
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -27,12 +27,13 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided "com.android.support:appcompat-v7:${rootProject.extensions.sdks.Support}"
-    provided "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
-    compile project(':android:adapters:bridge_adapter')
-    testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
+    compileOnly "com.android.support:appcompat-v7:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.facebook.fresco:fresco:${rootProject.extensions.sdks.Fresco}"
+    testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
+
+    implementation project(':android:adapters:bridge_adapter')
 }
 
 project.ext.id = rootProject.extensions.artifacts.FrescoAdapter

@@ -10,24 +10,49 @@
 #ifndef __GCANVAS__
 #define __GCANVAS__
 
-#ifdef ANDROID
+#define API_WEEX
 
+#include "gcanvas/GCanvas2dContext.h"
+
+#ifdef ANDROID
+#include <queue>
 #include <jni.h>
 #include <semaphore.h>
-
+#include "./support/DynArray.h"
+#include "./support/Log.h"
+#include "./export.h"
+#define GCANVAS_TIMEOUT 800
 #endif
 
-#include <queue>
-#include "gcanvas/GCanvas2dContext.h"
-#include "support/DynArray.h"
-#include "support/Log.h"
+#ifdef IOS
+#include "DynArray.h"
+#include "Log.h"
+#include "export.h"
+#endif
 
 using namespace gcanvas;
+
+#ifdef GCANVAS_WEEX
+
+// -----------------------------------------------------------
+// --    Clip utility class
+// --    Used to process drawImage
+// --    Populates the textureArr and vertexArr of a Quad
+// -----------------------------------------------------------
+struct Clip
+{
+    int textureID;
+    float cx, cy, cw, ch, px, py, pw, ph;
+};
+
+
+#ifdef ANDROID
 
 // -----------------------------------------------------------
 // --    Synchronize Call Type Enum Ddefinition
 // -----------------------------------------------------------
-enum {
+enum
+{
     LOAD,
     UNLOAD,
     RELOAD,
@@ -51,41 +76,28 @@ enum {
     BIND_TEXTURE,
     GET_STRING,             //glGetString
     IS_VERTEX_ARRAY_OES,    //glIsVertexArrayOES
-
 };
 
-// -----------------------------------------------------------
-// --    Clip utility class
-// --    Used to process drawImage
-// --    Populates the textureArr and vertexArr of a Quad
-// -----------------------------------------------------------
-struct Clip {
-    int textureID;
-    float cx, cy, cw, ch, px, py, pw, ph;
+struct GCanvasCmd
+{
+    std::string contextId;
+    int type;
+    std::string args;
 };
 
-// -----------------------------------------------------------
-// --    CaptureParams struct
-//
-//  Contains the information needed to take a capture of the
-//  GL context.
-// -----------------------------------------------------------
-struct CaptureParams {
-    enum {
-        ALLOCATED = 512
-    };
-
-    CaptureParams();
-
-    CaptureParams(int x, int y, int w, int h, const char *callbackID,
-                  const char *fileName);
-
-    int x;
-    int y;
+struct BitmapCmd
+{
+    void *Bitmap;
     int width;
     int height;
-    char callbackID[ALLOCATED];
-    char fileName[ALLOCATED];
+    int target;
+    int level;
+    int interformat;
+    int format;
+    int type;
+    int xoffset;
+    int yoffset;
+    int id;
 };
 
 // -----------------------------------------------------------
@@ -94,8 +106,10 @@ struct CaptureParams {
 //  Contains the information needed to execute a success or error
 //  callback on the cordova side
 // -----------------------------------------------------------
-struct Callback {
-    enum {
+struct Callback
+{
+    enum
+    {
         ALLOCATED = 512
     };
 
@@ -105,182 +119,142 @@ struct Callback {
     char result[ALLOCATED];
     bool isError;
 };
+#endif
 
-//class GGlObject
-//{
-//public:
-//    int mAppId;
-//    GLuint mGlHandle;
-//};
-//
-//class GGlObjectMgr
-//{
-//public:
-//    void SetFlag(const char *flag) { mFlag = flag; };
-//    const char *GetFlag() { return mFlag.c_str(); };
-//    void Append(int appId, GLuint glId)
-//    {
-//        GGlObject &obj = mPool[appId];
-//        obj.mAppId = appId;
-//        obj.mGlHandle = glId;
-//    }
-//
-//    void Remove(int appId)
-//    {
-//        mPool.erase(appId);
-//    }
-//
-//    const GGlObject *Get(int appId) const
-//    {
-//        std::map< int, GGlObject >::const_iterator itr;
-//        itr = mPool.find(appId);
-//        if (mPool.end() != itr)
-//        {
-//            return &(itr->second);
-//        }
-//        return nullptr;
-//    };
-//
-//private:
-//    std::map< int, GGlObject > mPool;
-//    std::string mFlag;
-//};
+#endif
 
-class GCanvas : public GCanvasContext {
+class GCanvas : public GCanvasContext
+{
 public:
-    GCanvas(std::string contextId);
+    API_EXPORT GCanvas(std::string contextId, bool flip=false, std::string appInfo="", bool useFbo=true);
 
     ~GCanvas();
-
-    void AddCallback(const char *callbackID, const char *result, bool isError);
-
-    bool AddPngTexture(const unsigned char *buffer, unsigned int size, int textureGroupId,
-                       unsigned int *pWidth, unsigned int *pHeight);
-
-    void AddTexture(int textureGroupId, int glID, int width, int height);
-
-#ifdef IOS
-    void AddOfflineTexture(int textureGroupId, int glID);
-#endif
-
+    
     void Clear();
-
-    void DrawImage(int textureId, float sx, float sy, float sw, float sh,
-                   float dx, float dy, float dw, float dh);
-
-    void DrawText(const char *text, float x, float y, float maxWidth,
-                  bool isStroke);
-
-    void FillRect(float x, float y, float w, float h);
-
-    void GetAllParameter(std::string &ret);
-
-    Callback *GetNextCallback();
-
-    void GetImageData(int x, int y, int w, int h, bool base64Encode,
-                      std::string &pixelsData);
-
-    void OnSurfaceChanged(int width, int height);
-
-    void PopCallbacks();
-
-    void PutImageData(const char *imageData, int dataLength, float dx, float dy,
-                      float sw, float sh, float dw, float dh);
-
-    void QueueCaptureGLLayer(int x, int y, int w, int h, const char *callbackID,
-                             const char *fn);
-
-    void RemoveTexture(int id);
-
-    void Render(const char *renderCommands, int length);
-
+    
+    void DrawText(const char *text, float x, float y, float maxWidth=SHRT_MAX,
+                  bool isStroke=false, int strLength = 0);
+    
+    void DrawTextWithLength(const char *text, int strLength, float x, float y,
+                            bool isStroke=false, float maxWidth=SHRT_MAX);
+    
+    API_EXPORT void OnSurfaceChanged(int x, int y, int width, int height);
+    
     void SetBackgroundColor(float red, float green, float blue);
+    
+    //Weex 2D
+#ifdef GCANVAS_WEEX
+    API_WEEX bool AddPngTexture(const unsigned char *buffer, unsigned int size, int textureGroupId,
+                       unsigned int *pWidth, unsigned int *pHeight);
+    API_WEEX void AddTexture(int textureGroupId, int glID, int width, int height);
 
-    void SetOrtho(int width, int height);
+    #ifdef IOS
+    API_WEEX void AddOfflineTexture(int textureGroupId, int glID);
+    #endif
+    
+    API_WEEX void GetAllParameter(std::string &ret);
+    
+    #ifdef ANDROID
+    API_WEEX void AddCallback(const char *callbackID, const char *result, bool isError);
+    API_WEEX Callback *GetNextCallback();
+    API_WEEX void PopCallbacks();
+    #endif
+    
+    API_WEEX void DrawImage(int textureId, float sx, float sy, float sw, float sh,
+                            float dx, float dy, float dw, float dh);
 
-    void SetTyOffsetFlag(bool flag);
+    API_WEEX void GetImageData(int x, int y, int w, int h, bool base64Encode,
+                               std::string &pixelsData);
+    API_WEEX void PutImageData(const char *imageData, int dataLength, float dx, float dy,
+                               float sw, float sh, float dw, float dh);
 
-    void UsePatternRenderPipeline(int textureListId,
-                                  const std::string &pattern);
-
-#ifdef ANDROID
-
-    std::string exeSyncCmd(int cmd, const char *&args);
-
-    std::string exe2dSyncCmd(int cmd, const char *&args);
-
-    std::string exeWebglSyncCmd(int cmd, const char *&args);
-//	std::string getProgramparameter(GCanvas* obj, int id,int type);
-//	std::string getShaderInfoLog(GCanvas* obj, int id);
-//	std::string getShaderparameter(GCanvas* obj, int id,int type);
-//	std::string getActiveUniform(GCanvas* obj, int id,int index);
-//	std::string getActiveAttrib(GCanvas* obj, int id,int index);
-//    
-//    std::string getString(GCanvas* obj, int name);
-//    std::string isVertexArrayOES(GCanvas* obj, int array);
-
-    void initWebglExt();
-
-    const char *CallNative(int type, const std::string& args);
-
+    API_WEEX void RemoveTexture(int id);
+    API_WEEX void Render(const char *renderCommands, int length);
+    API_WEEX void SetOrtho(int width, int height);
+    API_WEEX void SetTyOffsetFlag(bool flag);
+    API_WEEX void UsePatternRenderPipeline(int textureListId, int width, int height,
+                                  const std::string &pattern, bool isStroke=false);
+    API_WEEX void UsePatternRenderPipeline(int textureListId, const std::string &pattern,
+                                  bool isStroke=false);
+    
+    //Weex WebGL
+    API_WEEX void setSyncResult(std::string result);
+    #ifdef ANDROID
+    API_WEEX std::string exeSyncCmd(int cmd, const char *&args);
+    API_WEEX std::string exe2dSyncCmd(int cmd, const char *&args);
+    API_WEEX void initWebglExt();
+    API_WEEX const char *CallNative(int type, const std::string &args);
+    API_WEEX int getCmdType(int type);
+    API_WEEX int getSyncAttrib(int type);
+    API_WEEX int getOpType(int type);
+    API_WEEX std::string canvasProc(int op, int sync, std::string args);
+    API_WEEX std::string webglProc(int op, int sync, std::string args);
+    API_WEEX std::string vulkanProc(int op, int sync, std::string args);
+    API_WEEX std::string metalProc(int op, int sync, std::string args);
+    API_WEEX virtual void signalUpGLthread();
+    API_WEEX void LinkNativeGLProc();
+    API_WEEX void clearCmdQueue();
+    API_WEEX void QueueProc(std::queue<struct GCanvasCmd *> *queue);
+    API_WEEX virtual void setRefreshFlag(bool refresh);
+    API_WEEX void setSyncFlag();
+    API_WEEX void setThreadExit();
+    API_WEEX void finishProc();
+    API_WEEX bool continueProcess();
+    API_WEEX void addBitmapQueue(struct BitmapCmd *p);
+    API_WEEX void bindTexture(struct BitmapCmd cmd);
+    API_WEEX void bindTexture(GTexture *texture);
+    API_WEEX void texSubImage2D(struct BitmapCmd cmd);
+    API_WEEX void setContextLost(bool lost);
+    #endif
+    
 #endif
+
 
 private:
-    void drawFBO(std::string fboName, GCompositeOperation compositeOp = COMPOSITE_OP_REPLACE, float sx=0, float sy=0, float sw=1, float sh=1, float dx = 0, float dy = 0, float dw=1, float dh=1);
-
-    void calculateFPS();
-
-    void execute2dCommands(const char *renderCommands, int length);
-
-    int executeWebGLCommands(const char *&cmd, int length);
-
-    bool isCmd(const char *in, const char *match) { return in[0] == match[0]; }
-
-    bool captureGLLayer(CaptureParams *params);
-
-    const char *parseSetTransform(const char *renderCommands,
+    void drawFBO(std::string fboName, GCompositeOperation compositeOp = COMPOSITE_OP_SOURCE_OVER,
+                 float sx = 0, float sy = 0, float sw = 1, float sh = 1,
+                 float dx = 0, float dy = 0, float dw = 1, float dh = 1);
+    
+    //GCanvas Weex API
+#ifdef GCANVAS_WEEX
+    API_WEEX void calculateFPS();
+    API_WEEX void execute2dCommands(const char *renderCommands, int length);
+    API_WEEX int executeWebGLCommands(const char *&cmd, int length);
+    API_WEEX bool isCmd(const char *in, const char *match) { return in[0] == match[0]; }
+    API_WEEX const char *parseSetTransform(const char *renderCommands,
                                   int parseMode, // what to read: IDENTITY, FULL_XFORM, etc.
                                   bool concat,   // if true, concatenate, else replace.
                                   GTransform transIn,    // the current xform
                                   GTransform *transOut); // where to write the new xform
 
-    void parseSetTransForTextform(float v1, float v2,
+    API_WEEX void parseSetTransForTextform(float v1, float v2,
                                   int parseMode,    // what to read: IDENTITY, FULL_XFORM, etc.
                                   bool concat,      // if true, concatenate, else replace.
                                   GTransform transIn, // the current xform
                                   GTransform *transOut);
 
-    const char *parseSetTransformT(
-            const char *renderCommands,
-            int parseMode,          // what to read: IDENTITY, FULL_XFORM, etc.
-            bool concat,            // if true, concatenate, else replace.
-            GTransform transIn,    // the current xform
-            GTransform *transOut); // where to write the new xform
-    const char *parseTokens(const char *renderCommands, float *tokens,
-                            int iMaxCount = 6);
-
-    void parseTokesOpt(float *tokens, const char **pp);
-
-    const char *parseDrawImage(const char *renderCommands, Clip *clipOut);
-
-    const char *parseName(const char *p, std::string &name);
-
-    const char *parseBindingPara(const char *p, std::string &name, float &width, float &height);
-    const char *parseBindingPara(const char *p, std::string &name, float& sx, float& sy, float& sw, float& sh,
-                                 float& dx, float& dy, float& dw, float& dh);
-
-
-    const char *parseUnknown(const char *renderCommands);
-
-    const char *extractOneParameterFromCommand(char *outParameter,
+    API_WEEX const char *parseSetTransformT( const char *renderCommands,
+                                int parseMode,          // what to read: IDENTITY, FULL_XFORM, etc.
+                                bool concat,            // if true, concatenate, else replace.
+                                GTransform transIn,    // the current xform
+                                GTransform *transOut); // where to write the new xform
+    API_WEEX const char *parseTokens(const char *renderCommands, float *tokens,
+                                     int iMaxCount = 6);
+    API_WEEX void parseTokesOpt(float *tokens, const char **pp);
+    API_WEEX const char *parseDrawImage(const char *renderCommands, Clip *clipOut);
+    API_WEEX const char *parseName(const char *p, std::string &name);
+    API_WEEX const char *parseBindingPara(const char *p, std::string &name, float &width, float &height);
+    API_WEEX const char *parseBindingPara(const char *p, std::string &name,
+                                          float& sx, float& sy, float& sw, float& sh,
+                                          float& dx, float& dy, float& dw, float& dh);
+    API_WEEX const char *parseUnknown(const char *renderCommands);
+    API_WEEX const char *extractOneParameterFromCommand(char *outParameter,
                                                const char *commands);
-
-    const Texture *getTextureWithOneImage(int id);
-
-    float fastFloat(const char *str) { return (float) atof(str); }
-
-
-    enum {
+    API_WEEX const Texture *getTextureWithOneImage(int id);
+    API_WEEX float fastFloat(const char *str) { return (float) atof(str); }
+    
+    enum
+    {
         IDENTITY,  // rt
         SET_XFORM, // st
         SCALE,     // sc
@@ -304,118 +278,44 @@ private:
     enum {
         OP_RENDER,
     };
+#endif
 
 public:
     std::string mContextId;
-    clock_t mLastTime;
+    
+#ifdef GCANVAS_WEEX
     int mFrames;
-    int mMessages;
     float mFps;
-    int mMsgLength;
-    bool mTyOffsetFlag;
-    short mTyOffset;
     std::string mTempStr;
-    int mPixelFlipY;
-    int mRenderCount;
-
-    bool mContextLost;      //mContextLost
-
+    GTransform mCurrentTransform;
+    bool mContextLost;
     DynArray<GTransform> mActionStack;
     TextureMgr mTextureMgr;
-    DynArray<CaptureParams *> mCaptureParams;
-    DynArray<Callback *> mCallbacks;
-
     std::string mResult = "";
 
-
 #ifdef ANDROID
-    JNIEnv *mJniEnv;
-    jobject *mCanvasRender;
-
-    JNIEnv *GetEnv();
-
+    clock_t mLastTime;
+    DynArray<Callback *> mCallbacks;
     sem_t mSyncSem;
     bool mSync = false;
     bool mExit = false;
-
     std::queue<struct GCanvasCmd *> mCmdQueue;
     std::queue<struct BitmapCmd *> mBitmapQueue;
-
-    int getCmdType(int type);
-
-    int getSyncAttrib(int type);
-
-    int getOpType(int type);
-
-    std::string canvasProc(int op, int sync, std::string args);
-
-    std::string webglProc(int op, int sync, std::string args);
-
-    std::string vulkanProc(int op, int sync, std::string args);
-
-    std::string metalProc(int op, int sync, std::string args);
-
-    virtual void signalUpGLthread();
-
-    void LinkNativeGLProc();
-
-    void clearCmdQueue();
-
-    void QueueProc(std::queue<struct GCanvasCmd *> *queue);
-
-    virtual void setRefreshFlag(bool refresh);
-
-    void setSyncFlag();
-
-    void setThreadExit();
-
-    void finishProc();
-
-    bool continueProcess();
-
-    void addBitmapQueue(struct BitmapCmd *p);
-
-    void bindTexture(struct BitmapCmd cmd);
-
-    void bindTexture(GTexture *texture);
-
-    void texSubImage2D(struct BitmapCmd cmd);
-
-    void setContextLost(bool lost);
-
 #endif
-
-    void setSyncResult(std::string result);
 
 #ifdef IOS
     protected:
         std::map< int, int > mOfflineTextures;
 #endif
 
-    GTransform mCurrentTransform;
+#endif
+
+public:
+    
+    API_EXPORT float execMeasureTextWidth(const char *text, int strLength = 0);
+
+    API_EXPORT void drawFrame(bool clear = true);
+
 };
-
-
-struct GCanvasCmd {
-    std::string contextId;
-    int type;
-    std::string args;
-};
-
-struct BitmapCmd {
-    void *Bitmap;
-    int width;
-    int height;
-    int target;
-    int level;
-    int interformat;
-    int format;
-    int type;
-    int xoffset;
-    int yoffset;
-    int id;
-};
-
-#define GCANVAS_TIMEOUT 800
 
 #endif

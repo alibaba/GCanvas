@@ -54,6 +54,17 @@ public class GTextureView extends TextureView {
         }
     }
 
+    public void removeSurfaceTextureListener(TextureView.SurfaceTextureListener listener) {
+        if (null == listener) {
+            return;
+        }
+
+        if(null != mCallback){
+            mCallback.removeSurfaceTextureListener(listener);
+        }
+    }
+
+
 
     private void init(String id) {
 //        getHolder().setFormat(PixelFormat.RGBA_8888);

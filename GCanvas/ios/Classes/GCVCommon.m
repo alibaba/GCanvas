@@ -101,10 +101,11 @@
     
     CGRect rect = CGRectMake(0, 0, width, height);
     CGBitmapInfo info = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
-    void* imageData = malloc(width * height * 4);
+    
+    NSMutableData *pixelData = [NSMutableData dataWithLength:width*height*4];
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
-    CGContextRef context = CGBitmapContextCreate(imageData,width,height,8,4*width,colorSpace,info);
+    CGContextRef context = CGBitmapContextCreate(pixelData.mutableBytes,width,height,8,4*width,colorSpace,info);
     CGContextClearRect(context, rect);
     CGContextDrawImage(context, rect, cgImageRef);
     
@@ -119,10 +120,9 @@
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, imageData);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixelData.bytes);
     glGenerateMipmap(GL_TEXTURE_2D);
     
-    free(imageData);
     return glID;
 }
 

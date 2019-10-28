@@ -23,21 +23,11 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
     private Surface mSurface;
     private SurfaceTexture mSurfaceTexture;
     private TextureView mTextureview;
-    private static boolean INITIALIZED = false;
 
     private ArrayList<TextureView.SurfaceTextureListener> mDelegateLists;
 
     static {
-        if (!INITIALIZED) {
-            try {
-                System.loadLibrary("gcanvas");
-                System.loadLibrary("freetype");
-                GCanvasJNI.setFontFamilies();
-                INITIALIZED = true;
-            } catch (Throwable throwable) {
-                GLog.e("GTextureViewCallback", "error when load library", throwable);
-            }
-        }
+        GCanvasJNI.load();
     }
 
     public GTextureViewCallback(TextureView v, String id) {
@@ -54,6 +44,14 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         if (!mDelegateLists.contains(listener)) {
             mDelegateLists.add(listener);
         }
+    }
+
+    public void removeSurfaceTextureListener(TextureView.SurfaceTextureListener listener) {
+        if (null == mDelegateLists) {
+            return;
+        }
+
+        mDelegateLists.remove(listener);
     }
 
     public void setBackgroundColor(String color) {
@@ -74,6 +72,8 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
         }
 
         onSurfaceChanged(this.mKey, mSurface, 0, width, height, mBackgroundColor);
+        GCanvasJNI.refreshArguments(mKey);
+
         if (GCanvasJNI.sendEvent(mKey)) {
             if (mTextureview instanceof GTextureView) {
                 GLog.d("start to send event in GSurfaceCallback.");
@@ -117,7 +117,7 @@ public class GTextureViewCallback implements TextureView.SurfaceTextureListener 
                 listener.onSurfaceTextureDestroyed(surface);
             }
         }
-
+        onSurfaceDestroyed(this.mKey, mSurface);
         return true;
     }
 

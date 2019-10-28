@@ -1,0 +1,55 @@
+extends layout
+
+block meta
+    title GCanvas - Draw to your devices directly with Javascript
+    link(rel="icon" href=root+"assets/favicon-gcanvas.png" type="image/x-icon")
+    link(rel="stylesheet" href=root+"index.css")
+    script(async defer src="https://buttons.github.io/buttons.js")
+
+block main
+    .gcanvas
+        .banner
+            .content
+                .title GCanvas
+                .description Draw to your devices directly with Javascript
+                .github-buttons
+                    a.github-button(href="https://github.com/alibaba/GCanvas" data-size="large" data-show-count="true" aria-label="Star alibaba/GCanvas on GitHub") Star
+                    a.github-button(href="https://github.com/alibaba/GCanvas/fork" data-icon="octicon-repo-forked" data-size="large" data-show-count="true" aria-label="Fork alibaba/GCanvas on GitHub") Fork
+                .github
+                    a(href="https://github.com/alibaba/GCanvas") Github
+        .intro
+            .content
+                .logo
+                    img(src=root+"assets/logo-gcanvas.png")
+                .title GCanvas, Draw to your devices directly with Javascript
+                .description GCanvas is a hybrid canvas SDK for mobile Apps, which allows you to draw to native devices with Javascript. It supports hybrid frameworks like Weex, and ReactNative. GCanvas uses same API as HTML5 canvas.  It supports both graphics 2D and WebGL APIs. GCanvas also takes advantage of hardware acceleration on most devices, which makes you be able to draw scenes in very high frame rate with Javascript.
+                .blueprint
+                    img(src="https://img.alicdn.com/tfs/TB1NjpfXVOWBuNjy0FiXXXFxVXa-1920-800.jpg")
+                .title Demos
+                .demos
+                    .demo
+                        a(href=root+"playground.html?id=8f25b7f2-bc77-4479-b396-7c629cb5113d")
+                            img(src="https://img.alicdn.com/tfs/TB1Uz.6bntYBeNjy1XdXXXXyVXa-262-436.gif")
+                    .demo
+                        a(href=root+"playground.html?id=87ea9a43-cab1-4d3f-aa16-a0fe5e4c6539")
+                            img(src="https://img.alicdn.com/tfs/TB1ZCS1beSSBuNjy0FlXXbBpVXa-262-436.gif")
+                    .demo
+                        a(href=root+"playground.html?id=d43e9249-5f09-41e1-9219-b1c8866e5455")
+                            img(src="https://img.alicdn.com/tfs/TB1gkfcbhGYBuNjy0FnXXX5lpXa-262-436.gif")
+        .archi
+            .content
+                img(src="https://img.alicdn.com/tfs/TB1WOz2bf1TBuNjy0FjXXajyXXa-1024-768.png")
+        .usage
+            .content
+                .title Who's using GCanvas?
+                .user-list
+                    img(src="https://img.alicdn.com/tfs/TB1R4ddbCCWBuNjy0FhXXb6EVXa-256-256.png")
+                    img(src="https://img.alicdn.com/tfs/TB1zNNtbx9YBuNjy0FfXXXIsVXa-256-256.png")
+                    img(src="https://img.alicdn.com/tfs/TB176Vtbr9YBuNjy0FgXXcxcXXa-256-256.png")
+                    img(src="https://img.alicdn.com/tfs/TB1W4ddbCCWBuNjy0FhXXb6EVXa-256-256.png")
+                    img(src="https://img.alicdn.com/tfs/TB1p4Ntbx9YBuNjy0FfXXXIsVXa-256-256.png")
+                    img(src="https://img.alicdn.com/tfs/TB1RhddbCCWBuNjy0FhXXb6EVXa-230-230.jpg")
+                    img(src="https://img.alicdn.com/tfs/TB1WNddbCCWBuNjy0FhXXb6EVXa-256-256.png")
+                
+
+    script(src="https://g.alicdn.com/gama/assets/0.0.5/gcanvas-banner.bundle.js")

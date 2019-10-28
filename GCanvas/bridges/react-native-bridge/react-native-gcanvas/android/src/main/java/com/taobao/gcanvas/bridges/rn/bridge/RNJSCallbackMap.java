@@ -1,6 +1,5 @@
 package com.taobao.gcanvas.bridges.rn.bridge;
 
-import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableNativeArray;
 import com.facebook.react.bridge.ReadableNativeMap;
@@ -63,7 +62,7 @@ public class RNJSCallbackMap implements IJSCallbackMap {
 
     @Override
     public IJSCallbackArray getArray(String name) {
-        ReadableArray array = mMap.getArray(name);
+        ReadableNativeArray array = mMap.getArray(name);
         if (null != array) {
             return new RNJSCallbackArray(array);
         }

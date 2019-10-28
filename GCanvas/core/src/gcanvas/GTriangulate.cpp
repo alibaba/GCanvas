@@ -59,7 +59,7 @@ bool Triangulate::InsideTriangle(float Ax, float Ay, float Bx, float By,
 bool Triangulate::Snip(const Vector2dVector &contour, int u, int v, int w,
                        int n, int *V)
 {
-    int p;
+    int i;
     float Ax, Ay, Bx, By, Cx, Cy, Px, Py;
 
     Ax = contour[V[u]].x;
@@ -71,20 +71,43 @@ bool Triangulate::Snip(const Vector2dVector &contour, int u, int v, int w,
     Cx = contour[V[w]].x;
     Cy = contour[V[w]].y;
 
+    // 判断是否是ccw方向三角形，如果不是表明是凹三角形，需要剔除
     if (EPSILON > (((Bx - Ax) * (Cy - Ay)) - ((By - Ay) * (Cx - Ax))))
-        return false;
-
-    for (p = 0; p < n; p++)
     {
-        if ((p == u) || (p == v) || (p == w)) continue;
-        Px = contour[V[p]].x;
-        Py = contour[V[p]].y;
-        if (InsideTriangle(Ax, Ay, Bx, By, Cx, Cy, Px, Py)) return false;
+        // LOG_I("un ccw wind triangle: %f,%f,%f,%f,%f,%f, (u=%d,v=%d,w=%d)", Ax, Ay, Bx, By, Cx, Cy, u,v,w);
+        return false;
     }
 
-    return true;
+    // return true;
+    for (i = 0; i < n; i++)
+    {
+        if ((i == u) || (i == v) || (i == w)) continue;
+        // 忽略接近值
+        Px = contour[V[i]].x;
+        Py = contour[V[i]].y;
+        // 避免拆分算法过程中 拆分太细的重复点
+        if (((Px - Ax) < EPSILON && (Py - Ay) < EPSILON) ||
+            ((Px - Bx) < EPSILON && (Py - By) < EPSILON) ||
+                ((Px - Cx) < EPSILON && (Py - Cy) < EPSILON)) {
+            continue;
+        }
+
+        // mock
+//        if (InsideTriangle(Ax, Ay, Bx, By, Cx, Cy, Px, Py)) {
+//            return false;
+//        }
+    }
+
+   return true;
 }
 
+
+/**
+ * 只支持凸多边形
+ * @param contour 输入数据数据
+ * @param result 输出数据
+ * @return 返回结果
+ */
 bool Triangulate::Process(const Vector2dVector &contour, Vector2dVector &result)
 {
     /* allocate and initialize list of Vertices in polygon */

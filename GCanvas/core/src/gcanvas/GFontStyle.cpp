@@ -9,18 +9,20 @@
 #include <cstdlib>
 #include "GFontStyle.h"
 #include "GStrSeparator.h"
+#include <algorithm>
 
 namespace gcanvas
 {
-GFontStyle::GFontStyle(const char *font)
+GFontStyle::GFontStyle(const char *font, float ratio):mFontName(font?font:"")
 {
     mStyle = Style::NORMAL;
     mVariant = Variant::NORMAL;
     mWeight = Weight::NORMAL;
-    mSize = 10;
+    mSize = 12*ratio;
+    mRatio = ratio;
     mFamily = "sans-serif";
 
-    if (font != nullptr)
+    if (font != nullptr && mFontName.length() > 0 )
     {
         Initialize(font);
     }
@@ -38,85 +40,118 @@ void GFontStyle::Initialize(const char *font)
 
     while (index < ct)
     {
-        if (strcmp("normal", parts[index]) == 0 ||
-            strcmp("400", parts[index]) == 0)
+        std::string curStr = parts[index];
+        std::transform(curStr.begin(), curStr.end(), curStr.begin(), ::tolower);
+        const char *curCStr = curStr.c_str();
+        
+        if (strcmp("normal", curCStr) == 0 ||
+            strcmp("400", curCStr) == 0)
         {
             // "normal" should be skipped in any case
         }
-        else if (strcmp("oblique", parts[index]) == 0)
+        else if (strcmp("oblique", curCStr) == 0)
         {
             mStyle = Style::OBLIQUE;
         }
-        else if (strcmp("italic", parts[index]) == 0)
+        else if (strcmp("italic", curCStr) == 0)
         {
             mStyle = Style::ITALIC;
         }
-        else if (strcmp("small-caps", parts[index]) == 0)
+        else if (strcmp("small-caps", curCStr) == 0)
         {
             mVariant = Variant::SMALL_CAPS;
         }
-        else if (strcmp("bold", parts[index]) == 0 ||
-                 strcmp("700", parts[index]) == 0)
+        else if (strcmp("bold", curCStr) == 0 ||
+                 strcmp("700", curCStr) == 0)
         {
             mWeight = Weight::BOLD;
         }
-        else if (strcmp("bolder", parts[index]) == 0)
+        else if (strcmp("bolder", curCStr) == 0)
         {
             mWeight = Weight::BOLDER;
         }
-        else if (strcmp("lighter", parts[index]) == 0)
+        else if (strcmp("lighter", curCStr) == 0)
         {
             mWeight = Weight::LIGHTER;
         }
-        else if (strcmp("100", parts[index]) == 0)
+        else if (strcmp("100", curCStr) == 0)
         {
             mWeight = Weight::THIN;
         }
-        else if (strcmp("200", parts[index]) == 0)
+        else if (strcmp("200", curCStr) == 0)
         {
             mWeight = Weight::EXTRA_LIGHT;
         }
-        else if (strcmp("300", parts[index]) == 0)
+        else if (strcmp("300", curCStr) == 0)
         {
             mWeight = Weight::LIGHT;
         }
-        else if (strcmp("500", parts[index]) == 0)
+        else if (strcmp("500", curCStr) == 0)
         {
             mWeight = Weight::MEDIUM;
         }
-        else if (strcmp("600", parts[index]) == 0)
+        else if (strcmp("600", curCStr) == 0)
         {
             mWeight = Weight::SEMI_BOLD;
         }
-        else if (strcmp("800", parts[index]) == 0)
+        else if (strcmp("800", curCStr) == 0)
         {
             mWeight = Weight::EXTRA_BOLD;
         }
-        else if (strcmp("900", parts[index]) == 0)
+        else if (strcmp("900", curCStr) == 0)
         {
             mWeight = Weight::BLACK;
         }
         else
         {
-            std::string fontSize(parts[index]);
+            std::string fontFamily = "";
+            std::string fontSize(curCStr);
             auto pos = fontSize.find("px");
-            if (pos > 0)
+            if (pos != std::string::npos)
             {
-                auto len = strlen(parts[index]);
+                auto len = strlen(curCStr);
                 if (pos == (len - 2))
                 {
                     char *endPtr = nullptr;
-                    mSize = strtof(parts[index], &endPtr);
+                    mSize = strtof(curCStr, &endPtr);
+                    mSize *= mRatio;
 
                     if (++index < ct)
                     {
-                        mFamily = parts[index];
+                        fontFamily = parts[index];
                     }
                 }
             }
-        }
 
+             pos = fontSize.find("pt");
+            if (pos != std::string::npos)
+            {
+                auto len = strlen(curCStr);
+                if (pos == (len - 2))
+                {
+                    char *endPtr = nullptr;
+                    mSize = strtof(curCStr, &endPtr)*4/3;
+                    mSize *= mRatio;
+
+                    if (++index < ct)
+                    {
+                        fontFamily = parts[index];
+                    }
+                }
+            }
+            
+            if ( fontFamily.length() > 0)
+            {
+                fontFamily.erase(std::remove(fontFamily.begin(), fontFamily.end(), '\"'), fontFamily.end() );
+                mFamily = fontFamily;
+            }
+        }
+        
         ++index;
+    }
+    if(mSize == 0)
+    {
+        mSize = 12 * mRatio;
     }
 }
 }

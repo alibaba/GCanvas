@@ -14,13 +14,13 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.android.tools.build:gradle:3.2.1"
     }
 }
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
-    buildToolsVersion rootProject.extensions.sdks.BuildTool
+    buildToolsVersion '28.0.3'
 
     sourceSets {
         main {
@@ -36,6 +36,7 @@ android {
 
         debug {
             debuggable true
+            minifyEnabled false
         }
 
         release {
@@ -49,7 +50,7 @@ android {
 
     defaultConfig {
         ndk {
-            abiFilters 'armeabi', 'armeabi-v7a'
+            abiFilters 'armeabi-v7a'
         }
     }
 

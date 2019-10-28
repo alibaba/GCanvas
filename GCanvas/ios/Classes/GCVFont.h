@@ -13,20 +13,24 @@
 #import <Foundation/Foundation.h>
 #import <GLKit/GLKit.h>
 #import <CoreText/CoreText.h>
-#import "GCVLog.h"
+//#import "GCVLog.h"
 #include "GTextDefine.h"
+#include "GGlyphCache.h"
+#include "GTreemap.h"
 
 typedef struct {
     float x, y, w, h;
+    CGSize advances;
     unsigned short textureIndex;
     float tx, ty, tw, th;
 } GFontGlyphInfo;
 
+
 typedef struct {
-    unsigned short textureIndex;
-    CGGlyph glyph;
+//    unsigned short textureIndex;
+//    CGGlyph glyph;
     float xpos;
-    GFontGlyphInfo *info;
+    GGlyph info;
 } GFontGlyphLayout;
 
 typedef struct {
@@ -35,19 +39,35 @@ typedef struct {
     float descent;
 } GTextMetrics;
 
+namespace gcanvas
+{
+    class GFontStyle;
+}
 
 @interface GFontLayout : NSObject
 
-@property (nonatomic, strong) NSData *glyphLayout;
+@property (nonatomic, strong) NSMutableData *glyphLayout;
 @property (nonatomic, assign) GTextMetrics metrics;
 @property (nonatomic, assign) NSInteger glyphCount;
 
 @end
 
+class GCanvasContext;
 
 @interface GCVFont : NSObject 
+{
+    GCanvasContext* context;
+    GGlyphCache* glyphCache;
+    GTreemap* treemap;
+}
 
-+ (instancetype)sharedInstance;
+@property(nonatomic,assign) GCanvasContext *context;
+@property(nonatomic,assign) GGlyphCache *glyphCache;
+@property(nonatomic,assign) GTreemap *treemap;
+
++ (instancetype)createGCFontWithKey:(NSString*)key;
++ (GCVFont*)getGCVFontWithKey:(NSString*)key;
+
 
 - (void)cleanFont;
 
@@ -56,8 +76,9 @@ typedef struct {
  *
  * @param fontStyle     fontStyle name
  * @param isStroke      stroke flag
+ * @param context       GCanvasContext
  */
-- (void)resetWithFontStyle:(const char *)fontStyle isStroke:(BOOL)isStroke deviceRatio:(CGFloat)deviceRatio;
+- (void)resetWithFontStyle:(gcanvas::GFontStyle *)fontStyle isStroke:(BOOL)isStroke context:(void*)context;
 
 /**
  * Get getLayoutForString.
@@ -67,6 +88,10 @@ typedef struct {
  * return  return GFontLayout
  */
 - (GFontLayout *)getLayoutForString:(NSString *)string withFontStyle:(NSString*)fontStyle;
+
+- (void )drawString:(NSString *)string withFontStyle:(NSString*)fontStyle withLayout:(GFontLayout*)fontLayout withPosition:(CGPoint)destPoint;
+
+- (void) getGlyphForChar:(wchar_t)c withFontStyle:(NSString*)fontStyle withFontLayout:(GFontLayout *) fontLayout withOffsetX:(int*) x;
 
 /**
  * Create font texture with FontGlyph info
@@ -78,10 +103,10 @@ typedef struct {
  *
  * return  font textureId
  */
-- (GLuint)createGlyph:(CGGlyph)glyph
+- (void)createGlyph:(CGGlyph)glyph
              withFont:(CTFontRef)font
         withFontStyle:(NSString*)fontStyle
-            glyphInfo:(GFontGlyphInfo *)glyphInfo;
+            glyphInfo:(GGlyph *)glyphInfo;
 
 
 /**

@@ -31,9 +31,11 @@ void DLog(const char *format, ...);
     }
 #endif
 #else
+#ifndef ASSERT
 #define ASSERT(x)                                                              \
     {                                                                          \
     }
+#endif
 #endif
 
 template < class T > class DynArray

@@ -15,24 +15,95 @@
 #include "GTexture.h"
 #include "GPoint.h"
 #include "GTransform.h"
+#include <map>
+#include <set>
+
 
 class GFrameBufferObject
 {
 public:
     GFrameBufferObject();
+
     ~GFrameBufferObject();
 
-    bool InitFBO(int width, int height, GColorRGBA color);
+    bool InitFBO(int width, int height, GColorRGBA color, std::string appInfo = "");
+
+    bool InitFBO(int width, int height, GColorRGBA color, bool enableMsaa, std::string appInfo = "");
+
     void BindFBO();
+
     void UnbindFBO();
 
+    void DeleteFBO();
+
+    int DetachTexture();
+
+    void GLClearScreen(GColorRGBA color);
+
+
+    int Width()
+    {
+        return mFboTexture.GetWidth();
+    }
+
+    int Height()
+    {
+        return mFboTexture.GetHeight();
+
+    }
+
+    void SetSize(int w, int h)
+    {
+        mWidth=w;
+        mHeight=h;
+    }
+    int ExpectedWidth()
+    {
+        return mWidth;
+    }
+
+    int ExpectedHeight()
+    {
+        return mHeight;
+
+    }
+
     bool mIsFboSupported = true;
+
     GTexture mFboTexture;
-    unsigned char* mFboBuffer = nullptr;
     GLuint mFboFrame = 0;
     GLuint mFboStencil = 0;
     GLint mSaveFboFrame = 0;
     GTransform mSavedTransform;
+
+    int mWidth;
+    int mHeight;
+};
+typedef std::shared_ptr<GFrameBufferObject> GFrameBufferObjectPtr;
+
+class GFrameBufferObjectPool
+{
+public:
+    typedef std::pair<int, int> Key;
+    typedef std::multimap<Key, GFrameBufferObject*> Map;
+
+public:
+    GFrameBufferObjectPool() = default;
+
+    ~GFrameBufferObjectPool()
+    {
+        for(auto& i : mPool)
+        {
+            delete i.second;
+        }
+    }
+
+    GFrameBufferObjectPtr GetFrameBuffer(int width, int height);
+
+
+private:
+
+    Map mPool;
 };
 
 #endif

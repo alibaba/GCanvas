@@ -18,7 +18,7 @@
 #include "support/Util.h"
 #include "GCanvasLinkNative.h"
 #include "elf_sym_reader.h"
-#include "GCanvasWindvaneLinkNative.h"
+//#include "GCanvasWindvaneLinkNative.h"
 
 #ifdef ENABLE_GPROF
 #include "prof.h"
@@ -39,7 +39,6 @@ RegisterFunc dlopen_weex_so_above_android_7(const char *soPath) {
     RegisterFunc result = (RegisterFunc) ali::getSymbolAddr((char *) "Inject_GCanvasFunc",
                                                             (char *) soPath, "libweexjsc.so");
     LOG_E("result is 0x%x", result);
-
     return result;
 }
 
@@ -120,6 +119,7 @@ void executeCallbacks(JNIEnv *je, jstring contextId) {
 
 extern int g_js_version;
 
+#ifdef GCANVAS_WEEX
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_newCanvas(
         JNIEnv *je, jclass jc, jstring contextId, jint jsVersion, jstring clearColor) {
     LOG_D("Canvas JNI::newCanvas. jsVer=%d", jsVersion);
@@ -131,7 +131,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_newCanvas(
     theManager->NewCanvas(canvasId);
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
     if (theCanvas) {
-        theCanvas->mJniEnv = je;
         char *ccolor = jstringToString(je, clearColor);
         string colorId = ccolor;
         free(ccolor);
@@ -300,26 +299,26 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_removeTexture(
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_render(
-        JNIEnv *je, jclass jc, jstring contextId,
-        jstring renderCommands) {
+        JNIEnv *je, jclass jc, jstring contextId, jstring renderCommands) {
     GCanvasManager *theManager = GCanvasManager::GetManager();
     char *canvasId = jstringToString(je, contextId);
     GCanvas *theCanvas = theManager->GetCanvas(canvasId);
     free(canvasId);
     if (theCanvas) {
         const char *rc = je->GetStringUTFChars(renderCommands, 0);
+        LOG_D("Java_com_taobao_gcanvas_GCanvasJNI_render, cmd=%s", rc);
         int length = je->GetStringUTFLength(renderCommands);
         if (0 != length) {
-            theCanvas->mJniEnv = je;
-//            theCanvas->mCanvasRender = &jCanvasRender;
-            theCanvas->CallNative(0x20000001, rc);
+            const char* result = theCanvas->CallNative(0x60000001, rc);
+            if (result) {
+                delete result;
+            }
             je->ReleaseStringUTFChars(renderCommands, rc);
 //        } else {
 //            theCanvas->LinkNativeGLProc();
         }
         executeCallbacks(je, contextId);
     }
-
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_surfaceChanged(
@@ -332,27 +331,27 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_surfaceChanged(
     if (theCanvas) {
         LOG_D("Canvas JNI::OnSurfaceChanged (%d, %d)", width, height);
 
-        theCanvas->OnSurfaceChanged(width, height);
+        theCanvas->OnSurfaceChanged(0, 0, width, height);
     }
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_captureGLLayer(
         JNIEnv *je, jclass jc, jstring contextId, jstring callbackId, jint x,
         jint y, jint w, jint h, jstring fileName) {
-    LOG_D("Canvas JNI::captureGLLayer");
-
-    GCanvasManager *theManager = GCanvasManager::GetManager();
-    char *cid = jstringToString(je, contextId);
-    string canvasId = cid;
-    free(cid);
-    GCanvas *theCanvas = theManager->GetCanvas(canvasId);
-    if (theCanvas) {
-        const char *callback = je->GetStringUTFChars(callbackId, 0);
-        const char *fn = je->GetStringUTFChars(fileName, 0);
-        theCanvas->QueueCaptureGLLayer(x, y, w, h, callback, fn);
-        je->ReleaseStringUTFChars(callbackId, callback);
-        je->ReleaseStringUTFChars(fileName, fn);
-    }
+//    LOG_D("Canvas JNI::captureGLLayer");
+//
+//    GCanvasManager *theManager = GCanvasManager::GetManager();
+//    char *cid = jstringToString(je, contextId);
+//    string canvasId = cid;
+//    free(cid);
+//    GCanvas *theCanvas = theManager->GetCanvas(canvasId);
+//    if (theCanvas) {
+//        const char *callback = je->GetStringUTFChars(callbackId, 0);
+//        const char *fn = je->GetStringUTFChars(fileName, 0);
+//        theCanvas->QueueCaptureGLLayer(x, y, w, h, callback, fn);
+//        je->ReleaseStringUTFChars(callbackId, callback);
+//        je->ReleaseStringUTFChars(fileName, fn);
+//    }
 }
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_contextLost(
@@ -428,7 +427,7 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_uninit(JNIEnv *,
 
 JNIEXPORT jboolean JNICALL
 Java_com_taobao_gcanvas_GCanvasJNI_isNeonSupport(JNIEnv *, jclass) {
-    return (jboolean) IsSupportNeon();
+    return JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_taobao_gcanvas_GCanvasJNI_isFboSupport(
@@ -463,6 +462,9 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getImageData(
     theCanvas->GetImageData(x, y, width, height, true, strRet);
     return je->NewStringUTF(strRet.c_str());
 }
+#endif
+
+
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setFallbackFont(
         JNIEnv *je, jclass jc, jstring fallback_font_file,
@@ -581,6 +583,8 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setLogLevel(
     return;
 }
 
+#ifdef GCANVAS_WEEX
+
 extern bool g_use_pre_compile;
 extern std::string g_shader_cache_path;
 
@@ -619,7 +623,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setContextType(
     LOG_D("Canvas JNI::setContextType %d", type);
 
     char *canvasId = jstringToString(je, contextId);
-
 
     GRenderer *render = GManager::getSingleton()->findRenderer(canvasId);
     if (!render) {
@@ -665,17 +668,17 @@ JNIEXPORT jstring JNICALL Java_com_taobao_gcanvas_GCanvasJNI_exeSyncCmd
     return nullptr;
 }
 
-extern int g_encode_type;
-extern int g_clear_color_time;
+//extern int g_encode_type;
+//extern int g_clear_color_time;
 
 JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_setConfig(
         JNIEnv *je, jclass jc, jstring key, jint value) {
     char *configKey = jstringToString(je, key);
     LOG_D("Canvas JNI::setConfig %s=%d", configKey, value);
     if (0 == strcmp(configKey, "encode_type")) {
-        g_encode_type = value;
+//        g_encode_type = value;
     } else if (0 == strcmp(configKey, "clear_color_time")) {
-        g_clear_color_time = value;
+//        g_clear_color_time = value;
     }
     free(configKey);
 }
@@ -727,22 +730,6 @@ JNIEXPORT void JNICALL Java_com_taobao_gcanvas_GCanvasJNI_texSubImage2D(
 }
 
 
-/**
- * 只有在主线程调用findclass才有效
- */
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_getWindvaneNativeFuncPtr(
-        JNIEnv *je, jclass jc) {
-    JavaVM *jvm = NULL;
-    je->GetJavaVM(&jvm);
-    jclass plugin_class = je->FindClass("com/taobao/windvane/plugins/GCanvasPlugin");
-    jclass g_plugin_class = (jclass) je->NewGlobalRef(plugin_class);//todo 记得释放！！
-    GCanvasWindvaneLinkNative::initJVMEnv(jvm, g_plugin_class);
-    const IString *
-    (*nativeFunc)(void *, const char *, int,
-                  const char *) = &GCanvasWindvaneLinkNative::CallNative;
-    return (long) nativeFunc;
-}
-
 JNIEXPORT bool JNICALL Java_com_taobao_gcanvas_GCanvasJNI_sendEvent(
         JNIEnv *je, jclass jc, jstring contextId) {
     if (!contextId) {
@@ -793,10 +780,6 @@ Java_com_taobao_gcanvas_GCanvasJNI_registerCallback(JNIEnv *je, jclass jc, jstri
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_taobao_gcanvas_GCanvasJNI_destroyWVGRef(
-        JNIEnv *je, jclass jc) {
-    GCanvasWindvaneLinkNative::releaseGRef(je);
-}
 
 JNIEXPORT jint JNICALL
 Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring contextId) {
@@ -819,3 +802,4 @@ Java_com_taobao_gcanvas_GCanvasJNI_getNativeFps(JNIEnv *je, jclass jc, jstring c
 
     return 0;
 }
+#endif

@@ -13,7 +13,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.adapters.img.impl.fresco.GCanvasFrescoImageLoader;
 import com.taobao.gcanvas.bridges.rn.bridge.RNJSCallbackArray;
@@ -40,7 +39,7 @@ import static com.taobao.gcanvas.bridges.spec.module.IGBridgeModule.ContextType.
  * @author ertong
  */
 public class GReactModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
-    private static final String NAME = "GCanvasModule";
+    private static final String NAME = "CanvasModule";
 
     private static final String TAG = GReactModule.class.getSimpleName();
 
@@ -202,7 +201,6 @@ public class GReactModule extends ReactContextBaseJavaModule implements Lifecycl
         } catch (JSONException e) {
             return Boolean.FALSE.toString();
         }
-
     }
 
     @ReactMethod

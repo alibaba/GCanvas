@@ -22,11 +22,10 @@
 #import "AppDelegate.h"
 #import "UIViewController+NaviBar.h"
 #import "ViewController.h"
-#import "WXDebugTool.h"
 #import "MacroDefine.h"
 
 #ifdef DEBUG
-#import <TBWXDevTool/WXDevTool.h>
+#import <WXDevTool/WXDevTool.h>
 #endif
 #import <AudioToolbox/AudioToolbox.h>
 

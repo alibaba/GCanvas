@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Adapter
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -28,8 +28,9 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    provided "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
-    compile project(':android:adapters:bridge_adapter')
+    compileOnly "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
+
+    implementation project(':android:adapters:bridge_adapter')
 }
 
 project.ext.id = rootProject.extensions.artifacts.PicassoAdapter

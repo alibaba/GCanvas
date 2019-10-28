@@ -14,6 +14,13 @@
 #endif
 #include <iostream>
 
+#include "export.h"
+
+
+typedef void (*GCanvasPlatformLog)(const char *errorName, const char *errorDetail, const char *appInfo);
+
+API_EXPORT extern GCanvasPlatformLog platformLog;
+
 namespace gcanvas
 {
 typedef enum {
@@ -31,15 +38,18 @@ int TransLogLevel(LogLevel logLevel);
 void LogExt(LogLevel logLevel, const char *tag, const char *format, ...);
 void SetLogLevel(LogLevel logLevel);
 LogLevel GetLogLevel();
+    
+// 透出到应用层的埋点
+API_EXPORT void LogException(const char *appInfo, const char *tag, const char *format, ...);
 
-//#ifdef IOS
+#ifdef IOS
 //
 //#ifdef DEBUG
 //#else
-//#define DISABLE_LOG
+#define DISABLE_LOG
 //#endif
 //
-//#endif
+#endif
 
 #ifdef DISABLE_LOG
 #define LOG_D(...) ;
@@ -48,6 +58,7 @@ LogLevel GetLogLevel();
 #define LOG_E(...) ;
 #define LOG_F(...) ;
 #define LOG_EXT(...) ;
+#define LOG_EXCEPTION(appInfo, tag, ...) ;
 #else
 #define LOG_TAG_NAME "gcanvas.native"
 #define LOG_D(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_DEBUG, LOG_TAG_NAME, __VA_ARGS__)
@@ -55,6 +66,7 @@ LogLevel GetLogLevel();
 #define LOG_W(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_WARN, LOG_TAG_NAME, __VA_ARGS__)
 #define LOG_E(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_ERROR, LOG_TAG_NAME, __VA_ARGS__)
 #define LOG_F(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_FATAL, LOG_TAG_NAME, __VA_ARGS__)
+#define LOG_EXCEPTION(appInfo, tag, ...) gcanvas::LogException(appInfo, tag, __VA_ARGS__)
 #define LOG_EXT gcanvas::LogExt
 #endif
 }

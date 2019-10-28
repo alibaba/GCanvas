@@ -25,10 +25,11 @@ public:
 private:
     void matchFontFamily(std::list<const char *> &fontFamily);
 
-    const char *mFontNormal;
-    const char *mFontBold;
-    const char *mFontItalic;
-    const char *mFontBoldItalic;
+    const char *mFontNormal= nullptr;
+    const char *mFontLight= nullptr;
+    const char *mFontBold= nullptr;
+    const char *mFontItalic= nullptr;
+    const char *mFontBoldItalic= nullptr;
 };
 }
 

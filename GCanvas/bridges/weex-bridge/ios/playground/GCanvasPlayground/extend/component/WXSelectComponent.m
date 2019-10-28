@@ -18,7 +18,7 @@
  */
 
 #import "WXSelectComponent.h"
-#import "WXUtility.h"
+#import <WeexSDK/WXUtility.h>
 #import <WeexSDK/WXComponent.h>
 
 @interface WXSelectComponent()<UIGestureRecognizerDelegate>

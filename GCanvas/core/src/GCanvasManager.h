@@ -12,8 +12,6 @@
 
 #include <map>
 #include "GCanvas.hpp"
-#include "memory/AutoPtr.h"
-#include <map>
 
 namespace gcanvas
 {
@@ -23,25 +21,28 @@ public:
     GCanvasManager();
     virtual ~GCanvasManager();
 
-    void NewCanvas(std::string canvasId);
-    void RemoveCanvas(std::string canvasId);
-    GCanvas *GetCanvas(std::string canvasId);
+    void NewCanvas(const std::string canvasId, bool onScreen=true, std::string appInfo = "");
+	
+    void RemoveCanvas(const std::string canvasId);
+    GCanvas *GetCanvas(const std::string canvasId);
     void addCanvas(GCanvas *p);
     int canvasCount();
     void Clear();
-    void AddtoQueue(std::string contextId,struct GCanvasCmd *);
-    std::queue<struct GCanvasCmd *> * getQueueByContextId(std::string contextId);
-    void clearQueueByContextId(std::string contextId);
+#ifdef ANDROID
+    void AddtoQueue(const std::string contextId,struct GCanvasCmd *);
+    std::queue<struct GCanvasCmd *> * getQueueByContextId(const std::string contextId);
+    void clearQueueByContextId(const std::string contextId);
     void clearQueue(std::queue<struct GCanvasCmd *> *queue);
+#endif
     static GCanvasManager *GetManager();
     static void Release();
 
 protected:
     std::map< std::string, GCanvas * > mCanvases;
+#ifdef ANDROID
     std::map<std::string,std::queue<struct GCanvasCmd *> *> mCmdQueue;
-
-private:
-    static AutoPtr< GCanvasManager > sCanvasMgr;
+#endif
+    
 };
 }
 

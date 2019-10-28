@@ -29,11 +29,16 @@ uniform bool      b_hasTexture;                                \n\
 uniform vec3      u_startPos;                                  \n\
 uniform vec3      u_endPos;                                    \n\
 uniform int       u_stopCount;                                 \n\
-uniform vec4      u_stop0;                                     \n\
-uniform vec4      u_stop1;                                     \n\
-uniform vec4      u_stop2;                                     \n\
-uniform vec4      u_stop3;                                     \n\
-uniform vec4      u_stop4;                                     \n\
+uniform vec4      u_stopColor0;                                \n\
+uniform vec4      u_stopColor1;                                \n\
+uniform vec4      u_stopColor2;                                \n\
+uniform vec4      u_stopColor3;                                \n\
+uniform vec4      u_stopColor4;                                \n\
+uniform float     u_stop0;                                     \n\
+uniform float     u_stop1;                                     \n\
+uniform float     u_stop2;                                     \n\
+uniform float     u_stop3;                                     \n\
+uniform float     u_stop4;                                     \n\
 void main()                                                                   \n\
 {                                                                             \n\
    vec4 finalColor = vec4(1.0, 1.0, 1.0, 1.0);                                \n\
@@ -47,57 +52,56 @@ void main()                                                                   \n
    float t5 = t1 / t0;                                                        \n\
    float t  = max(t4 + t5, t5 - t4);                                          \n\
    if (u_startPos.z + t * u_endPos.z < 0.0) {                                 \n\
-   		gl_FragColor = vec4(finalColor.xyz, 1.0);                     \n\
-   }                                                                          \n\
-   else{                                                                      \n\
-                                                                              \n\
-           if (u_stopCount >= 1 && t < u_stop0.w) {                                   \n\
-   		finalColor = vec4(u_stop0.xyz, 1.0);                                  \n\
-           }                                                                          \n\
-           else if (u_stopCount >= 2 && u_stop0.w <= t && t <= u_stop1.w) {           \n\
-   		float w0 = t - u_stop0.w;                                             \n\
-   		float w1 = u_stop1.w - t;                                             \n\
-   		float w  = w0 + w1;                                                   \n\
-   		finalColor = u_stop0 * w1 / w + u_stop1 * w0 / w;                     \n\
-           }                                                                          \n\
-           else if (u_stopCount == 2 && u_stop1.w < t) {                              \n\
-   	        finalColor = u_stop1;                                                 \n\
-           }                                                                          \n\
-           else if (u_stopCount >= 3 && u_stop1.w <= t && t <= u_stop2.w) {           \n\
-   		float w0 = t - u_stop1.w;                                             \n\
-   		float w1 = u_stop2.w - t;                                             \n\
-   		float w  = w0 + w1;                                                   \n\
-   		finalColor = u_stop1 * w1 / w + u_stop2 * w0 / w;                     \n\
-           }                                                                          \n\
-           else if (u_stopCount == 3 && u_stop2.w < t) {                              \n\
-   		finalColor = u_stop2;                                                 \n\
-           }                                                                          \n\
-           else if (u_stopCount >= 4 && u_stop2.w <= t && t <= u_stop3.w) {           \n\
-   		float w0 = t - u_stop2.w;                                             \n\
-   		float w1 = u_stop3.w - t;                                             \n\
-   		float w  = w0 + w1;                                                   \n\
-   		finalColor = u_stop2 * w1 / w + u_stop3 * w0 / w;                     \n\
-           }                                                                          \n\
-           else if (u_stopCount == 4 && u_stop3.w < t) {                              \n\
-   		finalColor = u_stop3;                                                 \n\
-           }									      \n\
-           else if (u_stopCount >= 5 && u_stop3.w <= t && t <= u_stop4.w) {           \n\
-   		float w0 = t - u_stop3.w;                                             \n\
-   		float w1 = u_stop4.w - t;                                             \n\
-   		float w  = w0 + w1;                                                   \n\
-   		finalColor = u_stop3 * w1 / w + u_stop4 * w0 / w;                     \n\
-           }                                                                          \n\
-           else if (u_stopCount == 5 && u_stop4.w < t) {                              \n\
-   		finalColor = u_stop4;                                                 \n\
-           }									      \n\
-           if (b_hasTexture) {                                                        \n\
-                vec4 marsk = texture2D(u_texture, v_texCoord);                        \n\
-                gl_FragColor = vec4(finalColor.xyz, marsk.w);                         \n\
-           }                                                                          \n\
-           else {                                                                     \n\
-   		gl_FragColor = vec4(finalColor.xyz, 1.0); 			      \n\
-           }                                                                          \n\
-    }                                                                                 \n\
+   		gl_FragColor = finalColor;                                          \n\
+   }                                                                        \n\
+   else{                                                                    \n\
+        if (u_stopCount >= 1 && t < u_stop0) {                              \n\
+   		    finalColor = u_stopColor0;                                      \n\
+        }                                                                   \n\
+        else if (u_stopCount >= 2 && u_stop0 <= t && t <= u_stop1) {        \n\
+   		    float w0 = t - u_stop0;                                         \n\
+   		    float w1 = u_stop1 - t;                                         \n\
+   		    float w  = w0 + w1;                                             \n\
+   		    finalColor = u_stopColor0 * w1 / w + u_stopColor1 * w0 / w;     \n\
+        }                                                                   \n\
+        else if (u_stopCount == 2 && u_stop1 < t) {                         \n\
+   	        finalColor = u_stopColor1;                                      \n\
+        }                                                                   \n\
+        else if (u_stopCount >= 3 && u_stop1 <= t && t <= u_stop2) {        \n\
+   		    float w0 = t - u_stop1;                                         \n\
+   		    float w1 = u_stop2 - t;                                         \n\
+   		    float w  = w0 + w1;                                             \n\
+   		    finalColor = u_stopColor1 * w1 / w + u_stopColor2 * w0 / w;     \n\
+        }                                                                   \n\
+        else if (u_stopCount == 3 && u_stop2 < t) {                         \n\
+   		    finalColor = u_stopColor2;                                      \n\
+        }                                                                   \n\
+        else if (u_stopCount >= 4 && u_stop2 <= t && t <= u_stop3) {        \n\
+   		    float w0 = t - u_stop2;                                         \n\
+   		    float w1 = u_stop3 - t;                                         \n\
+   		    float w  = w0 + w1;                                             \n\
+   		    finalColor = u_stopColor2 * w1 / w + u_stopColor3 * w0 / w;     \n\
+        }                                                                   \n\
+        else if (u_stopCount == 4 && u_stop3 < t) {                         \n\
+   		    finalColor = u_stopColor3;                                      \n\
+        }									                                \n\
+        else if (u_stopCount >= 5 && u_stop3 <= t && t <= u_stop4) {        \n\
+   		    float w0 = t - u_stop3;                                         \n\
+   		    float w1 = u_stop4 - t;                                         \n\
+   		    float w  = w0 + w1;                                             \n\
+   		    finalColor = u_stopColor3 * w1 / w + u_stopColor4 * w0 / w;     \n\
+        }                                                                   \n\
+        else if (u_stopCount == 5 && u_stop4 < t) {                         \n\
+   		    finalColor = u_stopColor4;                                      \n\
+        }									                                \n\
+        if (b_hasTexture) {                                                 \n\
+            vec4 marsk = texture2D(u_texture, v_texCoord);                  \n\
+            gl_FragColor = vec4(finalColor.rgb, marsk.a);                   \n\
+        }                                                                   \n\
+        else {                                                              \n\
+   		    gl_FragColor = finalColor; 			                            \n\
+        }                                                                   \n\
+    }                                                                       \n\
 }"
 
 

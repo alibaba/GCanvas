@@ -10,8 +10,13 @@
 #ifndef __GCanvas__GConvert__
 #define __GCanvas__GConvert__
 
+#include <export.h>
 #include "GPoint.h"
 
-GColorRGBA StrValueToColorRGBA(const char *value);
+#define GColorTransparent       GColorRGBA({0,0,0,0})
+#define GColorTransparentWhite  GColorRGBA({1.0,1.0,1.0,0})
+#define GColorWhite             GColorRGBA({1.0,1.0,1.0,1.0})
+
+API_EXPORT GColorRGBA StrValueToColorRGBA(const char *value);
 
 #endif

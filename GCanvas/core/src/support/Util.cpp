@@ -57,23 +57,24 @@ void FlipPixel(unsigned char *pixels, int w, int h)
 }
 
 // get a part of pixel from rgba datas
-void GetSegmentPixel(const unsigned char *srcPx, unsigned int sw,
-                     unsigned int x, unsigned int y, unsigned int dw,
-                     unsigned int dh, unsigned char *destPx)
-{
-    srcPx += (sw * y + x) * 4;
-    for (unsigned int i = 0; i < dh; ++i)
-    {
-        memcpy(destPx, srcPx, dw * 4);
-
-        srcPx += sw * 4;
-        destPx += dw * 4;
-    }
-}
-
-bool IsSupportNeon() { return false; }
+//void GetSegmentPixel(const unsigned char *srcPx, unsigned int sw,
+//                     unsigned int x, unsigned int y, unsigned int dw,
+//                     unsigned int dh, unsigned char *destPx)
+//{
+//    srcPx += (sw * y + x) * 4;
+//    for (unsigned int i = 0; i < dh; ++i)
+//    {
+//        memcpy(destPx, srcPx, dw * 4);
+//
+//        srcPx += sw * 4;
+//        destPx += dw * 4;
+//    }
+//}
+//
 
 #ifdef ANDROID
+bool IsSupportNeon() { return false; }
+
 void timeraddMS(struct timeval *a, uint ms)
 {
     a->tv_usec += ms * 1000;

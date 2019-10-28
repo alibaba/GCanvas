@@ -24,6 +24,7 @@ uniform sampler2D u_texture;                                                    
 uniform bool      repeatX;                                                                  \n\
 uniform bool      repeatY;                                                                  \n\
 uniform vec2      textureSize;                                                              \n\
+uniform float     u_patternAlpha;                                                           \n\
 void main()                                                                                 \n\
 {                                                                                           \n\
    vec4 finalColor = v_desColor;                                                            \n\
@@ -32,10 +33,15 @@ void main()                                                                     
        (!repeatX && repeatY && v_inPos.x <= textureSize.x) ||                               \n\
        (repeatX && repeatY) ||                                                              \n\
        (!repeatX && !repeatY && v_inPos.x <= textureSize.x && v_inPos.y <= textureSize.y))  \n\
-   {                                                                                        \n\
-   	   finalColor = texture2D(u_texture, texcoord);                                         \n\
-   }                                                                                        \n\
-   gl_FragColor = finalColor;                                                               \n\
+    {                                                                                       \n\
+        finalColor = texture2D(u_texture, texcoord);                                        \n\
+        finalColor = finalColor * u_patternAlpha;                                           \n\
+    }                                                                                       \n\
+    else                                                                                    \n\
+    {                                                                                       \n\
+        finalColor = vec4(0, 0, 0, 0);                                                      \n\
+    }                                                                                       \n\
+    gl_FragColor = finalColor;                                                              \n\
 }"
 
 

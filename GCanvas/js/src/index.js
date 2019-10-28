@@ -1,6 +1,5 @@
 import GCanvas from './env/canvas';
 import GImage from './env/image';
-import GOffScreenCanvas from './env/off-screen-canvas';
 
 import GWebGLRenderingContext from './context-webgl/RenderingContext';
 import GContext2D from './context-2d/RenderingContext';
@@ -17,24 +16,15 @@ export function enable(el, { bridge, debug, disableAutoSwap, disableComboCommand
 
     const GBridge = GImage.GBridge = GCanvas.GBridge = GWebGLRenderingContext.GBridge = GContext2D.GBridge = bridge;
 
-    var canvas;
-    if (typeof (el) == 'string') {
-        canvas = new GOffScreenCanvas(el);
-    } else {
-        GBridge.callEnable(el.ref, [
-            0,      // renderMode: 0--RENDERMODE_WHEN_DIRTY, 1--RENDERMODE_CONTINUOUSLY
-            -1,     // hybridLayerType:  0--LAYER_TYPE_NONE 1--LAYER_TYPE_SOFTWARE 2--LAYER_TYPE_HARDWARE
-            false,  // supportScroll
-            false,  // newCanvasMode
-            1,      // compatible
-            'white',// clearColor
-            false   // sameLevel: newCanvasMode = true && true => GCanvasView and Webview is same level
-        ]);
-        canvas = new GCanvas(el.ref, { disableAutoSwap });
-        canvas.width = el.style.width;
-        canvas.height = el.style.height;
-
-    }
+    GBridge.callEnable(el.ref, [
+        0,      // renderMode: 0--RENDERMODE_WHEN_DIRTY, 1--RENDERMODE_CONTINUOUSLY
+        -1,     // hybridLayerType:  0--LAYER_TYPE_NONE 1--LAYER_TYPE_SOFTWARE 2--LAYER_TYPE_HARDWARE
+        false,  // supportScroll
+        false,  // newCanvasMode
+        1,      // compatible
+        'white',// clearColor
+        false   // sameLevel: newCanvasMode = true && true => GCanvasView and Webview is same level
+    ]);
 
     if (debug === true) {
         GBridge.callEnableDebug();
@@ -43,9 +33,9 @@ export function enable(el, { bridge, debug, disableAutoSwap, disableComboCommand
         GBridge.callEnableDisableCombo();
     }
 
-    // var canvas = new GCanvas(el.ref, { disableAutoSwap });
-    // canvas.width = el.style.width;
-    // canvas.height = el.style.height;
+    var canvas = new GCanvas(el.ref, { disableAutoSwap });
+    canvas.width = el.style.width;
+    canvas.height = el.style.height;
 
     return canvas;
 };

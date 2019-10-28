@@ -14,6 +14,7 @@ MY_SRC_LIST += $(wildcard $(LOCAL_PATH)/3d/*.cpp)
 MY_SRC_LIST += $(wildcard $(LOCAL_PATH)/3d/jsc/*.cpp)
 MY_SRC_LIST += $(wildcard $(LOCAL_PATH)/3d/util/*.cpp)
 MY_SRC_LIST += $(wildcard $(LOCAL_PATH)/3d/view/*.cpp)
+MY_SRC_LIST += $(wildcard $(LOCAL_PATH)/platform/Android/*.cpp)
 
 # Collect all header files
 MY_INCLUDE_LIST += $(wildcard $(LOCAL_PATH)/*.h)
@@ -37,11 +38,15 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/gcanvas/
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/gcanvas/android/
 
-LOCAL_LDLIBS := -Wl,--gc-sections -lGLESv1_CM -lGLESv2 -ldl -llog -landroid -lEGL -ljnigraphics
+LOCAL_LDLIBS := -Wl,--gc-sections -lGLESv1_CM -lGLESv2 -ldl -llog -landroid -lEGL -ljnigraphics -latomic
 
-# use -Os insead of -O3 if the size is sensitive
-LOCAL_CFLAGS := -ffunction-sections -fdata-sections -fvisibility=hidden -DFT2_BUILD_LIBRARY -D_STLP_USE_NEWALLOC -D_STLP_USE_STATIC_LIB -D_STLP_NO_MOVE_SEMANTIC -Os
-LOCAL_CPPFLAGS := ${LOCAL_CFLAGS} -std=c++11 -frtti -fexceptions
+# use -Os insead of -O3 if the size is sensitive -fvisibility=hidden
+LOCAL_CFLAGS += -Os -ffunction-sections -fdata-sections -DFT2_BUILD_LIBRARY -D_STLP_USE_NEWALLOC -D_STLP_USE_STATIC_LIB -D_STLP_NO_MOVE_SEMANTIC -DGCANVAS_WEEX
+LOCAL_CPPFLAGS += ${LOCAL_CFLAGS} -std=c++14 -frtti
+#LOCAL_LDFLAGS += -Wl,--gc-sections
+
+#LOCAL_CFLAGS += -fsanitize=address -fno-omit-frame-pointer
+#LOCAL_LDFLAGS += -fsanitize=address
 
 # enable neon for arm
 ifeq ($(ENABLE_NEON),1)
@@ -53,6 +58,7 @@ endif
 # FreeType prebuilt
 LOCAL_SHARED_LIBRARIES := freetype-prebuilt
 
+#LOCAL_ADDRESS_SANITIZER:=true
 
 LOCAL_STATIC_LIBRARIES := cpufeatures
 include $(BUILD_SHARED_LIBRARY)
@@ -61,7 +67,6 @@ include $(LOCAL_PATH)/freetype-prebuilt/Android.mk
 
 $(call import-module,android/cpufeatures)
 
-#cmd-strip :=
 
 
 

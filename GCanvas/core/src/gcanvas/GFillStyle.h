@@ -46,12 +46,20 @@ public:
         : GFillStyle(STYLE_PATTERN), mPattern(pattern), mTextureListId(texture_list_id)
     {
     }
+    
+    FillStylePattern(int texture_list_id, short textureWidth, short textHeight, const std::string &pattern)
+    : GFillStyle(STYLE_PATTERN),mTextureWidth(textureWidth), mTextureHeight(textHeight),
+    mPattern(pattern), mTextureListId(texture_list_id)
+    {
+    }
 
     virtual ~FillStylePattern() { mPattern.clear(); }
 
     const std::string &GetPattern() const { return mPattern; }
-
     int GetTextureListID() { return mTextureListId; }
+    short GetTextureWidth() { return mTextureWidth; }
+    short GetTextureHeight() { return mTextureHeight; }
+
 
     GFillStyle *Clone()
     {
@@ -63,6 +71,8 @@ public:
 private:
     std::string mPattern;
     int mTextureListId;
+    short mTextureWidth;
+    short mTextureHeight;
 };
 
 class FillStyleLinearGradient : public GFillStyle

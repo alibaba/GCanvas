@@ -2,10 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import { requireNativeComponent, View, Platform, findNodeHandle } from 'react-native';
 
 var CanvasView = Platform.select({
-	ios: requireNativeComponent('RCTGCanvasView', null),
-	android: requireNativeComponent('GCanvasView', null)
-  });
-  
+  ios: requireNativeComponent('RCTGCanvasView', null),
+  android: requireNativeComponent('GCanvasView', null)
+});
+
 export default class GCanvasView extends Component {
 	static propTypes = {
 		// isOffscreen: PropTypes.bool,
@@ -14,6 +14,5 @@ export default class GCanvasView extends Component {
 
 	render() {
 		return ( <CanvasView {...this.props} /> );
-
 	};
 }

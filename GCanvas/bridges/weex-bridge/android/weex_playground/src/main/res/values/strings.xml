@@ -30,6 +30,10 @@ under the License.
     <string name="title_activity_splash">SplashActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">GCanvas</string>
+    <string name="preferences_history_summary">Save History Automatically</string>
+    <string name="preferences_history_title">Save History</string>
+
+
 
     <string name="cpu_not_support_tip">Sorry, your current device is x86 architecture.\n We only
         support arm architecture devices!

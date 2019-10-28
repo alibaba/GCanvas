@@ -12,7 +12,9 @@
 
 #import <Foundation/Foundation.h>
 
+#ifdef DEBUG
 #define ENABLE_GCVLOG
+#endif
 
 #ifdef ENABLE_GCVLOG
     #define GCVLOG_METHOD GCVLOG_D
@@ -23,12 +25,15 @@
     #define GCVLOG_W(fmt, ...) GCVLOG_FUNC(GCVLogLevelWarn, fmt, ##__VA_ARGS__);
     #define GCVLOG_E(fmt, ...) GCVLOG_FUNC(GCVLogLevelError, fmt, ##__VA_ARGS__);
 #else
+    #define GCVLOG_METHOD(fmt, ...)
     #define GCVLOG_D(...)
     #define GCVLOG_I(...)
     #define GCVLOG_W(...)
     #define GCVLOG_E(...)
 #endif
 
+
+#ifdef ENABLE_GCVLOG
 
 typedef NS_ENUM(NSInteger, GCVLogLevel) {
     GCVLogLevelDebug = 0,
@@ -45,6 +50,7 @@ typedef NS_ENUM(NSInteger, GCVLogLevel) {
 + (void) writeLog:(GCVLogLevel)logLevel funcName:(const char *)funcName format: (NSString *)fmt, ...;
 
 @end
+#endif
 
 
 #endif /* GCVLog_h */

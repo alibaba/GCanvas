@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+group = rootProject.extensions.groups.Bridge
+version = "1.0.1"
+
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
     buildToolsVersion rootProject.extensions.sdks.BuildTool
@@ -22,17 +25,27 @@ android {
 }
 
 dependencies {
-    compile project(':android:gcanvas_library')
-    compile project(':android:bridge_spec')
-    compile project(':android:adapters:gcanvas_imageloader_fresco')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation project(':android:gcanvas_library')
+    implementation project(':android:bridge_spec')
+    implementation project(':android:adapters:gcanvas_imageloader_fresco')
+    implementation project(':android:adapters:bridge_adapter')
+
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile "junit:junit:${rootProject.extensions.sdks.JUnit}"
-    provided "com.facebook.react:react-native:+"
-//    provided "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
-    provided "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
-//    compile "com.android.support:support-dynamic-animation:${rootProject.extensions.sdks.Support}"
+    testImplementation "junit:junit:${rootProject.extensions.sdks.JUnit}"
 
+
+    compileOnly "com.facebook.react:react-native:+"
+    compileOnly "com.android.support:support-v4:${rootProject.extensions.sdks.Support}"
+    compileOnly "com.android.support:support-annotations:${rootProject.extensions.sdks.Support}"
 }
+
+project.ext.id = rootProject.extensions.artifacts.ReactNative
+project.ext.meta.labels = ['ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'GCanvas ReactNative Bridge']
+project.ext.meta.description = 'GCanvas ReactNative bridge.'
+apply from: "${rootProject.projectDir}/publish.gradle"

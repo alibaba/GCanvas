@@ -78,8 +78,6 @@ class TextureMgr
 {
 public:
     TextureMgr();
-    static GLuint CreateTexture(const unsigned char *rgbaData,
-                                unsigned int width, unsigned int height);
     bool AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,
                    unsigned int *widthPtr, unsigned int *heightPtr);
     void Append(int id, int glID, int width, int height);
@@ -99,6 +97,8 @@ public:
     GTexture(const char *filePath);
     GTexture();
     ~GTexture();
+
+    void CreateTexture(GLubyte *pixels, const char *appInfo = NULL);
 
     void Bind() const;
     void Unbind() const;
@@ -120,8 +120,17 @@ public:
 
     unsigned int size();
 
+    void Detach()
+    {
+        mTextureID = 0;
+    }
+
+    bool IsValidate()
+    {
+        return mTextureID != 0;
+    }
+
 private:
-    void createTexture(GLubyte *pixels);
     static GLubyte *(*loadPixelCallback)(const char *filePath, unsigned int *w,
                                          unsigned int *h);
     static GLubyte *loadPixelsFromPNG(const char *filePath, unsigned int *w,

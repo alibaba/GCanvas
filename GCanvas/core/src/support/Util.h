@@ -22,12 +22,12 @@ namespace gcanvas
 void FlipPixel(unsigned char *pixels, int w, int h);
 
 // get a part of pixel from rgba datas
-void GetSegmentPixel(const unsigned char *srcPx, unsigned int sw,
-                     unsigned int x, unsigned int y, unsigned int dw,
-                     unsigned int dh, unsigned char *destPx);
-
-bool IsSupportNeon();
+//void GetSegmentPixel(const unsigned char *srcPx, unsigned int sw,
+//                     unsigned int x, unsigned int y, unsigned int dw,
+//                     unsigned int dh, unsigned char *destPx);
+//
 #ifdef ANDROID
+bool IsSupportNeon();
 void waitUtilTimeout(sem_t *sem,uint ms);
 #endif
 

@@ -8,7 +8,7 @@
  */
 
 #include "GTexture.h"
-#include "../png/PngLoader.h"
+//#include "../png/PngLoader.h"
 #include "../support/Log.h"
 #include "../support/Util.h"
 
@@ -21,7 +21,7 @@ GTexture::GTexture(unsigned int w, unsigned int h, GLenum format,
                      GLubyte *pixels)
     : mWidth(w), mHeight(h), mFormat(format), mTextureID(0)
 {
-    createTexture(pixels);
+    CreateTexture(pixels);
 }
 
 GTexture::GTexture() : mWidth(0), mHeight(0), mFormat(0), mTextureID(0) {}
@@ -33,13 +33,13 @@ GTexture::GTexture(const char *path)
     if (loadPixelCallback == nullptr)
     {
         pixels = loadPixelsFromPNG(path, &mWidth, &mHeight);
-        createTexture(pixels);
+        CreateTexture(pixels);
         free(pixels);
     }
     else
     {
         pixels = loadPixelCallback(path, &mWidth, &mHeight);
-        createTexture(pixels);
+        CreateTexture(pixels);
         delete[] pixels;
     }
 
@@ -67,13 +67,17 @@ GLubyte *GTexture::loadPixelsFromPNG(const char *path, unsigned int *pw,
                                       unsigned int *ph)
 {
     unsigned char *buffer = nullptr;
-    int res = PngLoader::Instance().DecodePng(path, &buffer, pw, ph);
-    if (res != 0) return nullptr;
+//    int res = PngLoader::Instance().DecodePng(path, &buffer, pw, ph);
+//    if (res != 0) return nullptr;
     return buffer;
 }
 
-void GTexture::createTexture(GLubyte *pixels)
+void GTexture::CreateTexture(GLubyte *pixels, const char *appInfo)
 {
+    char defaultInfo[] = "";
+    if (!appInfo) {
+        appInfo = defaultInfo;
+    }
     // Release previous texture if we had one
     if (mTextureID)
     {
@@ -86,23 +90,42 @@ void GTexture::createTexture(GLubyte *pixels)
 
     if ((int)mWidth > maxTextureSize || (int)mHeight > maxTextureSize)
     {
+        LOG_EXCEPTION(appInfo, "texture_size_exceed", "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth, mHeight, maxTextureSize);
         return;
     }
 
+    GLenum glerror = 0;
     int boundTexture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
 
     glGenTextures(1, &mTextureID);
+    if (mTextureID <= 0) {
+        LOG_EXCEPTION(appInfo, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glGetError());
+    }
     glBindTexture(GL_TEXTURE_2D, mTextureID);
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
+
+
     glTexImage2D(GL_TEXTURE_2D, 0, mFormat, (GLsizei)mWidth,
                  (GLsizei)mHeight, 0, mFormat, GL_UNSIGNED_BYTE, pixels);
 
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     glBindTexture(GL_TEXTURE_2D, (GLuint)boundTexture);
+    glerror = glGetError();
+    if (glerror) {
+        LOG_EXCEPTION(appInfo, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    }
     glFlush();
 }
 
@@ -203,99 +226,81 @@ const TextureGroup *TextureMgr::Get(int id) const
     return nullptr;
 }
 
-GLuint TextureMgr::CreateTexture(const unsigned char *rgbaData,
-                                 unsigned int width, unsigned int height)
-{
-    if (nullptr == rgbaData)
-        return (GLuint)-1;
-
-    GLuint glID;
-    glGenTextures(1, &glID);
-    glBindTexture(GL_TEXTURE_2D, glID);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, rgbaData);
-    return glID;
-}
-
 bool TextureMgr::AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,
                            unsigned int *widthPtr, unsigned int *heightPtr)
 {
-    unsigned int srcWidth = 0;
-    unsigned int srcHeight = 0;
-    unsigned int destWidth = 0;
-    unsigned int destHeight = 0;
-
-    bool success = false;
-    unsigned char *srcPixels = nullptr;
-    int error = PngLoader::Instance().DecodePng(
-        buffer, size, &srcPixels, &srcWidth, &srcHeight);
-    if (error)
-    {
-        LOG_E("[TextureMgr::AppendPng] error %d", error);
-    }
-    else
-    {
-        TextureGroup &textureGroup = mTextureGroupPool[textureGroupId];
-        textureGroup.Clear();
-
-        GLint glMax;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glMax);
-        unsigned int maxTextureSize = (unsigned int)glMax;
-
-        *widthPtr = srcWidth;
-        *heightPtr = srcHeight;
-        destWidth = std::min(srcWidth, maxTextureSize);
-        destHeight = std::min(srcHeight, maxTextureSize);
-
-        textureGroup.mSrcWidth = srcWidth;
-        textureGroup.mSrcHeight = srcHeight;
-        textureGroup.mTileWidth = destWidth;
-        textureGroup.mTileHeight = destHeight;
-
-        if (srcWidth <= maxTextureSize)
-        {
-            for (unsigned int y = 0; y < srcHeight; y += destHeight)
-            {
-                int h = std::min(srcHeight - y, destHeight);
-
-                GLuint glID = CreateTexture(srcPixels + (y * 4), srcWidth, h);
-                Texture *texture = new Texture(glID, srcWidth, h);
-                textureGroup.mVecTexture.push_back(texture);
-            }
-        }
-        else
-        {
-            GLubyte *destPixels = new GLubyte[4 * destWidth * destHeight];
-
-            for (unsigned int y = 0; y < srcHeight; y += destHeight)
-            {
-                int h = std::min(srcHeight - y, destHeight);
-                for (unsigned int x = 0; x < srcWidth; x += destWidth)
-                {
-                    int w = std::min(srcWidth - x, destWidth);
-
-                    gcanvas::GetSegmentPixel(srcPixels, srcWidth, x, y, w, h,
-                                             destPixels);
-                    GLuint glID = CreateTexture(destPixels, w, h);
-                    Texture *texture = new Texture(glID, w, h);
-                    textureGroup.mVecTexture.push_back(texture);
-                }
-            }
-            delete[] destPixels;
-        }
-
-        success = true;
-    }
-
-    if (srcPixels)
-    {
-        free(srcPixels);
-    }
-
-    return success;
+    return false;
+//    unsigned int srcWidth = 0;
+//    unsigned int srcHeight = 0;
+//    unsigned int destWidth = 0;
+//    unsigned int destHeight = 0;
+//
+//    bool success = false;
+//    unsigned char *srcPixels = nullptr;
+//    int error = PngLoader::Instance().DecodePng(
+//        buffer, size, &srcPixels, &srcWidth, &srcHeight);
+//    if (error)
+//    {
+//        LOG_E("[TextureMgr::AppendPng] error %d", error);
+//    }
+//    else
+//    {
+//        TextureGroup &textureGroup = mTextureGroupPool[textureGroupId];
+//        textureGroup.Clear();
+//
+//        GLint glMax;
+//        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &glMax);
+//        unsigned int maxTextureSize = (unsigned int)glMax;
+//
+//        *widthPtr = srcWidth;
+//        *heightPtr = srcHeight;
+//        destWidth = std::min(srcWidth, maxTextureSize);
+//        destHeight = std::min(srcHeight, maxTextureSize);
+//
+//        textureGroup.mSrcWidth = srcWidth;
+//        textureGroup.mSrcHeight = srcHeight;
+//        textureGroup.mTileWidth = destWidth;
+//        textureGroup.mTileHeight = destHeight;
+//
+//        if (srcWidth <= maxTextureSize)
+//        {
+//            for (unsigned int y = 0; y < srcHeight; y += destHeight)
+//            {
+//                int h = std::min(srcHeight - y, destHeight);
+//
+//                GLuint glID = CreateTexture(srcPixels + (y * 4), srcWidth, h);
+//                Texture *texture = new Texture(glID, srcWidth, h);
+//                textureGroup.mVecTexture.push_back(texture);
+//            }
+//        }
+//        else
+//        {
+//            GLubyte *destPixels = new GLubyte[4 * destWidth * destHeight];
+//
+//            for (unsigned int y = 0; y < srcHeight; y += destHeight)
+//            {
+//                int h = std::min(srcHeight - y, destHeight);
+//                for (unsigned int x = 0; x < srcWidth; x += destWidth)
+//                {
+//                    int w = std::min(srcWidth - x, destWidth);
+//
+//                    gcanvas::GetSegmentPixel(srcPixels, srcWidth, x, y, w, h,
+//                                             destPixels);
+//                    GLuint glID = CreateTexture(destPixels, w, h);
+//                    Texture *texture = new Texture(glID, w, h);
+//                    textureGroup.mVecTexture.push_back(texture);
+//                }
+//            }
+//            delete[] destPixels;
+//        }
+//
+//        success = true;
+//    }
+//
+//    if (srcPixels)
+//    {
+//        free(srcPixels);
+//    }
+//
+//    return success;
 }

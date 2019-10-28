@@ -8,9 +8,12 @@
  */
 #include "Log.h"
 
+GCanvasPlatformLog platformLog;
+
 namespace gcanvas
 {
-LogLevel g_log_level = LOG_LEVEL_INFO;
+// Error级别日志
+LogLevel g_log_level = LOG_LEVEL_ERROR;
 
 LogLevel GetLogLevel() { return g_log_level; };
 
@@ -50,7 +53,38 @@ void LogExt(LogLevel logLevel, const char *tag, const char *format, ...)
 #if defined(__ANDROID__)
     __android_log_write(TransLogLevel(logLevel), tag, buffer);
 #else
-    printf("LOG: %s\n", buffer);
+    if (platformLog) {
+//        platformLog(tag, buffer);
+    }
 #endif
 }
+
+
+/**
+ * 异常监控上报方法
+ */
+void LogException(const char *appInfo, const char *tag, const char *format, ...)
+{
+    va_list va;
+    char buffer[1024];
+        
+    va_start(va, format);
+    vsnprintf(buffer, 1024, format, va);
+    va_end(va);
+        
+#if defined(__ANDROID__)
+    if (platformLog)
+    {
+        platformLog(tag, buffer, appInfo);
+    }
+    else
+    {
+        __android_log_write(TransLogLevel(g_log_level), tag, buffer);
+    }
+#else
+    if (platformLog) {
+        platformLog(tag, buffer, appInfo);
+    }
+#endif
+    }
 }
