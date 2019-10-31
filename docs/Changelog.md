@@ -16,8 +16,13 @@ All notable changes of this project will be documented in.
 	* New `2d` property support `shadowColor`,`shadowBlur`, `shadowOffsetX`,`shadowOffstY`
 	* Font support `measureText` and `Italic` style
 	* `Fill()`、`Clip()` , support winding-rule and promote performance
+	* Out of Android platform- implementation :`GCanvas2DContextAndroid`,`GCanvasAndroid`,`GFontManagerAndroid`,
+	* Refactor Android-Weex `GcanvasWeexAndroid` 
 	* Fix some compatibility issue
+
+
 	
 * Weex GCanvas Component
 	* Update New `WeexSDK` (>=0.26.0)
 	* [iOS] `iOS` deployment_target update to iOS 9.0
+	* [Android]`Android`:moudle bridge_spec source code depend on the module gcanvas_library
