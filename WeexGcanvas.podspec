@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc = true
 
-  s.dependency "WeexPluginLoader", :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
+  s.dependency "WeexPluginLoader"
   s.dependency "WeexSDK"
   s.dependency "GCanvas"
   s.dependency "SDWebImage"
