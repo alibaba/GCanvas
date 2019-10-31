@@ -6,30 +6,28 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GGlyphCache__
-#define __GCanvas__GGlyphCache__
+#ifndef GCANVAS_GGLYPHCACHE_H
+#define GCANVAS_GGLYPHCACHE_H
+
+#include "GPoint.h"
+#include "GTexture.h"
 
 #include <map>
 #include <string>
 #include <vector>
-#include "GPoint.h"
-#include "GTexture.h"
 #include <tuple>
 #include <unordered_map>
-//#include <utility>
-//#include <functional>
-//#include <iomanip>
 
 class GCanvasContext;
 
-typedef std::tuple<std::string, wchar_t, float, bool> key_tuple;
+typedef std::tuple<std::string, wchar_t, std::string, bool> key_tuple;
 
 struct key_hash : public std::unary_function<key_tuple, std::size_t>
 {
     std::size_t operator()(const key_tuple &k) const
     {
         return std::hash<std::string>{}(std::get<0>(k)) ^ std::get<1>(k) ^
-               std::hash<float>{}(std::get<2>(k)) ^ std::get<3>(k);
+                std::hash<std::string>{}(std::get<2>(k)) ^ std::get<3>(k);
     }
 };
 
@@ -137,18 +135,18 @@ public:
     ~GGlyphCache() {};
 
     const GGlyph *GetGlyph(const std::string &fontName, const wchar_t charcode,
-                           float size, bool isStroke);
+                           const std::string &font, bool isStroke);
 
-    void Erase(const std::string &fontName, const wchar_t charcode, float size, bool isStroke);
+    void Erase(const std::string &fontName, const wchar_t charcode, const std::string &font, bool isStroke);
 
     void
-    Insert(const std::string &fontName, const wchar_t charcode, float size, bool isStroke,
+    Insert(const std::string &fontName, const wchar_t charcode, const std::string &font, bool isStroke,
            const GGlyph &glyph);
 
     void ClearGlyphsTexture();
 
 private:
-    void LoadGlyphTexture(GGlyph &glyph);
+    bool LoadGlyphTexture(GGlyph &glyph);
 
 private:
     GCanvasContext *mContext;
@@ -157,4 +155,4 @@ private:
 
 };
 
-#endif
+#endif /* GCANVAS_GGLYPHCACHE_H */

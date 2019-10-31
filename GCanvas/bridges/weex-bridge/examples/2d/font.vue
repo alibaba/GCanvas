@@ -5,12 +5,12 @@
   </div>
 </template>
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 
 // import { enable, WeexBridge } from "../../../../js/src/index.js";
 
-const enable     = require('../../../../js/dist/gcanvas.min.js').enable;
-const WeexBridge = require('../../../../js/dist/gcanvas.min.js').WeexBridge;
+const enable     = require('gcanvas.js').enable;
+const WeexBridge = require('gcanvas.js').WeexBridge;
 
 
 function start(ref, size) {

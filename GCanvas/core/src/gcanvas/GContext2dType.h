@@ -6,27 +6,10 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
+#ifndef GCANVAS_GCONTEXT2DTYPE_H
+#define GCANVAS_GCONTEXT2DTYPE_H
 
-#ifndef GContext2dType_h
-#define GContext2dType_h
-
-#ifndef _WIN32
-
-#ifdef ANDROID
-
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
+#include "GGL.h"
 
 typedef enum
 {
@@ -41,13 +24,6 @@ typedef enum
     LINE_JOIN_BEVEL,
     LINE_JOIN_ROUND
 } GLineJoin;
-
-typedef enum
-{
-    DIRECTION_INHERIT,
-    DIRECTION_LEFT_TO_RIGHT,
-    DIRECTION_RIGHT_TO_LEFT
-} GDirection;
 
 typedef enum
 {
@@ -73,25 +49,6 @@ typedef struct {
 
 extern GBlendOperationFuncs GCompositeOperationFuncs(int index);
 
-//static const struct
-//{
-//    GLenum source;
-//    GLenum destination;
-//} GCompositeOperationFuncs[] = {
-//        {GL_ONE,           GL_ONE_MINUS_SRC_ALPHA}, //0
-//        {GL_SRC_ALPHA,           GL_ONE}, //1
-//        {GL_DST_COLOR,           GL_ONE_MINUS_SRC_ALPHA}, //2
-//        {GL_ZERO,                GL_ONE_MINUS_SRC_ALPHA}, //3
-//        {GL_ONE_MINUS_DST_ALPHA, GL_DST_ALPHA}, //4
-//        {GL_DST_ALPHA,           GL_ZERO}, //5
-//        {GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA}, //6
-//        {GL_ONE,                 GL_ZERO}, //7
-//        {GL_SRC_ALPHA,           GL_DST_ALPHA}, //8
-//        {GL_ONE,                 GL_ONE}, //9
-//        {GL_ONE_MINUS_DST_ALPHA, GL_ZERO},//10
-//        {GL_ZERO,                GL_SRC_ALPHA},//11
-//};
-
 typedef enum
 {
     FILL_RULE_NONZERO,
@@ -104,4 +61,4 @@ typedef enum
     FILL_TARGET_DEPTH
 } GFillTarget;
 
-#endif /* GContext2dType_h */
+#endif /* GCANVAS_GCONTEXT2DTYPE_H */

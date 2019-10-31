@@ -26,11 +26,6 @@ import com.alibaba.weex.commons.adapter.DefaultWebSocketAdapterFactory;
 import com.alibaba.weex.commons.adapter.ImageAdapter;
 import com.alibaba.weex.commons.adapter.JSExceptionAdapter;
 import com.alibaba.weex.extend.adapter.InterceptWXHttpAdapter;
-import com.alibaba.weex.extend.component.RichText;
-import com.alibaba.weex.extend.component.WXComponentSyncTest;
-import com.alibaba.weex.extend.component.WXMask;
-import com.alibaba.weex.extend.component.WXParallax;
-import com.alibaba.weex.extend.component.dom.WXMaskDomObject;
 import com.alibaba.weex.extend.module.GeolocationModule;
 import com.alibaba.weex.extend.module.MyModule;
 import com.alibaba.weex.extend.module.RenderModule;
@@ -51,9 +46,12 @@ import java.lang.reflect.Field;
 
 public class WXApplication extends Application {
 
+    static WXApplication APP;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        APP = this;
 
         /**
          * Set up for fresco usage.
@@ -78,16 +76,16 @@ public class WXApplication extends Application {
         );
         try {
             Fresco.initialize(this);
-            WXSDKEngine.registerComponent("synccomponent", WXComponentSyncTest.class);
-            WXSDKEngine.registerComponent(WXParallax.PARALLAX, WXParallax.class);
+//            WXSDKEngine.registerComponent("synccomponent", WXComponentSyncTest.class);
+//            WXSDKEngine.registerComponent(WXParallax.PARALLAX, WXParallax.class);
 
-            WXSDKEngine.registerComponent("richtext", RichText.class);
+//            WXSDKEngine.registerComponent("richtext", RichText.class);
             WXSDKEngine.registerModule("render", RenderModule.class);
             WXSDKEngine.registerModule("event", WXEventModule.class);
             WXSDKEngine.registerModule("syncTest", SyncTestModule.class);
 
-            WXSDKEngine.registerComponent("mask", WXMask.class);
-            WXSDKEngine.registerDomObject("mask", WXMaskDomObject.class);
+//            WXSDKEngine.registerComponent("mask", WXMask.class);
+//            WXSDKEngine.registerDomObject("mask", WXMaskDomObject.class);
 
             WXSDKEngine.registerModule("myModule", MyModule.class);
             WXSDKEngine.registerModule("geolocation", GeolocationModule.class);

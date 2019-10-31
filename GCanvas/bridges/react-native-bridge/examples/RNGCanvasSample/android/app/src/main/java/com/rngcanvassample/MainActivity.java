@@ -1,6 +1,9 @@
 package com.rngcanvassample;
 
 import com.facebook.react.ReactActivity;
+import com.facebook.react.ReactPackage;
+
+import java.util.List;
 
 public class MainActivity extends ReactActivity {
 

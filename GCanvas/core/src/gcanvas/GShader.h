@@ -6,29 +6,15 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GGLProgram__
-#define __GCanvas__GGLProgram__
+#ifndef GCANVAS_GSHADER_H
+#define GCANVAS_GSHADER_H
 
-#ifndef _WIN32
-
-#ifdef ANDROID
-
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
-
+#include "GGL.h"
 #include "GPoint.h"
 #include "GTransform.h"
+#include "../support/Log.h"
+
+#include <vector>
 
 class GShader
 {
@@ -86,7 +72,9 @@ public:
 
     virtual void SetWeight(float w[], int count) {}
 
-
+    std::vector<GCanvasLog>& GetErrorVector(){ return mErrVec;}
+    
+    void ClearErrorVector() { mErrVec.clear(); }
 
 protected:
     virtual void calculateAttributesLocations();
@@ -96,10 +84,12 @@ protected:
     GLuint mHandle;
     std::string mName;
     
-    GLuint mTexcoordSlot;
-    GLuint mPositionSlot;
-    GLuint mColorSlot;
-    GLuint mTransfromSlot;
+    GLint mTexcoordSlot;
+    GLint mPositionSlot;
+    GLint mColorSlot;
+    GLint mTransfromSlot;
+    
+    std::vector<GCanvasLog> mErrVec;
 };
 
 class DefaultShader : public GShader
@@ -132,14 +122,6 @@ public:
         glUniform1i(mOverrideTextureColorSlot, value);
     }
 
-//    GLint GetTexcoordSlot() { return mTexcoordSlot; }
-//
-//    GLint GetPositionSlot() { return mPositionSlot; }
-//
-//    GLint GetColorSlot() { return mColorSlot; }
-//
-//    GLint GetTransformSlot() { return mTransfromSlot; }
-
     void RestoreShaderState()
     {
         SetHasTexture(mHasTextureFlag);
@@ -150,10 +132,6 @@ protected:
     void calculateAttributesLocations();
 
 private:
-//    GLuint mTexcoordSlot;
-//    GLuint mPositionSlot;
-//    GLuint mColorSlot;
-//    GLuint mTransfromSlot;
     GLuint mTextureSamplerSlot;
     GLuint mHasTextureSlot;
     GLuint mOverrideTextureColorSlot;
@@ -180,24 +158,10 @@ public:
         glUniform1i(mPremultipliedAlphaSlot, value);
     }
 
-
-//    GLint GetTexcoordSlot() { return mTexcoordSlot; }
-//
-//    GLint GetPositionSlot() { return mPositionSlot; }
-//
-//    GLint GetColorSlot() { return mColorSlot; }
-//
-//    GLint GetTransformSlot() { return mTransfromSlot; }
-
-
 protected:
     void calculateAttributesLocations();
 
 private:
-//    GLuint mTexcoordSlot;
-//    GLuint mPositionSlot;
-//    GLuint mColorSlot;
-//    GLuint mTransfromSlot;
     GLuint mTextureSamplerSlot;
     GLuint mPremultipliedAlphaSlot;
 };
@@ -215,31 +179,19 @@ public:
     {
         glUniform1f(mXDeltaSlot, x);
         glUniform1f(mYDeltaSlot, y);
+
     }
 
     void SetWeight(float w[], int count)
     {
         glUniform1fv(mWeightSlot, count, w);
+
     }
-
-
-//    GLint GetTexcoordSlot() { return mTexcoordSlot; }
-//
-//    GLint GetPositionSlot() { return mPositionSlot; }
-//
-//    GLint GetColorSlot() { return mColorSlot; }
-//
-//    GLint GetTransformSlot() { return mTransfromSlot; }
-
 
 protected:
     void calculateAttributesLocations();
 
 private:
-//    GLuint mTexcoordSlot;
-//    GLuint mPositionSlot;
-//    GLuint mColorSlot;
-//    GLuint mTransfromSlot;
     GLuint mXDeltaSlot;
     GLuint mYDeltaSlot;
     GLuint mWeightSlot;
@@ -276,23 +228,11 @@ public:
         glUniform1f(mPatternAlphaSlot, patternAlpha);
     }
 
-//    GLint GetTexcoordSlot() { return mTexcoordSlot; }
-//
-//    GLint GetPositionSlot() { return mPositionSlot; }
-//
-//    GLint GetColorSlot() { return mColorSlot; }
-//
-//    GLint GetTransformSlot() { return mTransfromSlot; }
-
     GLint GetTextureSamplerSlot() { return mTextureSamplerSlot; }
 
 protected:
     void calculateAttributesLocations();
-
-//    GLuint mTexcoordSlot;
-//    GLuint mPositionSlot;
-//    GLuint mColorSlot;
-//    GLuint mTransfromSlot;
+    
     GLuint mTextureSamplerSlot;
     GLuint mRepeatXSlot;
     GLuint mRepeatYslot;
@@ -305,14 +245,6 @@ class GradientShader : public GShader
 {
 public:
     GradientShader(const char *name, const char *vertexShaderSrc, const char *fragmentShaderSrc);
-    
-//    GLint GetTexcoordSlot() { return mTexcoordSlot; }
-//
-//    GLint GetPositionSlot() { return mPositionSlot; }
-//
-//    GLint GetColorSlot() { return mColorSlot; }
-//
-//    GLint GetTransformSlot() { return mTransfromSlot; }
     
     void SetHasTexture(bool value)
     {
@@ -369,10 +301,6 @@ public:
 protected:
     void calculateAttributesLocations();
     
-//    GLuint mPositionSlot;
-//    GLuint mTexcoordSlot;
-//    GLuint mColorSlot;
-//    GLuint mTransfromSlot;
     GLuint mTextureSamplerSlot;
     
     GLuint mStopCountSlot;
@@ -429,4 +357,4 @@ protected:
 
 };
 
-#endif
+#endif /* GCANVAS_GSHADER_H */

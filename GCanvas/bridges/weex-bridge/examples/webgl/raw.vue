@@ -11,15 +11,15 @@
 }
 </style>
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 import { compile } from "./compile-shader";
 import hackLog from "./hack-log";
 
 // import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
 
-const enable     = require('../../../../js/dist/gcanvas.min.js').enable;
-const WeexBridge = require('../../../../js/dist/gcanvas.min.js').WeexBridge;
-const GImage     = require('../../../../js/dist/gcanvas.min.js').Image;
+const enable     = require('gcanvas.js').enable;
+const WeexBridge = require('gcanvas.js').WeexBridge;
+const GImage     = require('gcanvas.js').Image;
 
 function startRaw(ref, size) {
   if (isWeex) {

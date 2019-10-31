@@ -6,20 +6,25 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas_GFontStyle__
-#define __GCanvas_GFontStyle__
+#ifndef GCANVAS_GFONTSTYLE_H
+#define GCANVAS_GFONTSTYLE_H
 
 #include <iostream>
 #include <list>
 #include <map>
+#include <export.h>
+
+class GCanvasContext;
+
 
 namespace gcanvas
 {
 class GFontStyle final
 {
 public:
-    GFontStyle(const char *font = nullptr, float ratio = 1.0);
-    ~GFontStyle();
+    API_EXPORT GFontStyle(const char *font = nullptr, float ratio = 1.0);
+
+    API_EXPORT ~GFontStyle();
 
     enum class Style
     {
@@ -58,10 +63,21 @@ public:
     float GetSize() { return mSize; }
 
     std::string GetFamily() const { return mFamily; }
+    void SetFamily(std::string family) { mFamily = family; }
     
-    std::string GetName() const { return mFontName; }
+    std::string GetName();
+    std::string GetOriginFontName() { return mFontName; }
+
+    std::string& GetFullFontStyle() { return mFullFontStyle; }
+
+    float GetAscender() { return mAscender; }
+    float GetDescender() { return mDescender; }
+    void SetAscender(float as) { mAscender = as;}
+    void SetDescender(float des) { mDescender = des;}
 private:
     void Initialize(const char *font);
+
+    std::string mFullFontStyle;
     std::string mFontName;
     Style mStyle;
     Variant mVariant;
@@ -69,7 +85,10 @@ private:
     float mSize;
     float mRatio;
     std::string mFamily;
+    float mAscender;
+    float mDescender;
+
 };
 }
 
-#endif
+#endif /* GCANVAS_GFONTSTYLE_H */

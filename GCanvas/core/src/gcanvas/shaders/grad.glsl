@@ -1,7 +1,5 @@
 #define LINEAR_SHADER "LINEAR"
 
-
-
 #define LINEAR_SHADER_VS                    "\
 attribute vec4 a_position;                  \n\
 attribute vec4 a_srcColor;                  \n\
@@ -48,7 +46,7 @@ void main()                                                                 \n\
    float t = -dot(vecA, vecB) / dot(vecB, vecB);                            \n\
                                                                             \n\
    if (u_stopCount >= 1 && t < u_stop0) {                                   \n\
-   		finalColor = u_stopColor0;                                         \n\
+   		finalColor = u_stopColor0;                                          \n\
    }                                                                        \n\
    else if (u_stopCount >= 2 && u_stop0 <= t && t <= u_stop1) {             \n\
    		float w0 = t - u_stop0;                                             \n\

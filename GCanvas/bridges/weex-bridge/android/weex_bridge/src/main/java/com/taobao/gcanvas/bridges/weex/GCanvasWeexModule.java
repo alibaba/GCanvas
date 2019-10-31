@@ -21,7 +21,6 @@ import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.Destroyable;
 import com.taobao.weex.common.WXModule;
 import com.taobao.weex.ui.component.WXComponent;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,7 +63,6 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
                 return Boolean.FALSE.toString();
             }
 
-
             try {
                 String refId = data.getString("componentId");
                 WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(module.mWXSDKInstance.getInstanceId(), refId);
@@ -93,7 +91,6 @@ public class GCanvasWeexModule extends WXModule implements Destroyable {
 
             GLog.d(TAG, "enable width " + width);
             GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
-
 
             /**
              * open high Quality default

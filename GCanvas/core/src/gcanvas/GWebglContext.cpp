@@ -9,40 +9,21 @@
 
 #ifdef GCANVAS_WEEX
 
-#include <iostream>
-
-#ifndef _WIN32
-#ifdef ANDROID
-
-#include <GLES2/gl2.h>
-
-#define GL_GLEXT_PROTOTYPES
-
-#include <GLES2/gl2ext.h>
-#include <EGL/egl.h>
-
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
-
-#include "../GCanvas.hpp"
+#include "GGL.h"
+#include "GCanvas.hpp"
+#include "GCanvasWeex.hpp"
 #include "../support/Encode.h"
 #include "../support/Util.h"
 
 #include <string>
 #include <stdint.h>
 #include <sstream>
+#include <iostream>
 
 //refrence https://www.khronos.org/registry/OpenGL-Refpages/es2.0/
 
 #ifdef ANDROID
+#define GL_GLEXT_PROTOTYPES
 PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESv;
 PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESv;
 PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESv;
@@ -56,6 +37,8 @@ PFNGLISVERTEXARRAYOESPROC glIsVertexArrayOESv;
 #define WEBGL_API_COUNT     137 //(1 + 136)
 #define g_encode_type       0
 
+#define G_BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 
 namespace gcanvas {
 
@@ -67,9 +50,6 @@ namespace gcanvas {
     }
 
     const int *ParseTokensInt(const char *&p, int iMaxCount) {
-//    struct timeval before;
-//    struct timeval after;
-//    gettimeofday(&before, NULL);
         static int tokens[16];
         if (iMaxCount > 16) {
             LOG_I("[ParseTokensInt] iMaxCount[%d] is too larger...", iMaxCount);
@@ -84,21 +64,8 @@ namespace gcanvas {
             if (*p == ',') ++p;
         }
         if (*p == ';') ++p;
-//    gettimeofday(&after, NULL);
-//    LOG_D("before parseTokensint sec = %d, usec = %d, after sec = %d, usec = %d", before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
         return tokens;
     }
-
-//const GGlObject *ParseTokensObj(const char *&p, GGlObjectMgr &mgr)
-//{
-//    const int id = ParseTokensInt(p, 1)[0];
-//    const GGlObject *obj = mgr.Get(id);
-//    if (nullptr == obj)
-//    {
-//        LOG_I("[ParseTokensObj] cann`t get %s by id:%d", mgr.GetFlag(), id);
-//    }
-//    return obj;
-//}
 
     const float *ParseTokensFloat(const char *&p, int iMaxCount) {
         static float tokens[32];
@@ -140,9 +107,6 @@ namespace gcanvas {
     }
 
     int ParseTokensBase64(const char *&pos, std::string &str) {
-//    struct timeval before;
-//    struct timeval after;
-//    gettimeofday(&before, NULL);
         const char *begin = pos;
         ParseTokensSkip(pos);
         int len = (int) (pos - begin - 1);
@@ -156,8 +120,6 @@ namespace gcanvas {
 
         gcanvas::Base64DecodeBuf((char *) str.c_str(), begin, len);
         *((char *) str.c_str() + len) = '\0';
-//    gettimeofday(&after, NULL);
-//    LOG_D("before parseTokensBase64 sec = %d, usec = %d, after sec = %d, usec = %d", before.tv_sec, before.tv_usec, after.tv_sec, after.tv_usec);
         return len;
     }
 
@@ -239,9 +201,6 @@ namespace gcanvas {
 
 
     float *SplitStringToFloat32Array(const char *pos, const char *delim, unsigned int &size) {
-//    struct timeval before;
-//    struct timeval after;
-//    gettimeofday(&before, NULL);
         std::vector<float> elems;
         char *begin = (char *) pos;
         char *pstr = strtok(begin, delim);
@@ -259,9 +218,6 @@ namespace gcanvas {
             for (int i = 0; i < size; i++) {
                 floatArray[i] = elems.at(i);
             }
-//        gettimeofday(&after, NULL);
-//        LOG_D("before SplitStringToFloat32Array sec = %d, usec = %d, after: sec = %d, usec = %d", before.tv_sec, before.tv_usec,after.tv_sec, after.tv_usec);
-
             return floatArray;
         } else {
             return NULL;
@@ -298,14 +254,6 @@ namespace gcanvas {
         return array;
     }
 
-//static int g_shapeType_list[] = {GL_VERTEX_SHADER, //
-//                                 GL_FRAGMENT_SHADER};
-//
-//static int g_precisionType_list[] = {GL_LOW_FLOAT,  GL_MEDIUM_FLOAT,
-//                                     GL_HIGH_FLOAT, GL_LOW_INT,
-//                                     GL_MEDIUM_INT, GL_HIGH_INT};
-
-#define G_BUFFER_OFFSET(i) ((char *)NULL + (i))
 
     typedef enum {
         kReturnBoolean = 1,
@@ -325,608 +273,306 @@ namespace gcanvas {
         kBreak         // some error happen, stop deal cmd
     } FuncReturnType;
 
-//static const int MACRO_LIST_SIZE = sizeof(g_macro_list) / sizeof(int);
-#ifdef ANDROID
-#define DEBUG
-#endif
-
     const char *GetMacroValDebug(int index) {
 #ifdef DEBUG
         switch (index) {
-            case 0x0:
-                return "GL_NONE or GL_ZERO or GL_POINTS";
-            case 0x1:
-                return "GL_ONE or GL_LINES";
-            case 0x2:
-                return "GL_LINE_LOOP";
-            case 0x3:
-                return "GL_LINE_STRIP";
-            case 0x4:
-                return "GL_TRIANGLES";
-            case 0x5:
-                return "GL_TRIANGLE_STRIP";
-            case 0x6:
-                return "GL_TRIANGLE_FAN";
-            case 0x100:
-                return "GL_DEPTH_BUFFER_BIT";
-            case 0x200:
-                return "GL_NEVER";
-            case 0x201:
-                return "GL_LESS";
-            case 0x202:
-                return "GL_EQUAL";
-            case 0x203:
-                return "GL_LEQUAL";
-            case 0x204:
-                return "GL_GREATER";
-            case 0x205:
-                return "GL_NOTEQUAL";
-            case 0x206:
-                return "GL_GEQUAL";
-            case 0x207:
-                return "GL_ALWAYS";
-            case 0x300:
-                return "GL_SRC_COLOR";
-            case 0x301:
-                return "GL_ONE_MINUS_SRC_COLOR";
-            case 0x302:
-                return "GL_SRC_ALPHA";
-            case 0x303:
-                return "GL_ONE_MINUS_SRC_ALPHA";
-            case 0x304:
-                return "GL_DST_ALPHA";
-            case 0x305:
-                return "GL_ONE_MINUS_DST_ALPHA";
-            case 0x306:
-                return "GL_DST_COLOR";
-            case 0x307:
-                return "GL_ONE_MINUS_DST_COLOR";
-            case 0x308:
-                return "GL_SRC_ALPHA_SATURATE";
-            case 0x400:
-                return "GL_STENCIL_BUFFER_BIT";
-            case 0x404:
-                return "GL_FRONT";
-            case 0x405:
-                return "GL_BACK";
-            case 0x408:
-                return "GL_FRONT_AND_BACK";
-            case 0x500:
-                return "GL_INVALID_ENUM";
-            case 0x501:
-                return "GL_INVALID_VALUE";
-            case 0x502:
-                return "GL_INVALID_OPERATION";
-            case 0x505:
-                return "GL_OUT_OF_MEMORY";
-            case 0x506:
-                return "GL_INVALID_FRAMEBUFFER_OPERATION";
-            case 0x900:
-                return "GL_CW";
-            case 0x901:
-                return "GL_CCW";
-            case 0xB21:
-                return "GL_LINE_WIDTH";
-            case 0xB44:
-                return "GL_CULL_FACE";
-            case 0xB45:
-                return "GL_CULL_FACE_MODE";
-            case 0xB46:
-                return "GL_FRONT_FACE";
-            case 0xB70:
-                return "GL_DEPTH_RANGE";
-            case 0xB71:
-                return "GL_DEPTH_TEST";
-            case 0xB72:
-                return "GL_DEPTH_WRITEMASK";
-            case 0xB73:
-                return "GL_DEPTH_CLEAR_VALUE";
-            case 0xB74:
-                return "GL_DEPTH_FUNC";
-            case 0xB90:
-                return "GL_STENCIL_TEST";
-            case 0xB91:
-                return "GL_STENCIL_CLEAR_VALUE";
-            case 0xB92:
-                return "GL_STENCIL_FUNC";
-            case 0xB93:
-                return "GL_STENCIL_VALUE_MASK";
-            case 0xB94:
-                return "GL_STENCIL_FAIL";
-            case 0xB95:
-                return "GL_STENCIL_PASS_DEPTH_FAIL";
-            case 0xB96:
-                return "GL_STENCIL_PASS_DEPTH_PASS";
-            case 0xB97:
-                return "GL_STENCIL_REF";
-            case 0xB98:
-                return "GL_STENCIL_WRITEMASK";
-            case 0xBA2:
-                return "GL_VIEWPORT";
-            case 0xBD0:
-                return "GL_DITHER";
-            case 0xBE2:
-                return "GL_BLEND";
-            case 0xC10:
-                return "GL_SCISSOR_BOX";
-            case 0xC11:
-                return "GL_SCISSOR_TEST";
-            case 0xC22:
-                return "GL_COLOR_CLEAR_VALUE";
-            case 0xC23:
-                return "GL_COLOR_WRITEMASK";
-            case 0xCF5:
-                return "GL_UNPACK_ALIGNMENT";
-            case 0xD05:
-                return "GL_PACK_ALIGNMENT";
-            case 0xD33:
-                return "GL_MAX_TEXTURE_SIZE";
-            case 0xD3A:
-                return "GL_MAX_VIEWPORT_DIMS";
-            case 0xD50:
-                return "GL_SUBPIXEL_BITS";
-            case 0xD52:
-                return "GL_RED_BITS";
-            case 0xD53:
-                return "GL_GREEN_BITS";
-            case 0xD54:
-                return "GL_BLUE_BITS";
-            case 0xD55:
-                return "GL_ALPHA_BITS";
-            case 0xD56:
-                return "GL_DEPTH_BITS";
-            case 0xD57:
-                return "GL_STENCIL_BITS";
-            case 0xDE1:
-                return "GL_TEXTURE_2D";
-            case 0x1100:
-                return "GL_DONT_CARE";
-            case 0x1101:
-                return "GL_FASTEST";
-            case 0x1102:
-                return "GL_NICEST";
-            case 0x1400:
-                return "GL_BYTE";
-            case 0x1401:
-                return "GL_UNSIGNED_BYTE";
-            case 0x1402:
-                return "GL_SHORT";
-            case 0x1403:
-                return "GL_UNSIGNED_SHORT";
-            case 0x1404:
-                return "GL_INT";
-            case 0x1405:
-                return "GL_UNSIGNED_INT";
-            case 0x1406:
-                return "GL_FLOAT";
-            case 0x150A:
-                return "GL_INVERT";
-            case 0x1702:
-                return "GL_TEXTURE";
-            case 0x1901:
-                return "GL_STENCIL_INDEX";
-            case 0x1902:
-                return "GL_DEPTH_COMPONENT";
-            case 0x1906:
-                return "GL_ALPHA";
-            case 0x1907:
-                return "GL_RGB";
-            case 0x1908:
-                return "GL_RGBA";
-            case 0x1909:
-                return "GL_LUMINANCE";
-            case 0x190A:
-                return "GL_LUMINANCE_ALPHA";
-            case 0x1E00:
-                return "GL_KEEP";
-            case 0x1E01:
-                return "GL_REPLACE";
-            case 0x1E02:
-                return "GL_INCR";
-            case 0x1E03:
-                return "GL_DECR";
-            case 0x1F00:
-                return "GL_VENDOR";
-            case 0x1F01:
-                return "GL_RENDERER";
-            case 0x1F02:
-                return "GL_VERSION";
-            case 0x2600:
-                return "GL_NEAREST";
-            case 0x2601:
-                return "GL_LINEAR";
-            case 0x2700:
-                return "GL_NEAREST_MIPMAP_NEAREST";
-            case 0x2701:
-                return "GL_LINEAR_MIPMAP_NEAREST";
-            case 0x2702:
-                return "GL_NEAREST_MIPMAP_LINEAR";
-            case 0x2703:
-                return "GL_LINEAR_MIPMAP_LINEAR";
-            case 0x2800:
-                return "GL_TEXTURE_MAG_FILTER";
-            case 0x2801:
-                return "GL_TEXTURE_MIN_FILTER";
-            case 0x2802:
-                return "GL_TEXTURE_WRAP_S";
-            case 0x2803:
-                return "GL_TEXTURE_WRAP_T";
-            case 0x2901:
-                return "GL_REPEAT";
-            case 0x2A00:
-                return "GL_POLYGON_OFFSET_UNITS";
-            case 0x4000:
-                return "GL_COLOR_BUFFER_BIT";
-            case 0x8001:
-                return "GL_CONSTANT_COLOR";
-            case 0x8002:
-                return "GL_ONE_MINUS_CONSTANT_COLOR";
-            case 0x8003:
-                return "GL_CONSTANT_ALPHA";
-            case 0x8004:
-                return "GL_ONE_MINUS_CONSTANT_ALPHA";
-            case 0x8005:
-                return "GL_BLEND_COLOR";
-            case 0x8006:
-                return "GL_FUNC_ADD";
-            case 0x8009:
-                return "GL_BLEND_EQUATION_RGB";
-            case 0x800A:
-                return "GL_FUNC_SUBTRACT";
-            case 0x800B:
-                return "GL_FUNC_REVERSE_SUBTRACT";
-            case 0x8033:
-                return "GL_UNSIGNED_SHORT_4_4_4_4";
-            case 0x8034:
-                return "GL_UNSIGNED_SHORT_5_5_5_1";
-            case 0x8037:
-                return "GL_POLYGON_OFFSET_FILL";
-            case 0x8038:
-                return "GL_POLYGON_OFFSET_FACTOR";
-            case 0x8056:
-                return "GL_RGBA4";
-            case 0x8057:
-                return "GL_RGB5_A1";
-            case 0x8069:
-                return "GL_TEXTURE_BINDING_2D";
-            case 0x809E:
-                return "GL_SAMPLE_ALPHA_TO_COVERAGE";
-            case 0x80A0:
-                return "GL_SAMPLE_COVERAGE";
-            case 0x80A8:
-                return "GL_SAMPLE_BUFFERS";
-            case 0x80A9:
-                return "GL_SAMPLES";
-            case 0x80AA:
-                return "GL_SAMPLE_COVERAGE_VALUE";
-            case 0x80AB:
-                return "GL_SAMPLE_COVERAGE_INVERT";
-            case 0x80C8:
-                return "GL_BLEND_DST_RGB";
-            case 0x80C9:
-                return "GL_BLEND_SRC_RGB";
-            case 0x80CA:
-                return "GL_BLEND_DST_ALPHA";
-            case 0x80CB:
-                return "GL_BLEND_SRC_ALPHA";
-            case 0x812F:
-                return "GL_CLAMP_TO_EDGE";
-            case 0x8192:
-                return "GL_GENERATE_MIPMAP_HINT";
-            case 0x81A5:
-                return "GL_DEPTH_COMPONENT16";
-            case 0x821A:
-                return "GL_DEPTH_STENCIL_ATTACHMENT";
-            case 0x8363:
-                return "GL_UNSIGNED_SHORT_5_6_5";
-            case 0x8370:
-                return "GL_MIRRORED_REPEAT";
-            case 0x846D:
-                return "GL_ALIASED_POINT_SIZE_RANGE";
-            case 0x846E:
-                return "GL_ALIASED_LINE_WIDTH_RANGE";
-            case 0x84C0:
-                return "GL_TEXTURE0";
-            case 0x84C1:
-                return "GL_TEXTURE1";
-            case 0x84C2:
-                return "GL_TEXTURE2";
-            case 0x84C3:
-                return "GL_TEXTURE3";
-            case 0x84C4:
-                return "GL_TEXTURE4";
-            case 0x84C5:
-                return "GL_TEXTURE5";
-            case 0x84C6:
-                return "GL_TEXTURE6";
-            case 0x84C7:
-                return "GL_TEXTURE7";
-            case 0x84C8:
-                return "GL_TEXTURE8";
-            case 0x84C9:
-                return "GL_TEXTURE9";
-            case 0x84CA:
-                return "GL_TEXTURE10";
-            case 0x84CB:
-                return "GL_TEXTURE11";
-            case 0x84CC:
-                return "GL_TEXTURE12";
-            case 0x84CD:
-                return "GL_TEXTURE13";
-            case 0x84CE:
-                return "GL_TEXTURE14";
-            case 0x84CF:
-                return "GL_TEXTURE15";
-            case 0x84D0:
-                return "GL_TEXTURE16";
-            case 0x84D1:
-                return "GL_TEXTURE17";
-            case 0x84D2:
-                return "GL_TEXTURE18";
-            case 0x84D3:
-                return "GL_TEXTURE19";
-            case 0x84D4:
-                return "GL_TEXTURE20";
-            case 0x84D5:
-                return "GL_TEXTURE21";
-            case 0x84D6:
-                return "GL_TEXTURE22";
-            case 0x84D7:
-                return "GL_TEXTURE23";
-            case 0x84D8:
-                return "GL_TEXTURE24";
-            case 0x84D9:
-                return "GL_TEXTURE25";
-            case 0x84DA:
-                return "GL_TEXTURE26";
-            case 0x84DB:
-                return "GL_TEXTURE27";
-            case 0x84DC:
-                return "GL_TEXTURE28";
-            case 0x84DD:
-                return "GL_TEXTURE29";
-            case 0x84DE:
-                return "GL_TEXTURE30";
-            case 0x84DF:
-                return "GL_TEXTURE31";
-            case 0x84E0:
-                return "GL_ACTIVE_TEXTURE";
-            case 0x84E8:
-                return "GL_MAX_RENDERBUFFER_SIZE";
-            case 0x84F9:
-                return "GL_DEPTH_STENCIL";
-            case 0x8507:
-                return "GL_INCR_WRAP";
-            case 0x8508:
-                return "GL_DECR_WRAP";
-            case 0x8513:
-                return "GL_TEXTURE_CUBE_MAP";
-            case 0x8514:
-                return "GL_TEXTURE_BINDING_CUBE_MAP";
-            case 0x8515:
-                return "GL_TEXTURE_CUBE_MAP_POSITIVE_X";
-            case 0x8516:
-                return "GL_TEXTURE_CUBE_MAP_NEGATIVE_X";
-            case 0x8517:
-                return "GL_TEXTURE_CUBE_MAP_POSITIVE_Y";
-            case 0x8518:
-                return "GL_TEXTURE_CUBE_MAP_NEGATIVE_Y";
-            case 0x8519:
-                return "GL_TEXTURE_CUBE_MAP_POSITIVE_Z";
-            case 0x851A:
-                return "GL_TEXTURE_CUBE_MAP_NEGATIVE_Z";
-            case 0x851C:
-                return "GL_MAX_CUBE_MAP_TEXTURE_SIZE";
-            case 0x8622:
-                return "GL_VERTEX_ATTRIB_ARRAY_ENABLED";
-            case 0x8623:
-                return "GL_VERTEX_ATTRIB_ARRAY_SIZE";
-            case 0x8624:
-                return "GL_VERTEX_ATTRIB_ARRAY_STRIDE";
-            case 0x8625:
-                return "GL_VERTEX_ATTRIB_ARRAY_TYPE";
-            case 0x8626:
-                return "GL_CURRENT_VERTEX_ATTRIB";
-            case 0x8645:
-                return "GL_VERTEX_ATTRIB_ARRAY_POINTER";
-            case 0x86A2:
-                return "GL_NUM_COMPRESSED_TEXTURE_FORMATS";
-            case 0x86A3:
-                return "GL_COMPRESSED_TEXTURE_FORMATS";
-            case 0x8764:
-                return "GL_BUFFER_SIZE";
-            case 0x8765:
-                return "GL_BUFFER_USAGE";
-            case 0x8800:
-                return "GL_STENCIL_BACK_FUNC";
-            case 0x8801:
-                return "GL_STENCIL_BACK_FAIL";
-            case 0x8802:
-                return "GL_STENCIL_BACK_PASS_DEPTH_FAIL";
-            case 0x8803:
-                return "GL_STENCIL_BACK_PASS_DEPTH_PASS";
-            case 0x883D:
-                return "GL_BLEND_EQUATION_ALPHA";
-            case 0x8869:
-                return "GL_MAX_VERTEX_ATTRIBS";
-            case 0x886A:
-                return "GL_VERTEX_ATTRIB_ARRAY_NORMALIZED";
-            case 0x8872:
-                return "GL_MAX_TEXTURE_IMAGE_UNITS";
-            case 0x8892:
-                return "GL_ARRAY_BUFFER";
-            case 0x8893:
-                return "GL_ELEMENT_ARRAY_BUFFER";
-            case 0x8894:
-                return "GL_ARRAY_BUFFER_BINDING";
-            case 0x8895:
-                return "GL_ELEMENT_ARRAY_BUFFER_BINDING";
-            case 0x889F:
-                return "GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING";
-            case 0x88E0:
-                return "GL_STREAM_DRAW";
-            case 0x88E4:
-                return "GL_STATIC_DRAW";
-            case 0x88E8:
-                return "GL_DYNAMIC_DRAW";
-            case 0x8B30:
-                return "GL_FRAGMENT_SHADER";
-            case 0x8B31:
-                return "GL_VERTEX_SHADER";
-            case 0x8B4C:
-                return "GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS";
-            case 0x8B4D:
-                return "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS";
-            case 0x8B4F:
-                return "GL_SHADER_TYPE";
-            case 0x8B50:
-                return "GL_FLOAT_VEC2";
-            case 0x8B51:
-                return "GL_FLOAT_VEC3";
-            case 0x8B52:
-                return "GL_FLOAT_VEC4";
-            case 0x8B53:
-                return "GL_INT_VEC2";
-            case 0x8B54:
-                return "GL_INT_VEC3";
-            case 0x8B55:
-                return "GL_INT_VEC4";
-            case 0x8B56:
-                return "GL_BOOL";
-            case 0x8B57:
-                return "GL_BOOL_VEC2";
-            case 0x8B58:
-                return "GL_BOOL_VEC3";
-            case 0x8B59:
-                return "GL_BOOL_VEC4";
-            case 0x8B5A:
-                return "GL_FLOAT_MAT2";
-            case 0x8B5B:
-                return "GL_FLOAT_MAT3";
-            case 0x8B5C:
-                return "GL_FLOAT_MAT4";
-            case 0x8B5E:
-                return "GL_SAMPLER_2D";
-            case 0x8B60:
-                return "GL_SAMPLER_CUBE";
-            case 0x8B80:
-                return "GL_DELETE_STATUS";
-            case 0x8B81:
-                return "GL_COMPILE_STATUS";
-            case 0x8B82:
-                return "GL_LINK_STATUS";
-            case 0x8B83:
-                return "GL_VALIDATE_STATUS";
-            case 0x8B84:
-                return "GL_INFO_LOG_LENGTH";
-            case 0x8B85:
-                return "GL_ATTACHED_SHADERS";
-            case 0x8B86:
-                return "GL_ACTIVE_UNIFORMS";
-            case 0x8B87:
-                return "GL_ACTIVE_UNIFORM_MAX_LENGTH";
-            case 0x8B88:
-                return "GL_SHADER_SOURCE_LENGTH";
-            case 0x8B89:
-                return "GL_ACTIVE_ATTRIBUTES";
-            case 0x8B8A:
-                return "GL_ACTIVE_ATTRIBUTE_MAX_LENGTH";
-            case 0x8B8C:
-                return "GL_SHADING_LANGUAGE_VERSION";
-            case 0x8B8D:
-                return "GL_CURRENT_PROGRAM";
-            case 0x8CA3:
-                return "GL_STENCIL_BACK_REF";
-            case 0x8CA4:
-                return "GL_STENCIL_BACK_VALUE_MASK";
-            case 0x8CA5:
-                return "GL_STENCIL_BACK_WRITEMASK";
-            case 0x8CA6:
-                return "GL_FRAMEBUFFER_BINDING";
-            case 0x8CA7:
-                return "GL_RENDERBUFFER_BINDING";
-            case 0x8CD0:
-                return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE";
-            case 0x8CD1:
-                return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME";
-            case 0x8CD2:
-                return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL";
-            case 0x8CD3:
-                return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE";
-            case 0x8CD5:
-                return "GL_FRAMEBUFFER_COMPLETE";
-            case 0x8CD6:
-                return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-            case 0x8CD7:
-                return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-            case 0x8CD9:
-                return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
-            case 0x8CDD:
-                return "GL_FRAMEBUFFER_UNSUPPORTED";
-            case 0x8CE0:
-                return "GL_COLOR_ATTACHMENT0";
-            case 0x8D00:
-                return "GL_DEPTH_ATTACHMENT";
-            case 0x8D20:
-                return "GL_STENCIL_ATTACHMENT";
-            case 0x8D40:
-                return "GL_FRAMEBUFFER";
-            case 0x8D41:
-                return "GL_RENDERBUFFER";
-            case 0x8D42:
-                return "GL_RENDERBUFFER_WIDTH";
-            case 0x8D43:
-                return "GL_RENDERBUFFER_HEIGHT";
-            case 0x8D44:
-                return "GL_RENDERBUFFER_INTERNAL_FORMAT";
-            case 0x8D48:
-                return "GL_STENCIL_INDEX8";
-            case 0x8D50:
-                return "GL_RENDERBUFFER_RED_SIZE";
-            case 0x8D51:
-                return "GL_RENDERBUFFER_GREEN_SIZE";
-            case 0x8D52:
-                return "GL_RENDERBUFFER_BLUE_SIZE";
-            case 0x8D53:
-                return "GL_RENDERBUFFER_ALPHA_SIZE";
-            case 0x8D54:
-                return "GL_RENDERBUFFER_DEPTH_SIZE";
-            case 0x8D55:
-                return "GL_RENDERBUFFER_STENCIL_SIZE";
-            case 0x8D62:
-                return "GL_RGB565";
-            case 0x8DF0:
-                return "GL_LOW_FLOAT";
-            case 0x8DF1:
-                return "GL_MEDIUM_FLOAT";
-            case 0x8DF2:
-                return "GL_HIGH_FLOAT";
-            case 0x8DF3:
-                return "GL_LOW_INT";
-            case 0x8DF4:
-                return "GL_MEDIUM_INT";
-            case 0x8DF5:
-                return "GL_HIGH_INT";
-            case 0x8DFA:
-                return "GL_SHADER_COMPILER";
-            case 0x8DFB:
-                return "GL_MAX_VERTEX_UNIFORM_VECTORS";
-            case 0x8DFC:
-                return "GL_MAX_VARYING_VECTORS";
-            case 0x8DFD:
-                return "GL_MAX_FRAGMENT_UNIFORM_VECTORS";
-            case 0x9240:
-                return "GL_UNPACK_FLIP_Y_WEBGL";
-            case 0x9241:
-                return "GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL";
-            case 0x9242:
-                return "GL_CONTEXT_LOST_WEBGL";
-            case 0x9243:
-                return "GL_UNPACK_COLORSPACE_CONVERSION_WEBGL";
-            case 0x9244:
-                return "GL_BROWSER_DEFAULT_WEBGL";
-            default:
-                return "Unkonw Macro";
+            case 0x0: return "GL_NONE or GL_ZERO or GL_POINTS";
+            case 0x1: return "GL_ONE or GL_LINES";
+            case 0x2: return "GL_LINE_LOOP";
+            case 0x3: return "GL_LINE_STRIP";
+            case 0x4: return "GL_TRIANGLES";
+            case 0x5: return "GL_TRIANGLE_STRIP";
+            case 0x6: return "GL_TRIANGLE_FAN";
+            case 0x100: return "GL_DEPTH_BUFFER_BIT";
+            case 0x200: return "GL_NEVER";
+            case 0x201: return "GL_LESS";
+            case 0x202: return "GL_EQUAL";
+            case 0x203: return "GL_LEQUAL";
+            case 0x204: return "GL_GREATER";
+            case 0x205: return "GL_NOTEQUAL";
+            case 0x206: return "GL_GEQUAL";
+            case 0x207: return "GL_ALWAYS";
+            case 0x300: return "GL_SRC_COLOR";
+            case 0x301: return "GL_ONE_MINUS_SRC_COLOR";
+            case 0x302: return "GL_SRC_ALPHA";
+            case 0x303: return "GL_ONE_MINUS_SRC_ALPHA";
+            case 0x304: return "GL_DST_ALPHA";
+            case 0x305: return "GL_ONE_MINUS_DST_ALPHA";
+            case 0x306: return "GL_DST_COLOR";
+            case 0x307: return "GL_ONE_MINUS_DST_COLOR";
+            case 0x308: return "GL_SRC_ALPHA_SATURATE";
+            case 0x400: return "GL_STENCIL_BUFFER_BIT";
+            case 0x404: return "GL_FRONT";
+            case 0x405: return "GL_BACK";
+            case 0x408: return "GL_FRONT_AND_BACK";
+            case 0x500: return "GL_INVALID_ENUM";
+            case 0x501: return "GL_INVALID_VALUE";
+            case 0x502: return "GL_INVALID_OPERATION";
+            case 0x505: return "GL_OUT_OF_MEMORY";
+            case 0x506: return "GL_INVALID_FRAMEBUFFER_OPERATION";
+            case 0x900: return "GL_CW";
+            case 0x901: return "GL_CCW";
+            case 0xB21: return "GL_LINE_WIDTH";
+            case 0xB44: return "GL_CULL_FACE";
+            case 0xB45: return "GL_CULL_FACE_MODE";
+            case 0xB46: return "GL_FRONT_FACE";
+            case 0xB70: return "GL_DEPTH_RANGE";
+            case 0xB71: return "GL_DEPTH_TEST";
+            case 0xB72: return "GL_DEPTH_WRITEMASK";
+            case 0xB73: return "GL_DEPTH_CLEAR_VALUE";
+            case 0xB74: return "GL_DEPTH_FUNC";
+            case 0xB90: return "GL_STENCIL_TEST";
+            case 0xB91: return "GL_STENCIL_CLEAR_VALUE";
+            case 0xB92: return "GL_STENCIL_FUNC";
+            case 0xB93: return "GL_STENCIL_VALUE_MASK";
+            case 0xB94: return "GL_STENCIL_FAIL";
+            case 0xB95: return "GL_STENCIL_PASS_DEPTH_FAIL";
+            case 0xB96: return "GL_STENCIL_PASS_DEPTH_PASS";
+            case 0xB97: return "GL_STENCIL_REF";
+            case 0xB98: return "GL_STENCIL_WRITEMASK";
+            case 0xBA2: return "GL_VIEWPORT";
+            case 0xBD0: return "GL_DITHER";
+            case 0xBE2: return "GL_BLEND";
+            case 0xC10: return "GL_SCISSOR_BOX";
+            case 0xC11: return "GL_SCISSOR_TEST";
+            case 0xC22: return "GL_COLOR_CLEAR_VALUE";
+            case 0xC23: return "GL_COLOR_WRITEMASK";
+            case 0xCF5: return "GL_UNPACK_ALIGNMENT";
+            case 0xD05: return "GL_PACK_ALIGNMENT";
+            case 0xD33: return "GL_MAX_TEXTURE_SIZE";
+            case 0xD3A: return "GL_MAX_VIEWPORT_DIMS";
+            case 0xD50: return "GL_SUBPIXEL_BITS";
+            case 0xD52: return "GL_RED_BITS";
+            case 0xD53: return "GL_GREEN_BITS";
+            case 0xD54: return "GL_BLUE_BITS";
+            case 0xD55: return "GL_ALPHA_BITS";
+            case 0xD56: return "GL_DEPTH_BITS";
+            case 0xD57: return "GL_STENCIL_BITS";
+            case 0xDE1: return "GL_TEXTURE_2D";
+            case 0x1100: return "GL_DONT_CARE";
+            case 0x1101: return "GL_FASTEST";
+            case 0x1102: return "GL_NICEST";
+            case 0x1400: return "GL_BYTE";
+            case 0x1401: return "GL_UNSIGNED_BYTE";
+            case 0x1402: return "GL_SHORT";
+            case 0x1403: return "GL_UNSIGNED_SHORT";
+            case 0x1404: return "GL_INT";
+            case 0x1405: return "GL_UNSIGNED_INT";
+            case 0x1406: return "GL_FLOAT";
+            case 0x150A: return "GL_INVERT";
+            case 0x1702: return "GL_TEXTURE";
+            case 0x1901: return "GL_STENCIL_INDEX";
+            case 0x1902: return "GL_DEPTH_COMPONENT";
+            case 0x1906: return "GL_ALPHA";
+            case 0x1907: return "GL_RGB";
+            case 0x1908: return "GL_RGBA";
+            case 0x1909: return "GL_LUMINANCE";
+            case 0x190A: return "GL_LUMINANCE_ALPHA";
+            case 0x1E00: return "GL_KEEP";
+            case 0x1E01: return "GL_REPLACE";
+            case 0x1E02: return "GL_INCR";
+            case 0x1E03: return "GL_DECR";
+            case 0x1F00: return "GL_VENDOR";
+            case 0x1F01: return "GL_RENDERER";
+            case 0x1F02: return "GL_VERSION";
+            case 0x2600: return "GL_NEAREST";
+            case 0x2601: return "GL_LINEAR";
+            case 0x2700: return "GL_NEAREST_MIPMAP_NEAREST";
+            case 0x2701: return "GL_LINEAR_MIPMAP_NEAREST";
+            case 0x2702: return "GL_NEAREST_MIPMAP_LINEAR";
+            case 0x2703: return "GL_LINEAR_MIPMAP_LINEAR";
+            case 0x2800: return "GL_TEXTURE_MAG_FILTER";
+            case 0x2801: return "GL_TEXTURE_MIN_FILTER";
+            case 0x2802: return "GL_TEXTURE_WRAP_S";
+            case 0x2803: return "GL_TEXTURE_WRAP_T";
+            case 0x2901: return "GL_REPEAT";
+            case 0x2A00: return "GL_POLYGON_OFFSET_UNITS";
+            case 0x4000: return "GL_COLOR_BUFFER_BIT";
+            case 0x8001: return "GL_CONSTANT_COLOR";
+            case 0x8002: return "GL_ONE_MINUS_CONSTANT_COLOR";
+            case 0x8003: return "GL_CONSTANT_ALPHA";
+            case 0x8004: return "GL_ONE_MINUS_CONSTANT_ALPHA";
+            case 0x8005: return "GL_BLEND_COLOR";
+            case 0x8006: return "GL_FUNC_ADD";
+            case 0x8009: return "GL_BLEND_EQUATION_RGB";
+            case 0x800A: return "GL_FUNC_SUBTRACT";
+            case 0x800B: return "GL_FUNC_REVERSE_SUBTRACT";
+            case 0x8033: return "GL_UNSIGNED_SHORT_4_4_4_4";
+            case 0x8034: return "GL_UNSIGNED_SHORT_5_5_5_1";
+            case 0x8037: return "GL_POLYGON_OFFSET_FILL";
+            case 0x8038: return "GL_POLYGON_OFFSET_FACTOR";
+            case 0x8056: return "GL_RGBA4";
+            case 0x8057: return "GL_RGB5_A1";
+            case 0x8069: return "GL_TEXTURE_BINDING_2D";
+            case 0x809E: return "GL_SAMPLE_ALPHA_TO_COVERAGE";
+            case 0x80A0: return "GL_SAMPLE_COVERAGE";
+            case 0x80A8: return "GL_SAMPLE_BUFFERS";
+            case 0x80A9: return "GL_SAMPLES";
+            case 0x80AA: return "GL_SAMPLE_COVERAGE_VALUE";
+            case 0x80AB: return "GL_SAMPLE_COVERAGE_INVERT";
+            case 0x80C8: return "GL_BLEND_DST_RGB";
+            case 0x80C9: return "GL_BLEND_SRC_RGB";
+            case 0x80CA: return "GL_BLEND_DST_ALPHA";
+            case 0x80CB: return "GL_BLEND_SRC_ALPHA";
+            case 0x812F: return "GL_CLAMP_TO_EDGE";
+            case 0x8192: return "GL_GENERATE_MIPMAP_HINT";
+            case 0x81A5: return "GL_DEPTH_COMPONENT16";
+            case 0x821A: return "GL_DEPTH_STENCIL_ATTACHMENT";
+            case 0x8363: return "GL_UNSIGNED_SHORT_5_6_5";
+            case 0x8370: return "GL_MIRRORED_REPEAT";
+            case 0x846D: return "GL_ALIASED_POINT_SIZE_RANGE";
+            case 0x846E: return "GL_ALIASED_LINE_WIDTH_RANGE";
+            case 0x84C0: return "GL_TEXTURE0";
+            case 0x84C1: return "GL_TEXTURE1";
+            case 0x84C2: return "GL_TEXTURE2";
+            case 0x84C3: return "GL_TEXTURE3";
+            case 0x84C4: return "GL_TEXTURE4";
+            case 0x84C5: return "GL_TEXTURE5";
+            case 0x84C6: return "GL_TEXTURE6";
+            case 0x84C7: return "GL_TEXTURE7";
+            case 0x84C8: return "GL_TEXTURE8";
+            case 0x84C9: return "GL_TEXTURE9";
+            case 0x84CA: return "GL_TEXTURE10";
+            case 0x84CB: return "GL_TEXTURE11";
+            case 0x84CC: return "GL_TEXTURE12";
+            case 0x84CD: return "GL_TEXTURE13";
+            case 0x84CE: return "GL_TEXTURE14";
+            case 0x84CF: return "GL_TEXTURE15";
+            case 0x84D0: return "GL_TEXTURE16";
+            case 0x84D1: return "GL_TEXTURE17";
+            case 0x84D2: return "GL_TEXTURE18";
+            case 0x84D3: return "GL_TEXTURE19";
+            case 0x84D4: return "GL_TEXTURE20";
+            case 0x84D5: return "GL_TEXTURE21";
+            case 0x84D6: return "GL_TEXTURE22";
+            case 0x84D7: return "GL_TEXTURE23";
+            case 0x84D8: return "GL_TEXTURE24";
+            case 0x84D9: return "GL_TEXTURE25";
+            case 0x84DA: return "GL_TEXTURE26";
+            case 0x84DB: return "GL_TEXTURE27";
+            case 0x84DC: return "GL_TEXTURE28";
+            case 0x84DD: return "GL_TEXTURE29";
+            case 0x84DE: return "GL_TEXTURE30";
+            case 0x84DF: return "GL_TEXTURE31";
+            case 0x84E0: return "GL_ACTIVE_TEXTURE";
+            case 0x84E8: return "GL_MAX_RENDERBUFFER_SIZE";
+            case 0x84F9: return "GL_DEPTH_STENCIL";
+            case 0x8507: return "GL_INCR_WRAP";
+            case 0x8508: return "GL_DECR_WRAP";
+            case 0x8513: return "GL_TEXTURE_CUBE_MAP";
+            case 0x8514: return "GL_TEXTURE_BINDING_CUBE_MAP";
+            case 0x8515: return "GL_TEXTURE_CUBE_MAP_POSITIVE_X";
+            case 0x8516: return "GL_TEXTURE_CUBE_MAP_NEGATIVE_X";
+            case 0x8517: return "GL_TEXTURE_CUBE_MAP_POSITIVE_Y";
+            case 0x8518: return "GL_TEXTURE_CUBE_MAP_NEGATIVE_Y";
+            case 0x8519: return "GL_TEXTURE_CUBE_MAP_POSITIVE_Z";
+            case 0x851A: return "GL_TEXTURE_CUBE_MAP_NEGATIVE_Z";
+            case 0x851C: return "GL_MAX_CUBE_MAP_TEXTURE_SIZE";
+            case 0x8622: return "GL_VERTEX_ATTRIB_ARRAY_ENABLED";
+            case 0x8623: return "GL_VERTEX_ATTRIB_ARRAY_SIZE";
+            case 0x8624: return "GL_VERTEX_ATTRIB_ARRAY_STRIDE";
+            case 0x8625: return "GL_VERTEX_ATTRIB_ARRAY_TYPE";
+            case 0x8626: return "GL_CURRENT_VERTEX_ATTRIB";
+            case 0x8645: return "GL_VERTEX_ATTRIB_ARRAY_POINTER";
+            case 0x86A2: return "GL_NUM_COMPRESSED_TEXTURE_FORMATS";
+            case 0x86A3: return "GL_COMPRESSED_TEXTURE_FORMATS";
+            case 0x8764: return "GL_BUFFER_SIZE";
+            case 0x8765: return "GL_BUFFER_USAGE";
+            case 0x8800: return "GL_STENCIL_BACK_FUNC";
+            case 0x8801: return "GL_STENCIL_BACK_FAIL";
+            case 0x8802: return "GL_STENCIL_BACK_PASS_DEPTH_FAIL";
+            case 0x8803: return "GL_STENCIL_BACK_PASS_DEPTH_PASS";
+            case 0x883D: return "GL_BLEND_EQUATION_ALPHA";
+            case 0x8869: return "GL_MAX_VERTEX_ATTRIBS";
+            case 0x886A: return "GL_VERTEX_ATTRIB_ARRAY_NORMALIZED";
+            case 0x8872: return "GL_MAX_TEXTURE_IMAGE_UNITS";
+            case 0x8892: return "GL_ARRAY_BUFFER";
+            case 0x8893: return "GL_ELEMENT_ARRAY_BUFFER";
+            case 0x8894: return "GL_ARRAY_BUFFER_BINDING";
+            case 0x8895: return "GL_ELEMENT_ARRAY_BUFFER_BINDING";
+            case 0x889F: return "GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING";
+            case 0x88E0: return "GL_STREAM_DRAW";
+            case 0x88E4: return "GL_STATIC_DRAW";
+            case 0x88E8: return "GL_DYNAMIC_DRAW";
+            case 0x8B30: return "GL_FRAGMENT_SHADER";
+            case 0x8B31: return "GL_VERTEX_SHADER";
+            case 0x8B4C: return "GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS";
+            case 0x8B4D: return "GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS";
+            case 0x8B4F: return "GL_SHADER_TYPE";
+            case 0x8B50: return "GL_FLOAT_VEC2";
+            case 0x8B51: return "GL_FLOAT_VEC3";
+            case 0x8B52: return "GL_FLOAT_VEC4";
+            case 0x8B53: return "GL_INT_VEC2";
+            case 0x8B54: return "GL_INT_VEC3";
+            case 0x8B55: return "GL_INT_VEC4";
+            case 0x8B56: return "GL_BOOL";
+            case 0x8B57: return "GL_BOOL_VEC2";
+            case 0x8B58: return "GL_BOOL_VEC3";
+            case 0x8B59: return "GL_BOOL_VEC4";
+            case 0x8B5A: return "GL_FLOAT_MAT2";
+            case 0x8B5B: return "GL_FLOAT_MAT3";
+            case 0x8B5C: return "GL_FLOAT_MAT4";
+            case 0x8B5E: return "GL_SAMPLER_2D";
+            case 0x8B60: return "GL_SAMPLER_CUBE";
+            case 0x8B80: return "GL_DELETE_STATUS";
+            case 0x8B81: return "GL_COMPILE_STATUS";
+            case 0x8B82: return "GL_LINK_STATUS";
+            case 0x8B83: return "GL_VALIDATE_STATUS";
+            case 0x8B84: return "GL_INFO_LOG_LENGTH";
+            case 0x8B85: return "GL_ATTACHED_SHADERS";
+            case 0x8B86: return "GL_ACTIVE_UNIFORMS";
+            case 0x8B87: return "GL_ACTIVE_UNIFORM_MAX_LENGTH";
+            case 0x8B88: return "GL_SHADER_SOURCE_LENGTH";
+            case 0x8B89: return "GL_ACTIVE_ATTRIBUTES";
+            case 0x8B8A: return "GL_ACTIVE_ATTRIBUTE_MAX_LENGTH";
+            case 0x8B8C: return "GL_SHADING_LANGUAGE_VERSION";
+            case 0x8B8D: return "GL_CURRENT_PROGRAM";
+            case 0x8CA3: return "GL_STENCIL_BACK_REF";
+            case 0x8CA4: return "GL_STENCIL_BACK_VALUE_MASK";
+            case 0x8CA5: return "GL_STENCIL_BACK_WRITEMASK";
+            case 0x8CA6: return "GL_FRAMEBUFFER_BINDING";
+            case 0x8CA7: return "GL_RENDERBUFFER_BINDING";
+            case 0x8CD0: return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE";
+            case 0x8CD1: return "GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME";
+            case 0x8CD2: return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL";
+            case 0x8CD3: return "GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE";
+            case 0x8CD5: return "GL_FRAMEBUFFER_COMPLETE";
+            case 0x8CD6: return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+            case 0x8CD7: return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+            case 0x8CD9: return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+            case 0x8CDD: return "GL_FRAMEBUFFER_UNSUPPORTED";
+            case 0x8CE0: return "GL_COLOR_ATTACHMENT0";
+            case 0x8D00: return "GL_DEPTH_ATTACHMENT";
+            case 0x8D20: return "GL_STENCIL_ATTACHMENT";
+            case 0x8D40: return "GL_FRAMEBUFFER";
+            case 0x8D41: return "GL_RENDERBUFFER";
+            case 0x8D42: return "GL_RENDERBUFFER_WIDTH";
+            case 0x8D43: return "GL_RENDERBUFFER_HEIGHT";
+            case 0x8D44: return "GL_RENDERBUFFER_INTERNAL_FORMAT";
+            case 0x8D48: return "GL_STENCIL_INDEX8";
+            case 0x8D50: return "GL_RENDERBUFFER_RED_SIZE";
+            case 0x8D51: return "GL_RENDERBUFFER_GREEN_SIZE";
+            case 0x8D52: return "GL_RENDERBUFFER_BLUE_SIZE";
+            case 0x8D53: return "GL_RENDERBUFFER_ALPHA_SIZE";
+            case 0x8D54: return "GL_RENDERBUFFER_DEPTH_SIZE";
+            case 0x8D55: return "GL_RENDERBUFFER_STENCIL_SIZE";
+            case 0x8D62: return "GL_RGB565";
+            case 0x8DF0: return "GL_LOW_FLOAT";
+            case 0x8DF1: return "GL_MEDIUM_FLOAT";
+            case 0x8DF2: return "GL_HIGH_FLOAT";
+            case 0x8DF3: return "GL_LOW_INT";
+            case 0x8DF4: return "GL_MEDIUM_INT";
+            case 0x8DF5: return "GL_HIGH_INT";
+            case 0x8DFA: return "GL_SHADER_COMPILER";
+            case 0x8DFB: return "GL_MAX_VERTEX_UNIFORM_VECTORS";
+            case 0x8DFC: return "GL_MAX_VARYING_VECTORS";
+            case 0x8DFD: return "GL_MAX_FRAGMENT_UNIFORM_VECTORS";
+            case 0x9240: return "GL_UNPACK_FLIP_Y_WEBGL";
+            case 0x9241: return "GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL";
+            case 0x9242: return "GL_CONTEXT_LOST_WEBGL";
+            case 0x9243: return "GL_UNPACK_COLORSPACE_CONVERSION_WEBGL";
+            case 0x9244: return "GL_BROWSER_DEFAULT_WEBGL";
+            default: return "Unkonw Macro";
         }
 #endif
 
@@ -937,7 +583,7 @@ namespace gcanvas {
 //                  WEBGL 1.0 API
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
 //////////////////////////////////////////////////////////////////////////
-    int activeTexture(GCanvas *obj, const char *&p) {
+    int activeTexture(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
 
         LOG_D("[webgl::exec] glActiveTexture(%s)", GetMacroValDebug(tokens[0]));
@@ -945,7 +591,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int attachShader(GCanvas *obj, const char *&p) {
+    int attachShader(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLuint program = tokens[0];
         GLuint shader = tokens[1];
@@ -955,7 +601,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bindAttribLocation(GCanvas *obj, const char *&p) {
+    int bindAttribLocation(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLuint program = tokens[0];
         GLuint index = tokens[1];
@@ -968,7 +614,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bindBuffer(GCanvas *obj, const char *&p) {
+    int bindBuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
 
         GLuint target = tokens[0];
@@ -979,7 +625,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bindFramebuffer(GCanvas *obj, const char *&p) {
+    int bindFramebuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLuint target = tokens[0];
         GLuint framebuffer = tokens[1];
@@ -988,7 +634,8 @@ namespace gcanvas {
 
 #ifdef IOS
     if ( framebuffer == 0 ){
-        GWebGLBindToGLKViewFunc func = obj->GetGWebGLBindToGLKViewFunc();
+        GCanvasContext *ctxWeex = (GCanvasContext*)obj->GetGCanvasContext();
+        GWebGLBindToGLKViewFunc func = ctxWeex->GetGWebGLBindToGLKViewFunc();
         if(func){
             func(obj->mContextId);
         }
@@ -1001,7 +648,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bindRenderbuffer(GCanvas *obj, const char *&p) { // bindRenderbuffer0,81;
+    int bindRenderbuffer(GCanvasWeex *obj, const char *&p) { // bindRenderbuffer0,81;
         const int *tokens = ParseTokensInt(p, 2);
         GLuint target = tokens[0];
         GLuint renderbuffer = tokens[1];
@@ -1012,7 +659,7 @@ namespace gcanvas {
     }
 
 //new
-    int blendColor(GCanvas *obj, const char *&p) { // blendColor0,81;
+    int blendColor(GCanvasWeex *obj, const char *&p) { // blendColor0,81;
         const float *tokens = ParseTokensFloat(p, 4);
         GLfloat red = tokens[0];
         GLfloat green = tokens[1];
@@ -1024,7 +671,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bindTexture(GCanvas *obj, const char *&p) { // bindTexture0,4;
+    int bindTexture(GCanvasWeex *obj, const char *&p) { // bindTexture0,4;
         const int *tokens = ParseTokensInt(p, 2);
         GLuint target = tokens[0];
         GLuint texture = tokens[1];
@@ -1034,7 +681,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int blendEquation(GCanvas *obj, const char *&p) {
+    int blendEquation(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
 
         LOG_D("[webgl::exec] glBlendEquation(%s)", GetMacroValDebug(tokens[0]));
@@ -1042,7 +689,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int blendEquationSeparate(GCanvas *obj, const char *&p) {
+    int blendEquationSeparate(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
 
         LOG_D("[webgl::exec] glBlendEquationSeparate(%s, %s)", GetMacroValDebug(tokens[0]),
@@ -1051,7 +698,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int blendFunc(GCanvas *obj, const char *&p) { // blendFunc1,2;
+    int blendFunc(GCanvasWeex *obj, const char *&p) { // blendFunc1,2;
         const int *tokens = ParseTokensInt(p, 2);
 
         LOG_D("[webgl::exec] glBlendFunc(%s, %s)", GetMacroValDebug(tokens[0]),
@@ -1060,7 +707,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int blendFuncSeparate(GCanvas *obj, const char *&p) {
+    int blendFuncSeparate(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
 
         LOG_D("[webgl::exec] glBlendFuncSeparate(%s, %s, %s, %s)",
@@ -1070,7 +717,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bufferData(GCanvas *obj, const char *&p) { // bufferData0,4,AAEAAAAAAQEAAAAAAP8A/wAA,0;
+    int bufferData(GCanvasWeex *obj, const char *&p) { // bufferData0,4,AAEAAAAAAQEAAAAAAP8A/wAA,0;
         const int *tokens = ParseTokensInt(p, 2);
         GLenum target = tokens[0];
         int bytes = tokens[1];
@@ -1098,7 +745,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int bufferSubData(GCanvas *obj,
+    int bufferSubData(GCanvasWeex *obj,
                       const char *&p) { //bufferSubData0, offset, bytes, AAEAAAAAAQEAAAAAAP8A/wAA
         const int *tokens = ParseTokensInt(p, 3);
         GLenum target = tokens[0];
@@ -1121,7 +768,7 @@ namespace gcanvas {
     }
 
 //new
-    int checkFramebufferStatus(GCanvas *obj, const char *&p) {
+    int checkFramebufferStatus(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLenum target = tokens[0];
 
@@ -1132,14 +779,14 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int clear(GCanvas *obj, const char *&p) { // clear;
+    int clear(GCanvasWeex *obj, const char *&p) { // clear;
         const int mask = ParseTokensInt(p, 1)[0];
         glClear(mask);
         LOG_D("[webgl::exec] glClear(%d)", mask);
         return kContinue;
     }
 
-    int clearColor(GCanvas *obj, const char *&p) { // clearColor0,0,0,1;
+    int clearColor(GCanvasWeex *obj, const char *&p) { // clearColor0,0,0,1;
         const float *tokens = ParseTokensFloat(p, 4);
         LOG_D("[webgl::exec] glClearColor(%f, %f, %f, %f)", tokens[0], tokens[1],
               tokens[2], tokens[3]);
@@ -1147,21 +794,21 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int clearDepth(GCanvas *obj, const char *&p) { // clearDepth1.0;
+    int clearDepth(GCanvasWeex *obj, const char *&p) { // clearDepth1.0;
         const float *tokens = ParseTokensFloat(p, 1);
         LOG_D("[webgl::exec] glClearDepthf(%f)", tokens[0]);
         glClearDepthf(tokens[0]);
         return kContinue;
     }
 
-    int clearStencil(GCanvas *obj, const char *&p) { // clearStencil2;
+    int clearStencil(GCanvasWeex *obj, const char *&p) { // clearStencil2;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glClearStencil(%d)", tokens[0]);
         glClearStencil(tokens[0]);
         return kContinue;
     }
 
-    int colorMask(GCanvas *obj, const char *&p) { // colorMask0,0,0,1;
+    int colorMask(GCanvasWeex *obj, const char *&p) { // colorMask0,0,0,1;
         const int *tokens = ParseTokensInt(p, 4);
         LOG_D("[webgl::exec] glColorMask(%d, %d, %d, %d)", tokens[0], tokens[1],
               tokens[2], tokens[3]);
@@ -1169,7 +816,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int compileShader(GCanvas *obj, const char *&p) { // compileShader1
+    int compileShader(GCanvasWeex *obj, const char *&p) { // compileShader1
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -1179,7 +826,7 @@ namespace gcanvas {
     }
 
 //new
-    int compressedTexImage2D(GCanvas *obj, const char *&p) {
+    int compressedTexImage2D(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 7);
         GLenum target = tokens[0];
         GLuint level = tokens[1];
@@ -1203,7 +850,7 @@ namespace gcanvas {
     }
 
 //new
-    int compressedTexSubImage2D(GCanvas *obj, const char *&p) {
+    int compressedTexSubImage2D(GCanvasWeex *obj, const char *&p) {
         const int *intTokens = ParseTokensInt(p, 8);
         GLenum target = intTokens[0];
         GLuint level = intTokens[1];
@@ -1229,7 +876,7 @@ namespace gcanvas {
     }
 
 
-    int copyTexImage2D(GCanvas *obj,
+    int copyTexImage2D(GCanvasWeex *obj,
                        const char *&p) {//copyTexImage2D gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, 512, 512, 0);
         const int *tokens = ParseTokensInt(p, 8);
         LOG_D("[webgl::exec] glCopyTexImage2D(%s, %d, %s, %d, %d, %d, %d)",
@@ -1241,7 +888,7 @@ namespace gcanvas {
     }
 
 //new
-    int copyTexSubImage2D(GCanvas *obj, const char *&p) {
+    int copyTexSubImage2D(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 8);
         LOG_D("[webgl::exec] glCopyTexSubImage2D(%s, %d, %d, %d, %d, %d, %d)",
               GetMacroValDebug(tokens[0]), tokens[1], tokens[2], tokens[3], tokens[4], tokens[5],
@@ -1251,7 +898,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createBuffer(GCanvas *obj, const char *&p) { // createBuffer;
+    int createBuffer(GCanvasWeex *obj, const char *&p) { // createBuffer;
         GLuint buffer = 0;
         glGenBuffers(1, &buffer);
         ++p;
@@ -1261,7 +908,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createFramebuffer(GCanvas *obj, const char *&p) { // createFramebuffer;
+    int createFramebuffer(GCanvasWeex *obj, const char *&p) { // createFramebuffer;
         GLuint framebuffer = 0;
         glGenFramebuffers(1, &framebuffer);
         ++p;
@@ -1271,7 +918,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createProgram(GCanvas *obj, const char *&p) {//createProgram
+    int createProgram(GCanvasWeex *obj, const char *&p) {//createProgram
         GLuint program = glCreateProgram();
         ++p;
         LOG_D("[webgl::exec] glCreateProgram()=%d", program);
@@ -1280,7 +927,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createRenderbuffer(GCanvas *obj, const char *&p) { // createRenderbuffer;
+    int createRenderbuffer(GCanvasWeex *obj, const char *&p) { // createRenderbuffer;
         GLuint renderBuffer;
         glGenRenderbuffers(1, &renderBuffer);
         ++p;
@@ -1290,7 +937,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createShader(GCanvas *obj, const char *&p) { // createShader1;
+    int createShader(GCanvasWeex *obj, const char *&p) { // createShader1;
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = glCreateShader(tokens[0]);
         ++p;
@@ -1300,7 +947,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int createTexture(GCanvas *obj, const char *&p) { // createTexture
+    int createTexture(GCanvasWeex *obj, const char *&p) { // createTexture
         GLuint texture;
         glGenTextures(1, &texture);
         ++p;
@@ -1310,14 +957,14 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int cullFace(GCanvas *obj, const char *&p) { // cullFace1;
+    int cullFace(GCanvasWeex *obj, const char *&p) { // cullFace1;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glCullFace(%s)", GetMacroValDebug(tokens[0]));
         glCullFace(tokens[0]);
         return kContinue;
     }
 
-    int deleteBuffer(GCanvas *obj, const char *&p) {
+    int deleteBuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint buffer = tokens[0];
 
@@ -1326,7 +973,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int deleteFramebuffer(GCanvas *obj, const char *&p) {
+    int deleteFramebuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint framebuffer = tokens[0];
 
@@ -1335,7 +982,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int deleteProgram(GCanvas *obj, const char *&p) {
+    int deleteProgram(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -1344,7 +991,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int deleteRenderbuffer(GCanvas *obj, const char *&p) {
+    int deleteRenderbuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint renderbuffer = tokens[0];
 
@@ -1353,7 +1000,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int deleteShader(GCanvas *obj, const char *&p) { // deleteShader;
+    int deleteShader(GCanvasWeex *obj, const char *&p) { // deleteShader;
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -1362,7 +1009,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int deleteTexture(GCanvas *obj, const char *&p) {
+    int deleteTexture(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint texture = tokens[0];
 
@@ -1371,21 +1018,21 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int depthFunc(GCanvas *obj, const char *&p) { // depthFunc1;
+    int depthFunc(GCanvasWeex *obj, const char *&p) { // depthFunc1;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glDepthFunc(%s)", GetMacroValDebug(tokens[0]));
         glDepthFunc(tokens[0]);
         return kContinue;
     }
 
-    int depthMask(GCanvas *obj, const char *&p) {
+    int depthMask(GCanvasWeex *obj, const char *&p) {
         const int flag = ParseTokensInt(p, 1)[0];
         LOG_D("[webgl::exec] glDepthMask(%d)", flag);
         glDepthMask((bool) flag);
         return kContinue;
     }
 
-    int depthRange(GCanvas *obj, const char *&p) {
+    int depthRange(GCanvasWeex *obj, const char *&p) {
         const float *tokens = ParseTokensFloat(p, 2);
         LOG_D("[webgl::exec] glDepthRange(%f, %f)", tokens[0], tokens[1]);
         glDepthRangef(tokens[0], tokens[1]);
@@ -1393,21 +1040,21 @@ namespace gcanvas {
     }
 
 //new
-    int detachShader(GCanvas *obj, const char *&p) {
+    int detachShader(GCanvasWeex *obj, const char *&p) {
         const float *tokens = ParseTokensFloat(p, 2);
         LOG_D("[webgl::exec] glDetachShader(%d, %d)", tokens[0], tokens[1]);
         glDetachShader(tokens[0], tokens[1]);
         return kContinue;
     }
 
-    int disable(GCanvas *obj, const char *&p) { // disable0;
+    int disable(GCanvasWeex *obj, const char *&p) { // disable0;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glDisable(%s)", GetMacroValDebug(tokens[0]));
         glDisable(tokens[0]);
         return kContinue;
     }
 
-    int disableVertexAttribArray(GCanvas *obj, const char *&p) { // disableVertexAttribArray0;
+    int disableVertexAttribArray(GCanvasWeex *obj, const char *&p) { // disableVertexAttribArray0;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glDisableVertexAttribArray(%d)",
               tokens[0]);
@@ -1415,7 +1062,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int drawArrays(GCanvas *obj, const char *&p) { // drawArrays4,0,3;
+    int drawArrays(GCanvasWeex *obj, const char *&p) { // drawArrays4,0,3;
         const int *tokens = ParseTokensInt(p, 3);
         LOG_D("[webgl::exec] glDrawArrays(%s, %d, %d)", GetMacroValDebug(tokens[0]),
               tokens[1], tokens[2]);
@@ -1424,7 +1071,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int drawElements(GCanvas *obj, const char *&p) { // drawElements4,36,0,0;
+    int drawElements(GCanvasWeex *obj, const char *&p) { // drawElements4,36,0,0;
         const int *tokens = ParseTokensInt(p, 4);
         LOG_D("[webgl::exec] glDrawElements(%s, %d, %s, %d)",
               GetMacroValDebug(tokens[0]), tokens[1], GetMacroValDebug(tokens[2]),
@@ -1433,28 +1080,28 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int enable(GCanvas *obj, const char *&p) { // enable0;
+    int enable(GCanvasWeex *obj, const char *&p) { // enable0;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glEnable(%s)", GetMacroValDebug(tokens[0]));
         glEnable(tokens[0]);
         return kContinue;
     }
 
-    int enableVertexAttribArray(GCanvas *obj, const char *&p) { // enableVertexAttribArray10;
+    int enableVertexAttribArray(GCanvasWeex *obj, const char *&p) { // enableVertexAttribArray10;
         GLuint index = ParseTokensInt(p, 1)[0];
         LOG_D("[webgl::exec] glEnableVertexAttribArray(%d)", index);
         glEnableVertexAttribArray(index);
         return kContinue;
     }
 
-    int flush(GCanvas *obj, const char *&p) { // flush;
+    int flush(GCanvasWeex *obj, const char *&p) { // flush;
         LOG_D("[webgl::exec] glFlush()");
         glFlush();
         ++p;
         return kContinue;
     }
 
-    int framebufferRenderbuffer(GCanvas *obj, const char *&p) { // framebufferRenderbuffer0,1,0,81;
+    int framebufferRenderbuffer(GCanvasWeex *obj, const char *&p) { // framebufferRenderbuffer0,1,0,81;
         const int *tokens = ParseTokensInt(p, 4);
         LOG_D("[webgl::exec] glFramebufferRenderbuffer(GL_FRAMEBUFFER, %s, xGL_RENDERBUFFER, %d)",
               GetMacroValDebug(tokens[1]), tokens[3]);
@@ -1462,7 +1109,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int framebufferTexture2D(GCanvas *obj, const char *&p) { // framebufferTexture2D0,0,0,40,0;
+    int framebufferTexture2D(GCanvasWeex *obj, const char *&p) { // framebufferTexture2D0,0,0,40,0;
         const int *tokens = ParseTokensInt(p, 5);
         LOG_D("[webgl::exec] glFramebufferTexture2D(GL_FRAMEBUFFER, %s, %s, %d, 0)",
               GetMacroValDebug(tokens[1]), GetMacroValDebug(tokens[2]), tokens[3], tokens[4]);
@@ -1470,21 +1117,21 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int frontFace(GCanvas *obj, const char *&p) { // enable0;
+    int frontFace(GCanvasWeex *obj, const char *&p) { // enable0;
         const int *tokens = ParseTokensInt(p, 1);
         LOG_D("[webgl::exec] glFrontFace(%s)", GetMacroValDebug(tokens[0]));
         glFrontFace(tokens[0]);
         return kContinue;
     }
 
-    int generateMipmap(GCanvas *obj, const char *&p) { // generateMipmap0;
+    int generateMipmap(GCanvasWeex *obj, const char *&p) { // generateMipmap0;
         GLenum target = ParseTokensInt(p, 1)[0];
         LOG_D("[webgl::exec] glGenerateMipmap(%s)", GetMacroValDebug(target));
         glGenerateMipmap(target);
         return kContinue;
     }
 
-    int getActiveAttrib(GCanvas *obj, const char *&p) {//getActiveAttrib
+    int getActiveAttrib(GCanvasWeex *obj, const char *&p) {//getActiveAttrib
         const int *tokens = ParseTokensInt(p, 2);
 
         GLuint program = tokens[0];
@@ -1514,7 +1161,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int getActiveUniform(GCanvas *obj, const char *&p) {
+    int getActiveUniform(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLuint program = tokens[0];
         GLuint index = tokens[1];
@@ -1544,7 +1191,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int getAttachedShaders(GCanvas *obj, const char *&p) {
+    int getAttachedShaders(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
         GLsizei size = 0;
@@ -1564,7 +1211,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int getAttribLocation(GCanvas *obj, const char *&p) { // getAttribLocation31,position;
+    int getAttribLocation(GCanvasWeex *obj, const char *&p) { // getAttribLocation31,position;
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
         std::string &name = obj->mTempStr;
@@ -1579,7 +1226,7 @@ namespace gcanvas {
     }
 
 //new
-    int getBufferParameter(GCanvas *obj, const char *&p) {
+    int getBufferParameter(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLenum target = tokens[0];
         GLenum pname = tokens[1];
@@ -1602,13 +1249,13 @@ namespace gcanvas {
     }
 
 //new OpenGL ES not Support
-//int getContextAttributes(GCanvas *obj, const char *&p)
+//int getContextAttributes(GCanvasWeex *obj, const char *&p)
 //{ // getContextAttributes
 //    return kContinue;
 //}
 
 //new
-    int getError(GCanvas *obj, const char *&p) {
+    int getError(GCanvasWeex *obj, const char *&p) {
         GLenum error = glGetError();
         ++p;
         LOG_D("[webgl::exec] glGetError()=%d", error);
@@ -1618,7 +1265,7 @@ namespace gcanvas {
     }
 
 //new OpenGL ES not Support
-    int getExtension(GCanvas *obj, const char *&p) {
+    int getExtension(GCanvasWeex *obj, const char *&p) {
         const char *extString = (const char *) glGetString(GL_EXTENSIONS);
         ++p;
         LOG_D("[webgl::exec] glGetString(GL_EXTENSIONS)=%s", extString);
@@ -1627,7 +1274,7 @@ namespace gcanvas {
     }
 
 //new
-    int getFramebufferAttachmentParameter(GCanvas *obj, const char *&p) {
+    int getFramebufferAttachmentParameter(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 3);
         GLenum target = tokens[0];
         GLenum attachment = tokens[1];
@@ -1651,14 +1298,9 @@ namespace gcanvas {
     }
 
 //new
-    int getParameter(GCanvas *obj, const char *&p) {
+    int getParameter(GCanvasWeex *obj, const char *&p) {
         //ref:https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glGet.xml
-
-        //glGetBooleanv(<#GLenum pname#>, GLboolean *params)
-        //glGetFloatv(<#GLenum pname#>, <#GLfloat *params#>)
-        //glGetIntegerv(<#GLenum pname#>, <#GLint *params#>)
-        //glGetString(<#GLenum name#>)
-
+        
         const int *tokens = ParseTokensInt(p, 1);
         GLenum pname = tokens[0];
 
@@ -1833,7 +1475,7 @@ namespace gcanvas {
                 for (int i = 0; i < 4; i++) {
                     GLint v = values[i];
                     if (i > 1) {
-                        v /= obj->mDevicePixelRatio;
+                        v /= obj->GetDevicePixelRatio();
                     }
 
                     result += ",";
@@ -1855,7 +1497,7 @@ namespace gcanvas {
                 for (int i = 0; i < 4; i++) {
                     GLint v = values[i];
                     if (i > 1) {
-                        v /= obj->mDevicePixelRatio;
+                        v /= obj->GetDevicePixelRatio();
                     }
 
                     result += ",";
@@ -1969,7 +1611,7 @@ namespace gcanvas {
     }
 
 //new
-    int getProgramInfoLog(GCanvas *obj, const char *&p) {
+    int getProgramInfoLog(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -1984,7 +1626,7 @@ namespace gcanvas {
     }
 
 //new
-    int getProgramParameter(GCanvas *obj, const char *&p) {
+    int getProgramParameter(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLuint program = tokens[0];
         GLenum pname = tokens[1];
@@ -2031,7 +1673,7 @@ namespace gcanvas {
     }
 
 //new
-    int getRenderbufferParameter(GCanvas *obj, const char *&p) {
+    int getRenderbufferParameter(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLenum target = tokens[0];
         GLenum pname = tokens[1];
@@ -2056,7 +1698,7 @@ namespace gcanvas {
     }
 
 //new
-    int getShaderInfoLog(GCanvas *obj, const char *&p) {
+    int getShaderInfoLog(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -2074,7 +1716,7 @@ namespace gcanvas {
     }
 
 
-    int getShaderParameter(GCanvas *obj, const char *&p) { // getShaderParameter1;
+    int getShaderParameter(GCanvasWeex *obj, const char *&p) { // getShaderParameter1;
         const int *tokens = ParseTokensInt(p, 2);
         GLuint shader = tokens[0];
         GLenum pname = tokens[1];
@@ -2115,7 +1757,7 @@ namespace gcanvas {
     }
 
 //new
-    int getShaderPrecisionFormat(GCanvas *obj, const char *&p) { // getShaderPrecisionFormat;
+    int getShaderPrecisionFormat(GCanvasWeex *obj, const char *&p) { // getShaderPrecisionFormat;
         const int *tokens = ParseTokensInt(p, 2);
         GLenum shadertype = tokens[0];
         GLenum precisiontype = tokens[1];
@@ -2145,7 +1787,7 @@ namespace gcanvas {
     }
 
 //new
-    int getShaderSource(GCanvas *obj, const char *&p) {
+    int getShaderSource(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -2162,7 +1804,7 @@ namespace gcanvas {
     }
 
 //new
-    int getSupportedExtensions(GCanvas *obj, const char *&p) {
+    int getSupportedExtensions(GCanvasWeex *obj, const char *&p) {
         const char *extString = (const char *) glGetString(GL_EXTENSIONS);
         ++p;
         LOG_D("[webgl::exec] glGetString(GL_EXTENSIONS)=%s", extString);
@@ -2172,11 +1814,9 @@ namespace gcanvas {
     }
 
 //new
-    int getTexParameter(GCanvas *obj, const char *&p) {
+    int getTexParameter(GCanvasWeex *obj, const char *&p) {
         //https://www.khronos.org/registry/OpenGL-Refpages/es2.0/xhtml/glGetTexParameter.xml
-        //glGetTexParameterfv(<#GLenum target#>, <#GLenum pname#>, <#GLfloat *params#>)
-        //glGetTexParameteriv(<#GLenum target#>, <#GLenum pname#>, <#GLint *params#>)
-
+        
         //WebGL 1.0 only support glGetTexParameteriv
         const int *tokens = ParseTokensInt(p, 2);
         GLenum target = tokens[0];
@@ -2199,7 +1839,7 @@ namespace gcanvas {
     }
 
 //new
-    int getUniform(GCanvas *obj, const char *&p) {
+    int getUniform(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLint program = tokens[0];
         GLint location = tokens[1];
@@ -2315,7 +1955,7 @@ namespace gcanvas {
     }
 
 
-    int getUniformLocation(GCanvas *obj, const char *&p) { // getUniformLocation1,s_texture;
+    int getUniformLocation(GCanvasWeex *obj, const char *&p) { // getUniformLocation1,s_texture;
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
         std::string &name = obj->mTempStr;
@@ -2332,10 +1972,8 @@ namespace gcanvas {
     }
 
 //new
-    int getVertexAttrib(GCanvas *obj,
+    int getVertexAttrib(GCanvasWeex *obj,
                         const char *&p) { //https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/getVertexAttrib
-        //glGetVertexAttribfv(<#GLuint index#>, <#GLenum pname#>, <#GLfloat *params#>)
-        //glGetVertexAttribiv(<#GLuint index#>, <#GLenum pname#>, <#GLint *params#>)
         const int *tokens = ParseTokensInt(p, 2);
         GLuint index = tokens[0];
         GLenum pname = tokens[1];
@@ -2394,7 +2032,7 @@ namespace gcanvas {
 
 
 //new
-    int getVertexAttribOffset(GCanvas *obj, const char *&p) { // getVertexAttribOffset;
+    int getVertexAttribOffset(GCanvasWeex *obj, const char *&p) { // getVertexAttribOffset;
         const int *tokens = ParseTokensInt(p, 2);
         GLuint index = tokens[0];
 //    GLenum pname = tokens[1];
@@ -2408,7 +2046,7 @@ namespace gcanvas {
     }
 
 //new
-    int isBuffer(GCanvas *obj, const char *&p) {
+    int isBuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint buffer = tokens[0];
 
@@ -2420,7 +2058,7 @@ namespace gcanvas {
     }
 
 //new
-    int isEnabled(GCanvas *obj, const char *&p) {
+    int isEnabled(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLenum cap = tokens[0];
 
@@ -2432,7 +2070,7 @@ namespace gcanvas {
     }
 
 //new
-    int isFramebuffer(GCanvas *obj, const char *&p) {
+    int isFramebuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint framebuffer = tokens[0];
 
@@ -2444,7 +2082,7 @@ namespace gcanvas {
     }
 
 //new
-    int isProgram(GCanvas *obj, const char *&p) {
+    int isProgram(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -2456,7 +2094,7 @@ namespace gcanvas {
     }
 
 //new
-    int isRenderbuffer(GCanvas *obj, const char *&p) {
+    int isRenderbuffer(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint renderbuffer = tokens[0];
 
@@ -2468,7 +2106,7 @@ namespace gcanvas {
     }
 
 //new
-    int isShader(GCanvas *obj, const char *&p) {
+    int isShader(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -2480,7 +2118,7 @@ namespace gcanvas {
     }
 
 //new
-    int isTexture(GCanvas *obj, const char *&p) {
+    int isTexture(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint texture = tokens[0];
 
@@ -2491,14 +2129,14 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int lineWidth(GCanvas *obj, const char *&p) { // lineWidth1;
+    int lineWidth(GCanvasWeex *obj, const char *&p) { // lineWidth1;
         const GLfloat *tokens = ParseTokensFloat(p, 1);
         LOG_D("[webgl::exec] glLineWidth(%f)", tokens[0]);
         glLineWidth(tokens[0]);
         return kContinue;
     }
 
-    int linkProgram(GCanvas *obj, const char *&p) { // linkProgram1
+    int linkProgram(GCanvasWeex *obj, const char *&p) { // linkProgram1
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -2507,7 +2145,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int pixelStorei(GCanvas *obj, const char *&p) { // pixelStorei2,1
+    int pixelStorei(GCanvasWeex *obj, const char *&p) { // pixelStorei2,1
         const int *tokens = ParseTokensInt(p, 2);
         GLenum pname = tokens[0];
         GLint param = tokens[1];
@@ -2517,7 +2155,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int polygonOffset(GCanvas *obj, const char *&p) { // polygonOffset1.0,1.0);
+    int polygonOffset(GCanvasWeex *obj, const char *&p) { // polygonOffset1.0,1.0);
         const float *tokens = ParseTokensFloat(p, 2);
         GLfloat factor = tokens[0];
         GLfloat units = tokens[1];
@@ -2527,12 +2165,13 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int readPixels(GCanvas *obj, const char *&p) {
+    int readPixels(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 6);
-        GLint x = tokens[0] * obj->mDevicePixelRatio;
-        GLint y = tokens[1] * obj->mDevicePixelRatio;
-        GLsizei width = tokens[2] * obj->mDevicePixelRatio;
-        GLsizei height = tokens[3] * obj->mDevicePixelRatio;
+        float ratio = obj->GetDevicePixelRatio();
+        GLint x = tokens[0] * ratio;
+        GLint y = tokens[1] * ratio;
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
         GLenum format = tokens[4];
         GLenum type = tokens[5];
 
@@ -2557,12 +2196,13 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int renderbufferStorage(GCanvas *obj, const char *&p) { // renderbufferStorage0,3,512,512;
+    int renderbufferStorage(GCanvasWeex *obj, const char *&p) { // renderbufferStorage0,3,512,512;
         const int *tokens = ParseTokensInt(p, 4);
         GLenum target = tokens[0];
         GLenum internalformat = tokens[1];
-        GLsizei width = tokens[2] * obj->mDevicePixelRatio;
-        GLsizei height = tokens[3] * obj->mDevicePixelRatio;
+        float ratio = obj->GetDevicePixelRatio();
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
 
         LOG_D("[webgl::exec] glRenderbufferStorage(%s, %s, %d, %d)",
               GetMacroValDebug(target), GetMacroValDebug(internalformat), width, height);
@@ -2571,7 +2211,7 @@ namespace gcanvas {
     }
 
 //new
-    int sampleCoverage(GCanvas *obj, const char *&p) {
+    int sampleCoverage(GCanvasWeex *obj, const char *&p) {
         const float *fTokens = ParseTokensFloat(p, 1);
         GLfloat value = fTokens[0];
 
@@ -2584,12 +2224,13 @@ namespace gcanvas {
     }
 
 //new
-    int scissor(GCanvas *obj, const char *&p) {
+    int scissor(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
-        GLint x = tokens[0] * obj->mDevicePixelRatio;
-        GLint y = tokens[1] * obj->mDevicePixelRatio;
-        GLsizei width = tokens[2] * obj->mDevicePixelRatio;
-        GLsizei height = tokens[3] * obj->mDevicePixelRatio;
+        float ratio = obj->GetDevicePixelRatio();
+        GLint x = tokens[0] * ratio;
+        GLint y = tokens[1] * ratio;
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
 
         LOG_D("[webgl::exec] glScissor(%d, %d, %d, %d)", x, y, width, height);
         glScissor(x, y, width, height);
@@ -2597,7 +2238,7 @@ namespace gcanvas {
     }
 
 
-    int shaderSource(GCanvas *obj, const char *&p) { // shaderSource1,CiAgICAgICAgYXR0
+    int shaderSource(GCanvasWeex *obj, const char *&p) { // shaderSource1,CiAgICAgICAgYXR0
         const int *tokens = ParseTokensInt(p, 1);
         GLuint shader = tokens[0];
 
@@ -2626,7 +2267,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int stencilFunc(GCanvas *obj, const char *&p) {//glStencilFunc(GL_LESS, 0x1, 0x1);
+    int stencilFunc(GCanvasWeex *obj, const char *&p) {//glStencilFunc(GL_LESS, 0x1, 0x1);
 
         const int *tokens = ParseTokensInt(p, 3);
         GLenum func = tokens[0];
@@ -2640,7 +2281,7 @@ namespace gcanvas {
     }
 
 //new
-    int stencilFuncSeparate(GCanvas *obj, const char *&p) {
+    int stencilFuncSeparate(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
         GLenum face = tokens[0];
         GLenum func = tokens[1];
@@ -2654,7 +2295,7 @@ namespace gcanvas {
     }
 
 //new
-    int stencilMask(GCanvas *obj, const char *&p) {
+    int stencilMask(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint mask = tokens[0];
 
@@ -2664,7 +2305,7 @@ namespace gcanvas {
     }
 
 //new
-    int stencilMaskSeparate(GCanvas *obj, const char *&p) {
+    int stencilMaskSeparate(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLenum face = tokens[0];
         GLuint mask = tokens[1];
@@ -2674,7 +2315,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int stencilOp(GCanvas *obj, const char *&p) {
+    int stencilOp(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 3);
         GLenum fail = tokens[0];
         GLenum zfail = tokens[1];
@@ -2686,7 +2327,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int stencilOpSeparate(GCanvas *obj, const char *&p) {
+    int stencilOpSeparate(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
         GLenum face = tokens[0];
         GLenum fail = tokens[1];
@@ -2700,15 +2341,13 @@ namespace gcanvas {
         return kContinue;
     }
 
-    extern int (*g_webglFuncMap[WEBGL_API_COUNT])(GCanvas *, const char *&);
+    extern int (*g_webglFuncMap[WEBGL_API_COUNT])(GCanvasWeex *, const char *&);
 
-    extern int (*g_webglExtFuncMap[WEBGL_EXT_API_COUNT])(GCanvas *, const char *&);
+    extern int (*g_webglExtFuncMap[WEBGL_EXT_API_COUNT])(GCanvasWeex *, const char *&);
 
-    int texImage2D(GCanvas *obj, const char *&p) { //  texImage2D0,0,3,3,0,a.bmp;
+    int texImage2D(GCanvasWeex *obj, const char *&p) { //  texImage2D0,0,3,3,0,a.bmp;
         const int args = ParseTokensInt(p, 1)[0];
         if (6 == args) {
-            //   void texImage2D(GLenum target, GLint level, GLint internalformat,
-            //                   GLenum format, GLenum type, TexImageSource source)
             const int *tokens = ParseTokensInt(p, 5);
             GLenum target = tokens[0];
             GLint level = tokens[1];
@@ -2727,7 +2366,8 @@ namespace gcanvas {
             }
 
 #ifdef IOS
-        GWebGLTxtImage2DFunc func = obj->GetGWebGLTxtImage2DFunc();
+        GCanvasContext *ctxWeex = (GCanvasContext*)obj->GetGCanvasContext();
+        GWebGLTxtImage2DFunc func = ctxWeex->GetGWebGLTxtImage2DFunc();
         if (func)
         {
             func(target, level, internalformat, format, type, src.c_str());
@@ -2788,7 +2428,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int texParameterf(GCanvas *obj, const char *&p) {
+    int texParameterf(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
         GLenum target = tokens[0];
         GLenum pname = tokens[1];
@@ -2802,7 +2442,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int texParameteri(GCanvas *obj, const char *&p) { // texParameteri0,undefined,undefined;
+    int texParameteri(GCanvasWeex *obj, const char *&p) { // texParameteri0,undefined,undefined;
 
         const int *tokens = ParseTokensInt(p, 3);
         GLenum target = tokens[0];
@@ -2816,9 +2456,7 @@ namespace gcanvas {
     }
 
 
-//void gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, ArrayBufferView? pixels);
-//void gl.texSubImage2D(target, level, xoffset, yoffset, format, type, ImageData? pixels);
-    int texSubImage2D(GCanvas *obj, const char *&p) {
+    int texSubImage2D(GCanvasWeex *obj, const char *&p) {
         const int args = ParseTokensInt(p, 1)[0];
         if (7 == args) {
             const int *tokens = ParseTokensInt(p, 6);
@@ -2841,7 +2479,8 @@ namespace gcanvas {
             }
 
 #ifdef IOS
-        GWebGLTxtSubImage2DFunc func = obj->GetGWebGLTxtSubImage2DFunc();
+        GCanvasContext *ctxWeex = (GCanvasContext*)obj->GetGCanvasContext();
+        GWebGLTxtSubImage2DFunc func = ctxWeex->GetGWebGLTxtSubImage2DFunc();
         if (func)
         {
             func(target, level, xoffset, yoffset, format, type, src.c_str());
@@ -2872,7 +2511,7 @@ namespace gcanvas {
     }
 
 
-    int uniformXfv(GCanvas *obj, const char *&p, int type) { // uniform3fv_53,/////wj/////
+    int uniformXfv(GCanvasWeex *obj, const char *&p, int type) { // uniform3fv_53,/////wj/////
         const int *tokens = ParseTokensInt(p, 2);
         GLint location = tokens[0];
 
@@ -2882,14 +2521,6 @@ namespace gcanvas {
         unsigned int size;
         const GLfloat *fvalue = (const GLfloat *) SplitStringToFloat32Array(value.c_str(), ",",
                                                                             size);
-
-#ifdef DEBUG
-//    unsigned int element = size / sizeof(GLfloat);
-//    unsigned int element = size;
-//    for (int i = 0; i < element; ++i){
-        LOG_D("[webgl::glUniform%dfv] location=%d, fvalue[%d]=%f", type, location, 0, fvalue[0]);
-//    }
-#endif
 
         switch (type) {
             case 1:
@@ -2909,7 +2540,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniformXiv(GCanvas *obj, const char *&p, int type) { // uniform3fv_53,/////wj/////
+    int uniformXiv(GCanvasWeex *obj, const char *&p, int type) { // uniform3fv_53,/////wj/////
         const int *tokens = ParseTokensInt(p, 2);
         GLint location = tokens[0];
 
@@ -2918,13 +2549,6 @@ namespace gcanvas {
 
         unsigned int size;
         const GLint *ivalue = (const GLint *) SplitStringToInt32Array(value.c_str(), ",", size);
-
-#ifdef DEBUG
-        unsigned int element = size / sizeof(GLint);
-        for (int i = 0; i < element; ++i) {
-            LOG_D("[webgl::glUniform%div] ivalue[%d]=%f", type, i, ivalue[i]);
-        }
-#endif
 
         LOG_D("[webgl::exec] glUniform%div(%d, %d, %d)", type, location, 1, ivalue[0]);
 
@@ -2950,7 +2574,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform1f(GCanvas *obj, const char *&p) { // uniform1f_4,0
+    int uniform1f(GCanvasWeex *obj, const char *&p) { // uniform1f_4,0
         const int *intTokens = ParseTokensInt(p, 1);
         GLint location = intTokens[0];
 
@@ -2960,11 +2584,11 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform1fv(GCanvas *obj, const char *&p) { // uniform1fv_53,/////wj/////
+    int uniform1fv(GCanvasWeex *obj, const char *&p) { // uniform1fv_53,/////wj/////
         return uniformXfv(obj, p, 1);
     }
 
-    int uniform1i(GCanvas *obj, const char *&p) { // uniform1i_4,0
+    int uniform1i(GCanvasWeex *obj, const char *&p) { // uniform1i_4,0
         const int *tokens = ParseTokensInt(p, 2);
         GLint location = tokens[0];
         GLint x = tokens[1];
@@ -2974,11 +2598,11 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform1iv(GCanvas *obj, const char *&p) { // uniform1fv_53,/////wj/////
+    int uniform1iv(GCanvasWeex *obj, const char *&p) { // uniform1fv_53,/////wj/////
         return uniformXiv(obj, p, 1);
     }
 
-    int uniform2f(GCanvas *obj, const char *&p) { // uniform2f_51,344,154;
+    int uniform2f(GCanvasWeex *obj, const char *&p) { // uniform2f_51,344,154;
         const int *intTokens = ParseTokensInt(p, 1);
         GLint location = intTokens[0];
 
@@ -2991,11 +2615,11 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform2fv(GCanvas *obj, const char *&p) { // uniform2fv_53,/////wj/////
+    int uniform2fv(GCanvasWeex *obj, const char *&p) { // uniform2fv_53,/////wj/////
         return uniformXfv(obj, p, 2);
     }
 
-    int uniform2i(GCanvas *obj, const char *&p) {
+    int uniform2i(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 3);
         GLint location = tokens[0];
         GLint x = tokens[1];
@@ -3006,9 +2630,9 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform2iv(GCanvas *obj, const char *&p) { return uniformXiv(obj, p, 2); }
+    int uniform2iv(GCanvasWeex *obj, const char *&p) { return uniformXiv(obj, p, 2); }
 
-    int uniform3f(GCanvas *obj, const char *&p) { // uniform3f_51,0,0,1
+    int uniform3f(GCanvasWeex *obj, const char *&p) { // uniform3f_51,0,0,1
         const int *intTokens = ParseTokensInt(p, 1);
         GLint location = intTokens[0];
 
@@ -3022,11 +2646,11 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform3fv(GCanvas *obj, const char *&p) { // uniform3fv_53,/////wj/////
+    int uniform3fv(GCanvasWeex *obj, const char *&p) { // uniform3fv_53,/////wj/////
         return uniformXfv(obj, p, 3);
     }
 
-    int uniform3i(GCanvas *obj, const char *&p) {
+    int uniform3i(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
         GLint location = tokens[0];
         GLint x = tokens[1];
@@ -3038,9 +2662,9 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform3iv(GCanvas *obj, const char *&p) { return uniformXiv(obj, p, 3); }
+    int uniform3iv(GCanvasWeex *obj, const char *&p) { return uniformXiv(obj, p, 3); }
 
-    int uniform4f(GCanvas *obj, const char *&p) { // uniform4f_83,0,0,1,1
+    int uniform4f(GCanvasWeex *obj, const char *&p) { // uniform4f_83,0,0,1,1
         const int *intTokens = ParseTokensInt(p, 1);
         GLint location = intTokens[0];
 
@@ -3056,11 +2680,11 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform4fv(GCanvas *obj, const char *&p) { // uniform3fv_53,/////wj/////
+    int uniform4fv(GCanvasWeex *obj, const char *&p) { // uniform3fv_53,/////wj/////
         return uniformXfv(obj, p, 4);
     }
 
-    int uniform4i(GCanvas *obj, const char *&p) {
+    int uniform4i(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 5);
         GLint location = tokens[0];
         GLint x = tokens[1];
@@ -3074,9 +2698,9 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniform4iv(GCanvas *obj, const char *&p) { return uniformXiv(obj, p, 4); }
+    int uniform4iv(GCanvasWeex *obj, const char *&p) { return uniformXiv(obj, p, 4); }
 
-    int uniformMatrixXfv(GCanvas *obj, const char *&p,
+    int uniformMatrixXfv(GCanvasWeex *obj, const char *&p,
                          int type) { // uniformMatrix3fv52,0,so9wP0Qdrz4AAAAAAAAAAEQdr76yj3A/AAAAAAAAA
         const int *tokens = ParseTokensInt(p, 3);
         GLint location = tokens[0];
@@ -3088,11 +2712,7 @@ namespace gcanvas {
             fvalue = ParseTokensFloat(p, 16);
         } else {
             std::string &value = obj->mTempStr;
-//        LOG_D("uniformMatrixXfv: %s", p);
             ParseTokensBase64(p, value);
-//        int len = ParseTokensBase64(p, value);
-//        LOG_D("uniformMatrixXfv: %d", len);
-//        LOG_D("uniformMatrixXfv: %s\n", value.c_str());
 
             float *float32Array = SplitStringToFloat32Array(value.c_str(), ",", size);
             fvalue = (const GLfloat *) float32Array;
@@ -3101,11 +2721,7 @@ namespace gcanvas {
         if (fvalue) {
             LOG_D("[webgl::exec] glUniformMatrix%dfv(%d, %d, %d, %f)", type, location,
                   size / (type * type), transpose, *fvalue);
-#ifdef ANDROID
-            struct timeval before;
-            struct timeval after;
-            gettimeofday(&before, NULL);
-#endif
+            
             switch (type) {
                 case 2:
                     glUniformMatrix2fv(location, size / 4, transpose, fvalue);
@@ -3117,14 +2733,7 @@ namespace gcanvas {
                     glUniformMatrix4fv(location, size / 16, transpose, fvalue);
                     break;
             }
-
-#ifdef ANDROID
-            gettimeofday(&after, NULL);
-            LOG_D("[webgl::exec] glUniformMatrix%dfv(%d, %d, %d, %f) before: sec = %d, usec = %d, after: sec = %d, usec = %d",
-                  type, location, size / (type * type), transpose, *fvalue, before.tv_sec,
-                  before.tv_usec, after.tv_sec, after.tv_usec);
-#endif
-
+            
             if (g_encode_type != 1) {
                 free((void *) fvalue);
             }
@@ -3133,22 +2742,22 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int uniformMatrix2fv(GCanvas *obj,
+    int uniformMatrix2fv(GCanvasWeex *obj,
                          const char *&p) { // uniformMatrix3fv52,0,so9wP0Qdrz4AAAAAAAAAAEQdr76yj3A/AAAAAAAAA
         return uniformMatrixXfv(obj, p, 2);
     }
 
-    int uniformMatrix3fv(GCanvas *obj,
+    int uniformMatrix3fv(GCanvasWeex *obj,
                          const char *&p) { // uniformMatrix3fv52,0,so9wP0Qdrz4AAAAAAAAAAEQdr76yj3A/AAAAAAAAA
         return uniformMatrixXfv(obj, p, 3);
     }
 
-    int uniformMatrix4fv(GCanvas *obj,
+    int uniformMatrix4fv(GCanvasWeex *obj,
                          const char *&p) { // uniformMatrix4fv52,0,so9wP0Qdrz4AAAAAAAAAAEQdr76yj3A/AAAAAAAAA
         return uniformMatrixXfv(obj, p, 4);
     }
 
-    int useProgram(GCanvas *obj, const char *&p) { // useProgram1
+    int useProgram(GCanvasWeex *obj, const char *&p) { // useProgram1
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -3158,7 +2767,7 @@ namespace gcanvas {
     }
 
 //new
-    int validateProgram(GCanvas *obj, const char *&p) { // validateProgram
+    int validateProgram(GCanvasWeex *obj, const char *&p) { // validateProgram
         const int *tokens = ParseTokensInt(p, 1);
         GLuint program = tokens[0];
 
@@ -3168,7 +2777,7 @@ namespace gcanvas {
     }
 
 //new
-    int vertexAttrib1f(GCanvas *obj, const char *&p) {
+    int vertexAttrib1f(GCanvasWeex *obj, const char *&p) {
         int index = ParseTokensInt(p, 1)[0];
         GLfloat x = ParseTokensFloat(p, 1)[0];
 
@@ -3181,7 +2790,7 @@ namespace gcanvas {
     }
 
 //new
-    int vertexAttrib2f(GCanvas *obj, const char *&p) {
+    int vertexAttrib2f(GCanvasWeex *obj, const char *&p) {
         int index = ParseTokensInt(p, 1)[0];
         const float *tokens = ParseTokensFloat(p, 2);
         GLfloat x = tokens[0];
@@ -3193,7 +2802,7 @@ namespace gcanvas {
     }
 
 //new
-    int vertexAttrib3f(GCanvas *obj, const char *&p) {
+    int vertexAttrib3f(GCanvasWeex *obj, const char *&p) {
         int index = ParseTokensInt(p, 1)[0];
         const float *tokens = ParseTokensFloat(p, 3);
         GLfloat x = tokens[0];
@@ -3206,7 +2815,7 @@ namespace gcanvas {
     }
 
 //new
-    int vertexAttrib4f(GCanvas *obj, const char *&p) {
+    int vertexAttrib4f(GCanvasWeex *obj, const char *&p) {
         int index = ParseTokensInt(p, 1)[0];
         const float *tokens = ParseTokensFloat(p, 4);
         GLfloat x = tokens[0];
@@ -3219,7 +2828,7 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int vertexAttribXfv(GCanvas *obj, const char *&p, int type) {
+    int vertexAttribXfv(GCanvasWeex *obj, const char *&p, int type) {
         const int *tokens = ParseTokensInt(p, 2);
         GLint index = tokens[0];
 
@@ -3253,26 +2862,26 @@ namespace gcanvas {
     }
 
 //new
-    int vertexAttrib1fv(GCanvas *obj, const char *&p) {
+    int vertexAttrib1fv(GCanvasWeex *obj, const char *&p) {
         return vertexAttribXfv(obj, p, 1);
     }
 
 //new
-    int vertexAttrib2fv(GCanvas *obj, const char *&p) {
+    int vertexAttrib2fv(GCanvasWeex *obj, const char *&p) {
         return vertexAttribXfv(obj, p, 2);
     }
 
 //new
-    int vertexAttrib3fv(GCanvas *obj, const char *&p) {
+    int vertexAttrib3fv(GCanvasWeex *obj, const char *&p) {
         return vertexAttribXfv(obj, p, 3);
     }
 
 //new
-    int vertexAttrib4fv(GCanvas *obj, const char *&p) {
+    int vertexAttrib4fv(GCanvasWeex *obj, const char *&p) {
         return vertexAttribXfv(obj, p, 4);
     }
 
-    int vertexAttribPointer(GCanvas *obj, const char *&p) { // vertexAttribPointer10,3,22,0,0,0;
+    int vertexAttribPointer(GCanvasWeex *obj, const char *&p) { // vertexAttribPointer10,3,22,0,0,0;
         const int *tokens = ParseTokensInt(p, 6);
         GLint index = tokens[0];
         GLint size = tokens[1];
@@ -3287,21 +2896,22 @@ namespace gcanvas {
         return kContinue;
     }
 
-    int viewport(GCanvas *obj, const char *&p) { // viewport0,0,600,450;
+    int viewport(GCanvasWeex *obj, const char *&p) { // viewport0,0,600,450;
         const float *tokens = ParseTokensFloat(p, 4);
+        float ratio = obj->GetDevicePixelRatio();
         LOG_D("[webgl::exec] glViewport(%f, %f, %f, %f)",
-              tokens[0] * obj->mDevicePixelRatio,
-              tokens[1] * obj->mDevicePixelRatio,
-              tokens[2] * obj->mDevicePixelRatio,
-              tokens[3] * obj->mDevicePixelRatio);
-        glViewport(tokens[0] * obj->mDevicePixelRatio,
-                   tokens[1] * obj->mDevicePixelRatio,
-                   tokens[2] * obj->mDevicePixelRatio,
-                   tokens[3] * obj->mDevicePixelRatio);
+              tokens[0] * ratio,
+              tokens[1] * ratio,
+              tokens[2] * ratio,
+              tokens[3] * ratio);
+        glViewport(tokens[0] * ratio,
+                   tokens[1] * ratio,
+                   tokens[2] * ratio,
+                   tokens[3] * ratio);
         return kContinue;
     }
 
-    int (*g_webglFuncMap[WEBGL_API_COUNT])(GCanvas *, const char *&) = {
+    int (*g_webglFuncMap[WEBGL_API_COUNT])(GCanvasWeex *, const char *&) = {
             NULL,   //0
             activeTexture,
             attachShader,
@@ -3446,102 +3056,119 @@ namespace gcanvas {
 //                  WEBGL Extension
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
 //////////////////////////////////////////////////////////////////////////
-    int drawArraysInstancedANGLE(GCanvas *obj, const char *&p) {
+#ifdef IOS
+    int drawArraysInstancedANGLE(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
-#ifdef IOS
-                                                                                                                                glDrawArraysInstancedEXT(tokens[0], tokens[1], tokens[2], tokens[3]);
-    LOG_D("[webgl::exec] glDrawArraysInstancedEXT(%d, %d, %d, %d)",
+        glDrawArraysInstancedEXT(tokens[0], tokens[1], tokens[2], tokens[3]);
+        LOG_D("[webgl::exec] glDrawArraysInstancedEXT(%d, %d, %d, %d)",
           tokens[0], tokens[1], tokens[2], tokens[3]);
-#endif
         return kContinue;
     }
 
-    int drawElementsInstancedANGLE(GCanvas *obj, const char *&p) {
+    int drawElementsInstancedANGLE(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 5);
-#ifdef IOS
-                                                                                                                                glDrawElementsInstancedEXT(tokens[0], tokens[1], tokens[2], G_BUFFER_OFFSET(tokens[3]), tokens[4]);
-    LOG_D("[webgl::exec] glDrawElementsInstancedEXT(%d, %d, %d, %d, %d)",
+        glDrawElementsInstancedEXT(tokens[0], tokens[1], tokens[2], G_BUFFER_OFFSET(tokens[3]), tokens[4]);
+        LOG_D("[webgl::exec] glDrawElementsInstancedEXT(%d, %d, %d, %d, %d)",
           tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
-#endif
         return kContinue;
     }
 
-    int vertexAttribDivisorANGLE(GCanvas *obj, const char *&p) {
+    int vertexAttribDivisorANGLE(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 2);
-#ifdef IOS
-                                                                                                                                glVertexAttribDivisorEXT(tokens[0], tokens[1]);
-    LOG_D("[webgl::exec] glVertexAttribDivisorEXT(%d, %d)", tokens[0], tokens[1]);
-#endif
+        glVertexAttribDivisorEXT(tokens[0], tokens[1]);
+        LOG_D("[webgl::exec] glVertexAttribDivisorEXT(%d, %d)", tokens[0], tokens[1]);
         return kContinue;
     }
 
-
-    int createVertexArrayOES(GCanvas *obj, const char *&p) {
+    int createVertexArrayOES(GCanvasWeex *obj, const char *&p) {
         ++p;
         GLuint array;
-#ifdef IOS
-                                                                                                                                glGenVertexArraysOES(1, &array);
-    LOG_D("[webgl::exec] glGenVertexArraysOES()=%d", array);
-
-#elif ANDROID
-        if (glGenVertexArraysOESv) {
-            glGenVertexArraysOESv(1, &array);
-        }
-#endif
+        glGenVertexArraysOES(1, &array);
+        LOG_D("[webgl::exec] glGenVertexArraysOES()=%d", array);
         obj->setSyncResult(gcanvas::toString(array));
         return kContinue;
     }
 
-    int deleteVertexArrayOES(GCanvas *obj, const char *&p) {
+    int deleteVertexArrayOES(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint array = tokens[0];
-#ifdef IOS
-                                                                                                                                glDeleteVertexArraysOES(1, &array);
-    LOG_D("[webgl::exec] glDeleteVertexArraysOES(1, %d)", array);
-
-#elif ANDROID
-        if (glDeleteVertexArraysOESv) {
-            glDeleteVertexArraysOESv(1, &array);
-        }
-#endif
+        glDeleteVertexArraysOES(1, &array);
+        LOG_D("[webgl::exec] glDeleteVertexArraysOES(1, %d)", array);
         return kContinue;
     }
 
-    int isVertexArrayOES(GCanvas *obj, const char *&p) {
+    int isVertexArrayOES(GCanvasWeex *obj, const char *&p) {
+        const int *tokens = ParseTokensInt(p, 1);
+        GLuint array = tokens[0];
+        GLuint value = glIsVertexArrayOES(array);
+        LOG_D("[webgl::exec] glIsVertexArrayOES(%d)", array);
+        obj->setSyncResult(gcanvas::toString(value));
+        return kContinue;
+    }
+
+    int bindVertexArrayOES(GCanvasWeex *obj, const char *&p) {
+        const int *tokens = ParseTokensInt(p, 1);
+        GLuint array = tokens[0];
+        glBindVertexArrayOES(array);
+        LOG_D("[webgl::exec] glBindVertexArrayOES(%d)", array);
+        return kContinue;
+    }
+#else  //Android Extension
+    int drawArraysInstancedANGLE(GCanvasWeex *obj, const char *&p) {
+        return kContinue;
+    }
+    
+    int drawElementsInstancedANGLE(GCanvasWeex *obj, const char *&p) {
+        return kContinue;
+    }
+    
+    int vertexAttribDivisorANGLE(GCanvasWeex *obj, const char *&p) {
+        return kContinue;
+    }
+    
+    int createVertexArrayOES(GCanvasWeex *obj, const char *&p) {
+        ++p;
+        GLuint array;
+        if (glGenVertexArraysOESv) {
+            glGenVertexArraysOESv(1, &array);
+        }
+        obj->setSyncResult(gcanvas::toString(array));
+        return kContinue;
+    }
+    
+    int deleteVertexArrayOES(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint array = tokens[0];
 
-#ifdef IOS
-                                                                                                                                GLuint value = glIsVertexArrayOES(array);
-    LOG_D("[webgl::exec] glIsVertexArrayOES(%d)", array);
-    obj->setSyncResult(gcanvas::toString(value));
-#elif ANDROID
+        if (glDeleteVertexArraysOESv) {
+            glDeleteVertexArraysOESv(1, &array);
+        }
+        return kContinue;
+    }
+    
+    int isVertexArrayOES(GCanvasWeex *obj, const char *&p) {
+        const int *tokens = ParseTokensInt(p, 1);
+        GLuint array = tokens[0];
         if (glIsVertexArrayOESv) {
             GLuint value = glIsVertexArrayOESv(array);
             obj->setSyncResult(gcanvas::toString(value));
         }
-#endif
         return kContinue;
     }
-
-    int bindVertexArrayOES(GCanvas *obj, const char *&p) {
+    
+    int bindVertexArrayOES(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 1);
         GLuint array = tokens[0];
-
-#ifdef IOS
-                                                                                                                                glBindVertexArrayOES(array);
-    LOG_D("[webgl::exec] glBindVertexArrayOES(%d)", array);
-
-#elif ANDROID
         if (glBindVertexArrayOESv) {
             glBindVertexArrayOESv(array);
-        }
-#endif
-
+        }        
         return kContinue;
     }
+    
+#endif
 
-    int (*g_webglExtFuncMap[WEBGL_EXT_API_COUNT])(GCanvas *, const char *&) = {
+
+    int (*g_webglExtFuncMap[WEBGL_EXT_API_COUNT])(GCanvasWeex *, const char *&) = {
             //extension method for ANGLE_instanced_arrays
             drawArraysInstancedANGLE,
             drawElementsInstancedANGLE,
@@ -3559,26 +3186,17 @@ namespace gcanvas {
 
 using namespace gcanvas;
 
-int GCanvas::executeWebGLCommands(const char *&cmd, int length) {
+int GCanvasWeex::executeWebGLCommands(const char *&cmd, int length) {
     const char *end = cmd + length;
-//    LOG_D("GCanvas::executeWebGLCommands: end: %s",end);
     while (cmd < end) {
-
         int index = atoi(cmd);
-
-//        LOG_I("[executeWebGLCommands]index=%d", index);
-
         if (index >= 1 && index < WEBGL_API_COUNT) //webgl
         {
             ParseTokensSkip(cmd);
             if (NULL == g_webglFuncMap[index]) {
-//                LOG_W("[executeWebGLCommands] uncomplete cmd index:%d", index);
                 return -1;
             };
-//            int error1 = glGetError();
             g_webglFuncMap[index](this, cmd);
-//            int error2 = glGetError();
-//            LOG_D("beofre error: %d, after error: %d",error1, error2);
         } else if (index >= WEBGL_EXT_API_OFFSET && index < WEBGL_EXT_API_MAX_INDEX) //extension
         {
             ParseTokensSkip(cmd);
@@ -3589,64 +3207,20 @@ int GCanvas::executeWebGLCommands(const char *&cmd, int length) {
             }
 
             g_webglExtFuncMap[extFuncIndex](this, cmd);
-//            int ret = g_webglExtFuncMap[extFuncIndex](this, cmd);
-//            return ret;
         } else {
-//            LOG_W("[executeWebGLCommands] Unknow cmd :%d", index);
             return -1;
         }
     }
     return 0;
 }
 
-void GCanvas::GetAllParameter(std::string &ret) {
-//    ret.clear();
-//
-//    GLint val[128]; // here may cause crash in "HUAWEI MT7-UL00" while
-//                   // ret.resize(), so change from 32 to 128 size, but still
-//                   // unknown reason.
-//    int i = 0;
-//
-//    GLint range, precision;
-//    int sSize = 2;
-//    int pSize = 6;
-//    for (int m = 0; m < sSize; m++)
-//    {
-//        for (int n = 0; n < pSize; n++)
-//        {
-//            glGetShaderPrecisionFormat(g_shapeType_list[m],
-//                                       g_precisionType_list[n],
-//                                       &range,
-//                                       &precision);
-//            val[i++] = range;
-//            val[i++] = precision;
-//        }
-//    }
-//
-//    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &val[i++]);
-//    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &val[i++]);
-//    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &val[i++]);
-//    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &val[i++]);
-//    glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &val[i++]);
-//    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &val[i++]);
-//    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &val[i++]);
-//
-//    GLfloat *valf = (GLfloat *)&val[i];
-//    int j = 0;
-//    glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, &valf[j]);
-//    j += 2;
-//    i += sizeof(GLfloat) / sizeof(GLint) * j;
-//
-//    i *= sizeof(GLint);
-//
-//    ret.resize(gcanvas::Base64EncodeLen(i));
-//    gcanvas::Base64EncodeBuf((char *)ret.c_str(), (char *)val, i);
-//    LOG_D("[GetAllParameter][%d] %s", i, ret.c_str());
+void GCanvasWeex::GetAllParameter(std::string &ret) {
+
 }
 
 #ifdef ANDROID
 
-void GCanvas::initWebglExt() {
+void GCanvasWeex::initWebglExt() {
     glGenVertexArraysOESv = (PFNGLGENVERTEXARRAYSOESPROC) eglGetProcAddress("glGenVertexArraysOES");
     glBindVertexArrayOESv = (PFNGLBINDVERTEXARRAYOESPROC) eglGetProcAddress("glBindVertexArrayOES");
     glDeleteVertexArraysOESv = (PFNGLDELETEVERTEXARRAYSOESPROC) eglGetProcAddress(

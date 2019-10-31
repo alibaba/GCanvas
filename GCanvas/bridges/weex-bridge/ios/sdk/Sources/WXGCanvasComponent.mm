@@ -21,6 +21,7 @@
 #import <GLKit/GLKit.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import <WeexSDK/WeexSDK.h>
+#import <WeexSDK/WXComponent+Layout.h>
 
 #import <GCanvas/GCVCommon.h>
 #import <GCanvas/GCanvasModule.h>

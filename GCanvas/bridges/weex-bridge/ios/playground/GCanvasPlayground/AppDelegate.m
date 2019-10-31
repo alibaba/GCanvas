@@ -21,7 +21,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 #import <WeexSDK/WeexSDK.h>
-#import <ATSDK/ATManager.h>
+//#import <ATSDK/ATManager.h>
 
 #import "ViewController.h"
 #import "MacroDefine.h"
@@ -78,13 +78,13 @@
     [WXSDKEngine registerModule:@"event" withClass:[WXEventModule class]];
     
 #ifdef DEBUG
-    [self atAddPlugin];
+//    [self atAddPlugin];
     [WXDebugTool setDebug:YES];
     [WXLog setLogLevel:WXLogLevelLog];
     
-    #ifndef UITEST
-    [[ATManager shareInstance] show];
-    #endif
+//    #ifndef UITEST
+//    [[ATManager shareInstance] show];
+//    #endif
     
 #else
     [WXDebugTool setDebug:NO];
@@ -163,12 +163,12 @@
 
 #pragma mark
 
-- (void)atAddPlugin {
-    [[ATManager shareInstance] addPluginWithId:@"weex" andName:@"weex" andIconName:@"../weex" andEntry:@"" andArgs:@[@""]];
-    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"logger" andName:@"logger" andIconName:@"log" andEntry:@"WXATLoggerPlugin" andArgs:@[@""]];
-    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"test2" andName:@"test" andIconName:@"at_arr_refresh" andEntry:@"" andArgs:@[]];
-    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"test3" andName:@"test" andIconName:@"at_arr_refresh" andEntry:@"" andArgs:@[]];
-}
+//- (void)atAddPlugin {
+//    [[ATManager shareInstance] addPluginWithId:@"weex" andName:@"weex" andIconName:@"../weex" andEntry:@"" andArgs:@[@""]];
+//    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"logger" andName:@"logger" andIconName:@"log" andEntry:@"WXATLoggerPlugin" andArgs:@[@""]];
+//    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"test2" andName:@"test" andIconName:@"at_arr_refresh" andEntry:@"" andArgs:@[]];
+//    [[ATManager shareInstance] addSubPluginWithParentId:@"weex" andSubId:@"test3" andName:@"test" andIconName:@"at_arr_refresh" andEntry:@"" andArgs:@[]];
+//}
 
 
 

@@ -37,3 +37,4 @@ WXSDKEngine.registerComponent("gcanvas", WXGCanvasWeexComponent.class);
 ```xml
 <uses-feature android:glEsVersion="0x00020000" />
 ```
+

@@ -11,7 +11,7 @@
 }
 </style>
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 
 import { compile } from "./compile-shader";
 // import hackLog from "./hack-log";

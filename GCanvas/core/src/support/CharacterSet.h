@@ -10,6 +10,8 @@
 #ifndef __GCANVAS_CHARACTER_SET_H__
 #define __GCANVAS_CHARACTER_SET_H__
 
+#include <export.h>
+
 struct Utf8ToUCS2
 {
     const char *utf8;
@@ -17,7 +19,7 @@ struct Utf8ToUCS2
     unsigned short *ucs2;
     int ucs2len;
 
-    Utf8ToUCS2(const char *utf8In, int utf8lenIn);
+    API_EXPORT Utf8ToUCS2(const char *utf8In, int utf8lenIn);
     virtual ~Utf8ToUCS2();
 
 private:

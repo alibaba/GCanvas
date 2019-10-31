@@ -52,8 +52,8 @@
         url = [@"http:" stringByAppendingString:url];
     }
     
-    return (id<WXImageOperationProtocol>)[[SDWebImageManager sharedManager].imageDownloader downloadImageWithURL:[NSURL URLWithString:url] options:0 progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-        if (completedBlock) {
+    return (id<WXImageOperationProtocol>) [[SDWebImageManager sharedManager].imageLoader requestImageWithURL:[NSURL URLWithString:url] options:0 context:nil progress:nil completed:^(UIImage * _Nullable image, NSData * _Nullable data, NSError * _Nullable error, BOOL finished) {
+        if( completedBlock ){
             completedBlock(image, error, finished);
         }
     }];

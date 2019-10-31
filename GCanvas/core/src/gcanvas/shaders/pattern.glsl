@@ -43,9 +43,3 @@ void main()                                                                     
     }                                                                                       \n\
     gl_FragColor = finalColor;                                                              \n\
 }"
-
-
-
-
-
-

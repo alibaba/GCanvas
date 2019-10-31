@@ -14,28 +14,26 @@ void main()                                 \n\
    v_texCoord = a_texCoord;                 \n\
 }"
 
-const char* SHADOW_SHADER_PS =
-"precision mediump float;\n"
-"    varying vec4 v_desColor;\n"
-"    varying vec2 v_texCoord;\n"
-"    uniform sampler2D image;\n"
-"    uniform float u_xDelta;\n"
-"    uniform float u_yDelta;\n"
-"    uniform float u_weight[13];\n"
-"    const int sample=12;\n"
-"\n"
-"\n"
-"void main(void)\n"
-" {\n"
-"      vec2 offset=vec2(0,0);\n"
-"      vec4 color=v_desColor;\n"
-"      color.a = texture2D( image, v_texCoord ).a *u_weight[0];\n"
-"      for (int i=1; i<=sample; i++) {\n"
-"        offset.x+=u_xDelta;\n"
-"        offset.y+=u_yDelta;\n"
-"        color.a += texture2D( image, ( v_texCoord+offset ) ).a *u_weight[i];\n"
-"        color.a += texture2D( image, ( v_texCoord-offset ) ).a *u_weight[i];\n"
-"      }\n"
-"      color.rgb *= color.a;\n"
-"      gl_FragColor = color ;\n"
-"    }\n";
+#define SHADOW_SHADER_PS "\
+precision mediump float;                    \n\
+varying vec4 v_desColor;                    \n\
+varying vec2 v_texCoord;                    \n\
+uniform sampler2D image;                    \n\
+uniform float u_xDelta;                     \n\
+uniform float u_yDelta;                     \n\
+uniform float u_weight[13];                 \n\
+const int sample=12;                        \n\
+void main(void)                             \n\
+{                                           \n\
+  vec2 offset=vec2(0,0);                    \n\
+  vec4 color=v_desColor;                    \n\
+  color.a = texture2D( image, v_texCoord ).a *u_weight[0];                  \n\
+  for (int i=1; i<=sample; i++) {           \n\
+    offset.x+=u_xDelta;                     \n\
+    offset.y+=u_yDelta;                     \n\
+    color.a += texture2D( image, ( v_texCoord+offset ) ).a *u_weight[i];    \n\
+    color.a += texture2D( image, ( v_texCoord-offset ) ).a *u_weight[i];    \n\
+  }                                         \n\
+  color.rgb *= color.a;                     \n\
+  gl_FragColor = color;                     \n\
+}"

@@ -6,8 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GWebglContext__
-#define __GCanvas__GWebglContext__
+#ifndef GCANVAS_GWEBGLCONTEXT_H
+#define GCANVAS_GWEBGLCONTEXT_H
 
 
-#endif
+#endif /* GCANVAS_GWEBGLCONTEXT_H */

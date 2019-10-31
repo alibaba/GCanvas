@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   
   s.name         = "WeexGcanvas"
-  s.version      = "1.0.6"
+  s.version      = "1.1.0"
   s.summary      = "GCanvas Weex Bridge Source."
 
   s.description  = <<-DESC
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
  # s.source =  { :path => '.' }
   s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }

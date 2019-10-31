@@ -8,20 +8,18 @@
  */
 
 #include "GTexture.h"
-//#include "../png/PngLoader.h"
 #include "../support/Log.h"
 #include "../support/Util.h"
 
-using namespace gcanvas;
 
 GLubyte *(*GTexture::loadPixelCallback)(const char *filePath, unsigned int *w,
                                          unsigned int *h) = nullptr;
 
 GTexture::GTexture(unsigned int w, unsigned int h, GLenum format,
-                     GLubyte *pixels)
+                     GLubyte *pixels, std::vector<GCanvasLog> *errVec)
     : mWidth(w), mHeight(h), mFormat(format), mTextureID(0)
 {
-    CreateTexture(pixels);
+    CreateTexture(pixels, errVec);
 }
 
 GTexture::GTexture() : mWidth(0), mHeight(0), mFormat(0), mTextureID(0) {}
@@ -72,12 +70,16 @@ GLubyte *GTexture::loadPixelsFromPNG(const char *path, unsigned int *pw,
     return buffer;
 }
 
-void GTexture::CreateTexture(GLubyte *pixels, const char *appInfo)
+void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
 {
-    char defaultInfo[] = "";
-    if (!appInfo) {
-        appInfo = defaultInfo;
+    GLenum glerror = 0;
+    while ((glerror = glGetError()) != GL_NO_ERROR && errVec)
+    {
+        GCanvasLog log;
+        fillLogInfo(log, "glerror_before", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        errVec->push_back(log);
     }
+    
     // Release previous texture if we had one
     if (mTextureID)
     {
@@ -90,22 +92,29 @@ void GTexture::CreateTexture(GLubyte *pixels, const char *appInfo)
 
     if ((int)mWidth > maxTextureSize || (int)mHeight > maxTextureSize)
     {
-        LOG_EXCEPTION(appInfo, "texture_size_exceed", "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth, mHeight, maxTextureSize);
+        if (errVec) {
+            GCanvasLog log;
+            fillLogInfo(log, "texture_size_exceed", "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth, mHeight, maxTextureSize);
+            errVec->push_back(log);
+        }
         return;
     }
-
-    GLenum glerror = 0;
+    
     int boundTexture = 0;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTexture);
 
     glGenTextures(1, &mTextureID);
-    if (mTextureID <= 0) {
-        LOG_EXCEPTION(appInfo, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glGetError());
+    if (mTextureID <= 0 && errVec) {
+        GCanvasLog log;
+        fillLogInfo(log, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glGetError());
+        errVec->push_back(log);
     }
     glBindTexture(GL_TEXTURE_2D, mTextureID);
     glerror = glGetError();
-    if (glerror) {
-        LOG_EXCEPTION(appInfo, "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    if (glerror && errVec && mWidth > 0 && mHeight > 0) {
+        GCanvasLog log;
+        fillLogInfo(log, "bind_texture_fail", "<function:%s, glGetError:%x, width:%d, height:%d>", __FUNCTION__, glerror, mWidth, mHeight);
+        errVec->push_back(log);
     }
 
 
@@ -113,18 +122,30 @@ void GTexture::CreateTexture(GLubyte *pixels, const char *appInfo)
                  (GLsizei)mHeight, 0, mFormat, GL_UNSIGNED_BYTE, pixels);
 
     glerror = glGetError();
-    if (glerror) {
-        LOG_EXCEPTION(appInfo, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    if (glerror && errVec) {
+        GCanvasLog log;
+        fillLogInfo(log, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        errVec->push_back(log);
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    GLint filter = GL_LINEAR;
+#ifdef ANDROID
+    if (mFormat == GL_ALPHA) {
+        filter = GL_NEAREST;
+    }
+#endif
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 
     glBindTexture(GL_TEXTURE_2D, (GLuint)boundTexture);
     glerror = glGetError();
-    if (glerror) {
-        LOG_EXCEPTION(appInfo, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+    if (glerror && errVec) {
+        GCanvasLog log;
+        fillLogInfo(log, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        errVec->push_back(log);
     }
     glFlush();
 }

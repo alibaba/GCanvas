@@ -9,60 +9,44 @@
 
 #include "GTreemap.h"
 
+
 GTreemap::GTreemap(int w, int h) : mWidth(w), mHeight(h), mLineLast(w), mVerticalLast(h),
-                                   mCurrentLineHeight(0)
-{
+                                   mCurrentLineHeight(0) {
 
 }
 
-bool GTreemap::Add(const GSize &size, GRect &rect)
-{
+bool GTreemap::Add(const GSize &size, GRect &rect) {
     rect.SetSize(size);
-    if (size.width > mLineLast)
-    {
-        if (size.width > mWidth)
-        {
+    if (size.width > mLineLast) {
+        if (size.width > mWidth) {
             return false;
-        }
-        else
-        {
+        } else {
 
             mVerticalLast -= mCurrentLineHeight;
-            if (mVerticalLast < size.height)
-            {
+            if (mVerticalLast < size.height) {
                 mVerticalLast += mCurrentLineHeight;
 
                 return false;
-            }
-            else
-            {
-                rect.SetPosition(0, mHeight-mVerticalLast);
+            } else {
+                rect.SetPosition(0, mHeight - mVerticalLast);
                 mCurrentLineHeight = size.height;
                 mLineLast = mWidth - size.width;
 
             }
 
         }
-    }
-    else
-    {
-        rect.SetPosition(mWidth-mLineLast, mHeight-mVerticalLast);
+    } else {
+        rect.SetPosition(mWidth - mLineLast, mHeight - mVerticalLast);
 
-        if (mCurrentLineHeight < size.height)
-        {
-            if (mVerticalLast < size.height)
-            {
+        if (mCurrentLineHeight < size.height) {
+            if (mVerticalLast < size.height) {
                 return false;
-            }
-            else
-            {
+            } else {
 
                 mCurrentLineHeight = size.height;
                 mLineLast -= size.width;
             }
-        }
-        else
-        {
+        } else {
 
             mLineLast -= size.width;
         }
@@ -70,8 +54,7 @@ bool GTreemap::Add(const GSize &size, GRect &rect)
     return true;
 }
 
-void GTreemap::Clear()
-{
+void GTreemap::Clear() {
     mLineLast = mWidth;
     mVerticalLast = mHeight;
     mCurrentLineHeight = 0;

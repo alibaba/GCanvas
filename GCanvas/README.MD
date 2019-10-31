@@ -1,6 +1,6 @@
 # GCanvas
 
-GCanvas is a cross-platform rendering engine for mobile devices developed by Taobao. It is written with C++ based on OpenGL ES,  so it can provide high performance 2D/WebGL rendering capabilities for Javascript runtime. It also  has browser-like canvas APIs, so it's very convinent and flexiable for use, especially for web developers.
+GCanvas is a cross-platform rendering engine for mobile devices developed by Alibaba. It is written with C++ based on OpenGL ES,  so it can provide high performance 2D/WebGL rendering capabilities for Javascript runtime. It also  has browser-like canvas APIs, so it's very convinent and flexiable for use, especially for web developers.
 
 Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 

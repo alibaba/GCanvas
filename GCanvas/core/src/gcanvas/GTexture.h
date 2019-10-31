@@ -7,25 +7,10 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef GCanvas_GTexture_h
-#define GCanvas_GTexture_h
+#ifndef GCANVAS_GTEXTURE_H
+#define GCANVAS_GTEXTURE_H
 
-#ifndef _WIN32
-
-#ifdef ANDROID
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
-
+#include "GGL.h"
 #include <map>
 #include <vector>
 
@@ -89,16 +74,18 @@ private:
     std::map< int, TextureGroup > mTextureGroupPool;
 };
 
+struct GCanvasLog;
+
 class GTexture
 {
 public:
     GTexture(unsigned int w, unsigned int h, GLenum format = GL_RGBA,
-              GLubyte *pixels = nullptr);
+              GLubyte *pixels = nullptr, std::vector<GCanvasLog> *errVec = nullptr);
     GTexture(const char *filePath);
     GTexture();
     ~GTexture();
 
-    void CreateTexture(GLubyte *pixels, const char *appInfo = NULL);
+    void CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec = nullptr);
 
     void Bind() const;
     void Unbind() const;
@@ -143,4 +130,4 @@ private:
     GLuint mTextureID;
 };
 
-#endif
+#endif /* GCANVAS_GTEXTURE_H */

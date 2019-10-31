@@ -8,13 +8,10 @@
  */
 
 #include "GShader.h"
-#include "../support/Log.h"
 
 #ifdef ANDROID
 
 #include "GPreCompiledShaders.h"
-
-#endif
 
 #define CHECK_GL_ERROR_DEBUG()                                                 \
     do                                                                         \
@@ -27,7 +24,6 @@
         }                                                                      \
     } while (false)
 
-#ifdef ANDROID
 
 bool GShader::initWithPreCompiledProgramByteArray(
         const char *shaderName, const GLchar *vShaderByteArray,
@@ -67,14 +63,18 @@ GShader::GShader(const char *name, const char *vertexShaderSrc,
     GLuint vertexShader = compileShader(vertexShaderSrc, GL_VERTEX_SHADER);
     if (vertexShader == 0)
     {
-        LOG_EXCEPTION("", "shader_compile_fail", "type: vertex, name:%s, glGetError:%x", name, glGetError());
+        GCanvasLog log;
+        fillLogInfo(log, "shader_compile_fail", "type: vertex, name:%s, glGetError:%x", name, glGetError());
+        mErrVec.push_back(log);
         return;
     }
 
     GLuint fragmentShader = compileShader(fragmentShaderSrc, GL_FRAGMENT_SHADER);
     if (fragmentShader == 0)
     {
-        LOG_EXCEPTION("", "shader_compile_fail", "type: fragment, name:%s, glGetError:%x", name, glGetError());
+        GCanvasLog log;
+        fillLogInfo(log, "shader_compile_fail", "type: fragment, name:%s, glGetError:%x", name, glGetError());
+        mErrVec.push_back(log);
         return;
     }
 
@@ -92,7 +92,11 @@ GShader::GShader(const char *name, const char *vertexShaderSrc,
     {
         GLchar message[256];
         glGetProgramInfoLog(mHandle, sizeof(message), 0, &message[0]);
-        LOG_EXCEPTION("", "program_link_fail", "name:%s, error:%x", name, message);
+        
+        GCanvasLog log;
+        fillLogInfo(log, "program_link_fail", "name:%s, error:%x", name, message);
+        mErrVec.push_back(log);
+        
         glDeleteProgram(mHandle);
         mHandle = 0;
         return;
@@ -138,7 +142,11 @@ GLuint GShader::compileShader(const char *shader, GLenum shaderType)
         GLchar message[2048];
         int len = 0;
         glGetShaderInfoLog(shaderHandle, sizeof(message), &len, &message[0]);
-        LOG_EXCEPTION("", "shader_compile_fail", "error:%s", message);
+        
+        GCanvasLog log;
+        fillLogInfo(log, "shader_compile_fail", "error:%s", message);
+        mErrVec.push_back(log);
+        
         glDeleteShader(shaderHandle);
         return 0;
     }

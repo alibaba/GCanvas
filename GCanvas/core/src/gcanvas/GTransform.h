@@ -6,10 +6,11 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GTransform__
-#define __GCanvas__GTransform__
+#ifndef GCANVAS_GTRANSFORM_H
+#define GCANVAS_GTRANSFORM_H
 
 #include "GPoint.h"
+
 #include <math.h>
 
 // -----------------------------------------------------------
@@ -159,4 +160,4 @@ static inline GPoint GPointApplyGTransform(float x, float y, GTransform t)
     return p;
 }
 
-#endif
+#endif /* GCANVAS_GTRANSFORM_H */

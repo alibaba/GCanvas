@@ -5,9 +5,11 @@
 </template>
 <script>
     //for debug
-    const enable = require('../../../../js/dist/gcanvas.min.js').enable;
-    const WeexBridge = require('../../../../js/dist/gcanvas.min.js').WeexBridge;
-    const GImage = require('../../../../js/dist/gcanvas.min.js').Image;
+   // import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
+   
+    const enable     = require('gcanvas.js').enable;
+    const WeexBridge = require('gcanvas.js').WeexBridge;
+    const GImage     = require('gcanvas.js').Image;
 
 
     module.exports = {

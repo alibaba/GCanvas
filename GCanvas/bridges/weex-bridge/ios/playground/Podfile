@@ -1,19 +1,14 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-platform :ios, '8.0'
+platform :ios, '9.0'
 inhibit_all_warnings!
 
 target 'GCanvasPlayground' do
-  pod 'WXDevtool', :configurations => ['Debug']
-  pod 'SocketRocket'
-  pod 'ATSDK-Weex'
+  pod 'WXDevtool', '0.20.0', :configurations => ['Debug']
+  pod 'WeexSDK'
   pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
-  pod 'WeexSDK'#, '0.20.1'#, :git=>'git@github.com:apache/incubator-weex.git'
-
-  pod 'SDWebImage', '3.7.5'
-
-  #pod 'WeexGcanvas'
+  pod 'SocketRocket'
+  
   pod 'WeexGcanvas', :path=>'../../../../../'
   pod 'GCanvas', :path=>'../../../../../'
-
 end

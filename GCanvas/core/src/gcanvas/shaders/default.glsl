@@ -1,6 +1,6 @@
 #define DEFAULT_SHADER "DEFAULT"
 
-#define DEFAULT_SHADER_VS "\
+#define DEFAULT_SHADER_VS                   "\
 attribute vec4 a_position;                  \n\
 attribute vec4 a_srcColor;                  \n\
 attribute vec2 a_texCoord;                  \n\
@@ -14,7 +14,7 @@ void main()                                 \n\
    v_texCoord = a_texCoord;                 \n\
 }"
 
-#define DEFAULT_SHADER_PS "\
+#define DEFAULT_SHADER_PS           "\
 precision mediump float;            \n\
 varying vec4 v_desColor;            \n\
 varying vec2 v_texCoord;            \n\

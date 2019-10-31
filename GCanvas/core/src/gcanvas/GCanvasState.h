@@ -7,8 +7,8 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef GCanvasState_h
-#define GCanvasState_h
+#ifndef GCANVAS_GCANVASSTATE_H
+#define GCANVAS_GCANVASSTATE_H
 
 #include "GShader.h"
 #include "GPath.h"
@@ -30,25 +30,27 @@ public:
     GCanvasState &operator=(const GCanvasState &state);
     ~GCanvasState();
     
-    //矩阵信息
+    //transfrom
     GTransform mTransform;
+    GTransform mUserTransform;
     
     //ClipPath
     GPath *mClipPath;
-    
-    //颜色/样式/阴影
+
+
+    //fill style,stroke style,shadow
     GColorRGBA mFillColor;
     GFillStyle *mFillStyle;
-    
+
     GColorRGBA mStrokeColor;
     GFillStyle *mStrokeStyle;
-    
+
     GColorRGBA mShadowColor;
     int mShadowBlur;
     float mShadowOffsetX;
     float mShadowOffsetY;
     
-    //线条样式
+    //line style
     GLineCap mLineCap;
     GLineJoin mLineJoin;
     float mLineWidth;
@@ -57,29 +59,23 @@ public:
     std::vector<float> mLineDash;
     float mLineDashOffset;
     
-    //文本
+    //font style
     gcanvas::GFontStyle *mFont;
     GTextAlign mTextAlign;
     GTextBaseline mTextBaseline;
+
+    float mscaleFontX = 1.0f;
+    float mscaleFontY = 1.0f;
     
-    //合成
+    //global
     float mGlobalAlpha;
     GCompositeOperation mGlobalCompositeOp;
     
     
-    //其他
-//    GTransform mClipTransform;
+    //shader & texture
     GShader *mShader;
     int mTextureId = InvalidateTextureId;
-    
-    
-#ifdef CANVAS_EXTENSION
-    float mKerning; //文字间距
-    GStrokeDirection mStrokeDirection; //stroke方向
-    bool mOverrideShadowColor; //是否覆盖shadowColor, false使用shadowColor, true使用原来的颜色
-    float mShadowSpread; //阴影的扩散速度
-#endif
 };
 
 
-#endif /* GCanvasState_h */
+#endif /* GCANVAS_GCANVASSTATE_H */

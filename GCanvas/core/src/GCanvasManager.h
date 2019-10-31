@@ -7,11 +7,16 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef __GCANVAS__MANAGER_H_
-#define __GCANVAS__MANAGER_H_
+#ifndef GCANVAS_GCANVASMANAGER_H
+#define GCANVAS_GCANVASMANAGER_H
+
+#include "GCanvas.hpp"
+#ifdef GCANVAS_WEEX
+#include "GCanvasWeex.hpp"
+#endif
 
 #include <map>
-#include "GCanvas.hpp"
+#include <queue>
 
 namespace gcanvas
 {
@@ -21,12 +26,14 @@ public:
     GCanvasManager();
     virtual ~GCanvasManager();
 
-    void NewCanvas(const std::string canvasId, bool onScreen=true, std::string appInfo = "");
-	
+    GCanvas* NewCanvas(const std::string canvasId, bool onScreen=true, bool useFbo = true, GCanvasHooks *hooks = nullptr);
+#ifdef GCANVAS_WEEX
+    GCanvasWeex* NewCanvasWeex(const std::string canvasId, bool onScreen=true, bool useFbo = true);
+#endif
     void RemoveCanvas(const std::string canvasId);
     GCanvas *GetCanvas(const std::string canvasId);
-    void addCanvas(GCanvas *p);
-    int canvasCount();
+    void AddCanvas(GCanvas *p);
+    int CanvasCount();
     void Clear();
 #ifdef ANDROID
     void AddtoQueue(const std::string contextId,struct GCanvasCmd *);
@@ -46,4 +53,4 @@ protected:
 };
 }
 
-#endif /* GCANVASMANAGER_H_ */
+#endif /* GCANVAS_GCANVASMANAGER_H */

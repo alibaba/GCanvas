@@ -23,6 +23,7 @@
 		A248AFB82022E25700218A11 /* WXScannerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = A248AFB62022E25700218A11 /* WXScannerVC.m */; };
 		A248AFBA2022E31D00218A11 /* libstdc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A248AFB92022E31D00218A11 /* libstdc++.tbd */; };
 		A248AFBC2022E32300218A11 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A248AFBB2022E32300218A11 /* libsqlite3.tbd */; };
+		A2668A9820F30DC20084251D /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = A2668A9720F30DC20084251D /* UIView+Toast.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,8 @@
 		A248AFB62022E25700218A11 /* WXScannerVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXScannerVC.m; sourceTree = "<group>"; };
 		A248AFB92022E31D00218A11 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		A248AFBB2022E32300218A11 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		A2668A9620F30DC20084251D /* UIView+Toast.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Toast.h"; sourceTree = "<group>"; };
+		A2668A9720F30DC20084251D /* UIView+Toast.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+Toast.m"; sourceTree = "<group>"; };
 		AA671CCA4539052673ED425C /* Pods-GCanvasPlayground.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GCanvasPlayground.release.xcconfig"; path = "Pods/Target Support Files/Pods-GCanvasPlayground/Pods-GCanvasPlayground.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -114,6 +117,8 @@
 				A248AFAE2022E1EE00218A11 /* UIView+UIThreadCheck.m */,
 				A248AFAD2022E1EE00218A11 /* UIViewController+NaviBar.h */,
 				A248AFAF2022E1EE00218A11 /* UIViewController+NaviBar.m */,
+				A2668A9620F30DC20084251D /* UIView+Toast.h */,
+				A2668A9720F30DC20084251D /* UIView+Toast.m */,
 				A248AFAB2022E11E00218A11 /* MacroDefine.h */,
 				A248AF882022C8F500218A11 /* Assets.xcassets */,
 				A248AF8D2022C8F500218A11 /* Info.plist */,
@@ -274,28 +279,24 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-GCanvasPlayground/Pods-GCanvasPlayground-resources.sh",
-				"${PODS_ROOT}/ATSDK-Weex/ATSDK.framework/Versions/A/Resources/ATSDK.bundle",
-				"${PODS_ROOT}/ATSDK-Weex/ATSDK.framework/Versions/A/Resources/en.lproj",
-				"${PODS_ROOT}/ATSDK-Weex/ATSDK.framework/Versions/A/Resources/zh-Hans.lproj",
-				"${PODS_ROOT}/WeexSDK/WeexSDK.framework/weex-rax-api.js",
-				"${PODS_ROOT}/WeexSDK/WeexSDK.framework/wx_load_error@3x.png",
-				"${PODS_ROOT}/WeexSDK/WeexSDK.framework/weex-polyfill.js",
-				"${PODS_ROOT}/WeexSDK/WeexSDK.framework/weex-main-jsfm.js",
+				"${PODS_ROOT}/Target Support Files/Pods-GCanvasPlayground/Pods-GCanvasPlayground-resources.sh",
+				"${PODS_ROOT}/WeexSDK/pre-build/native-bundle-main.js",
+				"${PODS_ROOT}/WeexSDK/pre-build/weex-main-jsfm.js",
+				"${PODS_ROOT}/WeexSDK/pre-build/weex-polyfill.js",
+				"${PODS_ROOT}/WeexSDK/pre-build/weex-rax-api.js",
+				"${PODS_ROOT}/WeexSDK/ios/sdk/WeexSDK/Resources/wx_load_error@3x.png",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ATSDK.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/en.lproj",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/zh-Hans.lproj",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/native-bundle-main.js",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/weex-main-jsfm.js",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/weex-polyfill.js",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/weex-rax-api.js",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/wx_load_error@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/weex-polyfill.js",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/weex-main-jsfm.js",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-GCanvasPlayground/Pods-GCanvasPlayground-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GCanvasPlayground/Pods-GCanvasPlayground-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -312,6 +313,7 @@
 				A248AF842022C8F500218A11 /* ViewController.m in Sources */,
 				A248AFB82022E25700218A11 /* WXScannerVC.m in Sources */,
 				A248AFA12022DEB200218A11 /* WXSelectComponent.m in Sources */,
+				A2668A9820F30DC20084251D /* UIView+Toast.m in Sources */,
 				A248AF9F2022DEB200218A11 /* WXImgLoaderDefaultImpl.m in Sources */,
 				A248AF8F2022C8F500218A11 /* main.m in Sources */,
 				A248AFB12022E1EE00218A11 /* UIViewController+NaviBar.m in Sources */,
@@ -435,10 +437,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2HDPMCR337;
 				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					WEBGL_EXTENSION,
+				);
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = GCanvasPlayground/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.taobao.GCanvasPlayground.jwxbond;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taobao.GCanvasPlayground.a;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WARNING_CFLAGS = "-Wno-documentation";
@@ -454,10 +461,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 2HDPMCR337;
 				ENABLE_BITCODE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					WEBGL_EXTENSION,
+				);
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				INFOPLIST_FILE = GCanvasPlayground/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.taobao.GCanvasPlayground.jwxbond;
+				PRODUCT_BUNDLE_IDENTIFIER = com.taobao.GCanvasPlayground.a;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 				WARNING_CFLAGS = "-Wno-documentation";

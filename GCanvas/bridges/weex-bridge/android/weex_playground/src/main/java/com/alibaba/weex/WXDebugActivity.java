@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -43,11 +43,6 @@ public class WXDebugActivity extends AppCompatActivity implements IWXHttpAdapter
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (!WXEnvironment.isApkDebugable()) {
-      finish();
-      return;
-    }
-
     setContentView(R.layout.activity_dynamic);
 
     mTipView = findViewById(R.id.dynamic_tip);
@@ -96,14 +91,6 @@ public class WXDebugActivity extends AppCompatActivity implements IWXHttpAdapter
 
   @Override
   public void onHttpFinish(WXResponse response) {
-    if ("200".equals(response.statusCode)) {
-      String framework = new String(response.originalData);
-      if (framework != null) {
-        WXSDKEngine.reload(WXDebugActivity.this, framework, false);
-        finish();
-        return;
-      }
-    }
     mResultView.setText("动态替换失败，请重启手淘后重试!");
   }
 }

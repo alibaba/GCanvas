@@ -6,21 +6,14 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GPath__
-#define __GCanvas__GPath__
+#ifndef GCANVAS_GPATH_H
+#define GCANVAS_GPATH_H
 
 #include "GPoint.h"
 #include "GTransform.h"
 #include <float.h>
 #include <iostream>
 #include <vector>
-
-#define G_PATH_RECURSION_LIMIT 8
-#define G_PATH_DISTANCE_EPSILON 1.0f
-#define G_PATH_COLLINEARITY_EPSILON FLT_EPSILON
-#define G_PATH_STEPS_FOR_CIRCLE 48.0f
-#define G_PATH_ANGLE_EPSILON = 0.01;
-
 
 class GCanvasContext;
 
@@ -56,21 +49,14 @@ public:
              bool antiClockwise);
 
     void ClipRegion(GCanvasContext *context);
-
-
-    void DrawPolygons2DToContextPass(GCanvasContext *context, GColorRGBA color, bool use_not_zero);
-
-    void DrawPolygons2DToContext(GCanvasContext *context);
     
-    void DrawPolygons2DToContextNew(GCanvasContext *context, GFillRule rule, GFillTarget target = FILL_TARGET_COLOR);
+    void DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFillTarget target = FILL_TARGET_COLOR);
 
     std::vector<tSubPath> *DrawLineDash(GCanvasContext *context);
     
     void CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std::vector<GVertex> *vertexVec);
     
     void StencilRectForStroke(GCanvasContext *context, std::vector<GVertex> &vertexVec);
-    
-    void DoubleStencilForStroke(GCanvasContext *context, std::vector<GVertex> &vertexVec);
     
     void DrawLinesToContext(GCanvasContext *context);
 
@@ -112,10 +98,6 @@ private:
 
     void RestoreStencilForClip(GCanvasContext *context);
     void SetStencilForClip();
-
-    void SetStencilForPathPassFirst(GCanvasContext *context, bool use_not_zero = true);
-    void SetStencilForPathPassSecond(GCanvasContext *context, bool use_not_zero = true);
-
 private:
     GPoint mStartPosition;
     GPoint mCurrentPosition;
@@ -133,4 +115,4 @@ public:
     GFillRule mFillRule;
 };
 
-#endif
+#endif /* GCANVAS_GPATH_H */

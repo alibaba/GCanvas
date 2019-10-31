@@ -9,10 +9,11 @@
 #include "GPath.h"
 #include "GCanvas2dContext.h"
 
-//const float ERROR_DEVIATION = 1e-6;
-//const float PI_1 = M_PI;
-//const float PI_2 = 2.f * PI_1;
-//const int DEFAULT_STEP_COUNT = 100;
+#define  G_PATH_RECURSION_LIMIT 8
+#define  G_PATH_DISTANCE_EPSILON 1.0f
+#define  G_PATH_COLLINEARITY_EPSILON FLT_EPSILON
+#define  G_PATH_STEPS_FOR_CIRCLE 48.0f
+#define  G_PATH_ANGLE_EPSILON = 0.01;
 
 #define  ERROR_DEVIATION    1e-6
 #define  PI_1               M_PI
@@ -369,12 +370,12 @@ void GPath::ClipRegion(GCanvasContext *context)
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
     glEnable(GL_STENCIL_TEST);
-    // clip使用高位实现
+    // clip use high mask bit
     GLuint mask = 0x80;
     GLuint ref = 0x80;
     glStencilMask(mask);
 
-    // 合并新clipRegion
+    // use stencil func
     if (context->HasClipRegion()) {
         glStencilFunc(GL_EQUAL, ref, mask);
         glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
@@ -394,45 +395,15 @@ void GPath::ClipRegion(GCanvasContext *context)
 
         glVertexAttribPointer(context->PositionSlot(), 2, GL_FLOAT, GL_FALSE,
                               sizeof(GPoint), &(path.front()));
+        context->mDrawCallCount++;
         glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei) path.size());
     }
     context->BindPositionVertexBuffer();
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    // 重置stencil
+    // reset stencil
     SetStencilForClip();
 }
-
-
-
-void GPath::DrawPolygons2DToContextPass(GCanvasContext *context, GColorRGBA color, bool use_not_zero)
-{
-    // LOG_W("DrawPolygons2DToContextPass path.size()=%i ", mPathStack.size());
-    for (std::vector<tSubPath>::iterator iter = mPathStack.begin(); iter != mPathStack.end(); ++iter)
-    {
-        std::vector<GPoint> &pts = iter->points;
-        if (pts.size() < 3) {
-            continue;
-        }
-
-        context->BeforeClip();
-
-        SetStencilForPathPassFirst(context, use_not_zero);
-        PushTriangleFanPoints(context, &(*iter), color);
-
-        context->AfterClip();
-
-        // 第二遍，实际渲染顶点
-        context->BindPositionVertexBuffer();
-
-        SetStencilForPathPassSecond(context, use_not_zero);
-        PushTriangleFanPoints(context, &(*iter), color);
-    }
-
-    RestoreStencilForClip(context);
-}
-
-
 void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GColorRGBA color)
 {
     std::vector<GPoint> &pts = subPath->points;
@@ -442,7 +413,7 @@ void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GC
     }
     else
     {
-        // 增加head point
+        // push head point
         pts.push_back(pts.front());
         context->PushTriangleFanPoints(pts, color);
         pts.pop_back();
@@ -450,27 +421,21 @@ void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GC
     context->SendVertexBufferToGPU(GL_TRIANGLE_FAN);
 }
 
-
-/**
- * 使用stencil buffer算法绘制polygons
- */
-void GPath::DrawPolygons2DToContext(GCanvasContext *context)
+void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFillTarget target )
 {
-    // 提前处理掉老数据
-    GColorRGBA color = BlendFillColor(context);
-    context->SendVertexBufferToGPU();
-
-    DrawPolygons2DToContextPass(context, color, true);
-}
-
-void GPath::DrawPolygons2DToContextNew(GCanvasContext *context, GFillRule rule, GFillTarget target )
-{
+    
+    GLint bindFBO = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &bindFBO);
+    
+    
     context->SendVertexBufferToGPU();
     
     GColorRGBA color = BlendColor(context, context->mCurrentState->mFillColor);
     
     // Disable drawing to the color buffer, enable the stencil buffer
-    glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetTexcoordSlot());
+    if (context->mCurrentState->mShader->GetTexcoordSlot() > 0) {
+        glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetTexcoordSlot());
+    }
     glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetColorSlot());
     
     glDisable(GL_BLEND);
@@ -510,6 +475,7 @@ void GPath::DrawPolygons2DToContextNew(GCanvasContext *context, GFillRule rule, 
         glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
                               GL_FLOAT, GL_FALSE, 0,
                               &(path.points.front()));
+        context->mDrawCallCount++;
         glDrawArrays(GL_TRIANGLE_FAN, 0, (int)path.points.size());
     }
     
@@ -546,7 +512,7 @@ void GPath::DrawPolygons2DToContextNew(GCanvasContext *context, GFillRule rule, 
 
 void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
                              GPoint p1, GPoint p2, GColorRGBA color, std::vector<GVertex> *vec, float samePointThreshold) {
-    // 高性能版本，提前过滤无效数据
+    // filter invalid point
     bool fixAndroidCompatible = false;
 #ifdef ANDROID
     fixAndroidCompatible = true;
@@ -560,7 +526,7 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
         return;
     }
 
-    // 过滤nan数据
+    // filter nan pint
     if (isNan(point) || isNan(p1) || isNan(p2))
     {
         // LOG_I("isNan check true");
@@ -580,6 +546,10 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
         angle2 = M_PI;
     } else {
         angle2 = acosf(v1.x * v2.x + v1.y * v2.y);
+    }
+
+    if (fixAndroidCompatible && std::isnan(angle2)) {
+        return;
     }
 
     // 1 step per 5 pixel
@@ -635,7 +605,7 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
     bool firstNeedDraw = true;
     int firstDashIndex = 0;
     float lineDashOffset = context->LineDashOffset();
-    // 处理offset
+    // deal offset
     if (lineDashOffset > 0.1 && lineDashOffset < 50) {
         float totalLength = 0;
         for (int i = 0; i < lineDash.size(); i++) {
@@ -660,7 +630,7 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
                 firstLineDash[i] = 0;
                 firstDashIndex++;
                 if (i == firstLineDash.size() - 1) {
-                    // offset正好等于整个linedash的长度,需要恢复状态
+                    // reset
                     firstDashIndex = 0;
                     firstLineDash = lineDash;
                 }
@@ -677,13 +647,13 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
             continue;
         }
 
-        // dashwidth管理
+        // dashwidth
         int dashIndex = firstDashIndex;
         float dashWidth = firstLineDash[dashIndex];
         bool needDraw = firstNeedDraw;
         bool isFirst = true;
 
-        // 初始化新的临时线段
+        // new tmp path
         tSubPath tmpPath;
         tmpPath.isClosed = false;
         float currentWidth = 0;
@@ -694,13 +664,13 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
              ptIter != pts.end(); ) {
             startPoint = stopPoint;
             stopPoint = *ptIter;
-            // 计算当前线段的长度
+            // calc cur length
             float deltaX = stopPoint.x - startPoint.x;
             float deltaY = stopPoint.y - startPoint.y;
             float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
 
             if (length + currentWidth > dashWidth) {
-                // 长度超过dash宽度，计算插值点坐标
+                // insert point
                 float gapWidth = dashWidth - currentWidth;
                 float interDeltaX = deltaX * gapWidth / length;
                 float interDeltaY = deltaY * gapWidth / length;
@@ -708,11 +678,10 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
                 tmpPath.points.push_back(interPoint);
 
                 if (needDraw) {
-                    // 结束本线段，将顶点加入到绘制队列中
                     tmpPathStack->push_back(tmpPath);
                 }
 
-                // 开启新线段，初始化相关变量
+                // new path, update variables
                 tmpPath.points.clear();
                 tmpPath.isClosed = false;
                 needDraw = !needDraw;
@@ -720,7 +689,7 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
                 tmpPath.points.push_back(interPoint);
                 stopPoint = interPoint;
 
-                // 更新dash
+                // update dash
                 if (isFirst) {
                     dashIndex++;
                     if (dashIndex >= firstLineDash.size()) {
@@ -737,7 +706,6 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
                     dashWidth = lineDash[dashIndex];
                 }
 
-                // 不递增，继续保持当前遍历到的顶点
                 continue;
 
             }
@@ -745,7 +713,7 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
                 tmpPath.points.push_back(stopPoint);
                 currentWidth += length;
                 if (ptIter == pts.end() - 1) {
-                    // 如果已经是最后一个，则直接加入绘制队列中
+                    // finished，push vertex
                     if (needDraw) {
                         tmpPathStack->push_back(tmpPath);
                     }
@@ -760,24 +728,18 @@ std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
 
 void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std::vector<GVertex> *vertexVec)
 {
-    // 取一般宽度
     float lineWidth = context->LineWidth() * 0.5;
-
-    float scaleX = context->GetCurrentScaleX();
-    float scaleY = context->GetCurrentScaleY();
-    float scaleV = (scaleX > scaleY ? scaleX : scaleY);
-    // 之前版本为常量：0.000001，其实没有必要, 采用缩放后的数据即可
-    float minValidValue = 1 / scaleV / context->GetDevicePixelRatio();
+    float minValidValue = 0.01;
 
     std::vector<tSubPath> *pathStack = &mPathStack;
-    // 设置了lineDash的情况下，先由lineDash处理path
+    // first deal line dash if needed
     if (context->LineDash().size() > 0) {
         pathStack = DrawLineDash(context);
     }
 
-    for (std::vector<tSubPath>::const_iterator iter = pathStack->begin();
+    for (std::vector<tSubPath>::iterator iter = pathStack->begin();
          iter != pathStack->end(); ++iter) {
-        const std::vector<GPoint> &pts = iter->points;
+        std::vector<GPoint> &pts = iter->points;
         bool subPathIsClosed = iter->isClosed;
         bool firstInSub = true;
         GPoint startPoint, stopPoint;
@@ -790,6 +752,23 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
 
         stopPoint = *(pts.begin());
         // LOG_E("pathStack pointSize=%f,%f %f,%f %f,%f", pts[0].x, pts[0].y,pts[1].x, pts[1].y,pts[2].x, pts[2].y);
+        
+        // filter close point
+        GPoint prePoint = *(pts.begin());
+        for (std::vector<GPoint>::const_iterator ptIter = pts.begin() + 1;
+             ptIter != pts.end(); ) {
+            float deltaX = (*ptIter).x - prePoint.x;
+            float deltaY = (*ptIter).y - prePoint.y;
+            float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
+            if (length < minValidValue) {
+                ptIter = pts.erase(ptIter);
+            }
+            else {
+                prePoint = *ptIter;
+                ptIter++;
+            }
+        }
+        
         for (std::vector<GPoint>::const_iterator ptIter = pts.begin() + 1;
              ptIter != pts.end(); ++ptIter) {
 
@@ -800,11 +779,7 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
             float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
             
             std::vector<GPoint>::const_iterator nextIter = ptIter + 1;
-            if (length < minValidValue && nextIter != pts.end())
-            {
-                continue;
-            }
-            // 新切换点
+            
             startPoint = stopPoint;
             stopPoint = *ptIter;
 
@@ -820,7 +795,7 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
             // step1: draw line
             context->PushQuad(miter11, miter21, miter22, miter12, color, vertexVec);
 
-            // 线宽小于1时 无需绘制 mitter
+            // if lineWidth > 1, draw mitter
             if (context->LineWidth() <= 1) {
                 continue;
             }
@@ -879,19 +854,24 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
 
 
             if (context->LineJoin() == LINE_JOIN_ROUND) {
-                // 提前判断点是否足够靠近
                 drawArcToContext(context, stopPoint, joinP1, joinP2, color, vertexVec, minValidValue);
             } else if (context->LineJoin() == LINE_JOIN_MITER) {
                 drawLineJoinMiter(context, stopPoint, joinP2, joinP1, color, vertexVec);
             } else if (context->LineJoin() == LINE_JOIN_BEVEL) {
-                if (isTrianglePointsValid(stopPoint, joinP1, joinP2, minValidValue)) {
+                if (isTrianglePointsValid(stopPoint, joinP1, joinP2, minValidValue))
+                {
                     context->PushTriangle(stopPoint, joinP1, joinP2, color, vertexVec);
+                }
+                else
+                {
+                    //LOG_E("invalid bevel join pointSize=%f,%f %f,%f %f,%f",
+                    //      stopPoint.x, stopPoint.y,joinP1.x, joinP1.y,joinP2.x, joinP2.y);
                 }
             }
         }
     }
 
-    // 需要释放掉lineDash返回的内存
+    // delete pathStack
     if (context->LineDash().size() > 0) {
         delete pathStack;
     }
@@ -899,23 +879,19 @@ void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std
 
 void GPath::DrawLinesToContext(GCanvasContext *context)
 {
-    // 清空纹理引用
-    context->SetTexture(nullptr);
+    context->SetTexture(InvalidateTextureId);
     GColorRGBA color = BlendStrokeColor(context);
-    // 存储生成线段的顶点
+    
     std::vector<GVertex> vertexVec;
 
-    if (color.rgba.a < 1.0) {
-        // 透明色的情况下使用stencil绘制
+    if (color.rgba.a < 1.0) { //transparent, use stencil buffer
         CreateLinesFromPoints(context, color, &vertexVec);
     }
     else {
-        // 不透明的情况下直接绘制
         CreateLinesFromPoints(context, color, NULL);
         return;
     }
 
-//    DoubleStencilForStroke(context, vertexVec);
     StencilRectForStroke(context, vertexVec);
 }
 
@@ -924,11 +900,11 @@ void GPath::StencilRectForStroke(GCanvasContext *context, std::vector<GVertex> &
     context->SendVertexBufferToGPU();
     GColorRGBA color = BlendStrokeColor(context);
     
-    // 准备
+    //set environment
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glEnable(GL_STENCIL_TEST);
     
-    // 清空buffer
+    // clear stencil buffer
     glStencilFunc(GL_ALWAYS, 0, 0xff);
     glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
     GColorRGBA white = {1,1,1,1};
@@ -942,26 +918,25 @@ void GPath::StencilRectForStroke(GCanvasContext *context, std::vector<GVertex> &
     rect.y = mMinPosition.y - extend;
     rect.width = mMaxPosition.x - mMinPosition.x + extend * 2;
     rect.height = mMaxPosition.y - mMinPosition.y + extend * 2;
-    if (rect.height > context->Height() || rect.width > context->Width()) {
+    if (rect.height > context->GetHeight() || rect.width > context->GetWidth()) {
         rect.x = 0;
         rect.y = 0;
-        rect.width = context->Width();
-        rect.height = context->Height();
+        rect.width = context->GetWidth();
+        rect.height = context->GetHeight();
     }
     
     context->PushRectangle(rect.x, rect.y, rect.width, rect.height, 0, 0, 0, 0, white);
     context->SendVertexBufferToGPU();
     
-    // 第一遍绘制
-    glStencilFunc(GL_ALWAYS, 0x0, 0xFF);
-    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
-    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    // first draw stencil
+    glStencilFunc(GL_ALWAYS, 0x1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     
-    // 将顶点上传绘制
+    // push vertexs
     context->PushVertexs(vertexVec);
     context->SendVertexBufferToGPU();
     
-    // 第二遍绘制
+    // second draw color buffer with stencil buffer
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilFunc(GL_NOTEQUAL, 0x00, 0xff);
     glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
@@ -969,33 +944,8 @@ void GPath::StencilRectForStroke(GCanvasContext *context, std::vector<GVertex> &
     context->PushRectangle(rect.x, rect.y, rect.width, rect.height, 0, 0, 0, 0, color);
     context->SendVertexBufferToGPU();
     
-    // 善后
+    // reset
     glDisable(GL_STENCIL_TEST);
-}
-
-void GPath::DoubleStencilForStroke(GCanvasContext *context, std::vector<GVertex> &vertexVec)
-{
-    // 透明色的情况下使用stencil绘制
-    // 先处理掉老数据
-    context->BeforeClip();
-    
-    // 第一遍渲染, 写入stencil buffer
-    SetStencilForPathPassFirst(context, true);
-    
-    // 将顶点上传绘制
-    context->PushVertexs(vertexVec);
-    context->SendVertexBufferToGPU();
-    
-    context->AfterClip();
-    
-    // 第二遍绘制
-    SetStencilForPathPassSecond(context, true);
-    
-    // 将顶点上传绘制
-    context->PushVertexs(vertexVec);
-    context->SendVertexBufferToGPU();
-    
-    RestoreStencilForClip(context);
 }
 
 float GPath::calcPointAngle(const GPoint &director, const GPoint &center) {
@@ -1027,20 +977,21 @@ void GPath::drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
             center.x + cosf(miterAngle) * miterLen * lineWidth,
             center.y + sinf(miterAngle) * miterLen * lineWidth};
 
-#ifdef ANDROID
-    // fix 兼容性问题(oppo a59等机型opengl不识别无效点)
-    if (isNan(p1) || isNan(p2) || isNan(center) || isNan(miterPoint)) {
+    // LOG_E("drawLineJoinMiter PushQuad=%f,%f %f,%f %f,%f,%f,%f",
+    //      center.x, center.y, p1.x, p1.y, miterPoint.x, miterPoint.y, p2.x, p2.y);
+
+    // filter opengl invalid point( eg:oppo a59 )
+    if (isNan(p1) || isNan(p2) || isNan(center) || isNan(miterPoint))
+    {
         return;
     }
-#endif
-    
+
     context->PushQuad(center, p1, miterPoint, p2, color, vec);
 }
 
 void GPath::drawLineCap(GCanvasContext *context, const GPoint &center,
                         const GPoint &p1, const GPoint &p2, float deltaX,
-                        float deltaY, GColorRGBA color, std::vector<GVertex> *vec,
-                        float samePointThreshold) {
+                        float deltaY, GColorRGBA color, std::vector<GVertex> *vec, float samePointThreshold) {
     if (context->LineCap() == LINE_CAP_SQUARE) {
         context->PushQuad(p1, p2, PointMake(p2.x + deltaX, p2.y + deltaY),
                           PointMake(p1.x + deltaX, p1.y + deltaY), color, vec);
@@ -1099,14 +1050,13 @@ void GPath::RestoreStencilForClip(GCanvasContext *context)
 {
     if (context->HasClipRegion())
     {
-        // 先清除高位
+        // reset stencil
         glClear(GL_STENCIL_BUFFER_BIT);
-        // 恢复clip stencil设置
         SetStencilForClip();
     }
     else
     {
-        // 清空并关闭stencil test
+        // disable
         glStencilMask(0xFF);
         glClear(GL_STENCIL_BUFFER_BIT);
         glDisable(GL_STENCIL_TEST);
@@ -1121,70 +1071,6 @@ void GPath::SetStencilForClip()
     glStencilFunc(GL_EQUAL, mask, mask);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
-
-
-void GPath::SetStencilForPathPassFirst(GCanvasContext *context, bool use_not_zero)
-{
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glEnable(GL_STENCIL_TEST);
-
-    if (use_not_zero)
-    {
-        // clamp to zero时会有点问题
-        glStencilMask(0x7f);
-        glClear(GL_STENCIL_BUFFER_BIT);
-
-        glStencilFunc(GL_ALWAYS, 0x0, 0xFF);
-        glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_INCR_WRAP);
-        glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_DECR_WRAP);
-    }
-    else
-    {
-        glStencilMask(0x1);
-        // glStencilMask会影响glClear, 只清除高位
-        glClear(GL_STENCIL_BUFFER_BIT);
-        glStencilFunc(GL_ALWAYS, 0x0, 0xFF);
-        // even odd模式实现
-        glStencilOp(GL_KEEP, GL_INVERT, GL_INVERT);
-    }
-}
-
-
-void GPath::SetStencilForPathPassSecond(GCanvasContext *context, bool use_not_zero)
-{
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    bool hasClip = context->HasClipRegion();
-    if (use_not_zero)
-    {
-        if (hasClip)
-        {
-            // 有clip情况下
-            //   不可绘制区域变成分二种：
-            //      1.在clip区域内但属于多边形外部：0x80
-            //      2.不在clip区域内: 0x0
-            //   可绘制(在clip区内)变成 非0x80
-            glStencilFunc(GL_LESS, 0x80, 0xff);
-        }
-        else
-        {
-            // 没有clip:
-            //   不绘制区域变成 0x0
-            //   可绘制区域变成 非0x0
-            glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
-        }
-        // 保证重复区域只绘制一次(避免透明度加深问题)
-        glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
-    }
-    else //  even odd 模式
-    {
-        GLuint ref = hasClip ? 0x81 : 0x01;
-        glStencilFunc(GL_EQUAL, ref, 0xff);
-        // 保证重复区域只绘制一次(避免透明度加深问题)
-        glStencilOp(GL_KEEP, GL_ZERO, GL_ZERO);
-    }
-}
-
 
 inline double calc_distance(double x1, double y1, double x2, double y2)
 {

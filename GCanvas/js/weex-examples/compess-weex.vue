@@ -6,7 +6,7 @@
 </template>
 
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 
 const dom = weex.requireModule("dom");
 import { enable, WeexBridge, Image as GImage } from "gcanvas.js";

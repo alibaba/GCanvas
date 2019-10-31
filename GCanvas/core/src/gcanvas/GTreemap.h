@@ -7,8 +7,8 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef GCanvas_GTreemap_h
-#define GCanvas_GTreemap_h
+#ifndef GCANVAS_GTREEMAP_H
+#define GCANVAS_GTREEMAP_H
 
 #include <new>
 
@@ -85,4 +85,4 @@ private:
     int mCurrentLineHeight;
 };
 
-#endif
+#endif /* GCANVAS_GTREEMAP_H */

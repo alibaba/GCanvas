@@ -20,9 +20,11 @@ package com.alibaba.weex.extend.module;
 
 import android.widget.Toast;
 
+import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.common.WXModule;
 
+@WeexModule(name = "MyModule")
 public class MyModule extends WXModule {
 
   @JSMethod(uiThread = true)

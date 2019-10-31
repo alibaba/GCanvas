@@ -6,8 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCANVAS_LOG_H__
-#define __GCANVAS_LOG_H__
+#ifndef GCANVAS_LOG_H
+#define GCANVAS_LOG_H
 
 #if defined(__ANDROID__)
 #include <android/log.h>
@@ -17,94 +17,83 @@
 #include "export.h"
 
 
-typedef void (*GCanvasPlatformLog)(const char *errorName, const char *errorDetail, const char *appInfo);
 
-API_EXPORT extern GCanvasPlatformLog platformLog;
 
-namespace gcanvas
-{
+//namespace gcanvas
+//{
+
+    typedef void (*GCanvasSystemLog)(const char *tag, const char *log);
+
+API_EXPORT extern GCanvasSystemLog gcanvasSystemLog;
+
+
 typedef enum {
-    LOG_LEVEL_DEBUG = 0,
-    LOG_LEVEL_INFO,
-    LOG_LEVEL_WARN,
-    LOG_LEVEL_ERROR,
-    LOG_LEVEL_FATAL
-} LogLevel;
+        LOG_LEVEL_DEBUG = 0,
+        LOG_LEVEL_INFO,
+        LOG_LEVEL_WARN,
+        LOG_LEVEL_ERROR,
+        LOG_LEVEL_FATAL
+    } LogLevel;
+
+
+    struct GCanvasHooks
+    {
+        void (*GCanvasException)(const char *canvasId, const char *tag, const char *detail);
+    };
+
+
+    struct GCanvasLog
+    {
+        GCanvasLog();
+        std::string tag;
+        std::string detail;
+    };
+
+
+    void fillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...);
+
+
+    void AppendErrorLogInfo(std::vector<GCanvasLog> *errVec, const char *tag, const char *format, ...);
+
 
 #if defined(__ANDROID__)
-int TransLogLevel(LogLevel logLevel);
-#endif
+    int TransLogLevel(LogLevel logLevel);
+    #endif
 
-void LogExt(LogLevel logLevel, const char *tag, const char *format, ...);
-void SetLogLevel(LogLevel logLevel);
-LogLevel GetLogLevel();
-    
-// 透出到应用层的埋点
-API_EXPORT void LogException(const char *appInfo, const char *tag, const char *format, ...);
+    void LogExt(LogLevel logLevel, const char *tag, const char *format, ...);
+    void SetLogLevel(LogLevel logLevel);
+    LogLevel GetLogLevel();
 
-#ifdef IOS
-//
-//#ifdef DEBUG
-//#else
-#define DISABLE_LOG
-//#endif
-//
-#endif
 
-#ifdef DISABLE_LOG
-#define LOG_D(...) ;
-#define LOG_I(...) ;
-#define LOG_W(...) ;
-#define LOG_E(...) ;
-#define LOG_F(...) ;
-#define LOG_EXT(...) ;
-#define LOG_EXCEPTION(appInfo, tag, ...) ;
-#else
-#define LOG_TAG_NAME "gcanvas.native"
-#define LOG_D(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_DEBUG, LOG_TAG_NAME, __VA_ARGS__)
-#define LOG_I(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_INFO, LOG_TAG_NAME, __VA_ARGS__)
-#define LOG_W(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_WARN, LOG_TAG_NAME, __VA_ARGS__)
-#define LOG_E(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_ERROR, LOG_TAG_NAME, __VA_ARGS__)
-#define LOG_F(...) gcanvas::LogExt(gcanvas::LOG_LEVEL_FATAL, LOG_TAG_NAME, __VA_ARGS__)
-#define LOG_EXCEPTION(appInfo, tag, ...) gcanvas::LogException(appInfo, tag, __VA_ARGS__)
-#define LOG_EXT gcanvas::LogExt
-#endif
-}
+    API_EXPORT void LogException(GCanvasHooks *hooks, std::string contextId, const char *tag, const char *format, ...);
 
-//class Log
-//{
-//public:
-//    // -----------------------------------------------------------
-//    // --                     Debug logging                     --
-//    // -----------------------------------------------------------
-//    static void DLog(const char *format, ...)
-//    {
-//        va_list va;
-//        char buffer[1024];
-//        //
-//        //  format and output the message..
-//        //
-//        va_start(va, format);
-//        vsnprintf(buffer, 1024, format, va);
-//        va_end(va);
-//
-//        LOG_D(buffer);
-//    }
-//
-//    // fix font can't display bug second,strong method
-//    static void DLog_forFont(const char *format, ...)
-//    {
-//        va_list va;
-//        char buffer[1024];
-//        //
-//        //  format and output the message..
-//        //
-//        va_start(va, format);
-//        vsnprintf(buffer, 1024, format, va);
-//        va_end(va);
-//
-//        LOG_I(buffer);
-//    }
-//};
 
-#endif
+    API_EXPORT void LogExceptionVector(GCanvasHooks *hooks, std::string contextId, std::vector<GCanvasLog> &vec);
+
+    //#ifdef IOS
+    //#define DISABLE_LOG
+    //#endif
+
+    #ifdef DISABLE_LOG
+    #define LOG_D(...) ;
+    #define LOG_I(...) ;
+    #define LOG_W(...) ;
+    #define LOG_E(...) ;
+    #define LOG_F(...) ;
+    #define LOG_EXT(...) ;
+    #define LOG_EXCEPTION(hooks, contextId, tag, ...);
+    #define LOG_EXCEPTION_VECTOR(hooks, contextId, std::vector<GCanvasLog> *vec);
+    #else
+    #define LOG_TAG_NAME "gcanvasCore"
+    #define LOG_D(...) LogExt(LOG_LEVEL_DEBUG, LOG_TAG_NAME, __VA_ARGS__)
+    #define LOG_I(...) LogExt(LOG_LEVEL_INFO, LOG_TAG_NAME, __VA_ARGS__)
+    #define LOG_W(...) LogExt(LOG_LEVEL_WARN, LOG_TAG_NAME, __VA_ARGS__)
+    #define LOG_E(...) LogExt(LOG_LEVEL_ERROR, LOG_TAG_NAME, __VA_ARGS__)
+    #define LOG_F(...) LogExt(LOG_LEVEL_FATAL, LOG_TAG_NAME, __VA_ARGS__)
+    #define LOG_EXT LogExt
+    #define LOG_EXCEPTION(hooks, contextId, tag, ...) LogException(hooks, contextId, tag, __VA_ARGS__)
+    #define LOG_EXCEPTION_VECTOR(hooks, contextId, vec) LogExceptionVector(hooks, contextId, vec)
+    #endif
+//}
+
+#endif /* GCANVAS_LOG_H */

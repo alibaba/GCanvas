@@ -6,9 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-
-#ifndef __GCANVAS_ARRAY_H__
-#define __GCANVAS_ARRAY_H__
+#ifndef GCANVAS_DYNARRAY_H
+#define GCANVAS_DYNARRAY_H
 
 #include <cstdlib>
 
@@ -155,4 +154,4 @@ template < class T > void DynArray< T >::SetSize(int size)
     ASSERT(m_size < 10 * 1000); // sanity check.
 }
 
-#endif
+#endif /* GCANVAS_DYNARRAY_H */

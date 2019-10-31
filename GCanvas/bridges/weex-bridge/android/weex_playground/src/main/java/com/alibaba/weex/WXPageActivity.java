@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -58,9 +58,7 @@ import com.taobao.weex.RenderContainer;
 import com.taobao.weex.WXSDKEngine;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.appfram.navigator.IActivityNavBarSetter;
-import com.taobao.weex.common.IWXDebugProxy;
 import com.taobao.weex.common.WXRenderStrategy;
-import com.taobao.weex.dom.ImmutableDomObject;
 import com.taobao.weex.ui.component.NestedContainer;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
@@ -133,7 +131,7 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
     initUIAndData();
 
     if(WXPAGE.equals(mUri.getScheme())||
-       TextUtils.equals("true",mUri.getQueryParameter("_wxpage"))) {
+            TextUtils.equals("true",mUri.getQueryParameter("_wxpage"))) {
       mUri = mUri.buildUpon().scheme("http").build();
       loadWXfromService(mUri.toString());
       startHotRefresh();
@@ -186,8 +184,8 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
         mConfigMap.put("bundleUrl", mUri.toString());
         String path = "file".equals(mUri.getScheme()) ? assembleFilePath(mUri) : mUri.toString();
         mInstance.render(TAG, WXFileUtils.loadAsset(path, WXPageActivity.this),
-            mConfigMap, null,
-            WXRenderStrategy.APPEND_ASYNC);
+                mConfigMap, null,
+                WXRenderStrategy.APPEND_ASYNC);
       }
     });
   }
@@ -297,17 +295,17 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
     if(comp == null){
       return;
     }
-    ImmutableDomObject dom;
-    String id;
-    View view;
-    if((view = comp.getHostView())!=null &&
-        (dom = comp.getDomObject()) != null &&
-        (id = (String) dom.getAttrs().get("testId"))!=null &&
-        !map.containsKey(id)){
-      Pair<String,Integer> pair = Utility.nextID();
-      view.setId(pair.second);
-      map.put(id,pair.first);
-    }
+//    ImmutableDomObject dom;
+//    String id;
+//    View view;
+//    if((view = comp.getHostView())!=null &&
+//            (dom = comp.getDomObject()) != null &&
+//            (id = (String) dom.getAttrs().get("testId"))!=null &&
+//            !map.containsKey(id)){
+//      Pair<String,Integer> pair = Utility.nextID();
+//      view.setId(pair.second);
+//      map.put(id,pair.first);
+//    }
     if(comp instanceof WXVContainer){
       WXVContainer container = (WXVContainer) comp;
       for(int i = container.getChildCount()-1;i>=0;i--){
@@ -454,10 +452,10 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
 
   private void degradeAlert(String errMsg) {
     new AlertDialog.Builder(this)
-        .setTitle("Downgrade success")
-        .setMessage(errMsg)
-        .setPositiveButton("OK", null)
-        .show();
+            .setTitle("Downgrade success")
+            .setMessage(errMsg)
+            .setPositiveButton("OK", null)
+            .show();
 
   }
 
@@ -512,8 +510,8 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
   private void registerBroadcastReceiver() {
     mReceiver = new RefreshBroadcastReceiver();
     IntentFilter filter = new IntentFilter();
-    filter.addAction(IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH);
-    filter.addAction(IWXDebugProxy.ACTION_INSTANCE_RELOAD);
+//    filter.addAction(IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH);
+//    filter.addAction(IWXDebugProxy.ACTION_INSTANCE_RELOAD);
 
     registerReceiver(mReceiver, filter);
   }
@@ -576,24 +574,24 @@ public class WXPageActivity extends WXBaseActivity implements IWXRenderListener,
   public class RefreshBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-      if (IWXDebugProxy.ACTION_INSTANCE_RELOAD.equals(intent.getAction()) ||
-              IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
-        // String myUrl = intent.getStringExtra("url");
-        // Log.e("WXPageActivity", "RefreshBroadcastReceiver reload onReceive ACTION_DEBUG_INSTANCE_REFRESH mBundleUrl:" + myUrl + " mUri:" + mUri);
-
-        Log.v(TAG, "connect to debug server success");
-        if (mUri != null) {
-          if (TextUtils.equals(mUri.getScheme(), "http") || TextUtils.equals(mUri.getScheme(), "https")) {
-            String weexTpl = mUri.getQueryParameter(Constants.WEEX_TPL_KEY);
-            String url = TextUtils.isEmpty(weexTpl) ? mUri.toString() : weexTpl;
-            // Log.e("WXPageActivity", "loadWXfromService reload url:" + url);
-            loadWXfromService(url);
-          } else {
-            // Log.e("WXPageActivity", "loadWXfromLocal reload from local url:" + mUri.toString());
-            loadWXfromLocal(true);
-          }
-        }
-      }
+//      if (IWXDebugProxy.ACTION_INSTANCE_RELOAD.equals(intent.getAction()) ||
+//              IWXDebugProxy.ACTION_DEBUG_INSTANCE_REFRESH.equals(intent.getAction())) {
+//        // String myUrl = intent.getStringExtra("url");
+//        // Log.e("WXPageActivity", "RefreshBroadcastReceiver reload onReceive ACTION_DEBUG_INSTANCE_REFRESH mBundleUrl:" + myUrl + " mUri:" + mUri);
+//
+//        Log.v(TAG, "connect to debug server success");
+//        if (mUri != null) {
+//          if (TextUtils.equals(mUri.getScheme(), "http") || TextUtils.equals(mUri.getScheme(), "https")) {
+//            String weexTpl = mUri.getQueryParameter(Constants.WEEX_TPL_KEY);
+//            String url = TextUtils.isEmpty(weexTpl) ? mUri.toString() : weexTpl;
+//            // Log.e("WXPageActivity", "loadWXfromService reload url:" + url);
+//            loadWXfromService(url);
+//          } else {
+//            // Log.e("WXPageActivity", "loadWXfromLocal reload from local url:" + mUri.toString());
+//            loadWXfromLocal(true);
+//          }
+//        }
+//      }
     }
   }
 }

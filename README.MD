@@ -12,6 +12,22 @@ Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 - [Contributing](#contributing)
 - [License](#license)
 
+## Distribution
+###  GCanvas
+
+* iOS  [GCanvas](https://cocoapods.org/pods/GCanvas)   [![CocoaPods Version](https://badge.fury.io/co/GCanvas.svg)](https://badge.fury.io/co/GCanvas)
+
+* Android  com.taobao.gcanvas:core:1.1.0(publishing)
+
+### GCanvas Weex Component
+
+* iOS [WeexGcanvas](https://cocoapods.org/pods/WeexGcanvas)   [![CocoaPods Version](https://badge.fury.io/co/WeexGcanvas.svg)](https://badge.fury.io/co/GCanvas)
+
+* Android com.taobao.gcanvas.bridges:weex-brigde 1.1.0 (publishing)
+
+* JS [gcanvas.js](https://www.npmjs.com/package/gcanvas.js)   [![npm version](https://badge.fury.io/js/gcanvas.js.svg)](https://badge.fury.io/js/gcanvas.js)
+
+
 ## Features
 - Cross-platform, support popular iOS and Android.
 - High performance, accelerate graphic draw by OpenGL ES.

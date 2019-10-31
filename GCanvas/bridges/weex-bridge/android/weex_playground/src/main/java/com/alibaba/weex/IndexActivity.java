@@ -41,7 +41,6 @@ import android.widget.Toast;
 
 import com.alibaba.weex.commons.AbstractWeexActivity;
 import com.google.zxing.client.android.CaptureActivity;
-import com.taobao.weex.WXRenderErrorCode;
 import com.taobao.weex.WXSDKEngine;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.utils.WXFileUtils;
@@ -178,11 +177,6 @@ public class IndexActivity extends AbstractWeexActivity {
     super.onException(wxsdkInstance,s,s1);
     mProgressBar.setVisibility(View.GONE);
     mTipView.setVisibility(View.VISIBLE);
-//    if (TextUtils.equals(s, WXRenderErrorCode.WX_NETWORK_ERROR)) {
-//      mTipView.setText(R.string.index_tip);
-//    } else {
-//      mTipView.setText("render error:" + s1);
-//    }
   }
 
   @Override

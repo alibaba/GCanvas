@@ -20,7 +20,7 @@
 bool g_use_pre_compile = false;
 #endif
 
-#ifdef IOS
+
 GShaderManager *GShaderManager::mShaderManager = nullptr;
 
 GShaderManager *GShaderManager::getSingleton()
@@ -40,7 +40,7 @@ void GShaderManager::release()
         mShaderManager = nullptr;
     }
 }
-#endif
+
 
 void GShaderManager::addProgram(const std::string &key, GShader *program)
 {

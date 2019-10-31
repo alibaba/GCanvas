@@ -6,18 +6,20 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GFrameBufferObject__
-#define __GCanvas__GFrameBufferObject__
+#ifndef GCANVAS_GFRAMEBUFFEROBJECT_H
+#define GCANVAS_GFRAMEBUFFEROBJECT_H
+
+#include "GTexture.h"
+#include "GPoint.h"
+#include "GTransform.h"
 
 #include <map>
 #include <string>
 #include <vector>
-#include "GTexture.h"
-#include "GPoint.h"
-#include "GTransform.h"
 #include <map>
 #include <set>
 
+struct GCanvasLog;
 
 class GFrameBufferObject
 {
@@ -26,9 +28,10 @@ public:
 
     ~GFrameBufferObject();
 
-    bool InitFBO(int width, int height, GColorRGBA color, std::string appInfo = "");
 
-    bool InitFBO(int width, int height, GColorRGBA color, bool enableMsaa, std::string appInfo = "");
+    bool InitFBO(int width, int height, GColorRGBA color, std::vector<GCanvasLog> *errVec = nullptr);
+
+    bool InitFBO(int width, int height, GColorRGBA color, bool enableMsaa, std::vector<GCanvasLog> *errVec = nullptr);
 
     void BindFBO();
 
@@ -78,7 +81,10 @@ public:
 
     int mWidth;
     int mHeight;
+
 };
+
+
 typedef std::shared_ptr<GFrameBufferObject> GFrameBufferObjectPtr;
 
 class GFrameBufferObjectPool
@@ -106,4 +112,4 @@ private:
     Map mPool;
 };
 
-#endif
+#endif /* GCANVAS_GFRAMEBUFFEROBJECT_H */

@@ -5,14 +5,13 @@
 	</div>
 </template>
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 
-// import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
+// import { enable, WeexBridge } from "../../../../js/src/index.js";
 
-
-const enable     = require('../../../../js/dist/gcanvas.min.js').enable;
-const WeexBridge = require('../../../../js/dist/gcanvas.min.js').WeexBridge;
-const GImage     = require('../../../../js/dist/gcanvas.min.js').Image;
+const enable     = require('gcanvas.js').enable;
+const WeexBridge = require('gcanvas.js').WeexBridge;
+const GImage     = require('gcanvas.js').Image;
 
 
 var EnvImage = isWeex ? GImage : Image;

@@ -6,8 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GStrSeparator__
-#define __GCanvas__GStrSeparator__
+#ifndef GCANVAS_GSTRSEPARATOR_H
+#define GCANVAS_GSTRSEPARATOR_H
 
 namespace gcanvas
 {
@@ -28,4 +28,4 @@ private:
 };
 }
 
-#endif /* GSTRSEPARATOR_H_ */
+#endif /* GCANVAS_GSTRSEPARATOR_H */

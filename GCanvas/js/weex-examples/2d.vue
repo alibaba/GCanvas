@@ -5,7 +5,7 @@
 	</div>
 </template>
 <script>
-const isWeex = typeof callNative === "function";
+const isWeex = typeof WXEnvironment !== 'undefined';
 
 import { enable, WeexBridge, Image as GImage } from "../src/index.js";
 

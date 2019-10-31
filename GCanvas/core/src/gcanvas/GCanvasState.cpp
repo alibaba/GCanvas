@@ -9,8 +9,6 @@
 
 #include "GCanvasState.h"
 
-using namespace gcanvas;
-
 GCanvasState::GCanvasState()
 {
     mGlobalCompositeOp = COMPOSITE_OP_NONE;
@@ -28,23 +26,18 @@ GCanvasState::GCanvasState()
     mTextAlign = TEXT_ALIGN_START;
     mTextBaseline = TEXT_BASELINE_ALPHABETIC;
     mTransform = GTransformIdentity;
-//    mClipTransform = GTransformIdentity;
     mClipPath = nullptr;
     mShader = nullptr;
     mFillStyle = nullptr;
     mStrokeStyle = nullptr;
     
-    mShadowColor = StrValueToColorRGBA("transparent");
+    mShadowColor = gcanvas::StrValueToColorRGBA("transparent");
     mShadowBlur = 0;
     mShadowOffsetX = 0;
     mShadowOffsetY = 0;
-    
-#ifdef CANVAS_EXTENSION
-    mKerning = 0;
-    mStrokeDirection = STROKE_DIRECTION_CENTER;
-    mOverrideShadowColor = false;
-    mShadowSpread = 0;
-#endif
+
+    mscaleFontX = 1.0f;
+    mscaleFontY = 1.0f;
 }
 
 GCanvasState::GCanvasState(const GCanvasState &state)
@@ -72,7 +65,7 @@ GCanvasState::GCanvasState(const GCanvasState &state)
     
     if (state.mFont != nullptr)
     {
-        mFont = new GFontStyle(*state.mFont);
+        mFont = new gcanvas::GFontStyle(*state.mFont);
     }
     else
     {
@@ -83,7 +76,6 @@ GCanvasState::GCanvasState(const GCanvasState &state)
     mTextBaseline = state.mTextBaseline;
     mTransform = state.mTransform;
     
-//    mClipTransform = state.mClipTransform;
     if (state.mClipPath != nullptr)
     {
         mClipPath = new GPath(*(state.mClipPath));
@@ -98,13 +90,9 @@ GCanvasState::GCanvasState(const GCanvasState &state)
     mShadowBlur = state.mShadowBlur;
     mShadowOffsetX = state.mShadowOffsetX;
     mShadowOffsetY = state.mShadowOffsetY;
-    
-#ifdef CANVAS_EXTENSION
-    mKerning = state.mKerning;
-    mStrokeDirection = state.mStrokeDirection;
-    mOverrideShadowColor = state.mOverrideShadowColor;
-    mShadowSpread = state.mShadowSpread;
-#endif
+
+    mscaleFontX = state.mscaleFontX;
+    mscaleFontY = state.mscaleFontY;
 }
 
 GCanvasState &GCanvasState::operator=(const GCanvasState &state)
@@ -137,7 +125,7 @@ GCanvasState &GCanvasState::operator=(const GCanvasState &state)
     
     if (state.mFont != nullptr)
     {
-        mFont = new GFontStyle(*state.mFont);
+        mFont = new gcanvas::GFontStyle(*state.mFont);
     }
     
     
@@ -145,7 +133,6 @@ GCanvasState &GCanvasState::operator=(const GCanvasState &state)
     mTextBaseline = state.mTextBaseline;
     mTransform = state.mTransform;
     
-//    mClipTransform = state.mClipTransform;
     if (mClipPath != nullptr)
     {
         delete mClipPath;
@@ -160,13 +147,9 @@ GCanvasState &GCanvasState::operator=(const GCanvasState &state)
     mShadowBlur = state.mShadowBlur;
     mShadowOffsetX = state.mShadowOffsetX;
     mShadowOffsetY = state.mShadowOffsetY;
-    
-#ifdef CANVAS_EXTENSION
-    mKerning = state.mKerning;
-    mStrokeDirection = state.mStrokeDirection;
-    mOverrideShadowColor = state.mOverrideShadowColor;
-    mShadowSpread = state.mShadowSpread;
-#endif
+
+    mscaleFontX = state.mscaleFontX;
+    mscaleFontY = state.mscaleFontY;
     
     return *this;
 }

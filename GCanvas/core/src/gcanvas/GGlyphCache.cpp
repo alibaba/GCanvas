@@ -18,16 +18,18 @@ GGlyphCache::GGlyphCache(GCanvasContext *context, GFontManager &fontManager) : m
 
 const GGlyph *GGlyphCache::GetGlyph(const std::string& fontName,
                                     const wchar_t charcode,
-                                    float size, bool isStroke)
+                                    const std::string &font, bool isStroke)
 {
 
     GGlyphMap::iterator iter = mGlyphs.find(
-            make_tuple(fontName, charcode, size,isStroke));
+            make_tuple(fontName, charcode, font,isStroke));
     if (iter != mGlyphs.end())
     {
         if (!iter->second.texture)
         {
-            LoadGlyphTexture(iter->second);
+            if (!LoadGlyphTexture(iter->second)) {
+                return nullptr;
+            }
         }
 
         return &(iter->second);
@@ -38,7 +40,7 @@ const GGlyph *GGlyphCache::GetGlyph(const std::string& fontName,
 
 }
 
-void GGlyphCache::LoadGlyphTexture(GGlyph &glyph)
+bool GGlyphCache::LoadGlyphTexture(GGlyph &glyph)
 {
     GTexture *texture = mContext->GetFontTexture();
     GTreemap &treemap = mFontManager.mTreemap;
@@ -54,6 +56,8 @@ void GGlyphCache::LoadGlyphTexture(GGlyph &glyph)
             mContext->SendVertexBufferToGPU();
             treemap.Clear();
             ClearGlyphsTexture();
+
+            return false;
         }
         else
         {
@@ -65,6 +69,8 @@ void GGlyphCache::LoadGlyphTexture(GGlyph &glyph)
             glyph.t1 = (float) (rect.y + rect.height) / treemap.GetHeight();
         }
     }
+
+    return true;
 }
 
 void GGlyphCache::ClearGlyphsTexture()
@@ -76,23 +82,25 @@ void GGlyphCache::ClearGlyphsTexture()
             delete buffer;
             buffer = nullptr;
         }
+        i->second.bitmapBuffer = nullptr;
         i->second.texture = nullptr;
     }
+    mGlyphs.clear();
 }
 
 void GGlyphCache::Erase(const std::string& fontName,
                         const wchar_t charcode,
-                        float size,
+                        const std::string &font,
                         bool isStroke)
 {
-    mGlyphs.erase(make_tuple(fontName, charcode, size,isStroke));
+    mGlyphs.erase(make_tuple(fontName, charcode, font,isStroke));
 }
 
 void GGlyphCache::Insert(const std::string& fontName,
                          const wchar_t charcode,
-                         float size,
+                         const std::string &font,
                          bool isStroke,
                          const GGlyph &glyph)
 {
-    mGlyphs.insert(GGlyphMap::value_type(make_tuple(fontName, charcode, size,isStroke), glyph));
+    mGlyphs.insert(GGlyphMap::value_type(make_tuple(fontName, charcode, font,isStroke), glyph));
 }

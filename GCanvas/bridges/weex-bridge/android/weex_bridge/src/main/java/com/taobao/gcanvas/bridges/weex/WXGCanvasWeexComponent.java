@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.Display;
 import android.view.TextureView;
 
@@ -14,12 +15,11 @@ import com.taobao.gcanvas.surface.GTextureView;
 import com.taobao.gcanvas.util.GLog;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
-import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
+import com.taobao.weex.ui.action.BasicComponentData;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,10 +38,10 @@ public class WXGCanvasWeexComponent extends WXComponent<GWXTextureView> implemen
     private static final String TAG = WXGCanvasWeexComponent.class.getSimpleName();
 
     private void addGCanvasView() {
-        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
+        String backgroundColor = getStyles().getBackgroundColor();
         mSurfaceView = new GWXTextureView(getContext(), this);
         GCanvasJNI.registerWXCallNativeFunc(getContext());
-        if (backgroundColor.isEmpty()) {
+        if (TextUtils.isEmpty(backgroundColor)) {
             backgroundColor = "rgba(0,0,0,0)";
         }
         mSurfaceView.setBackgroundColor(backgroundColor);
@@ -49,28 +49,18 @@ public class WXGCanvasWeexComponent extends WXComponent<GWXTextureView> implemen
     }
 
     public static class Creator implements ComponentCreator {
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGCanvasWeexComponent(instance, node, parent, lazy);
-        }
-
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGCanvasWeexComponent(instance, node, parent);
+        @Override
+        public WXComponent createInstance(WXSDKInstance wxsdkInstance, WXVContainer wxvContainer, BasicComponentData basicComponentData) {
+            return new WXGCanvasWeexComponent(wxsdkInstance, wxvContainer, basicComponentData);
         }
     }
 
-    @Deprecated
-    public WXGCanvasWeexComponent(WXSDKInstance instance, WXDomObject dom, WXVContainer parent, String instanceId, boolean isLazy) {
-        this(instance, dom, parent, isLazy);
+    public WXGCanvasWeexComponent(WXSDKInstance instance, WXVContainer parent, BasicComponentData basicComponentData) {
+        super(instance, parent, basicComponentData);
     }
 
-    public WXGCanvasWeexComponent(WXSDKInstance instance, WXDomObject node,
-                                  WXVContainer parent, boolean lazy) {
-        super(instance, node, parent, lazy);
-    }
-
-    public WXGCanvasWeexComponent(WXSDKInstance instance, WXDomObject node,
-                                  WXVContainer parent) {
-        super(instance, node, parent);
+    public WXGCanvasWeexComponent(WXSDKInstance instance, WXVContainer parent, int type, BasicComponentData basicComponentData) {
+        super(instance, parent, type, basicComponentData);
     }
 
     @Override

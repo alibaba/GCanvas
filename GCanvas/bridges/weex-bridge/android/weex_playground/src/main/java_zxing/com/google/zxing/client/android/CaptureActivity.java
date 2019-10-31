@@ -122,6 +122,8 @@ public final class CaptureActivity extends Activity implements
     private BeepManager beepManager;
     private AmbientLightManager ambientLightManager;
 
+    private String mDirectionType;
+
     ViewfinderView getViewfinderView() {
         return viewfinderView;
     }
@@ -147,6 +149,12 @@ public final class CaptureActivity extends Activity implements
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
+        mDirectionType = getIntent().getStringExtra("type");
+
+        if (TextUtils.isEmpty(mDirectionType)) {
+            mDirectionType = "activity";
         }
 
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)) {
@@ -418,6 +426,10 @@ public final class CaptureActivity extends Activity implements
             // intent.setClassName(this, HelpActivity.class.getName());
             // startActivity(intent);
             // break;
+        } else if (i == R.id.menu_native_test) {
+            Uri data = Uri.parse("tbplay://market.m.taobao.com/game/110123");
+            intent.setData(data);
+            startActivity(intent);
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -605,7 +617,16 @@ public final class CaptureActivity extends Activity implements
                 finish();
             } else {
                 Toast.makeText(this, rawResult.getText(), Toast.LENGTH_SHORT).show();
+//                Intent intent;
                 Intent intent = new Intent(CaptureActivity.this, WXPageActivity.class);
+//                if (mDirectionType.equals("view")) {
+//                    intent = new Intent(CaptureActivity.this, GViewActivity.class);
+//                } else if (mDirectionType.equals("multiview")) {
+//                    intent = new Intent(CaptureActivity.this, GMultiViewActivity.class);
+//                } else{
+//                    intent = new Intent(CaptureActivity.this, GNativeActivity.class);
+//                }
+                intent.putExtra("url", code);
                 intent.setData(Uri.parse(code));
                 startActivity(intent);
             }

@@ -18,7 +18,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <SRWebSocket.h>
+#import <SocketRocket/SRWebSocket.h>
 
 @interface ViewController : UIViewController <SRWebSocketDelegate>
 
