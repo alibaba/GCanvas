@@ -88,12 +88,16 @@ image.onload = function(){
 * [Freetype](https://www.freetype.org/) - Used for font rendering on Android
 
 
+## Changelog
+
+New Changelog record in [CHANGELOG](./docs/Changelog.md) for details.
+
 ## Open Issues
 If you encounter a bug with GCanvas we would like to hear about it. Search the [existing issues]() and try to make sure your problem doesn’t already exist before opening a new issue. It’s helpful if you include the version of GCanvas  and OS you’re using. Please include a stack trace and reduced repro case when appropriate, too.
 
 ## Contributing
 
-Please read [CONTRIBUTING](./GCanvas/docs/Contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING](./docs/Contributing.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
@@ -102,4 +106,4 @@ GCanvas Open Source Team
 
 ## License
 
-This project is licensed under the Apache License - see the [LICENSE](./GCanvas/docs/LICENSE.md) file for details
+This project is licensed under the Apache License - see the [LICENSE](./docs/LICENSE.md) file for details
