@@ -242,58 +242,6 @@
 
 #pragma mark - iOS implementation of Font & texImage
 /**
- * Draw GCanvas2D Text with GCVFont.
- *
- * @param text          text string to draw
- * @param text_length   text length
- * @param x             draw position x
- * @param y             draw position y
- * @param isStroke      isStroke flag
- * @param context       see GCanvasContext
- *
- */
-void iOS_GCanvas_Draw_Text(const unsigned short *text, unsigned int text_length, float x, float y, bool isStroke, GCanvasContext *context, void* fontContext){
-    //    LOG_D("[iOS_GCanvas_Draw_Text] text[%d]=%s, point=(%.2f, %.2f)", text_length, text, x, y);
-    if (text == nullptr || text_length == 0) {
-        return;
-    }
-    
-    GCanvasState *current_state_ = context->GetCurrentState();
-    GCVFont *curFont = (__bridge GCVFont*)fontContext;
-    
-    [curFont resetWithFontStyle:current_state_->mFont isStroke:isStroke];
-    NSString *string = [[NSString alloc] initWithBytes:text length:text_length encoding:NSUTF8StringEncoding];
-    GFontLayout *fontLayout = [curFont getLayoutForString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()]];
-    CGPoint destPoint = [curFont adjustTextPenPoint:CGPointMake(x, y)
-                                          textAlign:current_state_->mTextAlign
-                                           baseLine:current_state_->mTextBaseline
-                                            metrics:fontLayout.metrics];
-    
-    current_state_->mShader->SetOverideTextureColor(1);
-    
-    glActiveTexture(GL_TEXTURE0);
-    
-    [curFont drawString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()] withLayout:fontLayout withPosition:destPoint];
-    
-    
-}
-
-float iOS_GCanvas_Mesure_Text(const char *text, unsigned int text_length, GCanvasContext *context, void* fontContext){
-    if (text == nullptr || text_length == 0) {
-        return 0;
-    }
-    
-    GCanvasState *current_state_ = context->GetCurrentState();
-    GCVFont *curFont = (__bridge GCVFont*)fontContext;
-    
-    [curFont resetWithFontStyle:current_state_->mFont isStroke:false];
-    NSString *string = [[NSString alloc] initWithBytes:text length:text_length encoding:NSUTF8StringEncoding];
-    GFontLayout *fontLayout = [curFont getLayoutForString:string withFontStyle:[NSString stringWithUTF8String:current_state_->mFont->GetName().c_str()]];
-    
-    return fontLayout.metrics.width;
-}
-
-/**
  * Fetch GCVImageCache by image source, create texImage2D with imageData.
  * create textImage2D success, while imageCache loaded.
  *
