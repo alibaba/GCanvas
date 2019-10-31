@@ -16,7 +16,6 @@
 #import "GCanvasObject.h"
 #import "GCanvasPlugin.h"
 #import "GCVCommon.h"
-#import "GCVFont.h"
 #import "GCVLog.h"
 
 
