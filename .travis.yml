@@ -3,7 +3,6 @@ sudo: true
 
 compiler:
   - gcc
-  - clang
 
 - os: linux
       addons:
