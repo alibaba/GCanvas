@@ -71,7 +71,7 @@ ADD_EXECUTABLE(gcanvasTest ${SRC_FILES} )
 
 target_link_libraries( # Specifies the target library.
         gcanvasTest
-        GLESv1_CM
+        # GLESv1_CM
         GLESv2
         EGL
         atomic
