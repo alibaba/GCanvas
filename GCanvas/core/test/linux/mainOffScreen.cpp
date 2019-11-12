@@ -128,20 +128,6 @@ int main(int argc, char *argv[])
 
   // in my case, I got back a buffer that was RGB565
   glReadPixels(0,0,renderBufferWidth,renderBufferHeight,GL_RGBA,GL_UNSIGNED_BYTE, data);
-
-  for(int i=0;i<3;i++){
-      for(int j=0;j<4;j++){
-        if(j==0){
-           printf("the r is %d \n",data[i*4+j]); 
-        }else if(j==1){
-            printf("the g is %d \n",data[i*4+j]);
-        }else if(j==2){
-            printf("the b is %d \n",data[i*4+j]);
-        }else{
-            printf("the a is %d \n",data[i*4+j]);
-        }
-      }
-  }
   ConvertPixelsToPng("a.png",data,renderBufferWidth,renderBufferHeight);
 
   delete data;

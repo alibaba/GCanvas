@@ -83,7 +83,6 @@ int main(void) {
     printf("GL_RENDERER : %s\n", glGetString(GL_RENDERER) );
 
 
-
    gcanvas:: GCanvas c("id",{false,true},nullptr);
    c.CreateContext();
    c.OnSurfaceChanged(0,0,WIDTH,HEIGHT);   
