@@ -4,6 +4,10 @@ compiler:
 - g++
 os:
 - linux
+addons:
+  apt:
+    packages:
+      - xvfb
 
 before_install:
   - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
@@ -19,6 +23,10 @@ before_install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
     fi
+  
+install:
+  - export DISPLAY=':99.0'
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &    
 script:  
   - ls -al
   - cmake -version
