@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
 
-
+ printf("run the gcanvas offscreen");
  gcanvas:: GCanvas c("id",{false,true},nullptr);
  c.CreateContext();
  c.OnSurfaceChanged(0,0,renderBufferWidth ,renderBufferHeight);   
