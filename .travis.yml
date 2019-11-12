@@ -23,5 +23,4 @@ script:
   - ls -al
   - cmake -version
   - cd GCanvas/core/test && mkdir build && cd build && cmake ../ && make
-  - ./gcanvasTest 
-  - ls -al 
+  - ls -al
