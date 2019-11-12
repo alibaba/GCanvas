@@ -132,7 +132,7 @@ set_target_properties(freetype PROPERTIES IMPORTED_LOCATION
 
 target_link_libraries( # Specifies the target library.
         gcanvas
-        GLESv1_CM
+        # GLESv1_CM
         GLESv2
         android
         EGL
