@@ -14,6 +14,7 @@
 #include "../support/GLUtil.h"
 
 #include <assert.h>
+#include <string.h>
 
 #define SIZE_EPSILON 1.f
 
@@ -106,7 +107,7 @@ GCanvasContext::GCanvasContext(short w, short h, const GCanvasConfig &config, GC
         InitFBO();
     }
 
-    mFontManager = GFontManager::NewInstance(this);
+    // mFontManager = GFontManager::NewInstance(this);
 }
 
 

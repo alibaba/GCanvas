@@ -25,7 +25,7 @@ namespace gcanvas {
 
 GCanvas::GCanvas(std::string canvasId, const GCanvasConfig &config, GCanvasHooks *hooks) :
         mContextId(canvasId),
-        mConfig(config)
+        mConfig(config),mCanvasContext(nullptr)
 {
     mHooks = hooks;
     LOG_D("Create Canvas");
@@ -60,7 +60,7 @@ void GCanvas::OnSurfaceChanged(int x, int y, int width, int height) {
     glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &maxRenderbufferSize);
 
     if ((maxRenderbufferSize <= width) || (maxRenderbufferSize <= height)) {
-
+        
         LOG_EXCEPTION(mHooks, mContextId, "surfacesize_exceed_max",
                           "<function:%s, maxSize:%d, width:%d, height:%d>", __FUNCTION__,
                           maxRenderbufferSize, width, height);
@@ -70,7 +70,6 @@ void GCanvas::OnSurfaceChanged(int x, int y, int width, int height) {
     if (width == 0 || height == 0) {
         return;
     }
-
     if (mCanvasContext->mWidth != width || mCanvasContext->mHeight != height) {
         mCanvasContext->mX = x;
         mCanvasContext->mY = y;

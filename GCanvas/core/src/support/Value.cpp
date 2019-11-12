@@ -9,11 +9,11 @@
 #include "Value.h"
 #include <iomanip>
 #include <sstream>
-
+#include <stdlib.h>
 #ifndef FLT_EPSILON
 #define FLT_EPSILON 1.192092896e-07F
 #endif
-
+#include<cstring>
 PalValue::PalValue(const PalValue &other) : mType(Type::NONE) { *this = other; }
 
 PalValue::~PalValue() { clear(); }

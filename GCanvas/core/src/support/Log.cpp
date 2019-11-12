@@ -8,6 +8,7 @@
  */
 #include "Log.h"
 #include <vector>
+#include <stdarg.h> 
 
 
 
@@ -82,10 +83,9 @@
 
     void LogExt(LogLevel logLevel, const char *tag, const char *format, ...) {
         if (g_log_level > logLevel) return;
-
         va_list va;
+      
         char buffer[LOG_MSG_BUF_SIZE];
-
         va_start(va, format);
         vsnprintf(buffer, LOG_MSG_BUF_SIZE, format, va);
         va_end(va);
@@ -109,7 +109,6 @@
     {
         va_list va;
         char buffer[LOG_MSG_BUF_SIZE];
-
         va_start(va, format);
         vsnprintf(buffer, LOG_MSG_BUF_SIZE, format, va);
         va_end(va);

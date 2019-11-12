@@ -8,6 +8,7 @@
  */
 #include "GFrameBufferObject.h"
 #include "../support/Log.h"
+#include <functional>
 #include "GConvert.h"
 
 #define OES_PACKED_DEPTH_STENCIL "GL_OES_packed_depth_stencil"
