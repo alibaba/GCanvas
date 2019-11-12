@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
      glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
 
- printf("run the gcanvas offscreen");
+ printf("run the gcanvas offscreen \n");
  gcanvas:: GCanvas c("id",{false,true},nullptr);
  c.CreateContext();
  c.OnSurfaceChanged(0,0,renderBufferWidth ,renderBufferHeight);   
@@ -124,12 +124,24 @@ int main(int argc, char *argv[])
   int size = 4 * renderBufferHeight * renderBufferWidth;
   unsigned char *data = new unsigned char[size];
 
-  printf("size %d \n", size);
+  printf("the size %d \n", size);
 
   // in my case, I got back a buffer that was RGB565
   glReadPixels(0,0,renderBufferWidth,renderBufferHeight,GL_RGBA,GL_UNSIGNED_BYTE, data);
 
-
+  for(int i=0;i<3;i++){
+      for(int j=0;j<4;j++){
+        if(j==0){
+           printf("the r is %d \n",data[i*4+j]); 
+        }else if(j==1){
+            printf("the g is %d \n",data[i*4+j]);
+        }else if(j==2){
+            printf("the b is %d \n",data[i*4+j]);
+        }else{
+            printf("the a is %d \n",data[i*4+j]);
+        }
+      }
+  }
   ConvertPixelsToPng("a.png",data,renderBufferWidth,renderBufferHeight);
 
   delete data;
