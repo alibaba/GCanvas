@@ -37,4 +37,4 @@ before_script:
 script:  
   - ls -al
   - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
-  - ./gcanvasTest
+  - ./gcanvasTest && cat result.txt 
