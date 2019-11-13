@@ -23,18 +23,15 @@ before_install:
     else
       if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
     fi
-  
+    - cmake -version
 install:
   - export DISPLAY=':99.0'
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &   
 
 before_script:
-   - cd GCanvas/core/test/w3c 
-   - npm i 
-   - mkdir build && node app.js
+   - cd GCanvas/core/test/w3c  && mkdir build
+   - npm i  && node app.js
    - cd ../../../../ 
 script:  
-  - ls -al
-  - cmake -version
   - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
   - ./gcanvasTest

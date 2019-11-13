@@ -122,7 +122,6 @@ void outputRenderResult2File(){
 
    int size = 4 * renderBufferHeight * renderBufferWidth;
     unsigned char *data = new unsigned char[size];
-    printf("the size %d \n", size);
     glReadPixels(0, 0, renderBufferWidth, renderBufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     encodePixelsToFile("a.png", data, renderBufferWidth, renderBufferHeight);
     delete data;
