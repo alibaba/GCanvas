@@ -19,19 +19,22 @@ before_install:
       chmod +x cmake-*-Linux-x86_64.sh
       ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
       export PATH="${PWD}/bin:$PATH"
+      cmake -version
       popd
     else
       if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
     fi
-    - cmake -version
+  
 install:
   - export DISPLAY=':99.0'
   - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &   
 
 before_script:
-   - cd GCanvas/core/test/w3c  && mkdir build
-   - npm i  && node app.js
+   - ls -al
+   - cd GCanvas/core/test/w3c &&mkdir build
+   - npm i && node app.js
    - cd ../../../../ 
 script:  
+  - ls -al
   - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
   - ./gcanvasTest

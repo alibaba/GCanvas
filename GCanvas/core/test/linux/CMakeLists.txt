@@ -21,6 +21,7 @@ set(SRC_FILES
         #root srcs
         # ./mainOnScreen.cpp
         ./mainOffScreen.cpp
+        ./GBenchMark.cpp
         ./util/lodepng.cc
         ./util/util.cc
         ../../src/GCanvas.cpp
