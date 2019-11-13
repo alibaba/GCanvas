@@ -5,20 +5,24 @@
 #include <GCanvas.hpp>
 #include <lodepng.h>
 
-
-class GBenchMark{
- public:
-         GBenchMark():mWidth(0),mHeight(0){
-
-         }
-        GBenchMark(int width,int height);
-         void intilGLOffScreenEnviroment();
-         void outputRenderResult2File();
-         float compareWithW3CResult();
+extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
+extern void decodeFile2Pixels(const char *filename, std::vector<unsigned char> &image);
+class GBenchMark
+{
+public:
+    GBenchMark() : mWidth(0), mHeight(0), mCanvas(nullptr)
+    {
+    }
+    GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas);
+    void intilGLOffScreenEnviroment();
+    void outputRenderResult2File();
+    float compareWithW3CResult();
+    void draw();
 private:
-        // gcanvas::GCanvas c;
-        int mHeight;
-        int mWidth;
+    std::shared_ptr<gcanvas::GCanvas> mCanvas;
+    void initGcanvas();
+    int mHeight;
+    int mWidth;
 };
 
 #endif

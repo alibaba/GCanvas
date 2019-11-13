@@ -1,11 +1,12 @@
 #include "GBenchMark.h"
-GBenchMark::GBenchMark(int width,int height):mWidth(width),mHeight(height){
-
+GBenchMark::GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas) : mWidth(width), mHeight(height), mCanvas(canvas)
+{
+    this->initGcanvas();
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
 {
-     #ifdef CONTEXT_ES20
+#ifdef CONTEXT_ES20
     EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 #endif
 
@@ -94,9 +95,48 @@ void GBenchMark::intilGLOffScreenEnviroment()
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
 }
+
+void GBenchMark::initGcanvas()
+{
+    if (mCanvas)
+    {
+        mCanvas->CreateContext();
+        mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
+    }
+}
 void GBenchMark::outputRenderResult2File()
 {
+    int size = 4 * mWidth * mHeight;
+    unsigned char *data = new unsigned char[size];
+    glReadPixels(0, 0, mWidth, mHeight ,GL_RGBA, GL_UNSIGNED_BYTE, data);
+    encodePixelsToFile("a.png", data, mWidth, mHeight);
+    delete data;
 }
-float GBenchMark:: compareWithW3CResult()
+float GBenchMark::compareWithW3CResult()
 {
+    std::vector<unsigned char> standrandImage;
+    std::vector<unsigned char> gcanvasImage;
+    decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
+    decodeFile2Pixels("a.png", gcanvasImage);
+    int N = std::min(standrandImage.size(), gcanvasImage.size());
+    int errorCount = 0;
+    int rightCount = 0;
+    for (int i = 0; i < N; i++)
+    {
+        if (standrandImage[i] != gcanvasImage[i])
+            errorCount++;
+        else
+            rightCount++;
+    }
+    return 1.0f * rightCount / N;
+}
+
+void GBenchMark::draw()
+{
+    if (mCanvas)
+    {
+        mCanvas->mCanvasContext->SetFillStyle("#ff0000");
+        mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
+        mCanvas->drawFrame();
+    }
 }
