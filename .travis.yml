@@ -32,6 +32,7 @@ before_script:
    - cd GCanvas/core/test/w3c 
    - npm i 
    - mkdir build && node app.js
+   - cd ../../../../ 
 script:  
   - ls -al
   - cmake -version
