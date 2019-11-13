@@ -6,6 +6,7 @@
 #include <iostream>
 #include <GCanvas.hpp>
 #include <lodepng.h>
+#include <fstream>
 #define CONTEXT_ES20
 
 #include "GBenchMark.h"
@@ -23,6 +24,8 @@ public:
     }
 };
 
+   
+
 int main(int argc, char *argv[])
 {
    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
@@ -32,4 +35,13 @@ int main(int argc, char *argv[])
    mbench.run(case1);
     float ratio = mbench.computeRatioWithW3C(case1->getCaseName());
     std::cout << "ratio is  " << ratio << std::endl;
+    case1->ratio=ratio;
+    
+    
+    std:: ofstream myfile;
+    myfile.open ("result.txt");
+    myfile << case1->getCaseName();
+    myfile << "#";
+    myfile << case1->ratio;
+    myfile.close();
 }

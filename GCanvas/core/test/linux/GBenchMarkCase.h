@@ -20,10 +20,12 @@ public:
         return this->caseName;
     }
 
+    float ratio;
     virtual void draw(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height)=0;
     
+
 private:
     std::string caseName;
-    float ratio;
+
 };
 #endif
