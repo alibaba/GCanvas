@@ -1,7 +1,6 @@
 #include "GBenchMark.h"
 GBenchMark::GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas) : mWidth(width), mHeight(height), mCanvas(canvas)
 {
-
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
@@ -94,7 +93,7 @@ void GBenchMark::intilGLOffScreenEnviroment()
     GLint format = 0, type = 0;
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-      this->initGcanvas();
+    this->initGcanvas();
 }
 
 void GBenchMark::initGcanvas()
@@ -105,26 +104,26 @@ void GBenchMark::initGcanvas()
         mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
     }
 }
-void GBenchMark::outputRenderResult2File()
+void GBenchMark::outputRenderResult2File(std::string caseName)
 {
     int size = 4 * mWidth * mHeight;
     unsigned char *data = new unsigned char[size];
-    glReadPixels(0, 0, mWidth, mHeight ,GL_RGBA, GL_UNSIGNED_BYTE, data);
-    encodePixelsToFile("a.png", data, mWidth, mHeight);
+    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    encodePixelsToFile(caseName+".png", data, mWidth, mHeight);
     delete data;
 }
-float GBenchMark::compareWithW3CResult()
+float GBenchMark::compareWithW3CResult(std::string caseName)
 {
-    std::vector<unsigned char> standrandImage;
+    std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-    decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
-    decodeFile2Pixels("a.png", gcanvasImage);
-    int N = std::min(standrandImage.size(), gcanvasImage.size());
+    decodeFile2Pixels("../../w3c/build/fiilRect.png", w3cImage);
+    decodeFile2Pixels(caseName+".png", gcanvasImage);
+    int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
     int rightCount = 0;
     for (int i = 0; i < N; i++)
     {
-        if (standrandImage[i] != gcanvasImage[i])
+        if (w3cImage[i] != gcanvasImage[i])
             errorCount++;
         else
             rightCount++;
@@ -132,12 +131,12 @@ float GBenchMark::compareWithW3CResult()
     return 1.0f * rightCount / N;
 }
 
-void GBenchMark::draw()
+
+void GBenchMark::run(std::shared_ptr<GBenchMarkCase> oneCase)
 {
-    if (mCanvas)
-    {
-        mCanvas->mCanvasContext->SetFillStyle("#ff0000");
-        mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
-        mCanvas->drawFrame();
-    }
+    oneCase->draw(this->mCanvas,mWidth,mHeight);
+    mCanvas->drawFrame();
+    this->outputRenderResult2File(oneCase->getCaseName());
 }
+
+

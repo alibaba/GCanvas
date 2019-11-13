@@ -13,11 +13,11 @@
     }
 }
 
-void decodeFile2Pixels(const char *filename, std::vector<unsigned char> &image)
+void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)
 {
     unsigned width, height;
     //decode image
-    unsigned error = lodepng::decode(image, width, height, filename);
+    unsigned error = lodepng::decode(image, width, height, filename.c_str());
     //if there's an error, display it
     if (error)
         std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
