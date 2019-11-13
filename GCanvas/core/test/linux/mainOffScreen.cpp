@@ -12,22 +12,19 @@
 
 void ConvertPixelsToPng(std::string filename, uint8_t* buffer, int width, int height)
 {
-    unsigned error = lodepng::encode(filename,  buffer,  width,  height);
+    unsigned error = lodepng::encode(filename.c_str(),  buffer,  width,  height);
     if(error) {
         std::cout << "encoder error " << error << ": "<< lodepng_error_text(error)  << filename << std::endl;
     }
 }
 
-void decodeOneStep(const char* filename,  std::vector<unsigned char>& image) 
+void decodeFromFile(const char* filename,  std::vector<unsigned char>& image) 
 {
   unsigned width, height;
-  //decode
+  //decode image
   unsigned error = lodepng::decode(image, width, height, filename);
-
   //if there's an error, display it
   if(error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-
-  //the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
 }
 
 int main(int argc, char *argv[])
@@ -146,8 +143,8 @@ int main(int argc, char *argv[])
   delete data;
   std::vector<unsigned char> standrandImage;
   std::vector<unsigned char> gcanvasImage;
- decodeOneStep("../../w3c/build/mycanvasPage.png",standrandImage);
- decodeOneStep("a.png",gcanvasImage);
+ decodeFromFile("../../w3c/build/mycanvasPage.png",standrandImage);
+ decodeFromFile("a.png",gcanvasImage);
  
 std::cout << "standrand image "<<std::endl;
 std::cout << "standrand size "<<  standrandImage.size()<< std::endl;
