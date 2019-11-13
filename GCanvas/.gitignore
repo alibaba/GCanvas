@@ -17,5 +17,5 @@ node_modules/
 .project
 
 distribution/
-
+.vscode
 package-lock.json
