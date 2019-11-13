@@ -11,14 +11,14 @@
 #include <lodepng.h>
 #define CONTEXT_ES20
 
- extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
+const  static GLuint renderBufferHeight=300;
+const static  GLuint renderBufferWidth = 300;
+
+extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
 extern void decodeFile2Pixels(const char *filename, std::vector<unsigned char> &image);
 
-int main(int argc, char *argv[])
-{
-
-
-#ifdef CONTEXT_ES20
+void intilGLOffScreenEnviroment(){
+     #ifdef CONTEXT_ES20
     EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 #endif
 
@@ -76,8 +76,6 @@ int main(int argc, char *argv[])
 
     // Step 9 - create framebuffer object
     GLuint fboId = 0;
-    GLuint renderBufferWidth = 300;
-    GLuint renderBufferHeight = 300;
 
     // create a framebuffer objec g++  testopengloffscreen.cc lodepng.cc  -lGLESv2 -lglfw -lEGLt
     glGenFramebuffers(1, &fboId);
@@ -108,42 +106,35 @@ int main(int argc, char *argv[])
     GLint format = 0, type = 0;
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+}
 
+
+void createGcanvas(gcanvas::GCanvas  &  c){
     printf("run the gcanvas offscreen \n");
-    gcanvas::GCanvas c("id", {false, true}, nullptr);
     c.CreateContext();
     c.OnSurfaceChanged(0, 0, renderBufferWidth, renderBufferHeight);
     c.mCanvasContext->SetFillStyle("#ff0000");
     c.mCanvasContext->FillRect(0, 0, renderBufferWidth, renderBufferHeight);
     c.drawFrame();
+}
 
-    // commit the clear to the offscreen surface
-    //   eglSwapBuffers(eglDisplay, eglSurface);
+void outputRenderResult2File(){
 
-    // You should put your own calculation code here based on format/type
-    // you discovered above
-    int size = 4 * renderBufferHeight * renderBufferWidth;
+   int size = 4 * renderBufferHeight * renderBufferWidth;
     unsigned char *data = new unsigned char[size];
-
     printf("the size %d \n", size);
-
-    // in my case, I got back a buffer that was RGB565
     glReadPixels(0, 0, renderBufferWidth, renderBufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
     encodePixelsToFile("a.png", data, renderBufferWidth, renderBufferHeight);
-
     delete data;
-    std::vector<unsigned char> standrandImage;
+}
+
+
+float compareWithW3CResult(){
+   std::vector<unsigned char> standrandImage;
     std::vector<unsigned char> gcanvasImage;
     decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
     decodeFile2Pixels("a.png", gcanvasImage);
-
-    std::cout << "standrand image " << std::endl;
-    std::cout << "standrand size " << standrandImage.size() << std::endl;
-
-    std::cout << "mycanvas page image" << std::endl;
-    std::cout << "mycanvas page size " << gcanvasImage.size() << std::endl;
     int N = std::min(standrandImage.size(), gcanvasImage.size());
-
     int errorCount = 0;
     int rightCount = 0;
     for (int i = 0; i < N; i++)
@@ -157,7 +148,16 @@ int main(int argc, char *argv[])
             rightCount++;
         }
     }
+    return  1.0f*rightCount/N;
+}
 
-    std::cout << "error Count " << errorCount << std::endl;
-    std::cout << "right Count " << rightCount << std::endl;
+int main(int argc, char *argv[])
+{
+   intilGLOffScreenEnviroment();
+    gcanvas::GCanvas c("id", {false, true}, nullptr);
+    createGcanvas(c);
+    outputRenderResult2File();
+    float ratio=compareWithW3CResult();
+    std::cout << "ratio is  " <<  ratio<<std::endl;
+    
 }
