@@ -149,11 +149,11 @@ int main(int argc, char *argv[])
  decodeOneStep("../../w3c/build/mycanvasPage.png",standrandImage);
  decodeOneStep("a.png",gcanvasImage);
  
-std::cout << "standrand image"<<std::endl;
-std::cout << "standrand size"<<  standrandImage.size()<< std::endl;
+std::cout << "standrand image "<<std::endl;
+std::cout << "standrand size "<<  standrandImage.size()<< std::endl;
 
 std::cout << "mycanvas page image"<<std::endl;
-std::cout << "mycanvas page  size"<<  gcanvasImage.size()<< std::endl;
+std::cout << "mycanvas page size "<<  gcanvasImage.size()<< std::endl;
 int N= std::min(standrandImage.size(),gcanvasImage.size());
 
 int errorCount=0;
