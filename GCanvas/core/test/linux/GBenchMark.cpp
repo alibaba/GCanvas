@@ -1,7 +1,7 @@
 #include "GBenchMark.h"
 GBenchMark::GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas) : mWidth(width), mHeight(height), mCanvas(canvas)
 {
-    this->initGcanvas();
+ 
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
@@ -51,7 +51,7 @@ void GBenchMark::intilGLOffScreenEnviroment()
     // eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig,  (EGLNativeWindowType)NULL, NULL);
     eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
-    EGLContext eglContext;
+    EGLContext eglContext; this->initGcanvas();
 #ifdef CONTEXT_ES20
     eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
@@ -134,8 +134,8 @@ float GBenchMark::compareWithW3CResult()
 void GBenchMark::run(std::shared_ptr<GBenchMarkCase> oneCase)
 {
     //  oneCase->draw(mCanvas,mWidth,mHeight);
-      mCanvas->mCanvasContext->SetFillStyle("#ffffff");
+      mCanvas->mCanvasContext->SetFillStyle("#ff0000");
       mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
       mCanvas->drawFrame();
-      printf("draw end \n");
+
 }

@@ -18,11 +18,11 @@ public:
             printf("case one \n");
     }
     void draw(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height) override  {
-                if(canvas){
-                    printf("run  one \n");
-                    canvas->mCanvasContext->SetFillStyle("#ffffff");
-                    canvas->mCanvasContext->FillRect(0, 0, width, height);
-                }
+                // if(canvas){
+                //     printf("run  one \n");
+                //     canvas->mCanvasContext->SetFillStyle("#ff");
+                //     canvas->mCanvasContext->FillRect(0, 0, width, height);
+                // }
     }
 };
 
@@ -31,8 +31,12 @@ int main(int argc, char *argv[])
    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
    GBenchMark mbench(renderBufferWidth,renderBufferHeight,p);
    mbench.intilGLOffScreenEnviroment();
-   std::shared_ptr<GBenchMarkCase> case1(new CaseOne("filRect"));
-   mbench.run(case1);
+   p->CreateContext();
+   p->OnSurfaceChanged(0,0,renderBufferWidth,renderBufferHeight);
+   p->mCanvasContext->SetFillStyle("#ff0000");
+  p->mCanvasContext->FillRect(0, 0,renderBufferWidth, renderBufferHeight);
+//    std::shared_ptr<GBenchMarkCase> case1(new CaseOne("filRect"));
+//    mbench.run(case1);
    mbench.outputRenderResult2File();
     float ratio = mbench.compareWithW3CResult();
     std::cout << "ratio is  " << ratio << std::endl;
