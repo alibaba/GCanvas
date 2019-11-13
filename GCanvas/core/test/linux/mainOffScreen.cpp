@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <algorithm>
 
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>
@@ -15,6 +16,18 @@ void ConvertPixelsToPng(std::string filename, uint8_t* buffer, int width, int he
     if(error) {
         std::cout << "encoder error " << error << ": "<< lodepng_error_text(error)  << filename << std::endl;
     }
+}
+
+void decodeOneStep(const char* filename,  std::vector<unsigned char>& image) 
+{
+  unsigned width, height;
+  //decode
+  unsigned error = lodepng::decode(image, width, height, filename);
+
+  //if there's an error, display it
+  if(error) std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+
+  //the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
 }
 
 int main(int argc, char *argv[])
@@ -129,6 +142,31 @@ int main(int argc, char *argv[])
   // in my case, I got back a buffer that was RGB565
   glReadPixels(0,0,renderBufferWidth,renderBufferHeight,GL_RGBA,GL_UNSIGNED_BYTE, data);
   ConvertPixelsToPng("a.png",data,renderBufferWidth,renderBufferHeight);
-
+ 
   delete data;
+  std::vector<unsigned char> standrandImage;
+  std::vector<unsigned char> gcanvasImage;
+ decodeOneStep("/home/mingzong/puppeteer/mycanvasPage.png",standrandImage);
+ decodeOneStep("a.png",gcanvasImage);
+ 
+std::cout << "standrand image"<<std::endl;
+std::cout << "standrand size"<<  standrandImage.size()<< std::endl;
+
+std::cout << "mycanvas page image"<<std::endl;
+std::cout << "mycanvas page  size"<<  gcanvasImage.size()<< std::endl;
+int N= std::min(standrandImage.size(),gcanvasImage.size());
+
+
+int errorCount=0;
+int rightCount=0;
+for(int i=0;i<N;i++){
+        if(standrandImage[i]!=gcanvasImage[i]){
+                errorCount++;
+        }else{
+            rightCount++;
+        }
+}
+
+std::cout<< "error Count " <<errorCount <<std::endl;
+std::cout<< "right Count " <<rightCount <<std::endl;
 }
