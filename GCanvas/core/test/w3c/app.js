@@ -9,7 +9,7 @@ const puppeteer = require('puppeteer');
     const boundingBox4Canvas = await canvas.boundingBox();
     if (canvas != null) {
         await canvas.screenshot({
-            path: "./build/mycanvasPage.png",
+            path: "./build/fillRect.png",
             clip: {
                 x: boundingBox4Canvas.x,
                 y: boundingBox4Canvas.y,

@@ -114,16 +114,16 @@ void GBenchMark::outputRenderResult2File()
 }
 float GBenchMark::compareWithW3CResult()
 {
-    std::vector<unsigned char> standrandImage;
+    std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-    decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
+    decodeFile2Pixels("../../w3c/build/fillRect.png", w3cImage);
     decodeFile2Pixels("a.png", gcanvasImage);
-    int N = std::min(standrandImage.size(), gcanvasImage.size());
+    int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
     int rightCount = 0;
     for (int i = 0; i < N; i++)
     {
-        if (standrandImage[i] != gcanvasImage[i])
+        if (w3cImage[i] != gcanvasImage[i])
             errorCount++;
         else
             rightCount++;
@@ -131,12 +131,11 @@ float GBenchMark::compareWithW3CResult()
     return 1.0f * rightCount / N;
 }
 
-void GBenchMark::draw()
+void GBenchMark::run(std::shared_ptr<GBenchMarkCase> oneCase)
 {
-    if (mCanvas)
-    {
-        mCanvas->mCanvasContext->SetFillStyle("#ff0000");
-        mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
-        mCanvas->drawFrame();
-    }
+    //  oneCase->draw(mCanvas,mWidth,mHeight);
+      mCanvas->mCanvasContext->SetFillStyle("#ffffff");
+      mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
+      mCanvas->drawFrame();
+      printf("draw end \n");
 }
