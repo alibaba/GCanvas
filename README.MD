@@ -59,7 +59,7 @@ Check [Documentation](https://alibaba.github.io/GCanvas/docs/Introduction.html) 
 ## Examples
 We take [Weex](https://github.com/apache/incubator-weex) as example, code snippet of context 2d using `GCanvas`.
 ```javascript
-import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
+import { enable, WeexBridge, Image as GImage } from "@gcanvas/core";
 
 var gcanvas = enable(this.$refs.canvas_holder, {bridge: WeexBridge});
 var ctx = gcanvas.getContext("2d");

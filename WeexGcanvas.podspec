@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   
-  s.name         = "WeexGcanvas"
+  s.name         = "WeexGCanvas"
   s.version      = "1.1.0"
   s.summary      = "GCanvas Weex Bridge Source."
 
