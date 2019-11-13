@@ -8,27 +8,11 @@
 #include <EGL/egl.h>
 #include <iostream>
 #include <GCanvas.hpp>
-#include "lodepng.h"
+#include <lodepng.h>
 #define CONTEXT_ES20
 
-void ConvertPixelsToPng(std::string filename, uint8_t *buffer, int width, int height)
-{
-    unsigned error = lodepng::encode(filename.c_str(), buffer, width, height);
-    if (error)
-    {
-        std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << filename << std::endl;
-    }
-}
-
-void decodeFromFile(const char *filename, std::vector<unsigned char> &image)
-{
-    unsigned width, height;
-    //decode image
-    unsigned error = lodepng::decode(image, width, height, filename);
-    //if there's an error, display it
-    if (error)
-        std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
-}
+ extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
+extern void decodeFile2Pixels(const char *filename, std::vector<unsigned char> &image);
 
 int main(int argc, char *argv[])
 {
@@ -145,13 +129,13 @@ int main(int argc, char *argv[])
 
     // in my case, I got back a buffer that was RGB565
     glReadPixels(0, 0, renderBufferWidth, renderBufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    ConvertPixelsToPng("a.png", data, renderBufferWidth, renderBufferHeight);
+    encodePixelsToFile("a.png", data, renderBufferWidth, renderBufferHeight);
 
     delete data;
     std::vector<unsigned char> standrandImage;
     std::vector<unsigned char> gcanvasImage;
-    decodeFromFile("../../w3c/build/mycanvasPage.png", standrandImage);
-    decodeFromFile("a.png", gcanvasImage);
+    decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
+    decodeFile2Pixels("a.png", gcanvasImage);
 
     std::cout << "standrand image " << std::endl;
     std::cout << "standrand size " << standrandImage.size() << std::endl;

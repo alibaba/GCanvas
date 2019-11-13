@@ -12,13 +12,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-t
 include_directories("../../src/")
 include_directories("../../src/gcanvas")
 include_directories("../../src/support")
+include_directories("./util/")
 include_directories("../../src/platform/Android")
 include_directories(".")
 
 
 set(SRC_FILES
         #root srcs
+        # ./mainOnScreen.cpp
         ./mainOffScreen.cpp
+        ./util/lodepng.cc
+        ./util/util.cc
         ../../src/GCanvas.cpp
         ../../src/GCanvasManager.cpp
         ../../src/GCanvasWeex.cpp # todo remove
@@ -36,7 +40,7 @@ set(SRC_FILES
         ../../src/gcanvas/GStrSeparator.cpp
         ../../src/gcanvas/GTexture.cpp
         ../../src/gcanvas/GTreemap.cpp
-        ./lodepng.cc
+ 
         # # platform srcs
         ../../src/platform/Android/GCanvas2DContextImpl.cpp
 
