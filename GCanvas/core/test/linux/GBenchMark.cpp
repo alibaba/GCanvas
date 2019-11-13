@@ -1,7 +1,7 @@
 #include "GBenchMark.h"
 GBenchMark::GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas) : mWidth(width), mHeight(height), mCanvas(canvas)
 {
- 
+
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
@@ -51,7 +51,7 @@ void GBenchMark::intilGLOffScreenEnviroment()
     // eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig,  (EGLNativeWindowType)NULL, NULL);
     eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
-    EGLContext eglContext; this->initGcanvas();
+    EGLContext eglContext;
 #ifdef CONTEXT_ES20
     eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
@@ -94,6 +94,7 @@ void GBenchMark::intilGLOffScreenEnviroment()
     GLint format = 0, type = 0;
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
+      this->initGcanvas();
 }
 
 void GBenchMark::initGcanvas()
@@ -114,16 +115,16 @@ void GBenchMark::outputRenderResult2File()
 }
 float GBenchMark::compareWithW3CResult()
 {
-    std::vector<unsigned char> w3cImage;
+    std::vector<unsigned char> standrandImage;
     std::vector<unsigned char> gcanvasImage;
-    decodeFile2Pixels("../../w3c/build/fillRect.png", w3cImage);
+    decodeFile2Pixels("../../w3c/build/mycanvasPage.png", standrandImage);
     decodeFile2Pixels("a.png", gcanvasImage);
-    int N = std::min(w3cImage.size(), gcanvasImage.size());
+    int N = std::min(standrandImage.size(), gcanvasImage.size());
     int errorCount = 0;
     int rightCount = 0;
     for (int i = 0; i < N; i++)
     {
-        if (w3cImage[i] != gcanvasImage[i])
+        if (standrandImage[i] != gcanvasImage[i])
             errorCount++;
         else
             rightCount++;
@@ -131,11 +132,12 @@ float GBenchMark::compareWithW3CResult()
     return 1.0f * rightCount / N;
 }
 
-void GBenchMark::run(std::shared_ptr<GBenchMarkCase> oneCase)
+void GBenchMark::draw()
 {
-    //  oneCase->draw(mCanvas,mWidth,mHeight);
-      mCanvas->mCanvasContext->SetFillStyle("#ff0000");
-      mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
-      mCanvas->drawFrame();
-
+    if (mCanvas)
+    {
+        mCanvas->mCanvasContext->SetFillStyle("#ff0000");
+        mCanvas->mCanvasContext->FillRect(0, 0, mWidth, mHeight);
+        mCanvas->drawFrame();
+    }
 }

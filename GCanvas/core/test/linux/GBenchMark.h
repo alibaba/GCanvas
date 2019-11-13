@@ -20,7 +20,7 @@ public:
     void outputRenderResult2File();
     float compareWithW3CResult();
     void run(std::shared_ptr<GBenchMarkCase> oneCase);
-
+    void draw();
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initGcanvas();
