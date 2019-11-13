@@ -18,14 +18,15 @@ public:
     virtual ~GBenchMark() {}
     void intilGLOffScreenEnviroment();
 
-    float compareWithW3CResult(std::string caseName);
+    float computeRatioWithW3C(std::string caseName);
     void run(std::shared_ptr<GBenchMarkCase> oneCase);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initGcanvas();
-    void outputRenderResult2File(std::string caseName);
+    void render2file(std::string caseName);
     int mHeight;
     int mWidth;
+    std::string w3cPrefix="../../w3c/build/";
 };
 
 #endif

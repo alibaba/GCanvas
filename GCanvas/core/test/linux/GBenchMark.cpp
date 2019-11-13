@@ -104,7 +104,7 @@ void GBenchMark::initGcanvas()
         mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
     }
 }
-void GBenchMark::outputRenderResult2File(std::string caseName)
+void GBenchMark::render2file(std::string caseName)
 {
     int size = 4 * mWidth * mHeight;
     unsigned char *data = new unsigned char[size];
@@ -112,15 +112,18 @@ void GBenchMark::outputRenderResult2File(std::string caseName)
     encodePixelsToFile(caseName+".png", data, mWidth, mHeight);
     delete data;
 }
-float GBenchMark::compareWithW3CResult(std::string caseName)
+float GBenchMark::computeRatioWithW3C(std::string caseName)
 {
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-    decodeFile2Pixels("../../w3c/build/fiilRect.png", w3cImage);
+
+    decodeFile2Pixels(this->w3cPrefix+caseName+".png", w3cImage);
     decodeFile2Pixels(caseName+".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
     int rightCount = 0;
+    if(N==0)
+       return 0.0;
     for (int i = 0; i < N; i++)
     {
         if (w3cImage[i] != gcanvasImage[i])
@@ -136,7 +139,7 @@ void GBenchMark::run(std::shared_ptr<GBenchMarkCase> oneCase)
 {
     oneCase->draw(this->mCanvas,mWidth,mHeight);
     mCanvas->drawFrame();
-    this->outputRenderResult2File(oneCase->getCaseName());
+    this->render2file(oneCase->getCaseName());
 }
 
 

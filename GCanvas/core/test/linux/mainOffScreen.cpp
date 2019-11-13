@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
    GBenchMark mbench(renderBufferWidth,renderBufferHeight,p);
    mbench.intilGLOffScreenEnviroment();
-   std::shared_ptr<GBenchMarkCase> case1(new CaseOne("filRect"));
+   std::shared_ptr<GBenchMarkCase> case1(new CaseOne("fillRect"));
    mbench.run(case1);
-    float ratio = mbench.compareWithW3CResult(case1->getCaseName());
+    float ratio = mbench.computeRatioWithW3C(case1->getCaseName());
     std::cout << "ratio is  " << ratio << std::endl;
 }
