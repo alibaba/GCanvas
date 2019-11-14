@@ -50,7 +50,7 @@ set(SRC_FILES
         # ../../src/platform/Android/GFont.cpp
         # ../../src/platform/Android/GFontCache.cpp
         # ../../src/platform/Android/GFontFamily.cpp
-        # ../../src/platform/Android/GFontManagerAndroid.cpp
+        ../../src/platform/Android/GFontManagerAndroid.cpp
         # ../../src/platform/Android/GFontManagerImpl.cpp
 
         ../../src/platform/Android/GFrameBufferObjectImpl.cpp
