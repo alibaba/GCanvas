@@ -15,7 +15,7 @@ include_directories("../../src/support")
 include_directories("./util/")
 include_directories("../../src/platform/Android")
 include_directories(".")
-
+include_directories("./freetype2/")
 
 set(SRC_FILES
         #root srcs
@@ -50,7 +50,7 @@ set(SRC_FILES
         # ../../src/platform/Android/GFont.cpp
         # ../../src/platform/Android/GFontCache.cpp
         # ../../src/platform/Android/GFontFamily.cpp
-        ../../src/platform/Android/GFontManagerAndroid.cpp
+        # ../../src/platform/Android/GFontManagerAndroid.cpp
         # ../../src/platform/Android/GFontManagerImpl.cpp
 
         ../../src/platform/Android/GFrameBufferObjectImpl.cpp
