@@ -31,17 +31,19 @@ int main(int argc, char *argv[])
    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
    GBenchMark mbench(renderBufferWidth,renderBufferHeight,p);
    mbench.intilGLOffScreenEnviroment();
+
    std::shared_ptr<GBenchMarkCase> case1(new CaseOne("fillRect"));
    mbench.run(case1);
-    float ratio = mbench.computeRatioWithW3C(case1->getCaseName());
-    std::cout << "ratio is  " << ratio << std::endl;
-    case1->ratio=ratio;
+   float ratio = mbench.computeRatioWithW3C(case1->getCaseName());
+   std::cout << "------------------"<< "the case name is "<<case1->getCaseName() << std::endl;
+   std::cout << "------------------" << "the correct ratio is  " << ratio << std::endl;
+   case1->ratio=ratio;
     
     
-    std:: ofstream myfile;
-    myfile.open ("result.txt");
-    myfile << case1->getCaseName();
-    myfile << "#";
-    myfile << case1->ratio;
-    myfile.close();
+   std:: ofstream myfile;
+   myfile.open ("result.txt");
+   myfile << case1->getCaseName();
+   myfile << "#";
+   myfile << case1->ratio;
+   myfile.close();
 }
