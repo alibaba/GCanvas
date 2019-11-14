@@ -7,10 +7,10 @@
 <script>
 const isWeex = typeof WXEnvironment !== 'undefined';
 
-// import { enable, WeexBridge } from "../../../../js/src/index.js";
+import { enable, WeexBridge } from "../../../../js/src/index.js";
 
-const enable     = require('gcanvas.js').enable;
-const WeexBridge = require('gcanvas.js').WeexBridge;
+//const enable     = require('gcanvas.js').enable;
+//const WeexBridge = require('gcanvas.js').WeexBridge;
 
 
 function start(ref, size) {

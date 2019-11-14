@@ -11,9 +11,17 @@ export default class CanvasRenderingContext2D {
     _fillStyle = 'rgb(0,0,0)';
     _strokeStyle = 'rgb(0,0,0)';
 
+    _shadowColor = 'rgb(0,0,0)';
+    _shadowBlur = 0;
+    _shadowOffsetX = 0;
+    _shadowOffsetY = 0;
+
     _lineWidth = 1;
     _lineCap = 'butt';
     _lineJoin = 'miter';
+
+    _lineDash = [];
+    _lineDashOffset = 0;
 
     _miterLimit = 10;
 
@@ -79,7 +87,6 @@ export default class CanvasRenderingContext2D {
         this._drawCommands = this._drawCommands.concat("a" + value.toFixed(2) + ";");
     }
 
-
     get strokeStyle() {
         return this._strokeStyle;
     }
@@ -116,6 +123,51 @@ export default class CanvasRenderingContext2D {
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
         }
+    }
+
+    get shadowColor() {
+        return this._shadowColor;
+    }
+
+    set shadowColor(value) {
+        this._shadowColor = value;
+        this._drawCommands = this._drawCommands.concat("K" + value + ";");
+    }
+
+    get shadowBlur() {
+        return this._shadowBlur;
+    }
+
+    set shadowBlur(value) {
+        this._shadowBlur = value;
+        this._drawCommands = this._drawCommands.concat("Z" + value + ";");
+    }
+
+    get shadowOffsetX() {
+        return this._shadowOffsetX;
+    }
+
+    set shadowOffsetX(value) {
+        this._shadowOffsetX = value;
+        this._drawCommands = this._drawCommands.concat("X" + value + ";");
+    }
+
+    get shadowOffsetY() {
+        return this._shadowOffsetY;
+    }
+
+    set shadowOffsetY(value) {
+        this._shadowOffsetY = value;
+        this._drawCommands = this._drawCommands.concat("Y" + value + ";");
+    }
+
+    get lineDashOffset() {
+        return this._lineDashOffset;
+    }
+
+    set lineDashOffset(v) {
+        this._lineWidth = value;
+        this._drawCommands = this._drawCommands.concat("N" + value + ";");
     }
 
     get lineWidth() {
@@ -277,6 +329,17 @@ export default class CanvasRenderingContext2D {
         this._drawCommands = this._drawCommands.concat("j" + value + ";");
     }
 
+    getLineDash() { 
+        return this._lineDash;
+    }
+
+    setLineDash(value) {
+        if( Array.isArray(value) ) {
+            this._lineDash = value;
+            this._drawCommands = this._drawCommands.concat("I"+ value.length +","+ value.join(",") + ";");
+        }
+    }
+
     setTransform(a, b, c, d, tx, ty) {
         this._drawCommands = this._drawCommands.concat("t"
             + (a === 1 ? "1" : a.toFixed(2)) + ","
@@ -336,8 +399,6 @@ export default class CanvasRenderingContext2D {
     strokeRect(x, y, w, h) {
         this._drawCommands = this._drawCommands.concat("s" + x + "," + y + "," + w + "," + h + ";");
     }
-
-
 
     clearRect(x, y, w, h) {
         this._drawCommands = this._drawCommands.concat("c" + x + "," + y + "," + w
