@@ -107,7 +107,9 @@ GCanvasContext::GCanvasContext(short w, short h, const GCanvasConfig &config, GC
         InitFBO();
     }
 
-    // mFontManager = GFontManager::NewInstance(this);
+#ifdef  __linux__
+    mFontManager = GFontManager::NewInstance(this);
+#endif    
 }
 
 
