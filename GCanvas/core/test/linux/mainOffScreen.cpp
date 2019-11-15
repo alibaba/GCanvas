@@ -18,8 +18,10 @@ public:
     CaseOne(std::string name):GBenchMarkCase(name){}
     void draw(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height) override  {
                 if(canvas){
-                    canvas->mCanvasContext->SetFillStyle("#ff0000");
-                    canvas->mCanvasContext->FillRect(0, 0, width, height);
+                  //   canvas->mCanvasContext->SetFillStyle("#ff0000");
+                  //   canvas->mCanvasContext->FillRect(0, 0, width, height);
+                    canvas->mCanvasContext->SetFont("20px Georgia");
+                    canvas->mCanvasContext->DrawText("hello world",10,20);
                 }
     }
 };

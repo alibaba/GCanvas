@@ -60,12 +60,18 @@ GFont *
 GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFontStyle *fontStyle,
                             wchar_t charCode, const float size)
 {
+        printf("GetOrCreateFont \n");
+
     char key[256] = {0};
     snprintf(key, 256, "%s_%s_", contextId.c_str(),
-             GetCurrentScaleFontName(context).c_str());
+     GetCurrentScaleFontName(context).c_str());
+    std::cout << name;
+     map.empty();
+ 
     std::map<std::string, GFontSet>::iterator iter = mFontCache.find(key);
     if (iter != mFontCache.end())
     {
+    
         if (iter->second.font->IsGlyphExistedInFont(charCode))
         {
             return iter->second.font;
@@ -76,6 +82,7 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
             return iter->second.fallbackFont;
         }
     }
+    printf("key is  %s \n ",key);
 
     const char *defaultSystemFontLocation = "/system/fonts/";
 

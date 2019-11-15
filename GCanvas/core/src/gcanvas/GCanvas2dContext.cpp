@@ -106,9 +106,7 @@ GCanvasContext::GCanvasContext(short w, short h, const GCanvasConfig &config, GC
         UpdateProjectTransform();
         InitFBO();
     }
-
     mFontManager = GFontManager::NewInstance(this);
-   
 }
 
 

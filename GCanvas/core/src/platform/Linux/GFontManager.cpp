@@ -20,7 +20,9 @@ class GFontManagerImplement : public GFontManager
 public:
     GFontManagerImplement(GCanvasContext *context);
 
-    virtual ~GFontManagerImplement() {};
+    virtual ~GFontManagerImplement() {
+          delete mFontCache;
+    };
 
     void DrawText(const unsigned short *text,
                   unsigned int text_length, float x, float y,
@@ -56,7 +58,7 @@ GFontManager *GFontManager::NewInstance(GCanvasContext *context)
 
 GFontManagerImplement::GFontManagerImplement(GCanvasContext *context) : GFontManager(context)
 {
-
+    this->mFontCache=new GFontCache(*this);
 }
 
 void GFontManagerImplement::DrawText(const unsigned short *text,
@@ -68,16 +70,13 @@ void GFontManagerImplement::DrawText(const unsigned short *text,
         return;
     }
     std::vector<GFont *> fonts;
-
     for (unsigned int i = 0; i < text_length; ++i)
     {
         fonts.push_back(GetFontByCharCode(text[i], fontStyle));
     }
-
     adjustTextPenPoint(fonts, text, text_length, isStroke, x, y);
 
     // float kerning = mContext->mCurrentState->mKerning;
-
     for (unsigned int i = 0; i < text_length; ++i)
     {
         FillTextInternal(fonts[i], isStroke, text[i], x, y);
@@ -196,7 +195,7 @@ GFont *GFontManagerImplement::GetFontByCharCode(wchar_t charCode, gcanvas::GFont
 {
 
     float size = fontStyle->GetSize();
-
+    printf("GetFontByCharCode \n");
     GFont *font = mFontCache->GetOrCreateFont(mContext,
                                               "gcanvas",
                                               fontStyle, charCode, size);
