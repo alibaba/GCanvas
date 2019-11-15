@@ -44,7 +44,8 @@ set(SRC_FILES
  
         # # platform srcs
         ../../src/platform/Android/GCanvas2DContextImpl.cpp
-
+       ../../src/platform/Linux/GFontManager.cpp
+       ../../src/platform/Linux/GFont.cpp
         # ../../src/platform/Android/GCanvas2DContextAndroid.cpp
         # ../../src/platform/Android/GCanvasAndroid.cpp
         # ../../src/platform/Android/GFont.cpp
