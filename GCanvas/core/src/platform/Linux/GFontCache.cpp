@@ -6,16 +6,15 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#include "GFontCache.h"
 #include <sstream>
-#include "GSystemFontInformation.h"
 #include <assert.h>
-#include "support/Log.h"
-#include "../../utils.hpp"
-#include "../../FontTool.hpp"
 
-using NSFontTool::TypefaceLoader;
-using NSFontTool::TypefaceProvider;
+#include "GFontCache.h"
+#include "GSystemFontInformation.h"
+#include "support/Log.h"
+#include "GFontManager.h"
+#include "GCanvas2dContext.h"
+
 
 static GFontCache *sSharedFontInstance;
 
@@ -49,7 +48,7 @@ void GFontCache::clear()
     for (; iter != mFontCache.end(); ++iter)
     {
         delete iter->second.font;
-        //delete iter->second.fallbackFont;
+        delete iter->second.fallbackFont;
     }
 
     mFontCache.clear();
@@ -61,41 +60,102 @@ GFont *
 GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFontStyle *fontStyle,
                             wchar_t charCode, const float size)
 {
-#if 1
-  std::string fontName = fontStyle->GetName();
-  char key[256] = {0};
-  snprintf(key, 256, "%s_%d_%f", fontName.c_str(), charCode, size);
-  std::map<std::string, GFontSet>::iterator iter = mFontCache.find(key);
-  if (iter != mFontCache.end()) {
-    return iter->second.font;
-  }
+    char key[256] = {0};
+    snprintf(key, 256, "%s_%s_", contextId.c_str(),
+             GetCurrentScaleFontName(context).c_str());
+    std::map<std::string, GFontSet>::iterator iter = mFontCache.find(key);
+    if (iter != mFontCache.end())
+    {
+        if (iter->second.font->IsGlyphExistedInFont(charCode))
+        {
+            return iter->second.font;
 
-  TypefaceProvider *tp = TypefaceProvider::getInstance();
-  ASSERT(tp);
-  TypefaceProvider::Typeface *face;
-  face = tp->selectTypeface(charCode, fontName);
-  if (!face || (face->sourceType == TypefaceLoader::TST_NET)) {
-    face = tp->selectTypeface(charCode);
-  }
-  if (!face || (face->sourceType == TypefaceLoader::TST_NET)) {
-    face = tp->selectFallbackTypeface(fontName);
-  }
-  if (!face || (face->sourceType == TypefaceLoader::TST_NET)) {
-    face = tp->selectFallbackTypeface();
-  }
-  if (!face) {
-    WARN("No typeface selected.");
-    return nullptr;
-  }
-  if (face->sourceType == TypefaceLoader::TST_NET) {
-    WARN("Webfont is not supported yet.");
-    return nullptr;
-  }
+        }
+        if (iter->second.fallbackFont)
+        {
+            return iter->second.fallbackFont;
+        }
+    }
 
-  GFont *font = new GFont(context, mFontManager, face->source.c_str(), size);
-  GFontSet &fontSet = mFontCache[key];
-  fontSet.font = font;
-  return font;
+    const char *defaultSystemFontLocation = "/system/fonts/";
+
+    auto systemFontLocation = SystemFontInformation::GetSystemFontInformation()
+            ->GetSystemFontLocation();
+    const char *currentFontLocation = (systemFontLocation != nullptr)
+                                      ? systemFontLocation
+                                      : defaultSystemFontLocation;
+
+    const char *currentFontFile = nullptr;
+    const char *currentFontFileCopy = nullptr;
+
+
+    auto fontFamily = SystemFontInformation::GetSystemFontInformation()->FindFontFamily(
+            fontStyle->GetFamily().c_str());
+
+    if (fontFamily != nullptr)
+    {
+        currentFontFile = fontFamily->MatchFamilyStyle(*fontStyle);
+        currentFontFileCopy = currentFontFile;
+    }
+
+
+    if (nullptr != currentFontFile)
+    {
+        currentFontFile = TrySpecFont(charCode, size, currentFontLocation,
+                                      currentFontFile);
+    }
+
+
+    //用于外部字体逻辑
+    const char *extraFontLocation = SystemFontInformation::GetSystemFontInformation()
+            ->GetExtraFontLocation();
+    if (currentFontFile == nullptr && currentFontFileCopy != nullptr && extraFontLocation != nullptr) {
+        currentFontFile = TrySpecFont(charCode, size, extraFontLocation,
+                                      currentFontFileCopy);
+        if (currentFontFile != nullptr) {
+            currentFontLocation = extraFontLocation;
+        }
+    }
+
+
+    if (currentFontFile == nullptr)
+    {
+        currentFontFile = TryDefaultFont(charCode, size, currentFontLocation);
+
+        if (nullptr == currentFontFile)
+        {
+            currentFontFile = TryDefaultFallbackFont(charCode, size, currentFontLocation);
+
+            if (nullptr == currentFontFile)
+            {
+                currentFontFile = TryOtherFallbackFont(context, charCode, size, currentFontLocation,
+                                                       fontStyle);
+            }
+        }
+    }
+
+    std::string fontFileFullPath = currentFontLocation;
+    if (currentFontFile[0] == '/')
+    {
+        fontFileFullPath = currentFontFile;
+
+    }
+    else
+    {
+        fontFileFullPath += currentFontFile;
+    }
+
+    GFont *font = new GFont(context, mFontManager, fontFileFullPath.c_str(), size);
+    GFontSet &fontSet = mFontCache[key];
+    if (fontSet.font)
+    {
+        fontSet.fallbackFont = font;
+    }
+    else
+    {
+        fontSet.font = font;
+    }
+    return font;
 }
 
 char *GFontCache::TrySpecFont(const wchar_t charCode, const float size,
@@ -106,12 +166,10 @@ char *GFontCache::TrySpecFont(const wchar_t charCode, const float size,
     if (specFontFile[0] == '/')
     {
         fontFileFullPath = specFontFile;
-
     }
     else
     {
         fontFileFullPath += specFontFile;
-
     }
 
     bool exist = IsGlyphExistedInFont(charCode, size, fontFileFullPath);
@@ -130,6 +188,7 @@ char *GFontCache::TryDefaultFont(const wchar_t charCode, const float size,
 {
     auto defaultFontFile =
             SystemFontInformation::GetSystemFontInformation()->GetDefaultFontFile();
+
     if (defaultFontFile == nullptr)
     {
         return nullptr;
@@ -139,6 +198,8 @@ char *GFontCache::TryDefaultFont(const wchar_t charCode, const float size,
     fontFileFullPath += defaultFontFile;
 
     bool exist = this->IsGlyphExistedInFont(charCode, size, fontFileFullPath);
+    // LOG_E("TryDefaultFont: %s, %c, exist=%i", defaultFontFile, charCode, exist);
+
     if (exist)
     {
         return defaultFontFile;
@@ -153,7 +214,7 @@ char *GFontCache::TryDefaultFallbackFont(const wchar_t charCode,
                                          const float size,
                                          const char *currentFontLocation)
 {
-    auto defaultFontFile = "wqy-microhei.ttc";
+    auto defaultFontFile = "DroidSans.ttf";
 
     std::string fontFileFullPath = currentFontLocation;
     fontFileFullPath += defaultFontFile;
@@ -235,7 +296,6 @@ bool GFontCache::LoadFace(FT_Library *library, const char *filename,
     if (error)
     {
         LOG_E("load font %s error:%s", filename, getErrorMessage(error));
-        assert(filename == 0);
         FT_Done_FreeType(*library);
         return false;
     }
@@ -248,7 +308,9 @@ bool GFontCache::LoadFace(FT_Library *library, const char *filename,
         return false;
     }
 
-    error = FT_Set_Char_Size(*face, (int) (size * 64), 0, (FT_UInt) 72 * hres, 72);
+    float sizeW = size * mFontManager.mContext->mCurrentState->mscaleFontX;
+    float sizeH = size * mFontManager.mContext->mCurrentState->mscaleFontY;
+    error = FT_Set_Char_Size(*face, (int)(sizeW * 64), (int)(sizeH * 64), (FT_UInt) 72 * hres, 72);
     if (error)
     {
         FT_Done_Face(*face);
@@ -274,6 +336,7 @@ void GFontCache::ReadyToRemoveCacheForFonts(
 
     mCachedPages.push(fontsToBeDeleted);
 }
+
 
 void GFontCache::RemoveCacheForFonts(
         const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke)
