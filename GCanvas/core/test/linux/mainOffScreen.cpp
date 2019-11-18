@@ -18,10 +18,10 @@ public:
     CaseOne(std::string name):GBenchMarkCase(name){}
     void draw(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height) override  {
                 if(canvas){
-                  //   canvas->mCanvasContext->SetFillStyle("#ff0000");
-                  //   canvas->mCanvasContext->FillRect(0, 0, width, height);
+                    // canvas->mCanvasContext->SetFillStyle("#ff0000");
+                    // canvas->mCanvasContext->FillRect(0, 0, 20, 30);
                     canvas->mCanvasContext->SetFont("20px Georgia");
-                    canvas->mCanvasContext->DrawText("1234",10,20);
+                    canvas->mCanvasContext->DrawText("你好 ",10,20);
                 }
     }
 };
@@ -30,7 +30,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-   std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
+   std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {true, true}, nullptr));
    GBenchMark becnMarker(renderBufferWidth,renderBufferHeight,p);
    becnMarker.intilGLOffScreenEnviroment();
    std::shared_ptr<GBenchMarkCase> case1(new CaseOne("fillRect"));
