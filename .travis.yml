@@ -45,4 +45,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: luckzhiwei/GCanvas
-    branch: master
+    all_branches: true
