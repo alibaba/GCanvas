@@ -21,7 +21,7 @@ public:
                   //   canvas->mCanvasContext->SetFillStyle("#ff0000");
                   //   canvas->mCanvasContext->FillRect(0, 0, width, height);
                     canvas->mCanvasContext->SetFont("20px Georgia");
-                    canvas->mCanvasContext->DrawText("hello world",10,20);
+                    canvas->mCanvasContext->DrawText("1234",10,20);
                 }
     }
 };

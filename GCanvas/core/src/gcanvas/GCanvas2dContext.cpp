@@ -12,7 +12,7 @@
 #include "GShaderManager.h"
 #include "../GCanvas.hpp"
 #include "../support/GLUtil.h"
-
+#include "FontTool.hpp"
 #include <assert.h>
 #include <string.h>
 
@@ -20,6 +20,7 @@
 
 using namespace gcanvas;
 
+using NSFontTool::TypefaceLoader;
 
 #define FontTextureWidth        2048
 #define FontTextureHeight       2048
@@ -107,6 +108,9 @@ GCanvasContext::GCanvasContext(short w, short h, const GCanvasConfig &config, GC
         InitFBO();
     }
     mFontManager = GFontManager::NewInstance(this);
+    TypefaceLoader *tl = TypefaceLoader::getInstance();
+    ASSERT(tl);
+    ASSERT(tl->importFontCache(".fontcache"));  
 }
 
 

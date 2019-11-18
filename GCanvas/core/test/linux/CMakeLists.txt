@@ -14,6 +14,7 @@ include_directories("../../src/gcanvas")
 include_directories("../../src/support")
 include_directories("./util/")
 include_directories("../../src/platform/Android")
+include_directories("../../src/platform/Linux")
 include_directories(".")
 include_directories("./freetype2/")
 
