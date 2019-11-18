@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-tables")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-tables -fexceptions")
 
 
 include_directories("../../src/")
@@ -85,5 +85,6 @@ target_link_libraries( # Specifies the target library.
         atomic
         freetype
         glfw
+        boost_system
         )
 

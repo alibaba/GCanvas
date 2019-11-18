@@ -82,8 +82,6 @@ private:
 private:
     GFontManager& mFontManager;
     std::map<std::string, GFontSet> mFontCache;
-    std::map<std::string,int>  map;
-    std::string name="lzw";
     std::queue<std::map<GFont *, std::vector<wchar_t> > > mCachedPages;
 };
 

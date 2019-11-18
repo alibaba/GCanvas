@@ -156,9 +156,7 @@ std::string FontStyleNameForScale(std::string& fontName, float scaleFontX, float
     xStr << scaleFontX;
     yStr << scaleFontY;
 
-    std::string ret= fontName + "_" + xStr.str() + yStr.str();
-    std::cout << "the ret" <<ret<<std::endl;
-    return ret;
+    return  fontName + "_" + xStr.str() + yStr.str();
 }
 
 

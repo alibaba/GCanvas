@@ -195,7 +195,6 @@ GFont *GFontManagerImplement::GetFontByCharCode(wchar_t charCode, gcanvas::GFont
 {
 
     float size = fontStyle->GetSize();
-    printf("GetFontByCharCode \n");
     GFont *font = mFontCache->GetOrCreateFont(mContext,
                                               "gcanvas",
                                               fontStyle, charCode, size);
