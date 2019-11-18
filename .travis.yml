@@ -7,36 +7,43 @@ os:
 addons:
   apt:
     packages:
-      - xvfb
-
+    - xvfb
 before_install:
-  - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      mkdir -p external/cmake
-      pushd external/cmake
-      wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
-      chmod +x cmake-*-Linux-x86_64.sh
-      ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
-      export PATH="${PWD}/bin:$PATH"
-      cmake -version
-      popd
-    else
-      if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
-    fi
-  
+- sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    mkdir -p external/cmake
+    pushd external/cmake
+    wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
+    chmod +x cmake-*-Linux-x86_64.sh
+    ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
+    export PATH="${PWD}/bin:$PATH"
+    cmake -version
+    popd
+  else
+    if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
+  fi
 install:
-  - export DISPLAY=':99.0'
-  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &   
-
+- export DISPLAY=':99.0'
+- Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 before_script:
-   - ls -al
-   - cd GCanvas/core/test/w3c &&mkdir build
-   - npm i && node app.js
-   - cd ../../../../ 
-script:  
-  - ls -al
-  - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
-  - ./gcanvasTest 
-  - ls -al
-  - cat ./result.txt && ls -al
+- ls -al
+- cd GCanvas/core/test/w3c &&mkdir build
+- npm i && node app.js
+- cd ../../../../
+script:
+- ls -al
+- cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
+- "./gcanvasTest"
+- ls -al
+- cat ./result.txt && ls -al && cd ../../../../../
+deploy:
+  provider: releases
+  api_key:
+    secure: Sj2fXkO+VMEDQ9yFvga07eK2wsDuGS4rem19smLG0bUxN8hGZ+OBSvt2YlxEc27G3vqnPugRU6ZX9XCNqOskjPt4IVhy1Zd5YGAL1JGNF8BN+iL6NeX5adKITMa9/S/qta1DPWt16Pwd2EvcECfxhqcPG2Nj8cZeiugL1+eQYJiagvo/N3p0mrQljHpYjSmhrfJGyOZCzZRtHIHYWcDUjMjZoNuuRIeDbjYyDB7gCyymvEVsZRwKohABYwqOQ4lWQubhs89EhWNFVp+zlCQlUb3L9FHV1x7h8Vcj4cDuhOAXd30j4go0ir40beIFfKEyL/CpT1M5y7Z+UnlHV20OcEVrZncUv3F2C7CbPSkyGaD/g7SBM/jrQk0zm0eOpgyBYl5pL0KuvxFXb58JH9N6v542XCjZ9SRVemxu5BHVNCd3RlVQhP1N0FZbGCOJRDGJ6OwbXSNimc+4DUFUits5bCfK30ozSqTiMQcALKva1z470GiuPMTfg9bxEiNGduEogklMWMwX8IJLPNZuzrqhlHcpCrinnNdDmLwKibeOBj5Z75Dtrx8sXzzMjU7oalYD28NDB5x5BGWqv410NiCvzaKWOyJF/lKKuNSGmOfaW724xq8KQpvLub6OpdHPWq94chsmxFvQuAh7fTpO1/yNtRnBmA4T0GWWUx8QaOFmAdU=
+  file: ./GCanvas/core/test/linux/build/result.txt 
+  skip_cleanup: true
+  on:
+    repo: luckzhiwei/GCanvas
+    branch: master
+    tags: true
