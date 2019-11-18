@@ -46,4 +46,3 @@ deploy:
   on:
     repo: luckzhiwei/GCanvas
     branch: master
-    tags: true
