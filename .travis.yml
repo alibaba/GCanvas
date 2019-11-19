@@ -36,6 +36,7 @@ before_script:
 script:
 - ls -al
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
+- cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - ls -al
 - cat ./result.txt && ls -al && cd ../../../../../

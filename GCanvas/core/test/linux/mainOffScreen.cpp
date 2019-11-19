@@ -21,7 +21,7 @@ public:
                     // canvas->mCanvasContext->SetFillStyle("#ff0000");
                     // canvas->mCanvasContext->FillRect(0, 0, 20, 30);
                     canvas->mCanvasContext->SetFont("20px Georgia");
-                    canvas->mCanvasContext->DrawText("你好 ",10,20);
+                    canvas->mCanvasContext->DrawText("你好123 ",10,20);
                 }
     }
 };
