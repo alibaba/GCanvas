@@ -149,4 +149,16 @@ void GBenchMark::run(std::string caseName, std::shared_ptr<GBenchMarkCase> oneCa
    oneCase->ratio=ratio;
 }
 
+void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height)> drawFunc){
+    
+   drawFunc(mCanvas,mWidth,mHeight);
+   mCanvas->drawFrame();
+   this->render2file(caseName);
+   float ratio = this->computeRatioWithW3C(caseName);
+   std::cout << "------------------"<< std::endl;
+   std::cout << "the case name is "<<caseName << std::endl;
+   std::cout << "------------------" << std::endl;
+   std::cout << "the correct ratio is " << ratio << std::endl;
+}
+
 
