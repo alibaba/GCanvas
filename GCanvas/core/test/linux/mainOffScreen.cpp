@@ -34,13 +34,7 @@ int main(int argc, char *argv[])
    GBenchMark becnMarker(renderBufferWidth,renderBufferHeight,p);
    becnMarker.intilGLOffScreenEnviroment();
    std::shared_ptr<GBenchMarkCase> case1(new CaseOne("fillRect"));
-   becnMarker.run(case1);
-    float ratio = becnMarker.computeRatioWithW3C(case1->getCaseName());
-   std::cout << "------------------"<< std::endl;
-   std::cout << "the case name is "<<case1->getCaseName() << std::endl;
-   std::cout << "------------------" << std::endl;
-   std::cout << "the correct ratio is " << ratio << std::endl;
-    case1->ratio=ratio;
+   becnMarker.run(case1->getCaseName(),case1);
     
     
    std:: ofstream myfile;

@@ -39,7 +39,6 @@ script:
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cd ../../../../../ # jump to root_dir
-
 deploy:
   provider: releases
   api_key:
