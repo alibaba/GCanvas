@@ -11,7 +11,7 @@ addons:
 
 before_install:
   - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
-  - sudo apt-get install libboost-dev
+  - sudo apt-get install libboost-dev && sudo apt-get install libboost-all-dev
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       mkdir -p external/cmake
