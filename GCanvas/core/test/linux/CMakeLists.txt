@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-tables")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-tables -fexceptions")
 
 
 include_directories("../../src/")
@@ -14,8 +14,9 @@ include_directories("../../src/gcanvas")
 include_directories("../../src/support")
 include_directories("./util/")
 include_directories("../../src/platform/Android")
+include_directories("../../src/platform/Linux")
 include_directories(".")
-
+include_directories("./freetype2/")
 
 set(SRC_FILES
         #root srcs
@@ -44,7 +45,11 @@ set(SRC_FILES
  
         # # platform srcs
         ../../src/platform/Android/GCanvas2DContextImpl.cpp
-
+       ../../src/platform/Linux/GFontManager.cpp
+       ../../src/platform/Linux/GFont.cpp
+       ../../src/platform/Linux/GFontCache.cpp
+       ../../src/platform/Linux/GSystemFontInformation.cpp
+       ../../src/platform/Linux/GFontFamily.cpp
         # ../../src/platform/Android/GCanvas2DContextAndroid.cpp
         # ../../src/platform/Android/GCanvasAndroid.cpp
         # ../../src/platform/Android/GFont.cpp
@@ -81,5 +86,6 @@ target_link_libraries( # Specifies the target library.
         atomic
         freetype
         glfw
+        boost_system
         )
 

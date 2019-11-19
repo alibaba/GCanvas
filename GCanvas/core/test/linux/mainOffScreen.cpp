@@ -18,8 +18,10 @@ public:
     CaseOne(std::string name):GBenchMarkCase(name){}
     void draw(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height) override  {
                 if(canvas){
-                    canvas->mCanvasContext->SetFillStyle("#ff0000");
-                    canvas->mCanvasContext->FillRect(0, 0, width, height);
+                    // canvas->mCanvasContext->SetFillStyle("#ff0000");
+                    // canvas->mCanvasContext->FillRect(0, 0, 20, 30);
+                    canvas->mCanvasContext->SetFont("20px Georgia");
+                    canvas->mCanvasContext->DrawText("你好123 ",10,20);
                 }
     }
 };
@@ -28,18 +30,17 @@ public:
 
 int main(int argc, char *argv[])
 {
-   std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {false, true}, nullptr));
-   GBenchMark mbench(renderBufferWidth,renderBufferHeight,p);
-   mbench.intilGLOffScreenEnviroment();
-
+   std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {true, true}, nullptr));
+   GBenchMark becnMarker(renderBufferWidth,renderBufferHeight,p);
+   becnMarker.intilGLOffScreenEnviroment();
    std::shared_ptr<GBenchMarkCase> case1(new CaseOne("fillRect"));
-   mbench.run(case1);
-   float ratio = mbench.computeRatioWithW3C(case1->getCaseName());
+   becnMarker.run(case1);
+    float ratio = becnMarker.computeRatioWithW3C(case1->getCaseName());
    std::cout << "------------------"<< std::endl;
    std::cout << "the case name is "<<case1->getCaseName() << std::endl;
    std::cout << "------------------" << std::endl;
    std::cout << "the correct ratio is " << ratio << std::endl;
-   case1->ratio=ratio;
+    case1->ratio=ratio;
     
     
    std:: ofstream myfile;
