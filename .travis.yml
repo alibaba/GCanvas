@@ -10,7 +10,7 @@ addons:
     - xvfb
 before_install:
   - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
-  -  sudo apt-get install libboost-all-dev
+  - sudo apt-get install libboost-all-dev 
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       mkdir -p external/cmake
@@ -26,21 +26,20 @@ before_install:
     fi
   
 install:
+### install xvfb mock framebufferobject to make the offscreen env ready 
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 before_script:
-- ls -al
-- cd GCanvas/core/test/w3c &&mkdir build
+- cd GCanvas/core/test/w3c &&mkdir build ## pre run the w3c result
 - npm i && node app.js
-- cd ../../../../
+- cd ../../../../ # jump to root_dir
 
 script:
-- ls -al
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
-- ls -al
-- cat ./result.txt && ls -al && cd ../../../../../
+- cd ../../../../../ # jump to root_dir
+
 deploy:
   provider: releases
   api_key:
