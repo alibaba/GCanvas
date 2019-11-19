@@ -1,8 +1,9 @@
 #include "GBenchMark.h"
+#include <fstream>
 GBenchMark::GBenchMark(int width, int height) : mWidth(width), mHeight(height)
 {
-      std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {true, true}, nullptr));
-      this->mCanvas=p;
+    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
+    this->mCanvas = p;
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
@@ -111,7 +112,7 @@ void GBenchMark::render2file(std::string caseName)
     int size = 4 * mWidth * mHeight;
     unsigned char *data = new unsigned char[size];
     glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    encodePixelsToFile(caseName+".png", data, mWidth, mHeight);
+    encodePixelsToFile(caseName + ".png", data, mWidth, mHeight);
     delete data;
 }
 float GBenchMark::computeRatioWithW3C(std::string caseName)
@@ -119,13 +120,13 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
 
-    decodeFile2Pixels(this->w3cPrefix+caseName+".png", w3cImage);
-    decodeFile2Pixels(caseName+".png", gcanvasImage);
+    decodeFile2Pixels(this->w3cPrefix + caseName + ".png", w3cImage);
+    decodeFile2Pixels(caseName + ".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
     int rightCount = 0;
-    if(N==0)
-       return 0.0;
+    if (N == 0)
+        return 0.0;
     for (int i = 0; i < N; i++)
     {
         if (w3cImage[i] != gcanvasImage[i])
@@ -136,17 +137,30 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
     return 1.0f * rightCount / N;
 }
 
+void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
+{
 
-void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,  GCanvasContext *ctx,int width,int height)> drawFunc){
-    
-   drawFunc(mCanvas,mCanvas->mCanvasContext,mWidth,mHeight);
-   mCanvas->drawFrame();
-   this->render2file(caseName);
-   float ratio = this->computeRatioWithW3C(caseName);
-   std::cout << "------------------"<< std::endl;
-   std::cout << "the case name is "<<caseName << std::endl;
-   std::cout << "------------------" << std::endl;
-   std::cout << "the correct ratio is " << ratio << std::endl;
+    drawFunc(mCanvas, mCanvas->mCanvasContext, mWidth, mHeight);
+    mCanvas->drawFrame();
+    this->render2file(caseName);
+    float ratio = this->computeRatioWithW3C(caseName);
+    this->data.insert(std::make_pair(caseName, ratio));
 }
 
-
+void GBenchMark::dumpResult()
+{
+    std::ofstream myfile;
+    myfile.open("result.txt");
+    for (auto it = data.begin(); it != data.end(); it++)
+    {
+        std::cout << "------------------" << std::endl;
+        std::cout << "the case name is " << it->first << std::endl;
+        std::cout << "------------------" << std::endl;
+        std::cout << "the correct ratio is " << it->second << std::endl;
+        myfile << it->first;
+        myfile << "#";
+        myfile << it->second;
+        myfile << "\n";
+    }
+     myfile.close();
+}

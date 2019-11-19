@@ -6,7 +6,7 @@
 #include <iostream>
 #include <GCanvas.hpp>
 #include <lodepng.h>
-#include <fstream>
+
 #define CONTEXT_ES20
 
 #include "GBenchMark.h"
@@ -26,12 +26,7 @@ int main(int argc, char *argv[])
             // canvas->mCanvasContext->SetFont("20px Georgia");
             //  canvas->mCanvasContext->DrawText("你好123 ",10,20);
    });
+   becnMarker.dumpResult();
     
     
-//    std:: ofstream myfile;
-//    myfile.open ("result.txt");
-//    myfile << case1->getCaseName();
-//    myfile << "#";
-//    myfile << case1->ratio;
-//    myfile.close();
 }

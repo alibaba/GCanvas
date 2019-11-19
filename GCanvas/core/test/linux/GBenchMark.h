@@ -5,6 +5,7 @@
 #include <GCanvas.hpp>
 #include <lodepng.h>
 #include <functional>
+#include <unordered_map>
 
 extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
 extern void decodeFile2Pixels(std::string  filename, std::vector<unsigned char> &image);
@@ -20,6 +21,8 @@ public:
 
     float computeRatioWithW3C(std::string caseName);
     void run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,  GCanvasContext *mCanvasContext,int width,int height)> drawFunc);
+
+    void dumpResult();
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initGcanvas();
@@ -27,6 +30,7 @@ private:
     int mHeight;
     int mWidth;
     std::string w3cPrefix="../../w3c/build/";
+    std::unordered_map<std::string, float> data;
 };
 
 #endif
