@@ -20,9 +20,9 @@ int main(int argc, char *argv[])
  
    GBenchMark becnMarker(renderBufferWidth,renderBufferHeight);
    becnMarker.intilGLOffScreenEnviroment();
-   becnMarker.run("fillRect",[](std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height){
-          canvas->mCanvasContext->SetFillStyle("#ff0000");
-          canvas->mCanvasContext->FillRect(0, 0, width, height);
+   becnMarker.run("fillRect",[](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx,int width,int height){
+          ctx->SetFillStyle("#ff0000");
+          ctx->FillRect(0, 0, width, height);
             // canvas->mCanvasContext->SetFont("20px Georgia");
             //  canvas->mCanvasContext->DrawText("你好123 ",10,20);
    });
