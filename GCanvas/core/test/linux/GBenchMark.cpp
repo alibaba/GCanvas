@@ -1,6 +1,8 @@
 #include "GBenchMark.h"
-GBenchMark::GBenchMark(int width, int height, std::shared_ptr<gcanvas::GCanvas> canvas) : mWidth(width), mHeight(height), mCanvas(canvas)
+GBenchMark::GBenchMark(int width, int height) : mWidth(width), mHeight(height)
 {
+      std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas ("benchMark", {true, true}, nullptr));
+      this->mCanvas=p;
 }
 
 void GBenchMark::intilGLOffScreenEnviroment()
@@ -134,20 +136,6 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
     return 1.0f * rightCount / N;
 }
 
-
-void GBenchMark::run(std::string caseName, std::shared_ptr<GBenchMarkCase> oneCase)
-{
-    oneCase->draw(this->mCanvas,mWidth,mHeight);
-    mCanvas->drawFrame();
-    this->render2file(oneCase->getCaseName());
-
-   float ratio = this->computeRatioWithW3C(caseName);
-   std::cout << "------------------"<< std::endl;
-   std::cout << "the case name is "<<caseName << std::endl;
-   std::cout << "------------------" << std::endl;
-   std::cout << "the correct ratio is " << ratio << std::endl;
-   oneCase->ratio=ratio;
-}
 
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,int width,int height)> drawFunc){
     
