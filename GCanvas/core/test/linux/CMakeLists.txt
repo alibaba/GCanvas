@@ -25,6 +25,7 @@ set(SRC_FILES
         ./GBenchMark.cpp
         ./util/lodepng.cc
         ./util/util.cc
+        ./util/testCases.cc
         ../../src/GCanvas.cpp
         ../../src/GCanvasManager.cpp
         ../../src/GCanvasWeex.cpp # todo remove

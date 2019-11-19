@@ -2,7 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <lodepng.h>
-// namespace util{
+
+
     void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height)
 {
     //write the pixles to file
@@ -22,4 +23,7 @@ void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)
     if (error)
         std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 }
-// }
+
+
+
+

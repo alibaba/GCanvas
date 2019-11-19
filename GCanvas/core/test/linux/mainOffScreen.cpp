@@ -14,18 +14,19 @@ const static GLuint renderBufferHeight = 300;
 const static GLuint renderBufferWidth = 300;
 
    
+extern void prepareCases( std::unordered_map< std::string,std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,  GCanvasContext *mCanvasContext,int width,int height)>>  &testCases);
 
 int main(int argc, char *argv[])
 {
- 
+    std::unordered_map< std::string,std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas,  GCanvasContext *mCanvasContext,int width,int height)>> testCases;
+
+    prepareCases(testCases);
+
    GBenchMark becnMarker(renderBufferWidth,renderBufferHeight);
    becnMarker.intilGLOffScreenEnviroment();
-   becnMarker.run("fillRect",[](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx,int width,int height){
-          ctx->SetFillStyle("#ff0000");
-          ctx->FillRect(0, 0, width, height);
-            // canvas->mCanvasContext->SetFont("20px Georgia");
-            //  canvas->mCanvasContext->DrawText("你好123 ",10,20);
-   });
+   for(auto it=testCases.begin();it!=testCases.end();it++){
+            becnMarker.run(it->first,it->second);
+   }
    becnMarker.dumpResult();
     
     
