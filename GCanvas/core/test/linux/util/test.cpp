@@ -7,10 +7,10 @@ void prepareCases( std::unordered_map< std::string,std::function<void(std::share
   testCases["tc_2d_lineTo"]= [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx,int width,int height)
     { 
     int  ratio=1; 
-  ctx->beginPath();
-ctx->moveTo(0,0);
-ctx->lineTo(150*ratio,150*ratio);
-ctx->stroke();
+  ctx->BeginPath();
+ctx->MoveTo(0,0);
+ctx->LintTo(150*ratio,150*ratio);
+ctx->Stroke();
 
 
   };
