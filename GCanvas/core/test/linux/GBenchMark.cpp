@@ -139,7 +139,7 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
 {
-
+    mCanvas->Clear();
     drawFunc(mCanvas, mCanvas->mCanvasContext, mWidth, mHeight);
     mCanvas->drawFrame();
     this->render2file(caseName);

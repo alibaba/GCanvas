@@ -27,7 +27,7 @@ namespace gcanvas {
         mStyle = Style::NORMAL;
         mVariant = Variant::NORMAL;
         mWeight = Weight::NORMAL;
-        mSize = 12 * ratio;
+        mSize = 12 * 1;
         mRatio = ratio;
         mFamily = "sans-serif";
         mAscender = -1;
