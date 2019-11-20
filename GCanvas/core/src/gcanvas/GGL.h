@@ -17,15 +17,13 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2ext.h>
 #include <export.h>
-#endif
 
-#ifdef IOS
+#elif IOS
 #include <OpenGLES/gltypes.h>
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
-#endif
 
-#ifdef  __linux__
+#elif  __linux__
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>
 #include <EGL/egl.h>
