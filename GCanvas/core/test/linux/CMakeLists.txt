@@ -26,7 +26,6 @@ set(SRC_FILES
         ./util/lodepng.cc
         ./util/util.cc
         ./util/testCases.cc
-        ./util/test.cc
         ../../src/GCanvas.cpp        
         ../../src/GCanvasManager.cpp
         ../../src/GCanvasWeex.cpp # todo remove
