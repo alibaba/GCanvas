@@ -25,7 +25,8 @@ Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 
 * Android com.taobao.gcanvas.bridges:weex-brigde 1.1.0 (publishing)
 
-* JS [gcanvas.js](https://www.npmjs.com/package/gcanvas.js)   [![npm version](https://badge.fury.io/js/gcanvas.js.svg)](https://badge.fury.io/js/gcanvas.js)
+### GCanvas NPM Package
+* [@gcanvas/core](https://www.npmjs.com/package/@gcanvas/core)   [![npm version](https://badge.fury.io/js/%40gcanvas%2Fcore.svg)](https://www.npmjs.com/package/@gcanvas/core)
 
 
 ## Features
