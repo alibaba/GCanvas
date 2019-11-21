@@ -27,7 +27,7 @@ There may be different ways in bridges. But your bridge must support export asyn
 ### Export Native APIs List
 | Method | Async/Sync | Android/iOS | Comments |
 | :--- | :--- | :--- | :--- |
-| enable(args) | Sync | Both | Build relationships between GCanvas.js and native view |
+| enable(args) | Sync | Both | Build relationships between gcanvas.js and native view |
 | render(cmd, componentId) | Async | Both | Execute render command |
 | preLoadImage(data, callback) | Async | Both | Preload image with callback |
 | bindImageTexture(data, callback) | Async | Both | Bind image to an OpenGL Texture with callback |
