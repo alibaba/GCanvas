@@ -49,7 +49,7 @@ async function genStandard(caseName) {
     } else {
         console.log("canvas element not exist");
     }
-    console.log("finish the canvas page");
+    console.log("finish the canvas page"+caseName);
     await browser.close();
 }
 
