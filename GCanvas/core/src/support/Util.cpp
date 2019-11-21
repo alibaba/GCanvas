@@ -56,23 +56,6 @@ void FlipPixel(unsigned char *pixels, int w, int h)
     }
 }
 
-// get a part of pixel from rgba datas
-void GetSegmentPixel(const unsigned char *srcPx, unsigned int sw,
-                     unsigned int x, unsigned int y, unsigned int dw,
-                     unsigned int dh, unsigned char *destPx)
-{
-    srcPx += (sw * y + x) * 4;
-    for (unsigned int i = 0; i < dh; ++i)
-    {
-        memcpy(destPx, srcPx, dw * 4);
-
-        srcPx += sw * 4;
-        destPx += dw * 4;
-    }
-}
-
-bool IsSupportNeon() { return false; }
-
 #ifdef ANDROID
 void timeraddMS(struct timeval *a, uint ms)
 {
@@ -85,12 +68,14 @@ void timeraddMS(struct timeval *a, uint ms)
 }
 
 void waitUtilTimeout(sem_t *sem,uint ms){
+#ifdef DEBUG
+    sem_wait(sem);
+#else
     int ret;
     struct timeval now;
     struct timespec outtime;
 
     gettimeofday(&now, NULL);
-//    LOG_D("start to wait,sec=%d,usec=%d\n",now.tv_sec,now.tv_usec);
     timeraddMS(&now, ms);
     outtime.tv_sec = now.tv_sec;
     outtime.tv_nsec = now.tv_usec * 1000;
@@ -103,9 +88,8 @@ void waitUtilTimeout(sem_t *sem,uint ms){
     else
     {
         gettimeofday(&now, NULL);
-//        LOG_D("success wait response,sec=%d,usec=%d\n",now.tv_sec,now.tv_usec);
     }
-
+#endif
 }
 
 #endif

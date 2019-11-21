@@ -7,11 +7,19 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef __GCanvas__GConvert__
-#define __GCanvas__GConvert__
+#ifndef GCANVAS_GCONVERT_H
+#define GCANVAS_GCONVERT_H
 
+#include "export.h"
 #include "GPoint.h"
 
-GColorRGBA StrValueToColorRGBA(const char *value);
+#define GColorTransparent       GColorRGBA({0,0,0,0})
+#define GColorTransparentWhite  GColorRGBA({1.0,1.0,1.0,0})
+#define GColorWhite             GColorRGBA({1.0,1.0,1.0,1.0})
+namespace gcanvas{
+    API_EXPORT GColorRGBA StrValueToColorRGBA(const char *value);
 
-#endif
+    API_EXPORT std::string ColorToString(const GColorRGBA &color);
+}
+
+#endif /* GCANVAS_GCONVERT_H */

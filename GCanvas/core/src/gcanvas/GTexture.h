@@ -7,25 +7,10 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef GCanvas_GTexture_h
-#define GCanvas_GTexture_h
+#ifndef GCANVAS_GTEXTURE_H
+#define GCANVAS_GTEXTURE_H
 
-#ifndef _WIN32
-
-#ifdef ANDROID
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
-
+#include "GGL.h"
 #include <map>
 #include <vector>
 
@@ -78,8 +63,6 @@ class TextureMgr
 {
 public:
     TextureMgr();
-    static GLuint CreateTexture(const unsigned char *rgbaData,
-                                unsigned int width, unsigned int height);
     bool AppendPng(const unsigned char *buffer, unsigned int size, int textureGroupId,
                    unsigned int *widthPtr, unsigned int *heightPtr);
     void Append(int id, int glID, int width, int height);
@@ -91,14 +74,18 @@ private:
     std::map< int, TextureGroup > mTextureGroupPool;
 };
 
+struct GCanvasLog;
+
 class GTexture
 {
 public:
     GTexture(unsigned int w, unsigned int h, GLenum format = GL_RGBA,
-              GLubyte *pixels = nullptr);
+              GLubyte *pixels = nullptr, std::vector<GCanvasLog> *errVec = nullptr);
     GTexture(const char *filePath);
     GTexture();
     ~GTexture();
+
+    void CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec = nullptr);
 
     void Bind() const;
     void Unbind() const;
@@ -120,8 +107,17 @@ public:
 
     unsigned int size();
 
+    void Detach()
+    {
+        mTextureID = 0;
+    }
+
+    bool IsValidate()
+    {
+        return mTextureID != 0;
+    }
+
 private:
-    void createTexture(GLubyte *pixels);
     static GLubyte *(*loadPixelCallback)(const char *filePath, unsigned int *w,
                                          unsigned int *h);
     static GLubyte *loadPixelsFromPNG(const char *filePath, unsigned int *w,
@@ -134,4 +130,4 @@ private:
     GLuint mTextureID;
 };
 
-#endif
+#endif /* GCANVAS_GTEXTURE_H */

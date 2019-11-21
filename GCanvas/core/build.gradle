@@ -1,39 +1,16 @@
 apply plugin: 'com.android.library'
 
-buildscript {
-    repositories {
-        //本地库，local repository(${user.home}/.m2/repository)
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
-        mavenLocal()
-        jcenter()
-        mavenCentral()
-        google()
-
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-    }
-}
-
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
-    buildToolsVersion rootProject.extensions.sdks.BuildTool
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-
-            // JNI build
-            jniLibs.srcDirs = ['libs'] //set libs as .so's location instead of jni
-            jni.srcDirs = [] //disable automatic ndk-build call with auto-generated Android.mk file
+            jniLibs.srcDirs 'src/freetype-prebuilt/libs'
         }
     }
 
     buildTypes {
-
         debug {
             debuggable true
         }
@@ -49,13 +26,14 @@ android {
 
     defaultConfig {
         ndk {
-            abiFilters 'armeabi', 'armeabi-v7a'
+            abiFilters = []
+            abiFilters.addAll(rootProject.extensions.sdks.ABIs) /*"armeabi-v7a","arm64-v8a"*/
         }
     }
-
     externalNativeBuild {
-        ndkBuild {
-            path 'src/Android.mk'
+        cmake {
+            path file('CMakeLists.txt')
         }
     }
 }
+

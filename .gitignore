@@ -1,2 +1,6 @@
 .DS_Store
 website
+.idea/
+node_modules/
+.temp
+dist

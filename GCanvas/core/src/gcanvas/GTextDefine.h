@@ -6,8 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef GTextDefine_h
-#define GTextDefine_h
+#ifndef GCANVAS_GTEXTDEFINE_H
+#define GCANVAS_GTEXTDEFINE_H
 
 typedef enum {
     TEXT_BASELINE_ALPHABETIC = 0, // for Western fonts: Default. The text
@@ -23,8 +23,7 @@ typedef enum {
 } GTextBaseline;
 
 typedef enum {
-    TEXT_ALIGN_START =
-        0, // Default. The text baseline is the normal alphabetic baseline
+    TEXT_ALIGN_START = 0, // Default. The text baseline is the normal alphabetic baseline
     TEXT_ALIGN_END,    // The text ends at the specified position
     TEXT_ALIGN_LEFT,   // The text starts at the specified position
     TEXT_ALIGN_CENTER, // The center of the text is placed at the specified
@@ -32,4 +31,4 @@ typedef enum {
     TEXT_ALIGN_RIGHT   // The text ends at the specified position
 } GTextAlign;
 
-#endif /* GTextDefine_h */
+#endif /* GCANVAS_GTEXTDEFINE_H  */

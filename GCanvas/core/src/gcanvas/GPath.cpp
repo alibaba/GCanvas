@@ -8,11 +8,44 @@
  */
 #include "GPath.h"
 #include "GCanvas2dContext.h"
-#include "GTriangulate.h"
 
-const float ERROR_DEVIATION = 1e-6;
-const float PI_1 = M_PI;
-const float PI_2 = 2.f * PI_1;
+#define  G_PATH_RECURSION_LIMIT 8
+#define  G_PATH_DISTANCE_EPSILON 1.0f
+#define  G_PATH_COLLINEARITY_EPSILON FLT_EPSILON
+#define  G_PATH_STEPS_FOR_CIRCLE 48.0f
+#define  G_PATH_ANGLE_EPSILON = 0.01;
+
+#define  ERROR_DEVIATION    1e-6
+#define  PI_1               M_PI
+#define  PI_2               2.f * M_PI
+#define  DEFAULT_STEP_COUNT 100
+
+static bool isSamePoint(GPoint& p1, GPoint& p2, float min)
+{
+    return abs(p1.x - p2.x) < min && abs(p1.y - p2.y) < min;
+}
+
+static bool isNan(const GPoint& p)
+{
+    return std::isnan(p.x) || std::isnan(p.y);
+}
+
+
+static bool hasSamePoint(GPoint& p1, GPoint& p2, GPoint& p3, float minValue)
+{
+    return isSamePoint(p1, p2, minValue) || isSamePoint(p2, p3, minValue) || isSamePoint(p1, p3, minValue);
+}
+
+
+static bool isTrianglePointsValid(GPoint& p1, GPoint& p2, GPoint& p3, float minValue)
+{
+    if (isNan(p1) || isNan(p3) || isNan(p2))
+    {
+        return false;
+    }
+    return hasSamePoint(p1, p2, p3, minValue) ? false : true;
+}
+
 
 GPath::GPath() { Reset(); }
 
@@ -23,6 +56,9 @@ GPath::GPath(const GPath &other) {
     mCurrentPosition = other.mCurrentPosition;
     mCurPath = other.mCurPath;
     mPathStack = other.mPathStack;
+    mFillRule = other.mFillRule;
+    mMinPosition = other.mMinPosition;
+    mMaxPosition = other.mMaxPosition;
 }
 
 tSubPath &GPath::GetCurPath() {
@@ -42,6 +78,11 @@ void GPath::Reset() {
 
     mStartPosition = PointMake(0, 0);
     mCurrentPosition = PointMake(0, 0);
+    
+    mFillRule = FILL_RULE_NONZERO;
+    mMinPosition = PointMake(INFINITY, INFINITY);
+    mMaxPosition = PointMake(-INFINITY, -INFINITY);
+    
 }
 
 void GPath::EndSubPath() {
@@ -56,16 +97,19 @@ void GPath::EndSubPath() {
 void GPath::push(GPoint pt) { push(pt.x, pt.y); }
 
 void GPath::push(float x, float y) {
+    GPoint p = PointMake(x, y);
+    
     tSubPath &curPath = GetCurPath();
-    if (mCurrentPosition.x == x && mCurrentPosition.y == y &&
-        !curPath.points.empty()) {
-        return;
-    }
-
-    curPath.points.push_back(PointMake(x, y));
+    
+    curPath.points.push_back(p);
     mCurrentPosition.x = x;
     mCurrentPosition.y = y;
+    mMinPosition.x = std::min<float>( mMinPosition.x, x );
+    mMinPosition.y = std::min<float>( mMinPosition.y, y );
+    mMaxPosition.x = std::max<float>( mMaxPosition.x, x );
+    mMaxPosition.y = std::max<float>( mMaxPosition.y, y );
 }
+
 
 void GPath::MoveTo(float x, float y) {
     EndSubPath();
@@ -90,8 +134,8 @@ void GPath::QuadraticCurveTo(float cpx, float cpy, float x, float y,
     mDistanceTolerance = G_PATH_DISTANCE_EPSILON / scale;
     mDistanceTolerance *= mDistanceTolerance;
 
-    recursiveQuadratic(mCurrentPosition.x, mCurrentPosition.y, cpx, cpy, x, y,
-                       0);
+    recursiveQuadratic(mCurrentPosition.x, mCurrentPosition.y, cpx, cpy, x, y, 0);
+
     push(x, y);
 }
 
@@ -131,16 +175,6 @@ void GPath::recursiveQuadratic(float x1, float y1, float x2, float y2,
     }
 }
 
-//void GPath::BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y,
-//                           float x, float y, float scale)
-//{
-//    mDistanceTolerance = G_PATH_DISTANCE_EPSILON / scale;
-//    mDistanceTolerance *= mDistanceTolerance;
-//
-//    recursiveBezier(mCurrentPosition.x, mCurrentPosition.y, cp1x, cp1y, cp2x,
-//                    cp2y, x, y, 8);
-//    push(x, y);
-//}
 
 void GPath::BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y,
                           float x, float y, float scale) {
@@ -154,16 +188,7 @@ void GPath::BezierCurveTo(float cp1x, float cp1y, float cp2x, float cp2y,
             PointMake(x, y),
     };
 
-//    tSubPath &curPath = GetCurPath();
-//    curPath.points.push_back(points[1]);
-//    curPath.points.push_back(points[2]);
-//    curPath.points.push_back(points[3]);
-//    push(points[1]);
-//    push(points[2]);
-//    push(points[3]);
-//    recursiveBezier(mCurrentPosition.x, mCurrentPosition.y, cp1x, cp1y, cp2x,
-//                    cp2y, x, y, 0);
-    SubdivideCubicTo(this, points);
+    SubdivideCubicTo(this, points, 4);
     push(x, y);
 }
 
@@ -235,7 +260,6 @@ void GPath::recursiveBezier(float x1, float y1, float x2, float y2, float x3,
 
 void GPath::ArcTo(float x1, float y1, float x2, float y2, float radius) {
     // Lifted from http://code.google.com/p/fxcanvas/
-
     GPoint cp = mCurrentPosition;
 
     float a1 = cp.y - y1;
@@ -279,21 +303,24 @@ void GPath::Arc(float cx, float cy, float radius, float startAngle,
     if (spanAngleAbs < ERROR_DEVIATION) { // the same angle,do nothing
         return;
     }
+    
+    float pi2 = PI_2;
 
-    if (spanAngleAbs > PI_2) {
-        endAngle = startAngle + PI_2;
-        spanAngle = PI_2;
+    if (spanAngleAbs > pi2) {
+        spanAngle = pi2;
     } else {
         while (spanAngle < 0) {
-            spanAngle += PI_2 * 2;
+            spanAngle += pi2 * 2;
         }
-        while (spanAngle > PI_2) {
-            spanAngle -= PI_2;
+        while (spanAngle > pi2) {
+            spanAngle -= pi2;
         }
     }
 
-    int stepCount = 100;
-    stepCount *= (spanAngle / PI_2);
+    int stepCount = DEFAULT_STEP_COUNT * (spanAngle / pi2);
+    bool isCircle = (stepCount == DEFAULT_STEP_COUNT);
+    
+    
     if (stepCount < 1) {
         stepCount = 1;
     }
@@ -301,35 +328,61 @@ void GPath::Arc(float cx, float cy, float radius, float startAngle,
     if (antiClockwise) {
         deltaAngle = -deltaAngle;
     }
-
+    
     float dx = cosf(deltaAngle);
     float dy = sinf(deltaAngle);
-
+    
     float xOffset = radius * cosf(startAngle);
     float yOffset = radius * sinf(startAngle);
-
+    
     for (int step = 0; step <= stepCount; ++step) {
+        if (step == 0) {
+            
+            if (isCircle) { //remove moveTo while isCircle
+                if ( !GetCurPath().isClosed ){
+                    tSubPath &curPath = GetCurPath();
+                    if (curPath.points.size() == 1) {
+                        curPath.points.pop_back();
+                    }
+                }
+            }
+            
+            if ( !GetCurPath().isClosed ){
+                tSubPath &curPath = GetCurPath();
+                if (curPath.points.size() == 0) {
+                    mHasInitStartPosition = true;
+                    mStartPosition = PointMake(cx + xOffset, cy + yOffset);
+                }
+            }
+        }
         push(cx + xOffset, cy + yOffset);
-
+        
         float oldX = xOffset, oldY = yOffset;
         xOffset = oldX * dx - oldY * dy;
         yOffset = oldX * dy + oldY * dx;
     }
 }
 
-void GPath::ClipRegion(GCanvasContext *context) {
+
+
+void GPath::ClipRegion(GCanvasContext *context)
+{
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
     glEnable(GL_STENCIL_TEST);
-    glStencilMask(0xff);
+    // clip use high mask bit
+    GLuint mask = 0x80;
+    GLuint ref = 0x80;
+    glStencilMask(mask);
 
+    // use stencil func
     if (context->HasClipRegion()) {
-        glStencilFunc(GL_EQUAL, 0x1, 0xff);
-        glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+        glStencilFunc(GL_EQUAL, ref, mask);
+        glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
     } else {
         glClear(GL_STENCIL_BUFFER_BIT);
-        glStencilFunc(GL_EQUAL, 0x0, 0xff);
-        glStencilOp(GL_KEEP, GL_INCR, GL_INCR);
+        glStencilFunc(GL_ALWAYS, ref, mask);
+        glStencilOp(GL_KEEP, GL_REPLACE, GL_REPLACE);
     }
 
     for (std::vector<tSubPath>::const_iterator pathIter =
@@ -342,57 +395,144 @@ void GPath::ClipRegion(GCanvasContext *context) {
 
         glVertexAttribPointer(context->PositionSlot(), 2, GL_FLOAT, GL_FALSE,
                               sizeof(GPoint), &(path.front()));
+        context->mDrawCallCount++;
         glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei) path.size());
     }
     context->BindPositionVertexBuffer();
-
-    if (context->HasClipRegion()) {
-        glStencilFunc(GL_NOTEQUAL, 0x0, 0xff);
-        glStencilOp(GL_KEEP, GL_DECR, GL_DECR);
-
-        GColorRGBA color = StrValueToColorRGBA("transparent");
-
-        context->SetTransformOfShader(GTransformIdentity);
-        context->PushRectangle(-1, -1, 2, 2, 0, 0, 1, 1, color);
-        context->SendVertexBufferToGPU();
-    }
-
-    glStencilFunc(GL_EQUAL, 0x1, 0xff);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+    // reset stencil
+    SetStencilForClip();
+}
+void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GColorRGBA color)
+{
+    std::vector<GPoint> &pts = subPath->points;
+    if (subPath->isClosed)
+    {
+        context->PushTriangleFanPoints(pts, color);
+    }
+    else
+    {
+        // push head point
+        pts.push_back(pts.front());
+        context->PushTriangleFanPoints(pts, color);
+        pts.pop_back();
+    }
+    context->SendVertexBufferToGPU(GL_TRIANGLE_FAN);
 }
 
-void GPath::DrawPolygons2DToContext(GCanvasContext *context) {
-    GColorRGBA color = context->GetFillStyle();
-    color.rgba.a = (float) color.rgba.a * context->GlobalAlpha();
-
+void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFillTarget target )
+{
+    
+    GLint bindFBO = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &bindFBO);
+    
+    
     context->SendVertexBufferToGPU();
-
-    for (std::vector<tSubPath>::iterator iter = mPathStack.begin();
-         iter != mPathStack.end(); ++iter) {
-        std::vector<GPoint> &pts = iter->points;
-        if (pts.size() < 3) {
-            continue;
-        }
-
-        Vector2dVector result;
-        if (iter->isClosed) {
-            pts.pop_back();
-            Triangulate::Process(
-                    pts, result);
-            pts.push_back(pts[0]);
-        } else {
-            Triangulate::Process(pts, result);
-        }
-
-        context->PushPoints(result, color);
-        context->SendVertexBufferToGPU(GL_TRIANGLES);
+    
+    GColorRGBA color = BlendColor(context, context->mCurrentState->mFillColor);
+    
+    // Disable drawing to the color buffer, enable the stencil buffer
+    if (context->mCurrentState->mShader->GetTexcoordSlot() > 0) {
+        glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetTexcoordSlot());
+    }
+    glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetColorSlot());
+    
+    glDisable(GL_BLEND);
+    glEnable(GL_STENCIL_TEST);
+    glStencilMask(0xff);
+    
+    glStencilFunc(GL_ALWAYS, 0, 0xff);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    
+    // Clear the needed area in the stencil buffer
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+    GColorRGBA white = {1,1,1,1};
+    
+    GPoint minPos = mMinPosition;
+    GPoint maxPos = mMaxPosition;
+    
+    context->PushRectangle(minPos.x, minPos.y, maxPos.x-minPos.x, maxPos.y-minPos.y, 0, 0, 0, 0, white);
+    context->SendVertexBufferToGPU();
+    
+    
+    if( rule == FILL_RULE_NONZERO )
+    {
+        glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR_WRAP);
+        glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_DECR_WRAP);
+    }
+    else if( rule == FILL_RULE_EVENODD )
+    {
+        glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
+    }
+    
+    for (std::vector<tSubPath>::iterator iter = mPathStack.begin(); iter != mPathStack.end(); ++iter)
+    {
+        tSubPath path = *iter;
+        
+        if( path.points.size() == 0 ) continue;
+        
+        glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
+                              GL_FLOAT, GL_FALSE, 0,
+                              &(path.points.front()));
+        context->mDrawCallCount++;
+        glDrawArrays(GL_TRIANGLE_FAN, 0, (int)path.points.size());
+    }
+    
+    context->BindVertexBuffer();
+    
+    //enable color or depth buffer, push a rect with the correct size and color
+    if( target == FILL_TARGET_DEPTH ) {
+        glDepthFunc(GL_ALWAYS);
+        glDepthMask(GL_TRUE);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
+    else if( target == FILL_TARGET_COLOR ) {
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glEnable(GL_BLEND);
+    }
+    
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0xff);
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+    
+    context->PushRectangle(minPos.x, minPos.y, maxPos.x-minPos.x, maxPos.y-minPos.y, 0, 0, 0, 0, color);
+    context->SendVertexBufferToGPU();
+    
+    glDisable(GL_STENCIL_TEST);
+    
+    if( target == FILL_TARGET_DEPTH )
+    {
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_EQUAL);
+        
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glEnable(GL_BLEND);
     }
 }
 
 void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
-                             GPoint p1, GPoint p2, GColorRGBA color) {
+                             GPoint p1, GPoint p2, GColorRGBA color, std::vector<GVertex> *vec, float samePointThreshold) {
+    // filter invalid point
+    bool fixAndroidCompatible = false;
+#ifdef ANDROID
+    fixAndroidCompatible = true;
+#endif
+
+    float minValue = samePointThreshold;
+    // LOG_I("drawArcToContext p1(%f,%f),p2(%f,%f),p3(%f,%f)", p1.x, p1.y, p2.x, p2.y, point.x,point.y);
+    if (fixAndroidCompatible && (isSamePoint(point, p1, minValue) || isSamePoint(p1, p2, minValue) || isSamePoint(point, p2, minValue)))
+    {
+        // LOG_I("isSamePoint, exit: ");
+        return;
+    }
+
+    // filter nan pint
+    if (isNan(point) || isNan(p1) || isNan(p2))
+    {
+        // LOG_I("isNan check true");
+        return;
+    }
+
     float width2 = context->LineWidth();
     if( width2 >= 2 ){
         width2 /= 2.f;
@@ -401,53 +541,205 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
     GPoint v1 = PointNormalize(PointSub(p1, point)),
             v2 = PointNormalize(PointSub(p2, point));
 
-    float angle1 = atan2(1.0f, 0.0f) - atan2(v1.x, -v1.y);
-
     float angle2;
     if (v1.x == -v2.x && v1.y == -v2.y) {
-        angle2 = (float) 3.14;
+        angle2 = M_PI;
     } else {
         angle2 = acosf(v1.x * v2.x + v1.y * v2.y);
     }
 
+    if (fixAndroidCompatible && std::isnan(angle2)) {
+        return;
+    }
+
     // 1 step per 5 pixel
-    int numSteps = (int) std::max<float>(2, (angle2 * width2) / 5.0f);
+    float needStep =  (angle2 * width2) / 5.0f;
+    int numSteps = 0;
+    if (fixAndroidCompatible)
+    {
+        if (needStep < minValue)
+        {
+            numSteps = 0;
+        }
+        else if (needStep < 1)
+        {
+            numSteps = 1;
+        }
+        else
+        {
+            numSteps = (int)std::min<float>(64, std::max<float>(20, needStep));
+        }
+    }
+    else
+    {
+        numSteps = (int)std::min<float>(64, std::max<float>(20, needStep));
+    }
 
-    // calculate angle step
-    float step = (angle2 / numSteps);
+    // LOG_E("needStep=%f, steps=%i", needStep, numSteps);
+    if (numSteps > 0)
+    {
+        // calculate angle step
+        float step = (angle2 / numSteps);
+        float angle1 = atan2(1.0f, 0.0f) - atan2(v1.x, -v1.y);
+        // starting point
+        float angle = angle1;
 
-    // starting point
-    float angle = angle1;
+        GPoint arcP1 = {point.x + cosf(angle) * width2,
+                        point.y - sinf(angle) * width2};
+        GPoint arcP2;
+        for (int i = 0; i < numSteps; i++) {
+            angle += step;
+            arcP2 = PointMake(point.x + cosf(angle) * width2,
+                              point.y - sinf(angle) * width2);
 
-    GPoint arcP1 = {point.x + cosf(angle) * width2,
-                    point.y - sinf(angle) * width2};
-    GPoint arcP2;
-
-    for (int i = 0; i < numSteps; i++) {
-        angle += step;
-        arcP2 = PointMake(point.x + cosf(angle) * width2,
-                          point.y - sinf(angle) * width2);
-
-        context->PushTriangle(arcP1, point, arcP2, color);
-
-        arcP1 = arcP2;
+            context->PushTriangle(arcP1, point, arcP2, color, vec);
+            arcP1 = arcP2;
+        }
     }
 }
 
-void GPath::DrawLinesToContext(GCanvasContext *context) {
-    context->SetTexture(nullptr);
+std::vector<tSubPath>* GPath::DrawLineDash(GCanvasContext *context)
+{
+    std::vector<float> lineDash = context->LineDash();
+    std::vector<float> firstLineDash = context->LineDash();
+    bool firstNeedDraw = true;
+    int firstDashIndex = 0;
+    float lineDashOffset = context->LineDashOffset();
+    // deal offset
+    if (lineDashOffset > 0.1 && lineDashOffset < 50) {
+        float totalLength = 0;
+        for (int i = 0; i < lineDash.size(); i++) {
+            totalLength += lineDash[i];
+        }
+        while (lineDashOffset > totalLength) {
+            lineDashOffset -= totalLength;
+            if (lineDash.size() % 2 == 1) {
+                firstNeedDraw = !firstNeedDraw;
+            }
+        }
 
-    GColorRGBA color = context->StrokeStyle();
-    color.rgba.a = (float) color.rgba.a * context->GlobalAlpha();
-
-    float lineWidth = context->LineWidth();
-    if( lineWidth >= 2 ){
-        lineWidth /= 2.f;
+        for (int i = 0; i < firstLineDash.size(); i++) {
+            float dash = firstLineDash[i];
+            if (dash > lineDashOffset) {
+                firstLineDash[i] = dash - lineDashOffset;
+                break;
+            }
+            else {
+                firstNeedDraw = !firstNeedDraw;
+                lineDashOffset -= dash;
+                firstLineDash[i] = 0;
+                firstDashIndex++;
+                if (i == firstLineDash.size() - 1) {
+                    // reset
+                    firstDashIndex = 0;
+                    firstLineDash = lineDash;
+                }
+            }
+        }
     }
 
+    std::vector<tSubPath> *tmpPathStack = new std::vector<tSubPath>;
     for (std::vector<tSubPath>::const_iterator iter = mPathStack.begin();
          iter != mPathStack.end(); ++iter) {
         const std::vector<GPoint> &pts = iter->points;
+        GPoint startPoint, stopPoint;
+        if (pts.size() <= 1) {
+            continue;
+        }
+
+        // dashwidth
+        int dashIndex = firstDashIndex;
+        float dashWidth = firstLineDash[dashIndex];
+        bool needDraw = firstNeedDraw;
+        bool isFirst = true;
+
+        // new tmp path
+        tSubPath tmpPath;
+        tmpPath.isClosed = false;
+        float currentWidth = 0;
+        stopPoint = *(pts.begin());
+        tmpPath.points.push_back(stopPoint);
+
+        for (std::vector<GPoint>::const_iterator ptIter = pts.begin() + 1;
+             ptIter != pts.end(); ) {
+            startPoint = stopPoint;
+            stopPoint = *ptIter;
+            // calc cur length
+            float deltaX = stopPoint.x - startPoint.x;
+            float deltaY = stopPoint.y - startPoint.y;
+            float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
+
+            if (length + currentWidth > dashWidth) {
+                // insert point
+                float gapWidth = dashWidth - currentWidth;
+                float interDeltaX = deltaX * gapWidth / length;
+                float interDeltaY = deltaY * gapWidth / length;
+                GPoint interPoint = PointMake(interDeltaX + startPoint.x, interDeltaY + startPoint.y);
+                tmpPath.points.push_back(interPoint);
+
+                if (needDraw) {
+                    tmpPathStack->push_back(tmpPath);
+                }
+
+                // new path, update variables
+                tmpPath.points.clear();
+                tmpPath.isClosed = false;
+                needDraw = !needDraw;
+                currentWidth = 0;
+                tmpPath.points.push_back(interPoint);
+                stopPoint = interPoint;
+
+                // update dash
+                if (isFirst) {
+                    dashIndex++;
+                    if (dashIndex >= firstLineDash.size()) {
+                        isFirst = false;
+                        dashIndex = 0;
+                        dashWidth = lineDash[dashIndex];
+                    }
+                    else {
+                        dashWidth = firstLineDash[dashIndex];
+                    }
+                }
+                else {
+                    dashIndex = (dashIndex + 1) % lineDash.size();
+                    dashWidth = lineDash[dashIndex];
+                }
+
+                continue;
+
+            }
+            else {
+                tmpPath.points.push_back(stopPoint);
+                currentWidth += length;
+                if (ptIter == pts.end() - 1) {
+                    // finished，push vertex
+                    if (needDraw) {
+                        tmpPathStack->push_back(tmpPath);
+                    }
+                }
+            }
+            ++ptIter;
+        }
+    }
+    return tmpPathStack;
+}
+
+
+void GPath::CreateLinesFromPoints(GCanvasContext *context, GColorRGBA color, std::vector<GVertex> *vertexVec)
+{
+    float lineWidth = context->LineWidth() * 0.5;
+    float minValidValue = 0.01;
+
+    std::vector<tSubPath> *pathStack = &mPathStack;
+    // first deal line dash if needed
+    if (context->LineDash().size() > 0) {
+        pathStack = DrawLineDash(context);
+    }
+
+    for (std::vector<tSubPath>::iterator iter = pathStack->begin();
+         iter != pathStack->end(); ++iter) {
+        std::vector<GPoint> &pts = iter->points;
         bool subPathIsClosed = iter->isClosed;
         bool firstInSub = true;
         GPoint startPoint, stopPoint;
@@ -459,25 +751,51 @@ void GPath::DrawLinesToContext(GCanvasContext *context) {
         }
 
         stopPoint = *(pts.begin());
+        // LOG_E("pathStack pointSize=%f,%f %f,%f %f,%f", pts[0].x, pts[0].y,pts[1].x, pts[1].y,pts[2].x, pts[2].y);
+        
+        // filter close point
+        GPoint prePoint = *(pts.begin());
+        for (std::vector<GPoint>::const_iterator ptIter = pts.begin() + 1;
+             ptIter != pts.end(); ) {
+            float deltaX = (*ptIter).x - prePoint.x;
+            float deltaY = (*ptIter).y - prePoint.y;
+            float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
+            if (length < minValidValue) {
+                ptIter = pts.erase(ptIter);
+            }
+            else {
+                prePoint = *ptIter;
+                ptIter++;
+            }
+        }
+        
         for (std::vector<GPoint>::const_iterator ptIter = pts.begin() + 1;
              ptIter != pts.end(); ++ptIter) {
+
+            // LOG_E("pathStack iterate point=%f,%f", ptIter->x, ptIter->y);
+            float deltaX = (*ptIter).x - stopPoint.x;
+            float deltaY = (*ptIter).y - stopPoint.y;
+
+            float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
+            
+            std::vector<GPoint>::const_iterator nextIter = ptIter + 1;
+            
             startPoint = stopPoint;
             stopPoint = *ptIter;
 
-            float deltaX = stopPoint.x - startPoint.x;
-            float deltaY = stopPoint.y - startPoint.y;
-            float length = sqrtf(deltaX * deltaX + deltaY * deltaY);
             float temp = deltaX;
             deltaX = deltaY * lineWidth / length;
             deltaY = temp * lineWidth / length;
+
             miter11 = PointMake(startPoint.x - deltaX, startPoint.y + deltaY);
             miter12 = PointMake(startPoint.x + deltaX, startPoint.y - deltaY);
             miter21 = PointMake(stopPoint.x - deltaX, stopPoint.y + deltaY);
             miter22 = PointMake(stopPoint.x + deltaX, stopPoint.y - deltaY);
 
             // step1: draw line
-            context->PushQuad(miter11, miter21, miter22, miter12, color);
+            context->PushQuad(miter11, miter21, miter22, miter12, color, vertexVec);
 
+            // if lineWidth > 1, draw mitter
             if (context->LineWidth() <= 1) {
                 continue;
             }
@@ -487,15 +805,15 @@ void GPath::DrawLinesToContext(GCanvasContext *context) {
                 firstInSub = false;
                 secondPoint = stopPoint;
                 if (!subPathIsClosed)
+                {
                     drawLineCap(context, startPoint, miter12, miter11, -deltaY,
-                                -deltaX, color);
+                                -deltaX, color, vertexVec);
+                }
             }
-
             // step3: draw tail cap
-            std::vector<GPoint>::const_iterator nextIter = ptIter + 1;
             if (nextIter == pts.end() && (!subPathIsClosed)) {
                 drawLineCap(context, stopPoint, miter21, miter22, deltaY,
-                            deltaX, color);
+                            deltaX, color, vertexVec);
                 break;
             }
 
@@ -534,16 +852,100 @@ void GPath::DrawLinesToContext(GCanvasContext *context) {
                 joinP2 = n11;
             }
 
-            if (context->LineJoin() == LINE_JOIN_ROUND) {
-                drawArcToContext(context, stopPoint, joinP1, joinP2, color);
-            } else if (context->LineJoin() == LINE_JOIN_MITER) {
-                drawLineJoinMiter(context, stopPoint, joinP2, joinP1, color);
-            } else if (context->LineJoin() == LINE_JOIN_BEVEL) {
-                context->PushTriangle(stopPoint, joinP1, joinP2, color);
-            }
 
+            if (context->LineJoin() == LINE_JOIN_ROUND) {
+                drawArcToContext(context, stopPoint, joinP1, joinP2, color, vertexVec, minValidValue);
+            } else if (context->LineJoin() == LINE_JOIN_MITER) {
+                drawLineJoinMiter(context, stopPoint, joinP2, joinP1, color, vertexVec);
+            } else if (context->LineJoin() == LINE_JOIN_BEVEL) {
+                if (isTrianglePointsValid(stopPoint, joinP1, joinP2, minValidValue))
+                {
+                    context->PushTriangle(stopPoint, joinP1, joinP2, color, vertexVec);
+                }
+                else
+                {
+                    //LOG_E("invalid bevel join pointSize=%f,%f %f,%f %f,%f",
+                    //      stopPoint.x, stopPoint.y,joinP1.x, joinP1.y,joinP2.x, joinP2.y);
+                }
+            }
         }
     }
+
+    // delete pathStack
+    if (context->LineDash().size() > 0) {
+        delete pathStack;
+    }
+}
+
+void GPath::DrawLinesToContext(GCanvasContext *context)
+{
+    context->SetTexture(InvalidateTextureId);
+    GColorRGBA color = BlendStrokeColor(context);
+    
+    std::vector<GVertex> vertexVec;
+
+    if (color.rgba.a < 1.0) { //transparent, use stencil buffer
+        CreateLinesFromPoints(context, color, &vertexVec);
+    }
+    else {
+        CreateLinesFromPoints(context, color, NULL);
+        return;
+    }
+
+    StencilRectForStroke(context, vertexVec);
+}
+
+void GPath::StencilRectForStroke(GCanvasContext *context, std::vector<GVertex> &vertexVec)
+{
+    context->SendVertexBufferToGPU();
+    GColorRGBA color = BlendStrokeColor(context);
+    
+    //set environment
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glEnable(GL_STENCIL_TEST);
+    
+    // clear stencil buffer
+    glStencilFunc(GL_ALWAYS, 0, 0xff);
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+    GColorRGBA white = {1,1,1,1};
+    
+    float extend = context->MiterLimit() * context->LineWidth();
+    if (extend < context->LineWidth() * 0.5) {
+        extend = context->LineWidth() * 0.5;
+    }
+    GRect rect;
+    rect.x = mMinPosition.x - extend;
+    rect.y = mMinPosition.y - extend;
+    rect.width = mMaxPosition.x - mMinPosition.x + extend * 2;
+    rect.height = mMaxPosition.y - mMinPosition.y + extend * 2;
+    if (rect.height > context->GetHeight() || rect.width > context->GetWidth()) {
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = context->GetWidth();
+        rect.height = context->GetHeight();
+    }
+    
+    context->PushRectangle(rect.x, rect.y, rect.width, rect.height, 0, 0, 0, 0, white);
+    context->SendVertexBufferToGPU();
+    
+    // first draw stencil
+    glStencilFunc(GL_ALWAYS, 0x1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    
+    // push vertexs
+    context->PushVertexs(vertexVec);
+    context->SendVertexBufferToGPU();
+    
+    // second draw color buffer with stencil buffer
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glStencilFunc(GL_NOTEQUAL, 0x00, 0xff);
+    glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
+    
+    context->PushRectangle(rect.x, rect.y, rect.width, rect.height, 0, 0, 0, 0, color);
+    context->SendVertexBufferToGPU();
+    
+    // reset
+    glDisable(GL_STENCIL_TEST);
 }
 
 float GPath::calcPointAngle(const GPoint &director, const GPoint &center) {
@@ -553,7 +955,7 @@ float GPath::calcPointAngle(const GPoint &director, const GPoint &center) {
 
 void GPath::drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
                               const GPoint &p1, const GPoint &p2,
-                              GColorRGBA color) {
+                              GColorRGBA color, std::vector<GVertex> *vec) {
     float angle1 = calcPointAngle(p1, center);
     float angle2 = calcPointAngle(p2, center);
 
@@ -570,31 +972,35 @@ void GPath::drawLineJoinMiter(GCanvasContext *context, const GPoint &center,
     }
 
     float miterAngle = angle1 + angleGap;
-    float lineWidth = context->LineWidth();
-    if( lineWidth >= 2.0 ){
-        lineWidth /= 2.f;
-    }
-    
+    float lineWidth = context->LineWidth() * 0.5;
     GPoint miterPoint = {
             center.x + cosf(miterAngle) * miterLen * lineWidth,
             center.y + sinf(miterAngle) * miterLen * lineWidth};
 
-    context->PushQuad(center, p1, miterPoint, p2, color);
+    // LOG_E("drawLineJoinMiter PushQuad=%f,%f %f,%f %f,%f,%f,%f",
+    //      center.x, center.y, p1.x, p1.y, miterPoint.x, miterPoint.y, p2.x, p2.y);
+
+    // filter opengl invalid point( eg:oppo a59 )
+    if (isNan(p1) || isNan(p2) || isNan(center) || isNan(miterPoint))
+    {
+        return;
+    }
+
+    context->PushQuad(center, p1, miterPoint, p2, color, vec);
 }
 
 void GPath::drawLineCap(GCanvasContext *context, const GPoint &center,
                         const GPoint &p1, const GPoint &p2, float deltaX,
-                        float deltaY, GColorRGBA color) {
+                        float deltaY, GColorRGBA color, std::vector<GVertex> *vec, float samePointThreshold) {
     if (context->LineCap() == LINE_CAP_SQUARE) {
         context->PushQuad(p1, p2, PointMake(p2.x + deltaX, p2.y + deltaY),
-                          PointMake(p1.x + deltaX, p1.y + deltaY), color);
+                          PointMake(p1.x + deltaX, p1.y + deltaY), color, vec);
     } else if (context->LineCap() == LINE_CAP_ROUND) {
-        drawArcToContext(context, center, p1, p2, color);
+        drawArcToContext(context, center, p1, p2, color, vec, samePointThreshold);
     }
 }
 
 void GPath::SubdivideCubicTo(GPath *path, GPoint points[4], int level) {
-    tSubPath &curPath = path->GetCurPath();
     if (--level >= 0) {
         GPoint tmp[7];
 
@@ -602,10 +1008,9 @@ void GPath::SubdivideCubicTo(GPath *path, GPoint points[4], int level) {
         SubdivideCubicTo(path, &tmp[0], level);
         SubdivideCubicTo(path, &tmp[3], level);
     } else {
-
-        curPath.points.push_back(points[1]);
-        curPath.points.push_back(points[2]);
-        curPath.points.push_back(points[3]);
+        path->push(points[1]);
+        path->push(points[2]);
+        path->push(points[3]);
     }
 }
 
@@ -630,10 +1035,41 @@ void GPath::ChopCubicAt(GPoint src[4], GPoint dst[7], float t) {
 }
 
 GPoint GPath::interp(const GPoint &v0, const GPoint &v1, const GPoint &t) {
-//    GPoint tmp = PointSub(v1, v0);
-//    tmp = PointMultiply(tmp, t);
-//    return PointAdd(tmp, v0);
     return PointMake(v0.x + (v1.x - v0.x) * t.x, v0.y + (v1.y - v0.y) * t.y);
+}
+
+void GPath::GetRect(GRectf& rect)
+{
+    rect.leftTop = mMinPosition;
+    rect.bottomRight = mMaxPosition;
+}
+
+
+
+void GPath::RestoreStencilForClip(GCanvasContext *context)
+{
+    if (context->HasClipRegion())
+    {
+        // reset stencil
+        glClear(GL_STENCIL_BUFFER_BIT);
+        SetStencilForClip();
+    }
+    else
+    {
+        // disable
+        glStencilMask(0xFF);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glDisable(GL_STENCIL_TEST);
+    }
+}
+
+
+void GPath::SetStencilForClip()
+{
+    GLuint mask = 0x80;
+    glStencilMask(mask);
+    glStencilFunc(GL_EQUAL, mask, mask);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 }
 
 inline double calc_distance(double x1, double y1, double x2, double y2)

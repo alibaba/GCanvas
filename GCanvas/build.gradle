@@ -3,29 +3,38 @@ allprojects {
     project.ext.meta = [:]
     repositories {
         maven {
-            url 'https://maven.google.com/'
-            name 'Google'
+            url "http://mvnrepo.alibaba-inc.com/mvn/repository"
         }
-        mavenCentral()
-        jcenter()
         google()
+        maven {
+            url 'https://maven.google.com/'
+        }
+        jcenter()
+        mavenCentral()
+    }
+
+    configurations {
+        compileProject.extendsFrom compile, archives
     }
 }
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        jcenter()
-        mavenCentral()
+        maven {
+            url "http://mvnrepo.alibaba-inc.com/mvn/repository"
+        }
         google()
         maven {
             url 'https://maven.google.com/'
-            name 'Google'
         }
+        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.0.1"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
+        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
     }
 }
 
@@ -35,17 +44,19 @@ task clean(type: Delete) {
 
 rootProject.extensions.sdks = [
         'Gradle'        : '3.0.1',
-        'CompileSDK'    : 26,
-        'BuildTool'     : '26.0.2',
+        'CompileSDK'    : 28,
+        'BuildTool'     : '28.0.3',
         'MinSDK'        : 16,
-        'TargetSDK'     : 25,
+        'TargetSDK'     : 28,
         'Fresco'        : '1.8.0',
         'Picasso'       : '2.5.2',
         'JUnit'         : '4.12',
         'Support'       : '26.0.2',
-        'Weex'          : '0.17.0',
+        'Weex'          : '0.18.18.17',
         'WeexAnnotation': '1.3',
-        'ReactNative'   : '+'
+        'ReactNative'   : '+',
+        'ABIs'          : ["armeabi-v7a","arm64-v8a"],
+        'EXCLUDE_CPP_SHARED' : false
 ]
 
 // PLEASE DO NOT MODIFY ARTIFACT IDS LIST BELOW.
@@ -58,11 +69,11 @@ rootProject.extensions.groups = [
 
 // Artifact IDs
 rootProject.extensions.artifacts = [
-        'BridgeSpec'  : 'spec',
-        'Core'        : 'corelib',
-        'WeexBridge'  : 'weex',
-        'ReactNative' : 'rn',
-        'ImageAdapter': 'img',
-        'FrescoAdapter': 'img_fresco',
+        'BridgeSpec'    : 'spec',
+        'Core'          : 'core',
+        'WeexBridge'    : 'weex',
+        'ReactNative'   : 'rn',
+        'ImageAdapter'  : 'img',
+        'FrescoAdapter' : 'img_fresco',
         'PicassoAdapter': 'img_picasso',
 ]

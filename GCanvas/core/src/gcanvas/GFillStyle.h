@@ -7,8 +7,8 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#ifndef __GCanvas__GFillStyle__
-#define __GCanvas__GFillStyle__
+#ifndef GCANVAS_GFILLSTYLE_H
+#define GCANVAS_GFILLSTYLE_H
 
 #include "GConvert.h"
 
@@ -27,6 +27,7 @@ public:
 
     virtual int GetTextureListID() { return -1; }
     virtual GFillStyle *Clone() { return nullptr; }
+    virtual bool AddColorStop(float pos, const std::string &color_name){ return false;}
 
     bool IsPattern() { return mStyle == STYLE_PATTERN; }
     bool IsLinearGradient() { return mStyle == STYLE_LINEAR_GRADIENT; }
@@ -46,12 +47,20 @@ public:
         : GFillStyle(STYLE_PATTERN), mPattern(pattern), mTextureListId(texture_list_id)
     {
     }
+    
+    FillStylePattern(int texture_list_id, short textureWidth, short textHeight, const std::string &pattern)
+    : GFillStyle(STYLE_PATTERN),mTextureWidth(textureWidth), mTextureHeight(textHeight),
+    mPattern(pattern), mTextureListId(texture_list_id)
+    {
+    }
 
     virtual ~FillStylePattern() { mPattern.clear(); }
 
     const std::string &GetPattern() const { return mPattern; }
-
     int GetTextureListID() { return mTextureListId; }
+    short GetTextureWidth() { return mTextureWidth; }
+    short GetTextureHeight() { return mTextureHeight; }
+
 
     GFillStyle *Clone()
     {
@@ -63,6 +72,8 @@ public:
 private:
     std::string mPattern;
     int mTextureListId;
+    short mTextureWidth;
+    short mTextureHeight;
 };
 
 class FillStyleLinearGradient : public GFillStyle
@@ -86,7 +97,7 @@ public:
         if (mStopCount < MAX_STOP_NUM)
         {
             mStops[mStopCount].pos = pos;
-            mStops[mStopCount].color = StrValueToColorRGBA(color_name.c_str());
+            mStops[mStopCount].color = gcanvas::StrValueToColorRGBA(color_name.c_str());
             mStopCount++;
             return true;
         }
@@ -145,7 +156,7 @@ public:
         if (mStopCount < MAX_STOP_NUM)
         {
             mStops[mStopCount].pos = pos;
-            mStops[mStopCount].color = StrValueToColorRGBA(color_name.c_str());
+            mStops[mStopCount].color = gcanvas::StrValueToColorRGBA(color_name.c_str());
             mStopCount++;
             return true;
         }
@@ -178,4 +189,4 @@ private:
     ColorStop mStops[MAX_STOP_NUM];
 };
 
-#endif
+#endif /* GCANVAS_GFILLSTYLE_H */

@@ -6,26 +6,16 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef __GCanvas__GPoint__
-#define __GCanvas__GPoint__
+#ifndef GCANVAS_GPOINT_H
+#define GCANVAS_GPOINT_H
+
+#include "GGL.h"
+#include "GContext2dType.h"
+#include "export.h"
 
 #include <cmath>
 #include <iostream>
-#ifndef _WIN32
 
-#ifdef ANDROID
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#endif
-
-#ifdef IOS
-#include <OpenGLES/ES2/gl.h>
-#include <OpenGLES/ES2/glext.h>
-#endif
-
-#else
-#include <GLES2/gl2.h>
-#endif
 
 typedef struct
 {
@@ -33,13 +23,16 @@ typedef struct
     GLfloat y;
 } GPoint;
 
-typedef union {
+typedef union
+{
     struct
     {
         GLfloat r, g, b, a;
     } rgba;
     GLfloat components[4];
 } GColorRGBA;
+
+
 
 typedef struct
 {
@@ -81,9 +74,45 @@ static inline GPoint PointNormalize(GPoint v)
         return v;
     }
 
-    v.x = (float)(v.x / ln);
-    v.y = (float)(v.y / ln);
+    v.x = (float) (v.x / ln);
+    v.y = (float) (v.y / ln);
     return v;
 }
 
-#endif
+struct GRectf
+{
+    GPoint leftTop = {0, 0};
+    GPoint bottomRight = {0, 0};
+
+    float Width() const
+    {
+        return bottomRight.x - leftTop.x;
+    }
+
+    float Height() const
+    {
+        return bottomRight.y - leftTop.y;
+    }
+
+    void Enlarge(float x, float y)
+    {
+        leftTop.x -= x;
+        leftTop.y -= y;
+        bottomRight.x += x;
+        bottomRight.y += y;
+    }
+};
+
+inline GRectf operator/(const GRectf &rect, float factor)
+{
+    GRectf result = rect;
+    result.leftTop.x /= factor;
+    result.leftTop.y /= factor;
+    result.bottomRight.x /= factor;
+    result.bottomRight.y /= factor;
+    return result;
+}
+
+
+
+#endif /* GCANVAS_GPOINT_H */

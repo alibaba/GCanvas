@@ -1,0 +1,19 @@
+{
+  "name": "@gcanvas/core",
+  "version": "1.0.0",
+  "description": "Javascript Bridge for GCanvas",
+  "main": "dist/gcanvas.js",
+  "scripts": {
+    "build": "rollup --config",
+    "lint": "npm run lint:nofix -- --fix",
+    "lint:nofix": "eslint --ext .js --ext .jsx ./"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.2",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.6.0",
+    "rollup": "^1.27.0",
+    "rollup-plugin-babel": "^4.3.3"
+  }
+}

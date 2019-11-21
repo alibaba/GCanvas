@@ -14,11 +14,11 @@
 #define FLT_EPSILON 1.192092896e-07F
 #endif
 
-Value::Value(const Value &other) : mType(Type::NONE) { *this = other; }
+PalValue::PalValue(const PalValue &other) : mType(Type::NONE) { *this = other; }
 
-Value::~Value() { clear(); }
+PalValue::~PalValue() { clear(); }
 
-Value &Value::operator=(const Value &other)
+PalValue &PalValue::operator=(const PalValue &other)
 {
     if (this != &other)
     {
@@ -76,7 +76,7 @@ Value &Value::operator=(const Value &other)
     return *this;
 }
 
-std::string Value::asString() const
+std::string PalValue::asString() const
 {
     if (mType == Type::STRING)
     {
@@ -114,7 +114,7 @@ std::string Value::asString() const
     return ret;
 }
 
-void Value::clear()
+void PalValue::clear()
 {
     switch (mType)
     {
@@ -152,7 +152,7 @@ void Value::clear()
     mType = Type::NONE;
 }
 
-void Value::reset(Type type)
+void PalValue::reset(Type type)
 {
     if (mType == type) return;
 

@@ -12,13 +12,15 @@
 #include "shaders/grad.glsl"
 #include "shaders/pattern.glsl"
 #include "shaders/radiation.glsl"
+#include "shaders/texture.glsl"
+#include "shaders/shadow.glsl"
 
 #ifdef ANDROID
 #include "GPreCompiledShaders.h"
 bool g_use_pre_compile = false;
 #endif
 
-#ifdef IOS
+
 GShaderManager *GShaderManager::mShaderManager = nullptr;
 
 GShaderManager *GShaderManager::getSingleton()
@@ -38,7 +40,7 @@ void GShaderManager::release()
         mShaderManager = nullptr;
     }
 }
-#endif
+
 
 void GShaderManager::addProgram(const std::string &key, GShader *program)
 {
@@ -117,7 +119,15 @@ void GShaderManager::loadDefaultShaders()
     addProgram(DEFAULT_SHADER, program);
 
     program =
-        new PatternShader(PATTERN_SHADER, PATTERN_SHADER_VS, PATTERN_SHADER_PS);
+        new TextureShader(TEXTURE_SHADER, TEXTURE_SHADER_VS, TEXTURE_SHADER_PS);
+    addProgram(TEXTURE_SHADER, program);
+
+    program =
+            new ShadowShader(SHADOW_SHADER, SHADOW_SHADER_VS, SHADOW_SHADER_PS);
+    addProgram(SHADOW_SHADER, program);
+
+    program =
+            new PatternShader(PATTERN_SHADER, PATTERN_SHADER_VS, PATTERN_SHADER_PS);
     addProgram(PATTERN_SHADER, program);
 
     program = new LinearGradientShader(LINEAR_SHADER, LINEAR_SHADER_VS,

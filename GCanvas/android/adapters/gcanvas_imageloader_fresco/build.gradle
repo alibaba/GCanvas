@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 group = rootProject.extensions.groups.Adapter
-version = "1.0.1"
+version = "1.1.0"
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
@@ -39,4 +39,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.FrescoAdapter
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'Fresco', 'Image Loader']
 project.ext.meta.description = 'This package is the Fresco implemation of GCanvas image adapter.'
-apply from: "${rootProject.projectDir}/publish.gradle"
+//apply from: "${rootProject.projectDir}/publish.gradle"

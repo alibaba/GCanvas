@@ -23,20 +23,20 @@
 #define GC_BREAK_IF(cond)                                                      \
     if (cond) break
 
-class Value;
+class PalValue;
 
-typedef std::vector< Value > ValueVector;
-typedef std::map< std::string, Value > ValueMap;
-typedef std::map< int, Value > ValueMapIntKey;
+typedef std::vector< PalValue > ValueVector;
+typedef std::map< std::string, PalValue > ValueMap;
+typedef std::map< int, PalValue > ValueMapIntKey;
 
-class Value
+class PalValue
 {
 public:
-    Value(const Value &other);
+    PalValue(const PalValue &other);
 
-    ~Value();
+    ~PalValue();
 
-    Value &operator=(const Value &other);
+    PalValue &operator=(const PalValue &other);
     std::string asString() const;
 
     enum class Type

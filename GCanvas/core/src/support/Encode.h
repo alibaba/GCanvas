@@ -6,8 +6,8 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-#ifndef _GCANVAS_ENCODE_H_
-#define _GCANVAS_ENCODE_H_
+#ifndef GCANVAS_ENCODE_H
+#define GCANVAS_ENCODE_H
 
 namespace gcanvas
 {
@@ -17,4 +17,4 @@ int Base64EncodeBuf(char *szDest, const char *szSrc, int &iBufSize);
 int Base64DecodeBuf(char *szDest, const char *szSrc, int &iBufSize);
 }
 
-#endif
+#endif /* GCANVAS_ENCODE_H */

@@ -9,5 +9,13 @@ Podfile.lock
 xcuserdata
 build/
 .externalNativeBuild/
-node_modules
+
+node_modules/
+
+.classpath
+.settings/
+.project
+
+distribution/
+
 package-lock.json

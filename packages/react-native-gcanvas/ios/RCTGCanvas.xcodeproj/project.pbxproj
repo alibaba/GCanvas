@@ -1,0 +1,365 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A2385E4E2005FDC30010B576 /* RCTGCanvasView.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */; };
+		A2385E51200600600010B576 /* RCTGCanvasViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E50200600600010B576 /* RCTGCanvasViewManager.m */; };
+		A2385E52200607840010B576 /* RCTGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A2385E222004D91B0010B576 /* RCTGCanvasModule.m */; };
+		A25C220E237BF22F004C1B6C /* GCanvas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A25C220B237BF216004C1B6C /* GCanvas.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A25C220A237BF216004C1B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A25C2206237BF216004C1B6C /* GCanvas.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 9A40B58B1ED4546700739AE6;
+			remoteInfo = GCanvas;
+		};
+		A25C220C237BF221004C1B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A25C2206237BF216004C1B6C /* GCanvas.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 9A40B58A1ED4546700739AE6;
+			remoteInfo = GCanvas;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A2385E362005FB730010B576 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A2385E212004D91B0010B576 /* RCTGCanvasModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTGCanvasModule.h; sourceTree = "<group>"; };
+		A2385E222004D91B0010B576 /* RCTGCanvasModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTGCanvasModule.m; sourceTree = "<group>"; };
+		A2385E382005FB730010B576 /* libRCTGCanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRCTGCanvas.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2385E4C2005FDC30010B576 /* RCTGCanvasView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTGCanvasView.h; sourceTree = "<group>"; };
+		A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTGCanvasView.m; sourceTree = "<group>"; };
+		A2385E4F200600600010B576 /* RCTGCanvasViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTGCanvasViewManager.h; sourceTree = "<group>"; };
+		A2385E50200600600010B576 /* RCTGCanvasViewManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTGCanvasViewManager.m; sourceTree = "<group>"; };
+		A25C2206237BF216004C1B6C /* GCanvas.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = GCanvas.xcodeproj; path = "/Users/jiangweixing/Documents/github/GCanvas_github/GCanvas/bridges/react-native-bridge/examples/RNGCanvasSample/ios/../../../../../ios/GCanvas/GCanvas.xcodeproj"; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A2385E352005FB730010B576 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A25C220E237BF22F004C1B6C /* GCanvas.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A2385DD12004D8540010B576 = {
+			isa = PBXGroup;
+			children = (
+				A25C2206237BF216004C1B6C /* GCanvas.xcodeproj */,
+				A2385E4C2005FDC30010B576 /* RCTGCanvasView.h */,
+				A2385E4D2005FDC30010B576 /* RCTGCanvasView.m */,
+				A2385E4F200600600010B576 /* RCTGCanvasViewManager.h */,
+				A2385E50200600600010B576 /* RCTGCanvasViewManager.m */,
+				A2385E212004D91B0010B576 /* RCTGCanvasModule.h */,
+				A2385E222004D91B0010B576 /* RCTGCanvasModule.m */,
+				A2385DDC2004D8540010B576 /* Products */,
+				A2385E6120060A510010B576 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A2385DDC2004D8540010B576 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A2385E382005FB730010B576 /* libRCTGCanvas.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A2385E6120060A510010B576 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A25C2207237BF216004C1B6C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A25C220B237BF216004C1B6C /* GCanvas.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A2385E372005FB730010B576 /* RCTGCanvas */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A2385E3E2005FB730010B576 /* Build configuration list for PBXNativeTarget "RCTGCanvas" */;
+			buildPhases = (
+				A2385E342005FB730010B576 /* Sources */,
+				A2385E352005FB730010B576 /* Frameworks */,
+				A2385E362005FB730010B576 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A25C220D237BF221004C1B6C /* PBXTargetDependency */,
+			);
+			name = RCTGCanvas;
+			productName = RCTGCanvas;
+			productReference = A2385E382005FB730010B576 /* libRCTGCanvas.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A2385DD22004D8540010B576 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0910;
+				ORGANIZATIONNAME = taobao;
+				TargetAttributes = {
+					A2385E372005FB730010B576 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A2385DD52004D8540010B576 /* Build configuration list for PBXProject "RCTGCanvas" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A2385DD12004D8540010B576;
+			productRefGroup = A2385DDC2004D8540010B576 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = A25C2207237BF216004C1B6C /* Products */;
+					ProjectRef = A25C2206237BF216004C1B6C /* GCanvas.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				A2385E372005FB730010B576 /* RCTGCanvas */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		A25C220B237BF216004C1B6C /* GCanvas.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = GCanvas.framework;
+			remoteRef = A25C220A237BF216004C1B6C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A2385E342005FB730010B576 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2385E52200607840010B576 /* RCTGCanvasModule.m in Sources */,
+				A2385E4E2005FDC30010B576 /* RCTGCanvasView.m in Sources */,
+				A2385E51200600600010B576 /* RCTGCanvasViewManager.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A25C220D237BF221004C1B6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = GCanvas;
+			targetProxy = A25C220C237BF221004C1B6C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A2385DE12004D8550010B576 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A2385DE22004D8550010B576 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A2385E3F2005FB730010B576 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7E55936SGW;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A2385E402005FB730010B576 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7E55936SGW;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				HEADER_SEARCH_PATHS = "";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A2385DD52004D8540010B576 /* Build configuration list for PBXProject "RCTGCanvas" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2385DE12004D8550010B576 /* Debug */,
+				A2385DE22004D8550010B576 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A2385E3E2005FB730010B576 /* Build configuration list for PBXNativeTarget "RCTGCanvas" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2385E3F2005FB730010B576 /* Debug */,
+				A2385E402005FB730010B576 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A2385DD22004D8540010B576 /* Project object */;
+}
