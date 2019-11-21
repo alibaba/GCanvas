@@ -140,6 +140,7 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
 {
     mCanvas->Clear();
+    glClearColor(255,255,255,255);
     mCanvas->mCanvasContext->ResetStateStack();
     drawFunc(mCanvas, mCanvas->mCanvasContext, mWidth, mHeight);
     mCanvas->drawFrame();
@@ -159,7 +160,7 @@ void GBenchMark::dumpResult()
         std::cout << "------------------" << std::endl;
         std::cout << "the correct ratio is " << it->second << std::endl;
         myfile << it->first;
-        myfile << "#";
+        myfile << "# ratio is ";
         myfile << it->second;
         myfile << "\n";
     }
