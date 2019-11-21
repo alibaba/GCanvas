@@ -1,21 +1,15 @@
 <!DOCTYPE HTML>
 <html>
 <body>
-
  <canvas id="myCanvas" style="width:300px;height:300px;"
     width="300px" height="300px">
 Your browser does not support the canvas element.
 </canvas>
-
 <script type="text/javascript">
-
 var c=document.getElementById("myCanvas");
 var ctx=c.getContext("2d");
-
-ctx.fillStyle="#FF0000";
-ctx.fillRect(0,0,c.width,c.height);
-
+var ratio=1;
 </script>
-
+<script src="../benchmarks/path/tc_2d_beginPath.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 
 const puppeteer = require('puppeteer');
 (async () => {
+    
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     let src = `file://${process.cwd()}/canvasPage.html`;
@@ -9,7 +10,7 @@ const puppeteer = require('puppeteer');
     const boundingBox4Canvas = await canvas.boundingBox();
     if (canvas != null) {
         await canvas.screenshot({
-            path: "./build/fillRect.png",
+            path: "./build/tc_2d_beginPath.png",
             clip: {
                 x: boundingBox4Canvas.x,
                 y: boundingBox4Canvas.y,
