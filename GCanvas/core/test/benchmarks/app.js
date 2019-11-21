@@ -35,6 +35,7 @@ var dict = {
     "translate": "Translate",
     "strokeRect": "StrokeRect",
     "fillText": "FillText",
+    "clearRect":"ClearRect",
     "strokeStyle": "SetStrokeStyle(",
     "fillStyle": "SetFillStyle(",
     "lineWidth": "SetLineWidth(",
@@ -45,6 +46,10 @@ var dict = {
     "shadowOffsetX": "SetShadowOffsetX(",
     "shadowOffsetY": "SetShadowOffsetY(",
     "shadowColor": "SetShadowColor(",
+    "setTransform":"SetTransform",
+     "lineCap":"SetLineCap(",
+     "lineJoin":"SetLineJoin(",
+     "miterLimit":"SetMiterLimit(",
     "\'":" \""
 }
 
@@ -61,7 +66,7 @@ wstream.write(str);
 var regex2 = new RegExp('\\w+');
 function dealFileContent(content) {
     return data.toString().replace(
-        /ctx.|beginPath|moveTo|lineTo|stroke\(|fill\(|fillStyle|fillRect|c.width|c.height|strokeStyle|arc|arcTo|bezierCurveTo|clip|font|fillText|lineWidth|shadowBlur|shadowOffsetX|shadowOffsetY|shadowColor|save|strokeRect|rotate|restore|scale|translate|Math.PI|closePath|'/g, (matched) => {
+        /ctx.|beginPath|moveTo|lineTo|stroke\(|fill\(|fillStyle|fillRect|c.width|c.height|strokeStyle|arc|arcTo|bezierCurveTo|clip|font|fillText|lineWidth|shadowBlur|shadowOffsetX|shadowOffsetY|shadowColor|save|strokeRect|rotate|restore|scale|translate|Math.PI|closePath|'|setTransform|lineCap|lineJoin|miterLimit|clearRect/g, (matched) => {
             return dict[matched];
         });
 }
