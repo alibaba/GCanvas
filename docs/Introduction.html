@@ -50,7 +50,7 @@
           </div>
           <div class="body"><p>GCanvas is a  cross-platform canvas solution, which implemented both graphics 2d and WebGL API. GCanvas gives its user ability to access OpenGL ES API directly.</p>
 <p>GCanvas is designed to solve performance issue and compatibility issue of canvas for JavaScript developers. It is also a feature extention for "native frameworks" like <a href="https://weex.apache.org/">weex</a> and <a href="https://facebook.github.io/react-native/">react native</a>, those who do not have their own canvas elements.</p>
-<p>Currently GCanvas is working well with weex and react native. Also you could <a href="">create your own bridge</a> and make it work with your UI system.</p>
+<p>Currently GCanvas is working well with weex and react native. Also you could <a href>create your own bridge</a> and make it work with your UI system.</p>
 <h3 id="use-gcanvas">Use GCanvas</h3>
 <p>GCanvas API is designed to be like html canvas. Here is a sample</p>
 <pre><code class="lang-HTML5 hljs"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span>
@@ -64,7 +64,7 @@
 <span class="hljs-keyword">const</span> isWeex = <span class="hljs-keyword">typeof</span> callNative === <span class="hljs-string">"function"</span>;
 
 <span class="hljs-keyword">const</span> dom = weex.requireModule(<span class="hljs-string">"dom"</span>);
-<span class="hljs-keyword">import</span> { enable, WeexBridge, Image <span class="hljs-keyword">as</span> GImage } <span class="hljs-keyword">from</span> <span class="hljs-string">"gcanvas.js"</span>;
+<span class="hljs-keyword">import</span> { enable, WeexBridge, Image <span class="hljs-keyword">as</span> GImage } <span class="hljs-keyword">from</span> <span class="hljs-string">"@gcanvas/core"</span>;
 <span class="hljs-keyword">let</span> EnvImage = isWeex ? GImage : Image;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">run</span>(<span class="hljs-params">canvas, { requestAnimationFrame }</span>) </span>{
@@ -136,7 +136,7 @@
     <div class="footer">
       <div class="content"><a class="open-source-icon" href="http://opensource.alibaba.com/"><img src="http://zos.alipayobjects.com/rmsportal/OCGqTPRSXYMsKjGiHPuP.png"></a>
         <div class="license">Released under Apache License</div>
-        <div class="copyright">Copyright ©️ 2018 Alibaba Inc.</div>
+        <div class="copyright">Copyright ©️ 2019 Alibaba Inc.</div>
       </div>
     </div>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-115533379-2"></script>
