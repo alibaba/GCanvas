@@ -1,15 +1,12 @@
 <!DOCTYPE HTML>
-<html>
-<body>
- <canvas id="myCanvas" style="width:300px;height:300px;"
-    width="300px" height="300px">
-Your browser does not support the canvas element.
-</canvas>
-<script type="text/javascript">
-var c=document.getElementById("myCanvas");
-var ctx=c.getContext("2d");
-var ratio=1;
-</script>
-<script src="../benchmarks/path/tc_2d_beginPath.js"></script>
-</body>
-</html>
+    <html>
+    <body>
+     <canvas id="myCanvas" style="width:300px;height:300px;"
+        width="300px" height="300px">
+    Your browser does not support the canvas element.
+    </canvas>
+    <script type="text/javascript" src="./env.js">
+    </script>
+    <script src="../benchmarks/stroke/tc_2d_strokeRect.js"></script>
+    </body>
+    </html>
