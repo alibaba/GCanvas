@@ -411,7 +411,7 @@ protected:
 
     bool mHiQuality;
 
-#ifdef GCANVAS_WEEXretumFontManagerrn
+#ifdef GCANVAS_WEEX
     GWebGLTxtImage2DFunc mWebGLTexImage2dFunc;
     GWebGLTxtSubImage2DFunc mWebGLTexSubImage2dFunc;
 #ifdef IOS
