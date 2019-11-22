@@ -138,6 +138,12 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->BezierCurveTo(20 * ratio, 100 * ratio, 200 * ratio, 100 * ratio, 200 * ratio, 20 * ratio);
         ctx->Stroke();
     };
+    testCases["tc_2d_text_fillText"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#FF0000 ");
+        ctx->SetFont("30px Arial");
+        ctx->DrawText("w3school.com.cn", 10 * ratio, 50 * ratio);
+    };
     //     testCases["tc_2d_line_dash"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
     //         int ratio = 1;
     //   ctx->SetFillStyle( = "#ff0000";

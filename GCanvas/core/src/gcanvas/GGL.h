@@ -29,6 +29,7 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2ext.h>
 #include <string.h>
+#include "FontTool.hpp"
 #endif
 
 #else
