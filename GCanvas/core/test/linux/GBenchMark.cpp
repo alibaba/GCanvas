@@ -66,7 +66,8 @@ void GBenchMark::intilGLOffScreenEnviroment()
 
     // Step 9 - create framebuffer object
     GLuint fboId = 0;
-
+    // p->Clear();
+    // glClearColor(255,255,255,255);
     // create a framebuffer objec g++  testopengloffscreen.cc lodepng.cc  -lGLESv2 -lglfw -lEGLt
     glGenFramebuffers(1, &fboId);
     glBindFramebuffer(GL_FRAMEBUFFER, fboId);
@@ -96,13 +97,12 @@ void GBenchMark::intilGLOffScreenEnviroment()
     GLint format = 0, type = 0;
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-    this->initGcanvas();
+    // this->initGcanvas();
 }
 
 void GBenchMark::initGcanvas()
 {
-    if (mCanvas)
-    {
+    if (mCanvas){
         mCanvas->CreateContext();
         mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
     }
@@ -119,7 +119,8 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 {
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-
+    // p->Clear();
+    // glClearColor(255,255,255,255);
     decodeFile2Pixels(this->w3cPrefix + caseName + ".png", w3cImage);
     decodeFile2Pixels(caseName + ".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
@@ -131,7 +132,8 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
     {
         if (w3cImage[i] != gcanvasImage[i])
             errorCount++;
-        else
+        else    // p->Clear();
+    // glClearColor(255,255,255,255);
             rightCount++;
     }
     return 1.0f * rightCount / N;
@@ -139,11 +141,13 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
 {
-    mCanvas->Clear();
+     std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
+     p->CreateContext();
+     p->OnSurfaceChanged(0,0,mWidth,mHeight);
+     p->Clear();
     glClearColor(255,255,255,255);
-    mCanvas->mCanvasContext->ResetStateStack();
-    drawFunc(mCanvas, mCanvas->mCanvasContext, mWidth, mHeight);
-    mCanvas->drawFrame();
+    drawFunc(p, p->mCanvasContext, mWidth, mHeight);
+    p->drawFrame();
     this->render2file(caseName);
     float ratio = this->computeRatioWithW3C(caseName);
     this->data.insert(std::make_pair(caseName, ratio));
