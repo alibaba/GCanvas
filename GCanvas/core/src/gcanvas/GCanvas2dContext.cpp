@@ -19,11 +19,7 @@
 #define SIZE_EPSILON 1.f
 
 using namespace gcanvas;
-
-#ifdef  __linux__
-#include "FontTool.hpp"
-using NSFontTool::TypefaceLoader;
-#endif    
+    
 
 #define FontTextureWidth        2048
 #define FontTextureHeight       2048
@@ -111,11 +107,6 @@ GCanvasContext::GCanvasContext(short w, short h, const GCanvasConfig &config, GC
         InitFBO();
     }
     mFontManager = GFontManager::NewInstance(this);
-#ifdef  __linux__
-  TypefaceLoader *tl = TypefaceLoader::getInstance();
-    ASSERT(tl);
-    ASSERT(tl->importFontCache(".fontcache"));  
-#endif    
 }
 
 
