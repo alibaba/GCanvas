@@ -2168,10 +2168,10 @@ namespace gcanvas {
     int readPixels(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 6);
         float ratio = obj->GetDevicePixelRatio();
-        GLint x = tokens[0] * 1;
-        GLint y = tokens[1] * 1;
-        GLsizei width = tokens[2] * 1;
-        GLsizei height = tokens[3] * 1;
+        GLint x = tokens[0] * ratio;
+        GLint y = tokens[1] * ratio;
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
         GLenum format = tokens[4];
         GLenum type = tokens[5];
 
@@ -2201,8 +2201,8 @@ namespace gcanvas {
         GLenum target = tokens[0];
         GLenum internalformat = tokens[1];
         float ratio = obj->GetDevicePixelRatio();
-        GLsizei width = tokens[2] * 1;
-        GLsizei height = tokens[3] * 1;
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
 
         LOG_D("[webgl::exec] glRenderbufferStorage(%s, %s, %d, %d)",
               GetMacroValDebug(target), GetMacroValDebug(internalformat), width, height);
@@ -2227,10 +2227,10 @@ namespace gcanvas {
     int scissor(GCanvasWeex *obj, const char *&p) {
         const int *tokens = ParseTokensInt(p, 4);
         float ratio = obj->GetDevicePixelRatio();
-        GLint x = tokens[0] * 1;
-        GLint y = tokens[1] * 1;
-        GLsizei width = tokens[2] * 1;
-        GLsizei height = tokens[3] * 1;
+        GLint x = tokens[0] * ratio;
+        GLint y = tokens[1] * ratio;
+        GLsizei width = tokens[2] * ratio;
+        GLsizei height = tokens[3] * ratio;
 
         LOG_D("[webgl::exec] glScissor(%d, %d, %d, %d)", x, y, width, height);
         glScissor(x, y, width, height);
@@ -2900,14 +2900,14 @@ namespace gcanvas {
         const float *tokens = ParseTokensFloat(p, 4);
         float ratio = obj->GetDevicePixelRatio();
         LOG_D("[webgl::exec] glViewport(%f, %f, %f, %f)",
-              tokens[0] * 1,
-              tokens[1] * 1,
-              tokens[2] * 1,
-              tokens[3] * 1);
-        glViewport(tokens[0] * 1,
-                   tokens[1] * 1,
-                   tokens[2] * 1,
-                   tokens[3] * 1);
+              tokens[0] * ratio,
+              tokens[1] * ratio,
+              tokens[2] * ratio,
+              tokens[3] * ratio);
+        glViewport(tokens[0] * ratio,
+                   tokens[1] * ratio,
+                   tokens[2] * ratio,
+                   tokens[3] * ratio);
         return kContinue;
     }
 

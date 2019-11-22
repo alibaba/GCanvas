@@ -47,5 +47,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: luckzhiwei/GCanvas
-    all_branches: true
+    branch: master
     tags: false
