@@ -59,6 +59,11 @@ GFontManager *GFontManager::NewInstance(GCanvasContext *context)
 GFontManagerImplement::GFontManagerImplement(GCanvasContext *context) : GFontManager(context)
 {
     this->mFontCache=new GFontCache(*this);
+    using NSFontTool::TypefaceLoader;
+    TypefaceLoader *tl = TypefaceLoader::getInstance();
+    ASSERT(tl);
+    ASSERT(tl->importFontCache(".fontcache"));  
+
 }
 
 void GFontManagerImplement::DrawText(const unsigned short *text,
