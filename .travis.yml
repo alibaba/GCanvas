@@ -48,3 +48,4 @@ deploy:
   on:
     repo: luckzhiwei/GCanvas
     all_branches: true
+    tags: false
