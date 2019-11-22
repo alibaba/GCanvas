@@ -17,10 +17,19 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2ext.h>
 #include <export.h>
-#else
+
+#elif IOS
 #include <OpenGLES/gltypes.h>
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
+
+#elif  __linux__
+#define GLFW_INCLUDE_ES2
+#include <GLFW/glfw3.h>
+#include <EGL/egl.h>
+#include <GLES2/gl2ext.h>
+#include <string.h>
+#include "FontTool.hpp"
 #endif
 
 #else

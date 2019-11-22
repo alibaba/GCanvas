@@ -12,6 +12,7 @@
 #include "../support/Log.h"
 
 #include <cstdlib>
+#include <string.h>
 #include <algorithm>
 #include <sstream>
 

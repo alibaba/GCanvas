@@ -11,6 +11,9 @@
 #include <map>
 #include <sstream>
 #include <cstdlib>
+#include <string.h>
+#include <algorithm>
+
 namespace gcanvas {
     GColorRGBA StrValueToColorRGBA(const char *value) {
         static std::map<std::string, GColorRGBA> colorMap;

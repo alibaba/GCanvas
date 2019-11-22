@@ -19,6 +19,8 @@
 #include "../support/Log.h"
 
 #include <iostream>
+#include <limits.h>
+#include <functional>
 
 extern GColorRGBA BlendColor(GCanvasContext *context, GColorRGBA color);
 extern GColorRGBA BlendWhiteColor(GCanvasContext *context);
@@ -183,7 +185,7 @@ public:
     API_EXPORT void SetFillStylePattern(int textureId, int width, int height,
                                         const char *repeatMode, bool isStroke = false);
 
-    API_EXPORT void SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
+  API_EXPORT void SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
                                                const float posArray[],
                                                const std::string colorArray[],
                                                bool isStroke = false);
@@ -192,6 +194,7 @@ public:
                                                const float posArray[],
                                                const std::string colorArray[],
                                                bool isStroke = false);
+
 
     //path
     API_EXPORT float LineWidth() const { return mCurrentState->mLineWidth; }

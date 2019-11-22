@@ -41,6 +41,9 @@ extern bool g_use_pre_compile;
 
 #endif
 
+
+#include <string.h>
+
 GShader::GShader(const char *name, const char *vertexShaderSrc,
                  const char *fragmentShaderSrc)
         : mHandle(0), mName(name)

@@ -13,6 +13,7 @@
 #include <android/log.h>
 #endif
 #include <iostream>
+#include <vector>
 
 #include "export.h"
 
