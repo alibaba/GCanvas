@@ -38,6 +38,7 @@ script:
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
+- cat ./result.txt
 - cd ../../../../../ # jump to root_dir
 deploy:
   provider: releases
