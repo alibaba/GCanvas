@@ -40,7 +40,7 @@ script:
 - echo $TOKEN
 deploy:
   provider: releases
-  api_key: dd77d9b81196ff36d2c2f160fb90346fe18bc41a
+  api_key: $TOKEN
   file: "./GCanvas/core/test/linux/build/result.txt"
   on:
     repo: luckzhiwei/GCanvas
