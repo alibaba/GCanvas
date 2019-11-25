@@ -37,11 +37,10 @@ script:
 - "./gcanvasTest"
 - cat ./result.txt
 - cd ../../../../../
-- echo $TOKEN
 deploy:
   provider: releases
   api_key:
-    secure: aSaEvrpwgeH9AObclfvmKJYSEJ+9khMZthJKTQQTvSkq89J7gcqW66ZQB8kTfqZ8AoSfKwlO5H3AurOIhiZOWhr16DKFF4WMPLFbFrZXAv8J9r/PRWfo9WHWDQ54MorDbFwB2u0teITf5p7Rvo0bEkn9VNKmUxQPxt+yi3TvO9/D/nGBAT62ganhBOLYgT3wqKGr8o3op2VcX6gzCXBGNDn7iggX3vhCptRnU/FPLYZWSHhTYB5YaflK8mSLxKIucjrcI9I3rx5rCxMlzgtZaxzAVLKeCecD9Qs7bpSey00kEvHYOQfI9kSQvdD1n1wdC8C+YAZS8y6Fmhv88SIdlc2zsGSrXFwJvgCeWgsSIKcWj8Zhz37dq3ZdJ2JYR6Fy+qg0zkEMj2UdksK4ArWe0fwjnmPybLKY8ncCakoILRXoTGDz9TI7QakK85DAI/d82WLOH8x0ICB8rw8oW4mQzSpurCpvOwY1rI9Q/IQJzShpmE2kYTf8AtPG6DCuxC0JF4cTtRcaPK2K5ffBhpquREWCEhGudzTiCbUvU1FAuqj5g7cbGpBBl4qesS6Sb+zwJqbLXNsBpIxCrth350HQyGsajaoRVshQrczrQuj/RIkyEZWj+ImIXIskJWimtqPDy/Uavg0yXtGiEo8athQHQ/O+3yylnhJYDZCVZJvVW/Q=
+    secure: $GITHUB_TOKEN
   file: "./GCanvas/core/test/linux/build/result.txt"
   on:
     repo: luckzhiwei/GCanvas
