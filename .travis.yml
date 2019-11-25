@@ -37,12 +37,4 @@ script:
 - "./gcanvasTest"
 - cat ./result.txt
 - cd ../../../../../
-deploy:
-  provider: releases
-  api_key:
-    secure: $GITHUB_TOKEN
-  file: "./GCanvas/core/test/linux/build/result.txt"
-  on:
-    repo: luckzhiwei/GCanvas
-    branch: master
-    tags: true
+
