@@ -44,7 +44,7 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: "${TOKEN}"
+    secure: $TOKEN
   file: ./GCanvas/core/test/linux/build/result.txt 
   skip_cleanup: true
   on:
