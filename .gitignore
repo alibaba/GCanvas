@@ -4,3 +4,4 @@ website
 node_modules/
 .temp
 dist
+.vscode
