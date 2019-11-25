@@ -9,44 +9,40 @@ addons:
     packages:
     - xvfb
 before_install:
-  - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
-  - sudo apt-get install libboost-all-dev 
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      mkdir -p external/cmake
-      pushd external/cmake
-      wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
-      chmod +x cmake-*-Linux-x86_64.sh
-      ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
-      export PATH="${PWD}/bin:$PATH"
-      cmake -version
-      popd
-    else
-      if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
-    fi
-  
+- sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
+- sudo apt-get install libboost-all-dev
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    mkdir -p external/cmake
+    pushd external/cmake
+    wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
+    chmod +x cmake-*-Linux-x86_64.sh
+    ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
+    export PATH="${PWD}/bin:$PATH"
+    cmake -version
+    popd
+  else
+    if ! brew ls --version cmake &>/dev/null; then brew update; brew install cmake; fi
+  fi
 install:
-### install xvfb mock framebufferobject to make the offscreen env ready 
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 before_script:
-- cd GCanvas/core/test/w3c &&mkdir build ## pre run the w3c result
+- cd GCanvas/core/test/w3c &&mkdir build
 - npm i && node app.js
-- cd ../../../../ # jump to root_dir
-
+- cd ../../../../
 script:
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cat ./result.txt
-- cd ../../../../../ # jump to root_dir
-
+- cd ../../../../../
+- echo $TOKEN
 deploy:
   provider: releases
   api_key:
-    secure: "${TOKEN}"
-  file: ./GCanvas/core/test/linux/build/result.txt 
-  skip_cleanup: true
+    secure: i66dmshLUNgRI5Opx5uGXtyZLIPviGLs5pXuXK3u4zWYIpF3pOLBeuL4zyJwQ2k0XfsJujtZMpOLi/QBvonrSf3wpXqw7IzNvn+Z5waVh60niWosj10kQxDIkG5YIAjjXQqCEhpgf8owvVx9R6uldIMD1NR0JAS3q2YyxtUgeAcUL/5sXrbPyYwaGFMgfRdO6fROgyV2t/tkYZBmoylXrGzTtCFTdJfvxS3b7A+gyC5JsFmPoTGYiC9bf2kYD65nyk6+BiwJ+6nfptT54E6Vkdop+jhPL4oUjMWKSGP3hk7gYnOIsBC7oh++opFLFYaEd7lDs/j7kw54Vn+pM4sEi4DOqpH8r99+axcmydUshB4NMhglQDMiuHK/pQi/Tbvzgd2KMDYpDyEgd6/WY3Ks3tBLRiD90cLqrJQK6h0qNXiG6yXNvj9e1EO3MwJludq3wHx0rqk0dQoSm+WtayizXxY4Qv3lnaFWqVDC5WpsgNjQO5rDBuYXTfL7j6FdoFYThSZHCL8bsx7VgChRPpEWIdBrrTPKS4UYkIPM48OrHbcipkfWsphOhKa9EfK+kbvvlv/okQYi4vCNSSouH8iy1LjHHWicL8KRISPcdhHXo4meGJhC9lX+5HxwWHj7UdlW67svMoSgPZP59QH8RllUSJckS0mpnANtC3gDX+GdHGA=
+  file: "./GCanvas/core/test/linux/build/result.txt"
   on:
     repo: luckzhiwei/GCanvas
     branch: master
