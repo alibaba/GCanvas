@@ -41,7 +41,7 @@ script:
 deploy:
   provider: releases
   api_key: 0ec7f17da1d1123158ee315564e0c0e57d95dccc
-  file: test.txt
+  file: ./GCanvas/core/test/linux/build/result.txt 
   on:
     repo: luckzhiwei/GCanvas
     branch: master
