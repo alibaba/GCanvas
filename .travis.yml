@@ -35,6 +35,5 @@ script:
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
-- cat ./result.txt
-- cd ../../../../../
+- cat result.txt | awk '{print "\t\t" $1"\t"$2}'|column -t
 

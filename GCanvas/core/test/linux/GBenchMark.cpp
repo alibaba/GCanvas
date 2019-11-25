@@ -164,7 +164,7 @@ void GBenchMark::dumpResult()
         std::cout << "------------------" << std::endl;
         std::cout << "the correct ratio is " << it->second << std::endl;
         myfile << it->first;
-        myfile << "# ratio is ";
+        myfile << " ";
         myfile << it->second;
         myfile << "\n";
     }
