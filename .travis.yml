@@ -40,8 +40,9 @@ script:
 - echo $TOKEN
 deploy:
   provider: releases
-  api_key: 0ec7f17da1d1123158ee315564e0c0e57d95dccc
-  file: ./GCanvas/core/test/linux/build/result.txt 
+  api_key:
+    secure: i66dmshLUNgRI5Opx5uGXtyZLIPviGLs5pXuXK3u4zWYIpF3pOLBeuL4zyJwQ2k0XfsJujtZMpOLi/QBvonrSf3wpXqw7IzNvn+Z5waVh60niWosj10kQxDIkG5YIAjjXQqCEhpgf8owvVx9R6uldIMD1NR0JAS3q2YyxtUgeAcUL/5sXrbPyYwaGFMgfRdO6fROgyV2t/tkYZBmoylXrGzTtCFTdJfvxS3b7A+gyC5JsFmPoTGYiC9bf2kYD65nyk6+BiwJ+6nfptT54E6Vkdop+jhPL4oUjMWKSGP3hk7gYnOIsBC7oh++opFLFYaEd7lDs/j7kw54Vn+pM4sEi4DOqpH8r99+axcmydUshB4NMhglQDMiuHK/pQi/Tbvzgd2KMDYpDyEgd6/WY3Ks3tBLRiD90cLqrJQK6h0qNXiG6yXNvj9e1EO3MwJludq3wHx0rqk0dQoSm+WtayizXxY4Qv3lnaFWqVDC5WpsgNjQO5rDBuYXTfL7j6FdoFYThSZHCL8bsx7VgChRPpEWIdBrrTPKS4UYkIPM48OrHbcipkfWsphOhKa9EfK+kbvvlv/okQYi4vCNSSouH8iy1LjHHWicL8KRISPcdhHXo4meGJhC9lX+5HxwWHj7UdlW67svMoSgPZP59QH8RllUSJckS0mpnANtC3gDX+GdHGA=
+  file: "./GCanvas/core/test/linux/build/result.txt"
   on:
     repo: luckzhiwei/GCanvas
     branch: master
