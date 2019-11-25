@@ -157,12 +157,16 @@ void GBenchMark::dumpResult()
 {
     std::ofstream myfile;
     myfile.open("result.txt");
+    myfile << "CaseName";
+    myfile << " ";
+    myfile << "Ratio";
+    myfile << "\n";
     for (auto it = data.begin(); it != data.end(); it++)
     {
-        std::cout << "------------------" << std::endl;
-        std::cout << "the case name is " << it->first << std::endl;
-        std::cout << "------------------" << std::endl;
-        std::cout << "the correct ratio is " << it->second << std::endl;
+        // std::cout << "------------------" << std::endl;
+        // std::cout << "the case name is " << it->first << std::endl;
+        // std::cout << "------------------" << std::endl;
+        // std::cout << "the correct ratio is " << it->second << std::endl;
         myfile << it->first;
         myfile << " ";
         myfile << it->second;
