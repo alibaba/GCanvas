@@ -40,10 +40,11 @@ script:
 - "./gcanvasTest"
 - cat ./result.txt
 - cd ../../../../../ # jump to root_dir
+
 deploy:
   provider: releases
   api_key:
-    secure: MY_API_KEY
+    secure: "${TOKEN}"
   file: ./GCanvas/core/test/linux/build/result.txt 
   skip_cleanup: true
   on:
