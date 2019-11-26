@@ -166,7 +166,14 @@ void GBenchMark::dumpResult()
         myfile << it->first;
         myfile << " ";
         myfile << it->second;
-        myfile << "\n";
+        myfile << " ";
+        if(it->second>0.98 && it->second<=1.0f){
+            myfile << "pass";
+            myfile << "\n";
+        }else{
+             myfile << "unpass";
+            myfile << "\n";
+        }
     }
      myfile.close();
 }
