@@ -50,9 +50,9 @@ const homePageTasks = (function () {
       root: './',
     }
 
-    fs.writeFileSync('../website/index.html', templates.index(option));
-    fs.writeFileSync('../website/community.html', templates.community(option));
-    fs.writeFileSync('../website/playground.html', templates.playground({
+    fs.writeFileSync('./dist/index.html', templates.index(option));
+    fs.writeFileSync('./dist/community.html', templates.community(option));
+    fs.writeFileSync('./dist/playground.html', templates.playground({
       root: option.root,
       content: marked(fs.readFileSync(path.join(DOCS_SRC, 'playground.md'), 'utf-8'))
     }));
@@ -64,7 +64,7 @@ const homePageTasks = (function () {
         const content = fs.readFileSync(path.join(DOCS_SRC, docs), 'utf-8');
 
         if (content) {
-          fs.outputFileSync(`../website/docs/${k}.html`, templates.doc(
+          fs.outputFileSync(`./dist/docs/${k}.html`, templates.doc(
             {
               index: doc,
               content: marked(content),
@@ -83,26 +83,26 @@ const homePageTasks = (function () {
 
     deal(doc);
 
-    return gulp.src('../website/docs/*.html')
+    return gulp.src('./dist/docs/*.html')
       .pipe(highlight())
-      .pipe(gulp.dest('../website/docs/'));
+      .pipe(gulp.dest('./dist/docs/'));
   }
 
   function lessTask() {
     return gulp.src('./style/index.less')
       .pipe(less())
-      .pipe(gulp.dest('../website/'));
+      .pipe(gulp.dest('./dist/'));
   }
 
   function watchLessTask() {
     return watch('./style/index.less')
       .pipe(less())
-      .pipe(gulp.dest('../website/'));
+      .pipe(gulp.dest('./dist/'));
   }
 
   function assets() {
     return gulp.src('./assets/**')
-      .pipe(gulp.dest('../website/assets/'));
+      .pipe(gulp.dest('./dist/assets/'));
   }
 
   return { build, less: lessTask, watchLess: watchLessTask, assets };

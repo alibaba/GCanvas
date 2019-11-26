@@ -25,7 +25,8 @@ Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 
 * Android com.taobao.gcanvas.bridges:weex-brigde 1.1.0 (publishing)
 
-* JS [gcanvas.js](https://www.npmjs.com/package/gcanvas.js)   [![npm version](https://badge.fury.io/js/gcanvas.js.svg)](https://badge.fury.io/js/gcanvas.js)
+### GCanvas NPM Package
+* [@gcanvas/core](https://www.npmjs.com/package/@gcanvas/core)   [![npm version](https://badge.fury.io/js/%40gcanvas%2Fcore.svg)](https://www.npmjs.com/package/@gcanvas/core)
 
 
 ## Features
@@ -59,7 +60,7 @@ Check [Documentation](https://alibaba.github.io/GCanvas/docs/Introduction.html) 
 ## Examples
 We take [Weex](https://github.com/apache/incubator-weex) as example, code snippet of context 2d using `GCanvas`.
 ```javascript
-import { enable, WeexBridge, Image as GImage } from "../../../../js/src/index.js";
+import { enable, WeexBridge, Image as GImage } from "@gcanvas/core";
 
 var gcanvas = enable(this.$refs.canvas_holder, {bridge: WeexBridge});
 var ctx = gcanvas.getContext("2d");

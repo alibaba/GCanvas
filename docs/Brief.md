@@ -19,7 +19,7 @@ GCanvas API is designed to be like html canvas. Here is a sample
 const isWeex = typeof callNative === "function";
 
 const dom = weex.requireModule("dom");
-import { enable, WeexBridge, Image as GImage } from "gcanvas.js";
+import { enable, WeexBridge, Image as GImage } from "@gcanvas/core";
 let EnvImage = isWeex ? GImage : Image;
 
 function run(canvas, { requestAnimationFrame }) {

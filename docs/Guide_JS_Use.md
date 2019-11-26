@@ -7,7 +7,7 @@ This module provides a canvas-like object in hybrid enviroment (Weex and ReactNa
 First, you should install this package from npm:
 
 ```
-npm install gcanvas.js --save
+npm install @gcanvas/core --save
 ```
 
 Put a `gcanvas` element in template. Note that if you want to downgrade weex native to html, you should put a `canvas` element when is in browser enviroment.
@@ -24,7 +24,7 @@ Put a `gcanvas` element in template. Note that if you want to downgrade weex nat
 And then revolve in your own progress using weex-toolkit.
 
 ```javascript
-const { enable, WeexBridge, Image: GImage } = require('gcanvas.js');
+const { enable, WeexBridge, Image: GImage } = require('@gcanvas/core');
 const EnvImage = isWeex ? Image : GImage;
 ```
 
@@ -63,7 +63,7 @@ First, you should install this package from npm:
 
 ```
 npm install react-native-gcanvas --save
-npm install gcanvas.js --save
+npm install @gcanvas/core --save
 ```
 
 Second,  import ReactNative modules, and  `GCanvasView `  component, `GCanvasView`.
@@ -88,10 +88,10 @@ import {
 } from 'react-native-gcanvas';
 ```
 
-Third, import  `enable`, `ReactNativeBridge` and `image` from  `gcanvas.js`,  initialize `ReactNativeBridge` with native module and platform.
+Third, import  `enable`, `ReactNativeBridge` and `image` from  `@gcanvas/core`,  initialize `ReactNativeBridge` with native module and platform.
 
 ```javascript
-const { enable, ReactNativeBridge, Image: GImage } = require('gcanvas.js');
+const { enable, ReactNativeBridge, Image: GImage } = require('@gcanvas/core');
 
 ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
 ReactNativeBridge.Platform = Platform;

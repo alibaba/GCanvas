@@ -3,3 +3,5 @@ website
 .idea/
 node_modules/
 .temp
+dist
+.vscode
