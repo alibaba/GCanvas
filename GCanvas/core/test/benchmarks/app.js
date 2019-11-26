@@ -30,6 +30,7 @@ var dict = {
     "closePath":"ClosePath",
     "font": "SetFont(",
     "save": "Save",
+    "strokeText":"StrokeText",
     "restore": "Restore",
     "rotate": "Rotate",
     "scale": "Scale",
@@ -51,6 +52,7 @@ var dict = {
      "lineCap":"SetLineCap(",
      "lineJoin":"SetLineJoin(",
      "miterLimit":"SetMiterLimit(",
+     "textAlign":"SetTextAlign",
     "\'":" \""
 }
 
@@ -95,7 +97,7 @@ wstream.write(str);
 
 function dealFileContent(content) {
     return content.toString().replace(
-        /ctx.|beginPath|moveTo|lineTo|stroke\(|fill\(|fillStyle|fillRect|rect|c.width|c.height|strokeStyle|arc|arcTo|quadraticCurveTo|bezierCurveTo|clip|font|fillText|lineWidth|shadowBlur|shadowOffsetX|shadowOffsetY|shadowColor|save|strokeRect|rotate|restore|scale|translate|Math.PI|closePath|'|setTransform|lineCap|lineJoin|miterLimit|clearRect/g, (matched) => {
+        /ctx.|beginPath|strokeText|moveTo|lineTo|stroke\(|fill\(|fillStyle|fillRect|rect|c.width|c.height|strokeStyle|arc|arcTo|quadraticCurveTo|bezierCurveTo|clip|font|fillText|lineWidth|shadowBlur|shadowOffsetX|shadowOffsetY|shadowColor|save|strokeRect|rotate|restore|scale|translate|Math.PI|closePath|'|setTransform|lineCap|lineJoin|miterLimit|clearRect/g, (matched) => {
             return dict[matched];
         });
 }

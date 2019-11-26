@@ -461,4 +461,52 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->Translate(100 * ratio, 100 * ratio);
         ctx->FillRect(10 * ratio, 10 * ratio, 100 * ratio, 50 * ratio);
     };
+
+    testCases["tc_2d_text_fillText_alpha"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("rgba(255,0,0,0.5) ");
+        ctx->SetFont("30px Arial");
+        ctx->DrawText("w3school.com.cn", 10 * ratio, 50 * ratio);
+    };
+
+    testCases["tc_2d_text_measureText"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000");
+        ctx->SetFont("30px Arial");
+        const char *txt = "Hello World";
+        ctx->DrawText(txt, 10 * ratio, 50 * ratio);
+        float textWidth = ctx->MeasureTextWidth(txt);
+        // ctx->FillText("width:" + textWidth.toFixed(1), 10 * ratio, 100 * ratio);
+
+        ctx->SetFillStyle("#ff0000");
+        ctx->FillRect(10 * ratio, 60 * ratio, textWidth, 5 * ratio);
+    };
+
+    testCases["tc_2d_text_strokeText"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000 ");
+        ctx->SetFont("40px Arial");
+        ctx->StrokeText("w3school.com.cn", 10 * ratio, 50 * ratio);
+    };
+
+    testCases["tc_2d_text_textAlign"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000 ");
+        ctx->SetStrokeStyle("blue");
+        ctx->MoveTo(125 * ratio, 10 * ratio);
+        ctx->LineTo(125 * ratio, 300 * ratio);
+        ctx->Stroke();
+        ctx->SetFont("15px Arial-MT");
+        ctx->SetTextAlign(TEXT_ALIGN_START);
+        ctx->DrawText("textAlign=start", 125 * ratio, 10 * ratio);
+        ctx->SetTextAlign(TEXT_ALIGN_END);
+        ctx->SetFont("15px");
+        ctx->DrawText("textAlign=end", 125 * ratio, 50 * ratio);
+        ctx->SetTextAlign(TEXT_ALIGN_LEFT);
+        ctx->DrawText("textAlign=left", 125 * ratio, 100 * ratio);
+        ctx->SetTextAlign(TEXT_ALIGN_CENTER);
+        ctx->DrawText("textAlign=center", 125 * ratio, 150 * ratio);
+        ctx->SetTextAlign(TEXT_ALIGN_RIGHT);
+        ctx->DrawText("textAlign=right", 125 * ratio, 200 * ratio);
+    };
 }
