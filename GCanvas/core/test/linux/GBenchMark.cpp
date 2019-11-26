@@ -119,8 +119,7 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 {
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-    // p->Clear();
-    // glClearColor(255,255,255,255);
+ 
     decodeFile2Pixels(this->w3cPrefix + caseName + ".png", w3cImage);
     decodeFile2Pixels(caseName + ".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
@@ -132,8 +131,7 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
     {
         if (w3cImage[i] != gcanvasImage[i])
             errorCount++;
-        else    // p->Clear();
-    // glClearColor(255,255,255,255);
+        else  
             rightCount++;
     }
     return 1.0f * rightCount / N;
@@ -160,13 +158,11 @@ void GBenchMark::dumpResult()
     myfile << "CaseName";
     myfile << " ";
     myfile << "Ratio";
+    myfile << " ";
+    myfile << "Result";
     myfile << "\n";
     for (auto it = data.begin(); it != data.end(); it++)
     {
-        // std::cout << "------------------" << std::endl;
-        // std::cout << "the case name is " << it->first << std::endl;
-        // std::cout << "------------------" << std::endl;
-        // std::cout << "the correct ratio is " << it->second << std::endl;
         myfile << it->first;
         myfile << " ";
         myfile << it->second;
