@@ -1,9 +1,0 @@
-.DS_Store
-.vscode/
-package.lock.json
-
-node_modules/
-
-weex-examples
-
-!dist

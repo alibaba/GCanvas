@@ -65,10 +65,10 @@ import {
 } from 'react-native-gcanvas';
 ```
 
-Then, import  `enable`, `ReactNativeBridge` and `image` from  `gcanvas.js`,  initialize `ReactNativeBridge` with native module and platform.
+Then, import  `enable`, `ReactNativeBridge` and `image` from  `@gcanvas/core`,  initialize `ReactNativeBridge` with native module and platform.
 
 ```Javascript
-const { enable, ReactNativeBridge, Image: GImage } = require('gcanvas.js');
+const { enable, ReactNativeBridge, Image: GImage } = require('@gcanvas/core');
 
 ReactNativeBridge.GCanvasModule = NativeModules.GCanvasModule;
 ReactNativeBridge.Platform = Platform;

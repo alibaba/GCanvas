@@ -69,16 +69,16 @@
 		A27A8BF123604BA2008471E3 /* GLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A27A8BF023604BA2008471E3 /* GLUtil.cpp */; };
 		A284A2FB234348880029BBCA /* GCVLog.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A273234348880029BBCA /* GCVLog.m */; };
 		A284A2FC234348880029BBCA /* GCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A274234348880029BBCA /* GCanvasModule.m */; };
-		A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A275234348880029BBCA /* GCanvasModuleProtocol.h */; };
+		A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A275234348880029BBCA /* GCanvasModuleProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A2FE234348880029BBCA /* GCVCommon.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A276234348880029BBCA /* GCVCommon.m */; };
-		A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A277234348880029BBCA /* GCanvasPlugin.h */; };
+		A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A277234348880029BBCA /* GCanvasPlugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A300234348880029BBCA /* GCanvasObject.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A278234348880029BBCA /* GCanvasObject.m */; };
-		A284A301234348880029BBCA /* GCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A279234348880029BBCA /* GCanvasModule.h */; };
+		A284A301234348880029BBCA /* GCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A279234348880029BBCA /* GCanvasModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A303234348880029BBCA /* GCVLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27B234348880029BBCA /* GCVLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27C234348880029BBCA /* GCanvasViewProtocol.h */; };
+		A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27C234348880029BBCA /* GCanvasViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A305234348880029BBCA /* GCanvasPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = A284A27D234348880029BBCA /* GCanvasPlugin.mm */; };
 		A284A306234348880029BBCA /* GCanvasSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27E234348880029BBCA /* GCanvasSDK.h */; };
-		A284A307234348880029BBCA /* GCanvasObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27F234348880029BBCA /* GCanvasObject.h */; };
+		A284A307234348880029BBCA /* GCanvasObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27F234348880029BBCA /* GCanvasObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A308234348880029BBCA /* GCVCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A280234348880029BBCA /* GCVCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -347,13 +347,17 @@
 				A284A303234348880029BBCA /* GCVLog.h in Headers */,
 				A25FB21D2343491700EF73E5 /* GCVFont.h in Headers */,
 				A284A308234348880029BBCA /* GCVCommon.h in Headers */,
+				A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */,
+				A284A307234348880029BBCA /* GCanvasObject.h in Headers */,
+				A284A301234348880029BBCA /* GCanvasModule.h in Headers */,
+				A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */,
+				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
+				A284A306234348880029BBCA /* GCanvasSDK.h in Headers */,
 				A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */,
 				A25FB1F52343491700EF73E5 /* GFrameBufferObject.h in Headers */,
 				A25FB1F62343491700EF73E5 /* GConvert.h in Headers */,
 				A25FB2142343491700EF73E5 /* GTreemap.h in Headers */,
 				A27A8BED23600E0B008471E3 /* GLUtil.h in Headers */,
-				A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */,
-				A284A307234348880029BBCA /* GCanvasObject.h in Headers */,
 				A25FB2022343491700EF73E5 /* GPath.h in Headers */,
 				A25FB1FB2343491700EF73E5 /* GShader.h in Headers */,
 				A25FB2342343491700EF73E5 /* Log.h in Headers */,
@@ -362,18 +366,14 @@
 				A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */,
 				A231B1E9235064DA00466BE3 /* GCanvasWeex.hpp in Headers */,
 				A25FB21A2343491700EF73E5 /* export.h in Headers */,
-				A284A301234348880029BBCA /* GCanvasModule.h in Headers */,
 				A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */,
-				A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */,
 				A25FB2362343491700EF73E5 /* DynArray.h in Headers */,
 				A25FB2392343491700EF73E5 /* Encode.h in Headers */,
 				A25FB2172343491700EF73E5 /* GTextDefine.h in Headers */,
 				A25FB1F82343491700EF73E5 /* GFillStyle.h in Headers */,
 				A25FB1F22343491700EF73E5 /* GTransform.h in Headers */,
-				A284A306234348880029BBCA /* GCanvasSDK.h in Headers */,
 				A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */,
 				A25FB2372343491700EF73E5 /* Util.h in Headers */,
-				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
 				A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */,
 				A25FB22B2343491700EF73E5 /* GCanvasManager.h in Headers */,
 				A25FB20D2343491700EF73E5 /* GGlyphCache.h in Headers */,

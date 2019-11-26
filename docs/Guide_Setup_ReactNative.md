@@ -1,6 +1,6 @@
 ## Getting started
 
-`npm install gcanvas.js --save`
+`npm install @gcanvas/core --save`
 
 `npm install react-native-gcanvas --save`
 

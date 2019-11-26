@@ -25,15 +25,15 @@ Pod::Spec.new do |s|
  # s.source =  { :path => '.' }
   s.source =  { :git => "https://github.com/alibaba/GCanvas.git", :tag => s.version }
 
-  s.source_files  = "GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.{h,m,mm}"
+  s.source_files  = "packages/weex-gcanvas/ios/sdk/Sources/*.{h,m,mm}"
 
-  s.public_header_files = 'GCanvas/bridges/weex-bridge/ios/sdk/Sources/*.h'
+  s.public_header_files = 'packages/weex-gcanvas/ios/sdk/Sources/*.h'
 
   s.user_target_xcconfig  = { 'FRAMEWORK_SEARCH_PATHS' => "'$(PODS_ROOT)/WeexGcanvas'" }
 
   s.requires_arc = true
 
-  s.dependency "WeexPluginLoader", :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
+  s.dependency "WeexPluginLoader"
   s.dependency "WeexSDK"
   s.dependency "GCanvas"
   s.dependency "SDWebImage"

@@ -828,9 +828,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
     GTransform &action = mCurrentTransform;
 
     mCanvasContext->ClearGeometryDataBuffers();
-//    ApplyTransform(1, 0, 0, 1, 0, mTyOffset);
-//    action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
-//    action.ty = mTyOffset;
+    
     mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
     ClipStruct clip;
     const char *p = renderCommands;
@@ -855,86 +853,6 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 mCanvasContext->UseDefaultRenderPipeline();
                 this->DrawImage(clip.textureID, clip.cx, clip.cy, clip.cw, clip.ch,
                           clip.px, clip.py, clip.pw, clip.ph);
-//                SendVertexBufferToGPU();
-
-                break;
-            }
-            case 'Q': {
-                p++;
-
-                // bind FBO
-                std::string name;
-                float width, height;
-                p = parseBindingPara(p, name, width, height);
-
-                if (!mCanvasContext->mIsFboSupported) {
-                    break;
-                }
-                GFrameBufferObject *fbo = nullptr;
-                std::map<std::string, GFrameBufferObject>::iterator it = mCanvasContext->mFboMap.find(
-                        name);
-                if (it == mCanvasContext->mFboMap.end()) {
-                    fbo = &(mCanvasContext->mFboMap[name]);
-                    fbo->InitFBO(width * mCanvasContext->mDevicePixelRatio,
-                                 height * mCanvasContext->mDevicePixelRatio,
-                                 StrValueToColorRGBA("transparent_white"));
-                } else {
-                    fbo = &it->second;
-                }
-                fbo->BindFBO();
-                fbo->mSavedTransform = action;
-                glViewport(0, 0, width * mCanvasContext->mDevicePixelRatio,
-                           height * mCanvasContext->mDevicePixelRatio);
-                //CalculaSetDevicePixelRatioTransformIdentity;
-//                action.a = 1, action.b = 0, action.c = 0, action.d = 1, action.tx = 0,
-//                action.ty = (mHeight / mDevicePixelRatio - height);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d, action.tx,
-                                               action.ty);
-                break;
-            }
-            case 'Y': {
-                p++;
-
-                // unbind FBO
-                std::string name;
-                p = parseName(p, name);
-
-                if (!mCanvasContext->mIsFboSupported) {
-                    break;
-                }
-                mCanvasContext->SendVertexBufferToGPU();
-                GFrameBufferObject &fbo = mCanvasContext->mFboMap[name];
-                fbo.UnbindFBO();
-                glViewport(0, 0, mCanvasContext->mWidth, mCanvasContext->mHeight);
-                action = fbo.mSavedTransform;
-                //CalculateProjectTransform(mWidth, mHeight);
-
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d, action.tx,
-                                               action.ty);
-                break;
-            }
-            case 'I': {
-                p++;
-
-                // draw FBO
-                std::string name;
-                float sx, sy, sw, sh, dx, dy, dw, dh;
-                p = parseBindingPara(p, name, sx, sy, sw, sh, dx, dy, dw, dh);
-                if (!mCanvasContext->mIsFboSupported) {
-                    break;
-                }
-                GTexture &texture = mCanvasContext->mFboMap[name].mFboTexture;
-                float r = mCanvasContext->mDevicePixelRatio;
-                drawFBO(name, COMPOSITE_OP_SOURCE_OVER,
-                        sx * 2 * r / texture.GetWidth(),
-                        sy * 2 * r / texture.GetHeight(),
-                        sw * r / texture.GetWidth(),
-                        sh * r / texture.GetHeight(),
-                        dx * 2 * r / mCanvasContext->mWidth,
-                        dy * 2 * r / mCanvasContext->mHeight,
-                        dw * r / mCanvasContext->mWidth,
-                        dh * r / mCanvasContext->mHeight);
-
                 break;
             }
             case 'f': {
@@ -1025,7 +943,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 break;
             }
             case 'S': {
-                // lineStyle
+                // strokeStyle
                 p++;
                 char str[64] = "";
                 char *tmp = str;
@@ -1037,6 +955,74 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 if (*p == ';') ++p;
                 GColorRGBA color = StrValueToColorRGBA(str);
                 mCanvasContext->SetStrokeStyle(color);
+                break;
+            }
+            case 'K': {
+                //shadowColor
+                p++;
+                char str[64] = "";
+                char *tmp = str;
+                while (*p && *p != ';') {
+                    *tmp = *p;
+                    ++tmp;
+                    ++p;
+                }
+                if (*p == ';') ++p;
+                mCanvasContext->SetShadowColor(str);
+                break;
+            }
+            case 'Z': {
+                //shadowBlur
+                p++;
+                float blur = fastFloat(p);
+                mCanvasContext->SetShadowBlur(blur);
+                while (*p && *p != ';') ++p;
+                if (*p == ';') ++p;
+                break;
+            }
+            case 'X': {
+                //shadowOffsetX
+                p++;
+                float offsetX = fastFloat(p);
+                mCanvasContext->SetShadowOffsetX(offsetX);
+                while (*p && *p != ';') ++p;
+                if (*p == ';') ++p;
+                break;
+            }
+            case 'Y': {
+                //shadowOffsetY'
+                p++;
+                float offsetY = fastFloat(p);
+                mCanvasContext->SetShadowOffsetY(offsetY);
+                while (*p && *p != ';') ++p;
+                if (*p == ';') ++p;
+                break;
+            }
+            case 'N': {
+                //lineDashOffset
+                p++;
+                float offset = fastFloat(p);
+                mCanvasContext->SetLineDashOffset(offset);
+                while (*p && *p != ';') ++p;
+                if (*p == ';') ++p;
+                break;
+            }
+            case 'I': {
+                //SetLineDash
+                p++;
+                char str[256];
+                p = extractOneParameterFromCommand(str, p);
+                p++;
+                
+                int count = atoi(str);
+                std::vector<float> params;
+                params.reserve(count);
+                for (int i = 0; i < count; ++i) {
+                    p = extractOneParameterFromCommand(str, p);
+                    p++;
+                    params.push_back(atof(str));
+                }
+                mCanvasContext->SetLineDash(params);
                 break;
             }
             case 'W': {
@@ -1094,7 +1080,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 // strokeRect
                 float tokens[4] = {0, 0, 0, 0};
                 p = parseTokens(p, tokens);
-                mCanvasContext->DoStrokeRect(tokens[0], tokens[1], tokens[2], tokens[3]);
+                mCanvasContext->StrokeRect(tokens[0], tokens[1], tokens[2], tokens[3]);
                 break;
             }
             case 'c': {
@@ -1278,7 +1264,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 p++;
                 float tokens[4] = {0, 0, 0, 0};
                 p = parseTokens(p, tokens);
-                mCanvasContext->DoFillRect(tokens[0], tokens[1], tokens[2], tokens[3]);
+                mCanvasContext->FillRect(tokens[0], tokens[1], tokens[2], tokens[3]);
                 break;
             }
             case 'w': {
@@ -1291,14 +1277,12 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             case 'L': {
                 p++;
                 mCanvasContext->Fill();
-//                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
             case 'x': {
                 p++;
                 mCanvasContext->Stroke();
-//                BeginPath();
                 if (*p == ';') ++p;
                 break;
             }

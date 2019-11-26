@@ -36,4 +36,3 @@ script:
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cat result.txt | awk '{printf "%-30s|%-18s|%-20s\n",$1,$2,$3}'|column -t
-
