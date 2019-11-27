@@ -509,4 +509,43 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->SetTextAlign(TEXT_ALIGN_RIGHT);
         ctx->DrawText("textAlign=right", 125 * ratio, 200 * ratio);
     };
+
+    testCases["compite_desover"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("red");
+        ctx->FillRect(20 * ratio, 140 * ratio, 75 * ratio, 50 * ratio);
+        ctx->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_OVER);
+        ctx->SetFillStyle("blue");
+        ctx->FillRect(50 * ratio, 170 * ratio, 75 * ratio, 50 * ratio);
+    };
+
+    testCases["composite_sourceover"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("red");
+        ctx->FillRect(20 * ratio, 140 * ratio, 75 * ratio, 50 * ratio);
+        ctx->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
+        ctx->SetFillStyle("blue");
+        ctx->FillRect(50 * ratio, 170 * ratio, 75 * ratio, 50 * ratio);
+    };
+
+//    SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
+//                                                const float posArray[],
+//                                                const std::string colorArray[],
+//                                                bool isStroke = false);
+
+    testCases["tc_2d_lineargradient"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000");
+        ctx->FillRect(0, 0, width, height);
+        float startArr[]={10.0, 0};
+        float endArr[]={100.0, 0};
+       float posArray[]={0,1};
+        std::string colorArray[]={"white","red"};
+        ctx->SetFillStyleLinearGradient(startArr,endArr,2,posArray,colorArray,false);
+        // var grd1 = ctx->createLinearGradient(10 * ratio, 0, 100 * ratio, 0);
+        // grd1.addColorStop(0, "white");
+        // grd1.addColorStop(1, "red");
+// ctx->SetFillStyle(  grd1);
+ctx->FillRect(10*ratio, 10*ratio, 100*ratio, 100*ratio);
+    };
 }

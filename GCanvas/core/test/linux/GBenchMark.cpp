@@ -161,6 +161,7 @@ void GBenchMark::dumpResult()
     myfile << " ";
     myfile << "Result";
     myfile << "\n";
+    int total=0;
     for (auto it = data.begin(); it != data.end(); it++)
     {
         myfile << it->first;
@@ -174,6 +175,8 @@ void GBenchMark::dumpResult()
              myfile << "unpass";
             myfile << "\n";
         }
+        total++;
     }
+    std::cout << total <<std::endl;
      myfile.close();
 }
