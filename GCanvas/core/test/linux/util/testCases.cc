@@ -361,27 +361,11 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->SetLineWidth(5 * ratio);
         ctx->StrokeRect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
     };
-    //     testCases["tc_2d_strokeStyle"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
-    //         int ratio = 1;
-    //         for (let i = 0; i < 6; i++)
-    //         {
-    //             for (let j = 0; j < 6; j++)
-    //             {
-    //     ctx->SetStrokeStyle( = `rgb(
-    //         0,
-    //         ${Math.floor(255 - 42.5 * i)},
-    //         ${Math.floor(255 - 42.5 * j)})`;
-    //     ctx->BeginPath();
-    //     ctx->Arc((12.5 + j * 25) *ratio, (12.5 + i * 25) *ratio, 10 *ratio, 0, M_PI * 2, true);
-    //     ctx->Stroke();
-    //             }
-    //         }
-    //     };
     testCases["tc_2d_MDN_scale"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         // Scaled rectangle
         ctx->Scale(9, 3);
-        ctx->SetFillStyle("red ");
+        ctx->SetFillStyle("red");
         ctx->FillRect(10 * ratio, 10 * ratio, 8 * ratio, 20 * ratio);
 
         // Reset current transformation matrix to the identity matrix
@@ -528,11 +512,6 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->FillRect(50 * ratio, 170 * ratio, 75 * ratio, 50 * ratio);
     };
 
-    //    SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
-    //                                                const float posArray[],
-    //                                                const std::string colorArray[],
-    //                                                bool isStroke = false);
-
     testCases["tc_2d_lineargradient"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         ctx->SetFillStyle("#000000");
@@ -545,10 +524,6 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->FillRect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
     };
 
-    // void SetFillStyleRadialGradient(float startArr[], float endArr[], int stop_count,
-    //                                                const float posArray[],
-    //                                                const std::string colorArray[],
-    //                                                bool isStroke = false)
     testCases["tc_2d_radialgradient"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         ctx->SetFillStyle("#000000");
@@ -573,5 +548,49 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->FillRect(50 * ratio, 50 * ratio, 100 * ratio, 100 * ratio);
         ctx->SetFillStyle("blue");
         ctx->FillRect(100 * ratio, 100 * ratio, 100 * ratio, 100 * ratio);
+    };
+
+    testCases["tc_2d_line_dash"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#ff0000");
+
+        std::vector<float> dashes{10, 5};
+        ctx->SetLineDash(dashes);
+        ctx->SetLineWidth(5 * ratio);
+        ctx->SetLineCap("butt");
+        ctx->BeginPath();
+        ctx->MoveTo(30 * ratio, 100 * ratio);
+        ctx->LineTo(500 * ratio, 100 * ratio);
+        ctx->Stroke();
+
+        std::vector<float> dashes2 = ctx->GetLineDash();
+        dashes2.push_back(30);
+        ctx->SetLineDash(dashes2);
+
+        ctx->BeginPath();
+        ctx->MoveTo(30 * ratio, 200 * ratio);
+        ctx->LineTo(500 * ratio, 200 * ratio);
+        ctx->Stroke();
+    };
+
+    testCases["tc_2d_get_put_ImageData"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000");
+        ctx->Rect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
+        ctx->Fill();
+        unsigned char *imageData = new unsigned char[200 * 100 * 4];
+        ctx->GetImageData(60 * ratio, 60 * ratio, 200 * ratio, 100 * ratio, imageData);
+        ctx->PutImageData(imageData, 200, 100, 150 * ratio, 10 * ratio, 0, 0, 200, 100);
+
+        ctx->SetFillStyle("red");
+        ctx->FillRect(50 * ratio, 50 * ratio, 50 * ratio, 50 * ratio);
+
+        uint8_t *imgData = new uint8_t[50 * 50 * 4];
+        ctx->GetImageData(50 * ratio, 50 * ratio, 50 * ratio, 50 * ratio, imgData);
+        ctx->PutImageData(imgData, 50, 50, 50 * ratio, 150 * ratio, 0, 0, 50, 50);
+        delete imageData;
+        delete imgData;
+        imageData = nullptr;
+        imgData=nullptr;
     };
 }

@@ -168,7 +168,7 @@ void GBenchMark::dumpResult()
         myfile << " ";
         myfile << it->second;
         myfile << " ";
-        if(it->second>0.98 && it->second<=1.0f){
+        if(it->second>0.97 && it->second<=1.0f){
             myfile << "pass";
             myfile << "\n";
         }else{
