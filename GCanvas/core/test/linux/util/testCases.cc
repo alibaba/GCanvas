@@ -528,24 +528,50 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->FillRect(50 * ratio, 170 * ratio, 75 * ratio, 50 * ratio);
     };
 
-//    SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
-//                                                const float posArray[],
-//                                                const std::string colorArray[],
-//                                                bool isStroke = false);
+    //    SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
+    //                                                const float posArray[],
+    //                                                const std::string colorArray[],
+    //                                                bool isStroke = false);
 
     testCases["tc_2d_lineargradient"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         ctx->SetFillStyle("#000000");
         ctx->FillRect(0, 0, width, height);
-        float startArr[]={10.0, 0};
-        float endArr[]={100.0, 0};
-       float posArray[]={0,1};
-        std::string colorArray[]={"white","red"};
-        ctx->SetFillStyleLinearGradient(startArr,endArr,2,posArray,colorArray,false);
-        // var grd1 = ctx->createLinearGradient(10 * ratio, 0, 100 * ratio, 0);
-        // grd1.addColorStop(0, "white");
-        // grd1.addColorStop(1, "red");
-// ctx->SetFillStyle(  grd1);
-ctx->FillRect(10*ratio, 10*ratio, 100*ratio, 100*ratio);
+        float startArr[] = {10.0, 0};
+        float endArr[] = {100.0, 0};
+        float posArray[] = {0, 1};
+        std::string colorArray[] = {"white", "red"};
+        ctx->SetFillStyleLinearGradient(startArr, endArr, 2, posArray, colorArray, false);
+        ctx->FillRect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
+    };
+
+    // void SetFillStyleRadialGradient(float startArr[], float endArr[], int stop_count,
+    //                                                const float posArray[],
+    //                                                const std::string colorArray[],
+    //                                                bool isStroke = false)
+    testCases["tc_2d_radialgradient"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000");
+        ctx->FillRect(0, 0, width, height);
+        float startArr[] = {75, 50, 5};
+        float endArr[] = {90, 60, 100};
+        float posArray[] = {0, 1};
+        std::string colorArray[] = {"red", "white"};
+        ctx->SetFillStyleRadialGradient(startArr, endArr, 2,
+                                        posArray,
+                                        colorArray,
+                                        false);
+        ctx->FillRect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
+    };
+
+    testCases["tc_2d_globalAlpha"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("red");
+        ctx->FillRect(10 * ratio, 10 * ratio, 100 * ratio, 100 * ratio);
+        ctx->SetGlobalAlpha(0.2);
+        ctx->SetFillStyle("green");
+        ctx->FillRect(50 * ratio, 50 * ratio, 100 * ratio, 100 * ratio);
+        ctx->SetFillStyle("blue");
+        ctx->FillRect(100 * ratio, 100 * ratio, 100 * ratio, 100 * ratio);
     };
 }
