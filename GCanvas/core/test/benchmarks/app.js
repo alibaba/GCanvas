@@ -1,7 +1,5 @@
 var fs = require("fs");
 var path = require("path");
-// var fileName = process.argv[2];
-// var caseName =process.argv[3];
 var wstream = fs.createWriteStream(path.resolve("./build/test.cc"));
 var prefix = `#include <unordered_map>
 #include <functional>
