@@ -10,9 +10,9 @@
                 name=${name}"\""$file"\","  
             fi
         done
-        # echo "\"" "$1"\" ":["$name"],"
+        # echo "\"""$1"\" ":["$name"],"
         if [ "$1" != "." ]; then 
-             str=$str"\""$1"\":["$name"],"      
+             str=$str"\""$1"\""":["${name}"],"      
         fi;
     }  
 
