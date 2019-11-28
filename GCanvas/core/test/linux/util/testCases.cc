@@ -581,7 +581,7 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         unsigned char *imageData = new unsigned char[200 * 100 * 4];
         ctx->GetImageData(60 * ratio, 60 * ratio, 200 * ratio, 100 * ratio, imageData);
         ctx->PutImageData(imageData, 200, 100, 150 * ratio, 10 * ratio, 0, 0, 200, 100);
-    
+
         ctx->SetFillStyle("red");
         ctx->FillRect(50 * ratio, 50 * ratio, 50 * ratio, 50 * ratio);
 
@@ -591,6 +591,207 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         delete imageData;
         delete imgData;
         imageData = nullptr;
-        imgData=nullptr;
+        imgData = nullptr;
     };
+
+    testCases["tc_sample_path_arc_rotate"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000");
+        ctx->FillRect(0, 0, width, height);
+
+        ctx->BeginPath();
+        ctx->Arc(150, 150, 120, 0, 6.28);
+        ctx->SetFillStyle("#fff");
+        ctx->Fill();
+
+        ctx->Save();
+        ctx->BeginPath();
+        ctx->Translate(150, 150);
+        ctx->SetFillStyle("#ff0000");
+        float degree = 1.0;
+        ctx->Arc(0, 0, 100, 0, degree);
+        ctx->Save();
+        ctx->Rotate(degree);
+        ctx->MoveTo(100, 0);
+        ctx->LineTo(0, 0);
+        ctx->Restore();
+        ctx->Rotate(0);
+        ctx->LineTo(100, 0);
+        ctx->Fill();
+
+        ctx->Restore();
+    };
+    testCases["tc_sample_path_rotate"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetLineWidth(10);
+        ctx->BeginPath();
+        ctx->Rect(20, 20, 100, 100);
+        ctx->Stroke();
+
+        ctx->Translate(100, 100);
+
+        ctx->Save();
+        ctx->MoveTo(200, 200);
+        ctx->LineTo(250, 250);
+
+        ctx->MoveTo(250, 250);
+        ctx->LineTo(200, 0);
+
+        ctx->MoveTo(250, 250);
+        //Rotate
+        ctx->Rotate(M_PI * 0.5);
+        ctx->LineTo(200, 0);
+
+        ctx->Restore();
+
+        ctx->Stroke();
+    };
+
+    testCases["tc_sample_path_scale"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+
+        ctx->SetLineWidth(10);
+
+        ctx->BeginPath();
+        ctx->Translate(100, 100);
+
+        ctx->Save();
+        ctx->MoveTo(40, 40);
+        ctx->LineTo(50, 50);
+
+        //before Scale
+        ctx->LineTo(40, 0);
+        ctx->MoveTo(50, 50);
+
+        //Scale
+        ctx->Scale(2, 2);
+        ctx->LineTo(40, 0);
+
+        ctx->Restore();
+
+        ctx->Stroke();
+    };
+
+    testCases["tc_sample_path_transform_fill2"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Save();
+        ctx->Scale(0.3, 0.3);
+        ctx->BeginPath();
+        ctx->Arc(411, 411, 394, 0, 6.28);
+        ctx->SetFillStyle("#fff");
+        ctx->SetStrokeStyle("#d5d5d5");
+        ctx->Fill();
+
+        ctx->Stroke();
+        ctx->Save();
+        ctx->BeginPath();
+        ctx->Translate(414, 414);
+        ctx->Arc(0, 0, 374, 3.94, 4.47);
+        ctx->Save();
+        ctx->Rotate(4.47);
+        ctx->MoveTo(374, 0);
+        ctx->LineTo(0, 0);
+        ctx->Restore();
+        ctx->Rotate(3.94);
+        ctx->LineTo(374, 0);
+        ctx->SetFillStyle("#EE5461");
+        ctx->Fill();
+        ctx->Stroke();
+        ctx->Restore();
+    };
+
+    testCases["tc_sample_path_transform_fill"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+
+        float startAngle = M_PI;
+        float endAngle = M_PI * 1.5;
+        ctx->Save();
+        ctx->BeginPath();
+        ctx->Translate(414, 414);
+        ctx->Arc(0, 0, 374, startAngle, endAngle);
+
+        ctx->Save();
+        ctx->Rotate(endAngle);
+        ctx->MoveTo(374, 0);
+        ctx->LineTo(0, 0);
+
+        ctx->Restore();
+        ctx->Stroke();
+
+        ctx->Restore();
+    };
+
+    testCases["tc_sample_path_translate"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetLineWidth(10);
+
+        ctx->BeginPath();
+        ctx->Rect(20, 20, 100, 100);
+        ctx->Stroke();
+
+        ctx->Translate(100, 100);
+        ctx->Save();
+        ctx->MoveTo(200, 200);
+        ctx->LineTo(250, 250);
+
+        ctx->LineTo(200, 0);
+
+        //Translate1
+        ctx->Translate(100, 0);
+        ctx->LineTo(200, 0);
+
+        ctx->Restore();
+        ctx->Stroke();
+    };
+
+    testCases["tc_sample_path_transform"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+
+        ctx->SetLineWidth(10);
+
+        ctx->BeginPath();
+        ctx->Translate(100, 100);
+
+        ctx->Save();
+        ctx->MoveTo(200, 200);
+        ctx->LineTo(250, 250);
+
+        //Rotate
+        ctx->SetTransform(1, 0.5, -0.5, 1, 30 * ratio, 10 * ratio);
+        ctx->LineTo(200, 0);
+
+        ctx->Restore();
+
+        ctx->Stroke();
+    };
+
+    testCases["tc_2d_arc_circle"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetLineWidth(10);
+
+        ctx->SetFillStyle("#000000 ");
+        ctx->FillRect(0, 0, width, height);
+
+        ctx->BeginPath();
+        ctx->SetStrokeStyle("yellow");
+        ctx->Arc(75 * ratio, 75 * ratio, 50 * ratio, 0, 2 * M_PI);
+        ctx->Stroke();
+    };
+
+    testCases["tc_2d_resetClip"]= [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx,int width,int height)
+    { 
+    int  ratio=1; 
+  ctx->Save();
+ctx->Rect(10*ratio, 10*ratio, 100*ratio, 120*ratio);
+ctx->Stroke();
+ctx->Clip();
+ctx->SetFillStyle( "green");
+ctx->FillRect(0, 0, 150*ratio, 100*ratio);
+ctx->Restore();
+
+ctx->ResetClip();
+ctx->SetFillStyle( "green");
+ctx->FillRect(200*ratio, 0, 150*ratio, 100*ratio);
+  
+ };
 }
