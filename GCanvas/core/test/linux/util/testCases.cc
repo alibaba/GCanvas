@@ -466,7 +466,7 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         int ratio = 1;
         ctx->SetFillStyle("rgba(255,0,0,0.5) ");
         ctx->SetFont("30px Arial");
-        ctx->DrawText("w3school.com.cn", 10 * ratio, 50 * ratio);
+        ctx->DrawText("helloworld", 10 * ratio, 50 * ratio);
     };
 
     testCases["tc_2d_text_measureText"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
@@ -486,7 +486,7 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         int ratio = 1;
         ctx->SetFillStyle("#000000 ");
         ctx->SetFont("40px Arial");
-        ctx->StrokeText("w3school.com.cn", 10 * ratio, 50 * ratio);
+        ctx->StrokeText("helloworld", 10 * ratio, 50 * ratio);
     };
 
     testCases["tc_2d_text_textAlign"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
