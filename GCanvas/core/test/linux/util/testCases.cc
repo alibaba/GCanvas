@@ -778,20 +778,39 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->Stroke();
     };
 
-    testCases["tc_2d_resetClip"]= [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx,int width,int height)
-    { 
-    int  ratio=1; 
-  ctx->Save();
-ctx->Rect(10*ratio, 10*ratio, 100*ratio, 120*ratio);
-ctx->Stroke();
-ctx->Clip();
-ctx->SetFillStyle( "green");
-ctx->FillRect(0, 0, 150*ratio, 100*ratio);
-ctx->Restore();
+    testCases["tc_2d_resetClip"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Save();
+        ctx->Rect(10 * ratio, 10 * ratio, 100 * ratio, 120 * ratio);
+        ctx->Stroke();
+        ctx->Clip();
+        ctx->SetFillStyle("green");
+        ctx->FillRect(0, 0, 150 * ratio, 100 * ratio);
+        ctx->Restore();
 
-ctx->ResetClip();
-ctx->SetFillStyle( "green");
-ctx->FillRect(200*ratio, 0, 150*ratio, 100*ratio);
-  
- };
+        ctx->ResetClip();
+        ctx->SetFillStyle("green");
+        ctx->FillRect(200 * ratio, 0, 150 * ratio, 100 * ratio);
+    };
+
+    
+    testCases["tc_2d_text_textBaseLine"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->SetFillStyle("#000000");
+        ctx->SetStrokeStyle("blue");
+        ctx->MoveTo(10 * ratio, 125 * ratio);
+        ctx->LineTo(250 * ratio, 125 * ratio);
+        ctx->Stroke();
+        ctx->SetFont("20px Arial");
+        ctx->SetTextBaseline(TEXT_BASELINE_TOP);
+        ctx->DrawText("Top", 10 * ratio, 125 * ratio);
+        ctx->SetTextBaseline(TEXT_BASELINE_BOTTOM);
+        ctx->DrawText("Bottom", 50 * ratio, 125 * ratio);
+        ctx->SetTextBaseline(TEXT_BASELINE_MIDDLE);
+        ctx->DrawText("Middle", 100 * ratio, 125 * ratio);
+        ctx->SetTextBaseline(TEXT_BASELINE_ALPHABETIC);
+        ctx->DrawText("Alphabetic", 150 * ratio, 125 * ratio);
+        ctx->SetTextBaseline(TEXT_BASELINE_HANGING);
+        ctx->DrawText("Hanging", 200 * ratio, 125 * ratio);
+    };
 }
