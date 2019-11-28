@@ -144,28 +144,6 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->SetFont("30px Arial");
         ctx->DrawText("w3school.com.cn", 10 * ratio, 50 * ratio);
     };
-    //     testCases["tc_2d_line_dash"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
-    //         int ratio = 1;
-    //   ctx->SetFillStyle( = "#ff0000";
-
-    //     var dashes = [10, 5];
-    //     ctx->setLineDash(dashes);
-    //     ctx->SetLineWidth( = 5*ratio;
-    //     ctx->SetLineCap( = "butt";
-    //     ctx->BeginPath();
-    //     ctx->MoveTo(30*ratio, 100*ratio);
-    //     ctx->LineTo(500*ratio, 100*ratio);
-    //     ctx->Stroke();
-
-    //     var dashes2 = ctx->getLineDash();
-    //     dashes2.push(30);
-    //     ctx->setLineDash(dashes2);
-
-    //     ctx->BeginPath();
-    //     ctx->MoveTo(30*ratio, 200*ratio);
-    //     ctx->LineTo(500*ratio, 200*ratio);
-    //     ctx->Stroke();
-    //     };
     testCases["tc_2d_lineGap_butt"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         ctx->BeginPath();
