@@ -70,7 +70,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation project(':bridges:weex-bridge:android:weex_bridge')
+    implementation project(':bridges:weex-gcanvas:android:weex_bridge')
 
     compile 'com.loopj.android:android-async-http:1.4.9@aar'
     compile "com.squareup.picasso:picasso:${rootProject.extensions.sdks.Picasso}"
