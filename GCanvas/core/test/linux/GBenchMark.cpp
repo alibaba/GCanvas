@@ -102,7 +102,8 @@ void GBenchMark::intilGLOffScreenEnviroment()
 
 void GBenchMark::initGcanvas()
 {
-    if (mCanvas){
+    if (mCanvas)
+    {
         mCanvas->CreateContext();
         mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
     }
@@ -119,31 +120,31 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 {
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
- 
+
     decodeFile2Pixels(this->w3cPrefix + caseName + ".png", w3cImage);
     decodeFile2Pixels(caseName + ".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
-    int rightCount = 0;
+    int correctCount = 0;
     if (N == 0)
         return 0.0;
     for (int i = 0; i < N; i++)
     {
         if (w3cImage[i] != gcanvasImage[i])
             errorCount++;
-        else  
-            rightCount++;
+        else
+            correctCount++;
     }
-    return 1.0f * rightCount / N;
+    return 1.0f * correctCount / N;
 }
 
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
 {
-     std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
-     p->CreateContext();
-     p->OnSurfaceChanged(0,0,mWidth,mHeight);
-     p->Clear();
-    glClearColor(255,255,255,255);
+    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
+    p->CreateContext();
+    p->OnSurfaceChanged(0, 0, mWidth, mHeight);
+    p->Clear();
+    glClearColor(255, 255, 255, 255);
     drawFunc(p, p->mCanvasContext, mWidth, mHeight);
     p->drawFrame();
     this->render2file(caseName);
@@ -161,22 +162,34 @@ void GBenchMark::dumpResult()
     myfile << " ";
     myfile << "Result";
     myfile << "\n";
-    int total=0;
+    int unpassCounter = 0;
+    int passCounter = 0;
     for (auto it = data.begin(); it != data.end(); it++)
     {
         myfile << it->first;
         myfile << " ";
         myfile << it->second;
         myfile << " ";
-        if(it->second>0.97 && it->second<=1.0f){
+        if (it->second > 0.97 && it->second <= 1.0f)
+        {
             myfile << "pass";
             myfile << "\n";
-        }else{
-             myfile << "unpass";
-            myfile << "\n";
+            passCounter++;
         }
-        total++;
+        else
+        {
+            myfile << "unpass";
+            myfile << "\n";
+            unpassCounter++;
+        }
     }
-    std::cout << total <<std::endl;
-     myfile.close();
+    myfile << "total:" << data.size();
+    myfile << " ";
+    myfile << "pass_count:";
+    myfile << passCounter;
+    myfile << " ";
+    myfile << "unpass_count:";
+    myfile << unpassCounter;
+    myfile << "\n";
+    myfile.close();
 }

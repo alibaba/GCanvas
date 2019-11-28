@@ -8,7 +8,6 @@
 #include <lodepng.h>
 
 #define CONTEXT_ES20
-
 #include "GBenchMark.h"
 const static GLuint renderBufferHeight = 400;
 const static GLuint renderBufferWidth = 400;

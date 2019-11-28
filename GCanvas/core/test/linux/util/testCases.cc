@@ -581,7 +581,7 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         unsigned char *imageData = new unsigned char[200 * 100 * 4];
         ctx->GetImageData(60 * ratio, 60 * ratio, 200 * ratio, 100 * ratio, imageData);
         ctx->PutImageData(imageData, 200, 100, 150 * ratio, 10 * ratio, 0, 0, 200, 100);
-
+    
         ctx->SetFillStyle("red");
         ctx->FillRect(50 * ratio, 50 * ratio, 50 * ratio, 50 * ratio);
 
