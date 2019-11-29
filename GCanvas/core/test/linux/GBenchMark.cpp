@@ -80,8 +80,9 @@ void GBenchMark::intilGLOffScreenEnviroment()
     GLuint depthRenderbuffer;
     glGenRenderbuffers(1, &depthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mWidth, mHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
 
     // check FBO status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -144,7 +145,7 @@ void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gc
     p->CreateContext();
     p->OnSurfaceChanged(0, 0, mWidth, mHeight);
     p->Clear();
-    glClearColor(255, 255, 255, 255);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
     drawFunc(p, p->mCanvasContext, mWidth, mHeight);
     p->drawFrame();
     this->render2file(caseName);

@@ -24,10 +24,11 @@ int main(int argc, char *argv[])
 
    GBenchMark becnMarker(renderBufferWidth,renderBufferHeight);
    becnMarker.intilGLOffScreenEnviroment();
-   for(auto it=testCases.begin();it!=testCases.end();it++){
-            becnMarker.run(it->first,it->second);
-   }
+//    becnMarker.run("tc_2d_fill",testCases["tc_2d_fill"]);
+   becnMarker.run("tc_sample_path_arc_rotate",testCases["tc_sample_path_arc_rotate"]);
+//    for(auto it=testCases.begin();it!=testCases.end();it++){
+//             becnMarker.run(it->first,it->second);
+//    }
    becnMarker.dumpResult();
-    
-    
+
 }
