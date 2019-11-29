@@ -424,7 +424,7 @@ void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GC
 void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFillTarget target )
 {
     
-    GLint bindFBO = 0;
+     GLint bindFBO = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &bindFBO);
     
     
@@ -439,7 +439,6 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
         }
         glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetColorSlot());
     }
-  
     
     glDisable(GL_BLEND);
     glEnable(GL_STENCIL_TEST);
@@ -451,12 +450,13 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
     // Clear the needed area in the stencil buffer
     glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
     GColorRGBA white = {1,1,1,1};
-
+    
     GPoint minPos = mMinPosition;
     GPoint maxPos = mMaxPosition;
     
     context->PushRectangle(minPos.x, minPos.y, maxPos.x-minPos.x, maxPos.y-minPos.y, 0, 0, 0, 0, white);
     context->SendVertexBufferToGPU();
+    
     
     if( rule == FILL_RULE_NONZERO )
     {
@@ -467,19 +467,22 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
     {
         glStencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
     }
-       
+    
     for (std::vector<tSubPath>::iterator iter = mPathStack.begin(); iter != mPathStack.end(); ++iter)
     {
         tSubPath path = *iter;
         
         if( path.points.size() == 0 ) continue;
         
-        glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
-                              GL_FLOAT, GL_FALSE, 0,
-                              &(path.points.front()));
+        if (context->mCurrentState->mShader) {
+            glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
+            GL_FLOAT, GL_FALSE, 0,
+            &(path.points.front()));
+        }
         context->mDrawCallCount++;
         glDrawArrays(GL_TRIANGLE_FAN, 0, (int)path.points.size());
     }
+    
     context->BindVertexBuffer();
     
     //enable color or depth buffer, push a rect with the correct size and color
@@ -492,12 +495,13 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         glEnable(GL_BLEND);
     }
-  
+    
     glStencilFunc(GL_NOTEQUAL, 0x00, 0xff);
     glStencilOp(GL_ZERO, GL_ZERO, GL_ZERO);
     
     context->PushRectangle(minPos.x, minPos.y, maxPos.x-minPos.x, maxPos.y-minPos.y, 0, 0, 0, 0, color);
     context->SendVertexBufferToGPU();
+    
     glDisable(GL_STENCIL_TEST);
     
     if( target == FILL_TARGET_DEPTH )

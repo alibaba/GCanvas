@@ -1,5 +1,6 @@
 #include "GBenchMark.h"
 #include <fstream>
+#include <cmath> 
 GBenchMark::GBenchMark(int width, int height) : mWidth(width), mHeight(height)
 {
     std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
@@ -131,7 +132,7 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
         return 0.0;
     for (int i = 0; i < N; i++)
     {
-        if (w3cImage[i] != gcanvasImage[i])
+        if (std::abs(w3cImage[i] - gcanvasImage[i])>15)
             errorCount++;
         else
             correctCount++;
