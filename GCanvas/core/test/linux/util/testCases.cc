@@ -771,7 +771,6 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->FillRect(200 * ratio, 0, 150 * ratio, 100 * ratio);
     };
 
-    
     testCases["tc_2d_text_textBaseLine"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
         int ratio = 1;
         ctx->SetFillStyle("#000000");
@@ -790,5 +789,82 @@ void prepareCases(std::unordered_map<std::string, std::function<void(std::shared
         ctx->DrawText("Alphabetic", 150 * ratio, 125 * ratio);
         ctx->SetTextBaseline(TEXT_BASELINE_HANGING);
         ctx->DrawText("Hanging", 200 * ratio, 125 * ratio);
+    };
+
+    testCases["tc_2d_shadow_alpha"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Translate(100, 100);
+
+        ctx->SetFillStyle("rgba(0, 0, 255, 0.5)");
+        ctx->SetShadowColor("rgba(0, 0, 0, 0.2)");
+        ctx->SetShadowBlur(20);
+        ctx->SetShadowOffsetX(20);
+        ctx->SetShadowOffsetY(20);
+        ctx->FillRect(10, 10, 100, 100);
+    };
+
+    testCases["tc_2d_shadow_fill"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+
+        ctx->Translate(100, 100);
+
+        ctx->SetFillStyle("rgba(0,0,255, 0.5)");
+        ctx->SetShadowColor("black");
+
+        ctx->SetShadowBlur(15);
+        ctx->SetShadowOffsetX(20);
+        ctx->SetShadowOffsetY(20);
+
+        ctx->BeginPath();
+        ctx->MoveTo(50, 50);
+        ctx->LineTo(100, 200);
+        ctx->LineTo(100, 50);
+        ctx->ClosePath();
+
+        //ctx->Rect(50, 50, 50, 150);
+        ctx->Fill();
+    };
+
+    testCases["tc_2d_shadow_fillrect"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Translate(100, 100);
+        ctx->SetFillStyle("blue");
+        ctx->SetShadowColor("black");
+        ctx->SetShadowBlur(15);
+        ctx->SetShadowOffsetX(20);
+        ctx->SetShadowOffsetY(20);
+        ctx->FillRect(10, 10, 100, 100);
+    };
+
+    testCases["tc_2d_shadow_stroke"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Translate(100, 100);
+
+        ctx->SetStrokeStyle("red");
+        ctx->SetShadowColor("black");
+
+        ctx->SetShadowBlur(15);
+        ctx->SetShadowOffsetX(20);
+        ctx->SetShadowOffsetY(20);
+
+        ctx->BeginPath();
+        ctx->MoveTo(50, 50);
+        ctx->LineTo(100, 200);
+        ctx->LineTo(100, 50);
+        ctx->ClosePath();
+
+        ctx->Stroke();
+    };
+
+    testCases["tc_2d_shadow_strokerect"] = [](std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height) {
+        int ratio = 1;
+        ctx->Translate(100, 100);
+        ctx->SetStrokeStyle("red");
+        ctx->SetShadowColor("black");
+        ctx->SetShadowBlur(15);
+        ctx->SetShadowOffsetX(10);
+        ctx->SetShadowOffsetY(10);
+
+        ctx->StrokeRect(10, 10, 90, 90);
     };
 }
