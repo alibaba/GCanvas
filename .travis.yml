@@ -8,6 +8,9 @@ addons:
   apt:
     packages:
     - xvfb
+    - cppcheck
+    - make
+    - cmake
 before_install:
 - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
 - sudo apt-get install libboost-all-dev
@@ -33,6 +36,7 @@ before_script:
 - cd ../../../../
 script:
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
+- if  [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then cppcheck --error-exitcode=1 --enable=warning,performance,information,style *.cpp *.h *.hpp; fi
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cat ./result.txt
