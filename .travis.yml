@@ -35,7 +35,7 @@ before_script:
 - npm i && node app.js
 - cd ../../../../
 script:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=1 --enable=warning,style,unusedFunction --std=c++11 --verbose --language=c++ GCanvas/core; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=0 --enable=warning,style,unusedFunction --std=c++11 --verbose --language=c++ GCanvas/core/src; fi
 - cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
