@@ -424,7 +424,7 @@ void GPath::PushTriangleFanPoints(GCanvasContext *context, tSubPath* subPath, GC
 void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFillTarget target )
 {
     
-    GLint bindFBO = 0;
+     GLint bindFBO = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &bindFBO);
     
     
@@ -433,10 +433,12 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
     GColorRGBA color = BlendColor(context, context->mCurrentState->mFillColor);
     
     // Disable drawing to the color buffer, enable the stencil buffer
-    if (context->mCurrentState->mShader->GetTexcoordSlot() > 0) {
-        glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetTexcoordSlot());
+    if (context->mCurrentState->mShader) {
+        if (context->mCurrentState->mShader->GetTexcoordSlot() > 0) {
+            glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetTexcoordSlot());
+        }
+        glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetColorSlot());
     }
-    glDisableVertexAttribArray((GLuint)context->mCurrentState->mShader->GetColorSlot());
     
     glDisable(GL_BLEND);
     glEnable(GL_STENCIL_TEST);
@@ -472,9 +474,11 @@ void GPath::DrawPolygons2DToContext(GCanvasContext *context, GFillRule rule, GFi
         
         if( path.points.size() == 0 ) continue;
         
-        glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
-                              GL_FLOAT, GL_FALSE, 0,
-                              &(path.points.front()));
+        if (context->mCurrentState->mShader) {
+            glVertexAttribPointer((GLuint) context->mCurrentState->mShader->GetPositionSlot(), 2,
+            GL_FLOAT, GL_FALSE, 0,
+            &(path.points.front()));
+        }
         context->mDrawCallCount++;
         glDrawArrays(GL_TRIANGLE_FAN, 0, (int)path.points.size());
     }

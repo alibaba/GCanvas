@@ -6,9 +6,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -fno-unwind-tables -fexceptions")
-
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14  -fno-unwind-tables -fexceptions -fprofile-arcs -ftest-coverage")
+set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 include_directories("../../src/")
 include_directories("../../src/gcanvas")
 include_directories("../../src/support")

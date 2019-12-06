@@ -1,5 +1,6 @@
 #include "GBenchMark.h"
 #include <fstream>
+#include <cmath> 
 GBenchMark::GBenchMark(int width, int height) : mWidth(width), mHeight(height)
 {
     std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
@@ -80,8 +81,9 @@ void GBenchMark::intilGLOffScreenEnviroment()
     GLuint depthRenderbuffer;
     glGenRenderbuffers(1, &depthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mWidth, mHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
 
     // check FBO status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -102,7 +104,8 @@ void GBenchMark::intilGLOffScreenEnviroment()
 
 void GBenchMark::initGcanvas()
 {
-    if (mCanvas){
+    if (mCanvas)
+    {
         mCanvas->CreateContext();
         mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
     }
@@ -119,33 +122,31 @@ float GBenchMark::computeRatioWithW3C(std::string caseName)
 {
     std::vector<unsigned char> w3cImage;
     std::vector<unsigned char> gcanvasImage;
-    // p->Clear();
-    // glClearColor(255,255,255,255);
+
     decodeFile2Pixels(this->w3cPrefix + caseName + ".png", w3cImage);
     decodeFile2Pixels(caseName + ".png", gcanvasImage);
     int N = std::min(w3cImage.size(), gcanvasImage.size());
     int errorCount = 0;
-    int rightCount = 0;
+    int correctCount = 0;
     if (N == 0)
         return 0.0;
     for (int i = 0; i < N; i++)
     {
-        if (w3cImage[i] != gcanvasImage[i])
+        if (std::abs(w3cImage[i] - gcanvasImage[i])>15)
             errorCount++;
-        else    // p->Clear();
-    // glClearColor(255,255,255,255);
-            rightCount++;
+        else
+            correctCount++;
     }
-    return 1.0f * rightCount / N;
+    return 1.0f * correctCount / N;
 }
 
 void GBenchMark::run(std::string caseName, std::function<void(std::shared_ptr<gcanvas::GCanvas> canvas, GCanvasContext *ctx, int width, int height)> drawFunc)
 {
-     std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
-     p->CreateContext();
-     p->OnSurfaceChanged(0,0,mWidth,mHeight);
-     p->Clear();
-    glClearColor(255,255,255,255);
+    std::shared_ptr<gcanvas::GCanvas> p(new gcanvas::GCanvas("benchMark", {true, true}, nullptr));
+    p->CreateContext();
+    p->OnSurfaceChanged(0, 0, mWidth, mHeight);
+    p->Clear();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
     drawFunc(p, p->mCanvasContext, mWidth, mHeight);
     p->drawFrame();
     this->render2file(caseName);
@@ -157,16 +158,40 @@ void GBenchMark::dumpResult()
 {
     std::ofstream myfile;
     myfile.open("result.txt");
+    myfile << "CaseName";
+    myfile << " ";
+    myfile << "Ratio";
+    myfile << " ";
+    myfile << "Result";
+    myfile << "\n";
+    int unpassCounter = 0;
+    int passCounter = 0;
     for (auto it = data.begin(); it != data.end(); it++)
     {
-        std::cout << "------------------" << std::endl;
-        std::cout << "the case name is " << it->first << std::endl;
-        std::cout << "------------------" << std::endl;
-        std::cout << "the correct ratio is " << it->second << std::endl;
         myfile << it->first;
-        myfile << "# ratio is ";
+        myfile << " ";
         myfile << it->second;
-        myfile << "\n";
+        myfile << " ";
+        if (it->second > 0.97 && it->second <= 1.0f)
+        {
+            myfile << "pass";
+            myfile << "\n";
+            passCounter++;
+        }
+        else
+        {
+            myfile << "unpass";
+            myfile << "\n";
+            unpassCounter++;
+        }
     }
-     myfile.close();
+    myfile << "total:" << data.size();
+    myfile << " ";
+    myfile << "pass_count:";
+    myfile << passCounter;
+    myfile << " ";
+    myfile << "unpass_count:";
+    myfile << unpassCounter;
+    myfile << "\n";
+    myfile.close();
 }
