@@ -28,11 +28,11 @@ install:
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 before_script:
-- cd GCanvas/core/test/w3c &&mkdir build
+- cd ./core/test/w3c &&mkdir build
 - npm i && node app.js
-- cd ../../../../
+- cd ../../../
 script:
-- cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
+- cd ./core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cat result.txt | awk '{printf "%-30s| %-18s|  %-20s\n",$1,$2,$3}'| column -t 
