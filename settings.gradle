@@ -1,0 +1,11 @@
+include ':core'
+include ':android:gcanvas_library'
+include ':android:bridge_spec'
+include ':android:adapters:gcanvas_imageloader_picasso'
+include ':android:adapters:gcanvas_imageloader_fresco'
+include ':android:adapters:bridge_adapter'
+
+include ':bridges:weex-gcanvas:android:weex_bridge'
+include ':bridges:weex-gcanvas:android:weex_playground'
+
+

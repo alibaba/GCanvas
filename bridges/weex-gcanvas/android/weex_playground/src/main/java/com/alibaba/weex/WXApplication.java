@@ -1,0 +1,183 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package com.alibaba.weex;
+
+import android.app.Activity;
+import android.app.Application;
+import android.os.Bundle;
+
+import com.alibaba.weex.commons.adapter.DefaultWebSocketAdapterFactory;
+import com.alibaba.weex.commons.adapter.ImageAdapter;
+import com.alibaba.weex.commons.adapter.JSExceptionAdapter;
+import com.alibaba.weex.extend.adapter.InterceptWXHttpAdapter;
+import com.alibaba.weex.extend.module.GeolocationModule;
+import com.alibaba.weex.extend.module.MyModule;
+import com.alibaba.weex.extend.module.RenderModule;
+import com.alibaba.weex.extend.module.SyncTestModule;
+import com.alibaba.weex.extend.module.WXEventModule;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.taobao.gcanvas.bridges.weex.GCanvasWeexModule;
+import com.taobao.gcanvas.bridges.weex.WXGCanvasWeexComponent;
+import com.taobao.weex.InitConfig;
+import com.taobao.weex.WXEnvironment;
+import com.taobao.weex.WXSDKEngine;
+import com.taobao.weex.WXSDKManager;
+import com.taobao.weex.common.WXException;
+import com.taobao.weex.utils.LogLevel;
+import com.taobao.weex.utils.WXLogUtils;
+
+import java.lang.reflect.Field;
+
+public class WXApplication extends Application {
+
+    static WXApplication APP;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        APP = this;
+
+        /**
+         * Set up for fresco usage.
+         * Set<RequestListener> requestListeners = new HashSet<>();
+         * requestListeners.add(new RequestLoggingListener());
+         * ImagePipelineConfig config = ImagePipelineConfig.newBuilder(this)
+         *     .setRequestListeners(requestListeners)
+         *     .build();
+         * Fresco.initialize(this,config);
+         **/
+//    initDebugEnvironment(true, false, "DEBUG_SERVER_HOST");
+        WXSDKEngine.addCustomOptions("appName", "WXSample");
+        WXSDKEngine.addCustomOptions("appGroup", "WXApp");
+        WXSDKEngine.initialize(this,
+                new InitConfig.Builder()
+                        .setImgAdapter(new ImageAdapter())
+//                               .setDebugAdapter(new PlayDebugAdapter())
+                        .setWebSocketAdapterFactory(new DefaultWebSocketAdapterFactory())
+                        .setJSExceptionAdapter(new JSExceptionAdapter())
+                        .setHttpAdapter(new InterceptWXHttpAdapter())
+                        .build()
+        );
+        try {
+            Fresco.initialize(this);
+//            WXSDKEngine.registerComponent("synccomponent", WXComponentSyncTest.class);
+//            WXSDKEngine.registerComponent(WXParallax.PARALLAX, WXParallax.class);
+
+//            WXSDKEngine.registerComponent("richtext", RichText.class);
+            WXSDKEngine.registerModule("render", RenderModule.class);
+            WXSDKEngine.registerModule("event", WXEventModule.class);
+            WXSDKEngine.registerModule("syncTest", SyncTestModule.class);
+
+//            WXSDKEngine.registerComponent("mask", WXMask.class);
+//            WXSDKEngine.registerDomObject("mask", WXMaskDomObject.class);
+
+            WXSDKEngine.registerModule("myModule", MyModule.class);
+            WXSDKEngine.registerModule("geolocation", GeolocationModule.class);
+
+            WXSDKEngine.registerModule("gcanvas", GCanvasWeexModule.class);
+            WXSDKEngine.registerComponent("gcanvas", WXGCanvasWeexComponent.class);
+            /**
+             * override default image tag
+             * WXSDKEngine.registerComponent("image", FrescoImageComponent.class);
+             */
+        } catch (WXException e) {
+            e.printStackTrace();
+        }
+
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                // The demo code of calling 'notifyTrimMemory()'
+                if (false) {
+                    // We assume that the application is on an idle time.
+                    WXSDKManager.getInstance().notifyTrimMemory();
+                }
+                // The demo code of calling 'notifySerializeCodeCache()'
+                if (false) {
+                    WXSDKManager.getInstance().notifySerializeCodeCache();
+                }
+            }
+        });
+
+
+        disableDebugAndLogs();
+    }
+
+    private void disableDebugAndLogs() {
+        WXLogUtils.setLogWatcher(null);
+        WXLogUtils.setJsLogWatcher(null);
+        WXEnvironment.sLogLevel = LogLevel.OFF;
+        try {
+            Field debugApkField = WXEnvironment.class.getDeclaredField("isApkDebug");
+            debugApkField.setAccessible(true);
+            debugApkField.setBoolean(null, false);
+            debugApkField.setAccessible(false);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param connectable debug server is connectable or not.
+     *                    if true, sdk will try to connect remote debug server when init WXBridge.
+     * @param debuggable  enable remote debugger. valid only if host not to be "DEBUG_SERVER_HOST".
+     *                    true, you can launch a remote debugger and inspector both.
+     *                    false, you can  just launch a inspector.
+     * @param host        the debug server host, must not be "DEBUG_SERVER_HOST", a ip address or domain will be OK.
+     *                    for example "127.0.0.1".
+     */
+    private void initDebugEnvironment(boolean connectable, boolean debuggable, String host) {
+        if (!"DEBUG_SERVER_HOST".equals(host)) {
+            WXEnvironment.sDebugServerConnectable = connectable;
+            WXEnvironment.sRemoteDebugMode = debuggable;
+            WXEnvironment.sRemoteDebugProxyUrl = "ws://" + host + ":8088/debugProxy/native";
+        }
+    }
+
+}
