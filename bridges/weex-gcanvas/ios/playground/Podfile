@@ -9,6 +9,6 @@ target 'GCanvasPlayground' do
   pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
   pod 'SocketRocket'
   
-  pod 'WeexGcanvas', :path=>'../../../../../'
-  pod 'GCanvas', :path=>'../../../../../'
+  pod 'WeexGcanvas', :path=>'../../../../'
+  pod 'GCanvas', :path=>'../../../../'
 end

@@ -5,7 +5,7 @@ inhibit_all_warnings!
 
 target 'WeexGcanvas' do
     pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
-    pod 'GCanvas', :path=>'../../../../../'
+    pod 'GCanvas', :path=>'../../../../'
     pod 'SDWebImage'
     pod 'WeexSDK'
 end
