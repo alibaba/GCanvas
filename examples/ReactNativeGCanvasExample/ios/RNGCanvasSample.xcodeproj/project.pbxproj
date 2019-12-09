@@ -36,7 +36,6 @@
 		2DCD954D1E0B4F2C00145EB5 /* RNGCanvasSampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* RNGCanvasSampleTests.m */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		A2B65C342029D080000DB6F7 /* libRCTGCanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A2B65C032029D02F000DB6F7 /* libRCTGCanvas.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 /* End PBXBuildFile section */
 
@@ -251,9 +250,9 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
-		A2B65C022029D02F000DB6F7 /* PBXContainerItemProxy */ = {
+		A29FA79F239E2D3D00F1DDC2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A2B65BF82029D02E000DB6F7 /* RCTGCanvas.xcodeproj */;
+			containerPortal = A29FA79A239E2D3D00F1DDC2 /* RCTGCanvas.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = A2385E382005FB730010B576;
 			remoteInfo = RCTGCanvas;
@@ -350,7 +349,7 @@
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		A22CB7082029D62800BFE25D /* GCanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = GCanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A2B65BF82029D02E000DB6F7 /* RCTGCanvas.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTGCanvas.xcodeproj; path = "../../../react-native-gcanvas/ios/RCTGCanvas.xcodeproj"; sourceTree = "<group>"; };
+		A29FA79A239E2D3D00F1DDC2 /* RCTGCanvas.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTGCanvas.xcodeproj; path = "../../../bridges/react-native-gcanvas/ios/RCTGCanvas.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -367,7 +366,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A2B65C342029D080000DB6F7 /* libRCTGCanvas.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -555,7 +553,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				A2B65BF82029D02E000DB6F7 /* RCTGCanvas.xcodeproj */,
+				A29FA79A239E2D3D00F1DDC2 /* RCTGCanvas.xcodeproj */,
 				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				00C302A71ABCB8CE00DB3ED1 /* RCTActionSheet.xcodeproj */,
@@ -606,10 +604,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A2B65BF92029D02E000DB6F7 /* Products */ = {
+		A29FA79B239E2D3D00F1DDC2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A2B65C032029D02F000DB6F7 /* libRCTGCanvas.a */,
+				A29FA7A0239E2D3D00F1DDC2 /* libRCTGCanvas.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -727,6 +725,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -747,8 +746,8 @@
 					ProjectRef = ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */;
 				},
 				{
-					ProductGroup = A2B65BF92029D02E000DB6F7 /* Products */;
-					ProjectRef = A2B65BF82029D02E000DB6F7 /* RCTGCanvas.xcodeproj */;
+					ProductGroup = A29FA79B239E2D3D00F1DDC2 /* Products */;
+					ProjectRef = A29FA79A239E2D3D00F1DDC2 /* RCTGCanvas.xcodeproj */;
 				},
 				{
 					ProductGroup = 00C302B61ABCB90400DB3ED1 /* Products */;
@@ -994,11 +993,11 @@
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		A2B65C032029D02F000DB6F7 /* libRCTGCanvas.a */ = {
+		A29FA7A0239E2D3D00F1DDC2 /* libRCTGCanvas.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRCTGCanvas.a;
-			remoteRef = A2B65C022029D02F000DB6F7 /* PBXContainerItemProxy */;
+			remoteRef = A29FA79F239E2D3D00F1DDC2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		A2B65C252029D02F000DB6F7 /* libjsinspector.a */ = {
