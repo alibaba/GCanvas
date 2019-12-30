@@ -2,9 +2,6 @@ allprojects {
     project.ext.id = "You Should Change It"
     project.ext.meta = [:]
     repositories {
-        maven {
-            url "http://mvnrepo.alibaba-inc.com/mvn/repository"
-        }
         google()
         maven {
             url 'https://maven.google.com/'
@@ -21,9 +18,6 @@ allprojects {
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        maven {
-            url "http://mvnrepo.alibaba-inc.com/mvn/repository"
-        }
         google()
         maven {
             url 'https://maven.google.com/'
