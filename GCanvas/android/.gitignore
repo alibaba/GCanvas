@@ -1,6 +1,0 @@
-*.iml
-.idea
-.gradle
-.externalNativeBuild
-local.properties
-build

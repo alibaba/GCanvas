@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <com.taobao.gcanvas.runtime.view.GRenderView
+        android:id="@+id/grender_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <VideoView
+        android:id="@+id/videoView1"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        android:layout_gravity="bottom|right" />
+
+    <EditText
+        android:inputType="textAutoComplete"
+        android:id="@+id/gtext"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:hint="This is a normal text!!!!!"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="28sp" />
+</FrameLayout>

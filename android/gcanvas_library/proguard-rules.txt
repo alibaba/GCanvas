@@ -1,0 +1,30 @@
+-keep class com.taobao.gcanvas.GCanvasJNI {
+    *** bindTexture(...);
+    *** init(...);
+    *** sendEvent(...);
+    *** setContextType(...);
+    *** setDevicePixelRatio(...);
+    *** texSubImage2D(...);
+    *** registerCallback(...);
+}
+
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-ignorewarnings
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+
+-keepattributes SourceFile,LineNumberTable
+-keepattributes *Annotation*
+-keepattributes Signature
+
+
+-keep class com.taobao.gcanvas.** {
+    !private <fields>;
+    !private <methods>;
+}
+
+-keepnames public class *

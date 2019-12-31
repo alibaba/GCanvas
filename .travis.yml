@@ -9,8 +9,6 @@ addons:
     packages:
     - xvfb
     - cppcheck
-    - make
-    - cmake
 before_install:
 - sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
 - sudo apt-get install libboost-all-dev
@@ -31,13 +29,13 @@ install:
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 before_script:
-- cd GCanvas/core/test/w3c &&mkdir build
+- cd ./core/test/w3c &&mkdir build
 - npm i && node app.js
-- cd ../../../../
+- cd ../../../
 script:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=0 --enable=warning,style,unusedFunction --std=c++11 --verbose --language=c++ GCanvas/core/src; fi
-- cd GCanvas/core/test/linux && mkdir build && cd build && cmake ../ && make
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=0 --enable=warning,style,unusedFunction --std=c++11 --verbose --language=c++ core/src; fi
+- cd ./core/test/linux && mkdir build && cd build && cmake ../ && make
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
-- cat ./result.txt
-- cd ../../../../../
+- cat result.txt | awk '{printf "%-30s| %-18s|  %-20s\n",$1,$2,$3}'| column -t 
+

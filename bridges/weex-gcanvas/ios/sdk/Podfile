@@ -1,0 +1,11 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :ios, '9.0'
+inhibit_all_warnings!
+
+target 'WeexGcanvas' do
+    pod 'WeexPluginLoader', :git=>'git@github.com:kfeagle/WeexPluginLoader.git'
+    pod 'GCanvas', :path=>'../../../../'
+    pod 'SDWebImage'
+    pod 'WeexSDK'
+end

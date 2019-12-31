@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_web2d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="Webview_2D" />
+
+    <Button
+        android:id="@+id/btn_gcanvas2d"
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="GCanvas_2D" />
+
+    <Button
+        android:id="@+id/btn_webgl_web"
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="Webview_WebGL" />
+
+    <Button
+        android:id="@+id/btn_webgl_gcanvas"
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="GCanvas_WebGL JellyFish" />
+
+    <Button
+        android:id="@+id/btn_aqua_gcanvas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="GCanvas_WebGL Aqua" />
+
+    <Button
+        android:id="@+id/btn_view_container"
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="View Container" />
+
+    <Button
+        android:id="@+id/btn_touch_test"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Touch Performance Test - Activity"/>
+
+    <Button
+        android:id="@+id/btn_view_scan_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Scan QRCode - View" />
+
+    <Button
+        android:id="@+id/btn_multiview_scan_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Scan QRCode - MultiView" />
+
+    <Button
+        android:id="@+id/btn_scan_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Scan QRCode - Activity" />
+</LinearLayout>
