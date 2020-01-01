@@ -34,7 +34,7 @@ android {
         consumerProguardFiles 'proguard-rules.txt'
         externalNativeBuild {
             cmake {
-                arguments '-DANDROID_STL=c++_shared', '-DGCANVAS_WEEX=1'
+                arguments  '-DGCANVAS_WEEX=1'
             }
 
             ndk {
