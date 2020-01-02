@@ -48,4 +48,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.ImageAdapter
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'Adapter']
 project.ext.meta.description = 'This package defines how to load images into bitmaps in GCanvas project.'
-//apply from: "${rootProject.projectDir}/publish.gradle"
+apply from: "${rootProject.projectDir}/publish.gradle"

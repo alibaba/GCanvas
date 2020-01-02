@@ -14,7 +14,7 @@ import com.taobao.gcanvas.GCanvasJNI;
 
 
 /**
- * log功能deprecated
+ *
  *
  */
 public class GLog {
@@ -38,20 +38,13 @@ public class GLog {
 
     public static void bindGCanvasTracer(GCanvasTracer tracer) {
         sGcanvasTracerClz = tracer;
-        // 获取tracer类名／方法名
         registerJavaTracer(tracer);
     }
 
 
-    /**
-     * 注册tracer
-     */
+
     private static native void registerJavaTracer(GCanvasTracer tracer);
 
-
-    /**
-     * deprecated?
-     */
     public static void setLevel(String level) {
         if (level == null) {
             return;

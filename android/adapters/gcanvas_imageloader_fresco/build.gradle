@@ -39,4 +39,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.FrescoAdapter
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'Fresco', 'Image Loader']
 project.ext.meta.description = 'This package is the Fresco implemation of GCanvas image adapter.'
-//apply from: "${rootProject.projectDir}/publish.gradle"
+apply from: "${rootProject.projectDir}/publish.gradle"

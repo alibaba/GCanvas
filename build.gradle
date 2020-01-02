@@ -64,7 +64,7 @@ rootProject.extensions.groups = [
 // Artifact IDs
 rootProject.extensions.artifacts = [
         'BridgeSpec'    : 'spec',
-        'Core'          : 'core',
+        'Core'          : 'gcanvas_library',
         'WeexBridge'    : 'weex',
         'ReactNative'   : 'rn',
         'ImageAdapter'  : 'img',

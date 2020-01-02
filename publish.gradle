@@ -2,7 +2,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 project.ext.meta.vcsUrl = "https://github.com/alibaba/GCanvas.git"
-
+version = project.version
 buildscript {
     repositories {
         //本地库，local repository(${user.home}/.m2/repository)
@@ -73,15 +73,13 @@ def pomConfig = {
 }
 
 publishing {
-    println("$buildDir/outputs/aar/${project.name}-release.aar")
+    println("$buildDir/outputs/aar/${project.name}-${version}.aar")
     publications {
         maven(MavenPublication) {
             groupId group
             artifactId project.ext.id
             version version
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-            artifact sourcesJar
-            println("group id is"+groupId)
+            println("${group}:${project.ext.id}:${version}")
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
 
@@ -123,24 +121,21 @@ artifacts {
     archives androidJavadocsJar
 }
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+//上传到jcenter
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-    publications = ['maven']
+bintray {
+    user = properties.getProperty("bintray.user")    //读取 local.properties 文件里面的 bintray.user
+    key = properties.getProperty("bintray.apikey")   //读取 local.properties 文件里面的 bintray.apikey
+    configurations = ['archives']
     pkg {
         repo = "GCanvas"
         name = "${project.group}:${project.ext.id}"
-        userOrg = user
+        userOrg = properties.getProperty("bintray.userOrg")
         licenses = ['Apache-2.0']
         websiteUrl = "https://g-platform.github.io"
         vcsUrl = project.ext.meta.vcsUrl
         labels = project.ext.meta.labels
-        publicDownloadNumbers = true
-        version {
-            name = project.version
-            desc = project.ext.meta.description
-            vcsTag = project.version
-        }
     }
 }
