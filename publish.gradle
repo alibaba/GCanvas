@@ -137,5 +137,10 @@ bintray {
         websiteUrl = "https://g-platform.github.io"
         vcsUrl = project.ext.meta.vcsUrl
         labels = project.ext.meta.labels
+        version {
+            name = project.version
+            desc = project.ext.meta.description
+            vcsTag = project.version
+        }
     }
 }
