@@ -3,11 +3,11 @@
 #include <napi.h>
 #include <curl/curl.h>
 #include <vector>
-#include  "NodeBindingUtil.h"
+#include "NodeBindingUtil.h"
 #include "lodepng.h"
 
 namespace NodeBinding
-{   
+{
 class DownloadWorker : public Napi::AsyncWorker
 {
 public:
@@ -23,9 +23,11 @@ public:
     void OnOK();
     std::string url;
     void setOnErrorCallback(Napi::Function func);
+    void setOnLoadCallback(Napi::Function func);
 
 private:
     Napi::FunctionReference onErrorCallback;
+    Napi::FunctionReference onLoadCallback;
     std::vector<unsigned char> &_pixels;
     unsigned int &_width;
     unsigned int &_height;
@@ -44,7 +46,8 @@ public:
     }
     int getWidth();
     int getHeight();
-    std::vector<unsigned char>& getPixels();
+    std::vector<unsigned char> &getPixels();
+
 private:
     std::vector<unsigned char> pixels;
     static Napi::FunctionReference constructor;

@@ -55,7 +55,20 @@ void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
     {
         mWorker = new DownloadWorker(onLoadCallback, pixels, width, height);
     }
+    mWorker->setOnLoadCallback(this->onLoadCallback);
 }
+
+void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
+{
+    checkArgs(info, 1);
+    this->onErrorCallback = value.As<Napi::Function>();
+    if (!mWorker)
+    {
+        mWorker = new DownloadWorker(onLoadCallback, pixels, width, height);
+    }
+    mWorker->setOnErrorCallback(onErrorCallback);
+}
+
 Napi::Value Image::getWidth(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->width);
@@ -71,7 +84,6 @@ void Image::setHeight(const Napi::CallbackInfo &info, const Napi::Value &value)
 {
 }
 
-
 int Image::getWidth()
 {
     return this->width;
@@ -82,21 +94,11 @@ int Image::getHeight()
 }
 Napi::Value Image::getOnError(const Napi::CallbackInfo &info)
 {
-    return this->onErrorCallback ;   
+    return this->onErrorCallback;
 }
 
-void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
+std::vector<unsigned char> &Image::getPixels()
 {
-    checkArgs(info, 1);
-    this->onErrorCallback = value.As<Napi::Function>();
-    if (!mWorker)
-    {
-        mWorker = new DownloadWorker(onLoadCallback, pixels, width, height);
-    }
-    mWorker->setOnErrorCallback(onErrorCallback);
-}
-
-std::vector<unsigned char>& Image::getPixels(){
     return this->pixels;
 }
 
@@ -105,21 +107,27 @@ void DownloadWorker::setOnErrorCallback(Napi::Function func)
     this->onErrorCallback = Napi::Persistent(func);
 }
 
+void DownloadWorker::setOnLoadCallback(Napi::Function func)
+{
+    this->onLoadCallback = Napi::Persistent(func);
+}
+
 void DownloadWorker::OnOK()
 {
     if (content.size == -1) //download fail
     {
         this->onErrorCallback.Call({Napi::String::New(Env(), "Dowdload image Error")});
     }
-    else//download success 
+    else //download success
     {
-        Callback().Call({Env().Undefined()});
+        this->onLoadCallback.Call({Env().Undefined()});
     }
 }
 
 void DownloadWorker::Execute()
 {
     content.size = downloadImage(url, &content);
+    printf("the content size is %d \n",content.size);
     if (content.size == -1)
     {
         free(content.memory);

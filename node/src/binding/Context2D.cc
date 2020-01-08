@@ -317,7 +317,7 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
     float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
     float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
-
+    
     if (info.Length() == 3)
     {
         desX = info[1].As<Napi::Number>().FloatValue();
