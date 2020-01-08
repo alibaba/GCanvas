@@ -754,54 +754,42 @@ void Context2D::setglobalCompositeOperation(const Napi::CallbackInfo &info, cons
     std::string opValue = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
-        // if (opValue == "source-over")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
-        // }
-        // else if (opValue == "source-in")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_IN);
-        // }
-        // else if (opValue == "source-out")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OUT);
-        // }
-        // else if (opValue == "source-atop")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_ATOP);
-        // }
-        // else if (opValue == "destination-over")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_OVER);
-        // }
-        // else if (opValue == "destination-in")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_IN);
-        // }
-        // else if (opValue == "destination-atop")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_ATOP);
-        // }
-        // else if (opValue == "destination-out")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_OUT);
-        // }
-        // else if (opValue == "lighter")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_LIGHTER);
-        // }
-        // else if (opValue == "copy")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_COPY);
-        // }
-        // else if (opValue == "xor")
-        // {
-        //     mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_XOR);
-        // }
-        // else
-        // {
-        //     throwError(info, "compite value invaild");
-        // }
+        if (opValue == "source-over")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER);
+        }
+        else if (opValue == "source-out")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OUT);
+        }
+        else if (opValue == "source-atop")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_ATOP);
+        }
+        else if (opValue == "destination-over")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_OVER);
+        }
+        else if (opValue == "destination-in")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_IN);
+        }
+        else if (opValue == "destination-out")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_DESTINATION_OUT);
+        }
+        else if (opValue == "lighter")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_LIGHTER);
+        }
+        else if (opValue == "xor")
+        {
+            mRenderContext->getCtx()->DoSetGlobalCompositeOperation(COMPOSITE_OP_XOR);
+        }
+        else
+        {
+            throwError(info, "compite value invaild or not support");
+        }
     }
 }
 
@@ -1035,50 +1023,38 @@ Napi::Value Context2D::getglobalCompositeOperation(const Napi::CallbackInfo &inf
     if (mRenderContext)
     {
         GCompositeOperation value = mRenderContext->getCtx()->GlobalCompositeOperation();
-        // if (value == COMPOSITE_OP_SOURCE_OVER)
-        // {
-        //     return Napi::String::New(env, "source-over");
-        // }
-        // else if (value == COMPOSITE_OP_SOURCE_IN)
-        // {
-        //     return Napi::String::New(env, "source-in");
-        // }
-        // else if (value == COMPOSITE_OP_SOURCE_OUT)
-        // {
-        //     return Napi::String::New(env, "source-out");
-        // }
-        // else if (value == COMPOSITE_OP_SOURCE_ATOP)
-        // {
-        //     return Napi::String::New(env, "source-atop");
-        // }
-        // else if (value == COMPOSITE_OP_DESTINATION_OVER)
-        // {
-        //     return Napi::String::New(env, "destination-over");
-        // }
-        // else if (value == COMPOSITE_OP_DESTINATION_IN)
-        // {
-        //     return Napi::String::New(env, "destination-in");
-        // }
-        // else if (value == COMPOSITE_OP_DESTINATION_OUT)
-        // {
-        //     return Napi::String::New(env, "destination-out");
-        // }
-        // else if (value == COMPOSITE_OP_DESTINATION_ATOP)
-        // {
-        //     return Napi::String::New(env, "destination-atop");
-        // }
-        // else if (value == COMPOSITE_OP_XOR)
-        // {
-        //     return Napi::String::New(env, "xor");
-        // }
-        // else if (value == COMPOSITE_OP_COPY)
-        // {
-        //     return Napi::String::New(env, "copy");
-        // }
-        // else if (value == COMPOSITE_OP_LIGHTER)
-        // {
-        //     return Napi::String::New(env, "lighter");
-        // }
+        if (value == COMPOSITE_OP_SOURCE_OVER)
+        {
+            return Napi::String::New(env, "source-over");
+        }
+        else if (value == COMPOSITE_OP_SOURCE_OUT)
+        {
+            return Napi::String::New(env, "source-out");
+        }
+        else if (value == COMPOSITE_OP_SOURCE_ATOP)
+        {
+            return Napi::String::New(env, "source-atop");
+        }
+        else if (value == COMPOSITE_OP_DESTINATION_OVER)
+        {
+            return Napi::String::New(env, "destination-over");
+        }
+        else if (value == COMPOSITE_OP_DESTINATION_IN)
+        {
+            return Napi::String::New(env, "destination-in");
+        }
+        else if (value == COMPOSITE_OP_DESTINATION_OUT)
+        {
+            return Napi::String::New(env, "destination-out");
+        }
+        else if (value == COMPOSITE_OP_XOR)
+        {
+            return Napi::String::New(env, "xor");
+        }
+        else if (value == COMPOSITE_OP_LIGHTER)
+        {
+            return Napi::String::New(env, "lighter");
+        }
     }
     return Napi::String::New(env, "");
 }
