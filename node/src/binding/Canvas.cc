@@ -8,7 +8,7 @@ Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    checkArgs(info,2);
+    checkArgs(info, 2);
     mWidth = info[0].As<Napi::Number>().Int32Value();
     mHeight = info[1].As<Napi::Number>().Int32Value();
     mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
@@ -33,8 +33,8 @@ void Canvas::Init(Napi::Env env)
         DefineClass(env,
                     "canvas",
                     {
-                        InstanceAccessor("width", &Canvas::getWidth, &Canvas::setWidth),
-                        InstanceAccessor("height", &Canvas::getHeight, &Canvas::setHeight),
+                        InstanceAccessor("width", &Canvas::getWidth, nullptr),
+                        InstanceAccessor("height", &Canvas::getHeight, nullptr),
                         InstanceMethod("getContext", &Canvas::getContext),
                         InstanceMethod("createPNG", &Canvas::createPNG),
                     });
@@ -53,6 +53,8 @@ Napi::Object Canvas::NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg
     Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({arg, arg2});
     obj.Set("name", Napi::String::New(env, "canvas"));
+    Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(obj);
+    canvas->mRef = Napi::ObjectReference::New(obj);
     return scope.Escape(napi_value(obj)).ToObject();
 }
 
@@ -69,8 +71,11 @@ Napi::Value Canvas::getContext(const Napi::CallbackInfo &info)
             this->context2dRef = Napi::ObjectReference::New(obj);
             Context2D *ctx = Napi::ObjectWrap<Context2D>::Unwrap(obj);
             ctx->setRenderContext(this->mRenderContext);
+            ctx->setCanvasRef(this);
             return obj;
-        }else{
+        }
+        else
+        {
             return this->context2dRef.Value();
         }
     }
@@ -90,13 +95,6 @@ void Canvas::createPNG(const Napi::CallbackInfo &info)
         this->mRenderContext->render2file(arg.c_str());
     }
     return;
-}
-
-void Canvas::setWidth(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-}
-void Canvas::setHeight(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
 }
 Canvas::~Canvas()
 {

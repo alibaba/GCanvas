@@ -635,6 +635,10 @@ void Context2D::setLineDash(const Napi::CallbackInfo &info)
         this->mRenderContext->getCtx()->SetLineDash(std::move(dash));
     }
 }
+void Context2D::setCanvasRef(NodeBinding::Canvas *canvas)
+{
+    this->mCanvas = canvas;
+}
 void Context2D::setTransform(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
@@ -1235,7 +1239,7 @@ Napi::Value Context2D::gettextBaseline(const Napi::CallbackInfo &info)
 
 Napi::Value Context2D::getCanvas(const Napi::CallbackInfo &info)
 {
-    return Napi::Number::New(info.Env(), 1);
+    return mCanvas->mRef.Value();
 }
 
 Context2D::~Context2D()

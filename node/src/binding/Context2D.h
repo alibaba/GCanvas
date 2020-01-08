@@ -4,15 +4,18 @@
 #include "GRenderContext.h"
 #include "ImageData.h"
 #include "CanvasPattern.h"
+#include "Canvas.h"
 #include "NodeBindingUtil.h"
 
 namespace NodeBinding
 {
+class Canvas;
 class Context2D : public Napi::ObjectWrap<Context2D>
 {
 public:
     static void Init(Napi::Env env);
     Context2D(const Napi::CallbackInfo &info);
+    void setCanvasRef(NodeBinding::Canvas *canvas);
     virtual ~Context2D();
     static Napi::Object NewInstance(Napi::Env env);
     void inline setRenderContext(std::shared_ptr<GRenderContext> renderContext)
@@ -21,6 +24,7 @@ public:
     }
 
 private:
+    NodeBinding::Canvas *mCanvas = nullptr;
     std::shared_ptr<GRenderContext> mRenderContext = nullptr;
     static Napi::FunctionReference constructor;
     void fillRect(const Napi::CallbackInfo &info);

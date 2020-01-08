@@ -7,8 +7,8 @@ var ctx = canvas.getContext('2d')
 function spark(ctx, data) {
   var len = data.length
   var pad = 1
-  var width = canvas.width
-  var height = canvas.height
+  var width = ctx.canvas.width
+  var height = ctx.canvas.height
   var barWidth = width / len
   var max = Math.max.apply(null, data)
 
