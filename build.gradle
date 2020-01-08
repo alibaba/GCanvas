@@ -46,7 +46,7 @@ rootProject.extensions.sdks = [
         'Picasso'       : '2.5.2',
         'JUnit'         : '4.12',
         'Support'       : '26.0.2',
-        'Weex'          : '0.18.18.17',
+        'Weex'          : '0.26.0',
         'WeexAnnotation': '1.3',
         'ReactNative'   : '+',
         'ABIs'          : ["armeabi-v7a","arm64-v8a"],
@@ -64,7 +64,7 @@ rootProject.extensions.groups = [
 // Artifact IDs
 rootProject.extensions.artifacts = [
         'BridgeSpec'    : 'spec',
-        'Core'          : 'core',
+        'Core'          : 'gcanvas_library',
         'WeexBridge'    : 'weex',
         'ReactNative'   : 'rn',
         'ImageAdapter'  : 'img',

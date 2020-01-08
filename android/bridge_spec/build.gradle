@@ -54,4 +54,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.BridgeSpec
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'Customize Own Bridge', 'Bridge Specification']
 project.ext.meta.description = 'This package defines native interfaces that a customize GCanvas bridge must implements.'
-//apply from: "${rootProject.projectDir}/publish.gradle"
+apply from: "${rootProject.projectDir}/publish.gradle"

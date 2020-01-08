@@ -47,4 +47,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.WeexBridge
 project.ext.meta.labels = ['Weex', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'WebGL', 'GCanvas Weex Bridge']
 project.ext.meta.description = 'This package defines GCanvas Weex bridge.'
-//apply from: "${rootProject.projectDir}/publish.gradle"
+apply from: "${rootProject.projectDir}/publish.gradle"

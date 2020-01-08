@@ -44,9 +44,6 @@ public class GCanvasJNI {
     }
 
 
-    /**
-     * 添加init callback
-     */
     synchronized public static void addGCanvasInitCallback(Runnable cb) {
         if (callbacks == null) {
             callbacks = new ArrayList<>();
@@ -127,9 +124,7 @@ public class GCanvasJNI {
 
     public static native boolean sendEvent(String contextId);
 
-    /**
-     * 初始化font families
-     */
+
     public static void setFontFamilies() {
         GFontConfigParser parser = new GFontConfigParser();
         String fallbackFont = parser.getFallbackFont();

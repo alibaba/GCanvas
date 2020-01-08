@@ -36,4 +36,4 @@ dependencies {
 project.ext.id = rootProject.extensions.artifacts.PicassoAdapter
 project.ext.meta.labels = ['Weex', 'ReactNative', 'GPU', 'OpenGL', 'GCanvas', "canvas", 'Picasso', 'Image Loader']
 project.ext.meta.description = 'This package is the Picasso implemation of GCanvas image adapter.'
-//apply from: "${rootProject.projectDir}/publish.gradle"
+apply from: "${rootProject.projectDir}/publish.gradle"
