@@ -35,7 +35,12 @@ canvas.createPNG("demo1")
  * 标准API
    * 此项目是Web Canvas API的实现，并尽可能紧密地实现该API。有关API文档，请访问[Mozilla Web Canvas API](https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D)。(有关当前API遵从性，请参阅兼容性状态)
    * 标准API支持情况
-      
+
+       -[] 复选框   
+       -[x]复选框  
+
+
+
    
 ### 非标准API
    ##### createCanvas
