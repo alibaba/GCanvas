@@ -35,11 +35,63 @@ canvas.createPNG("demo1")
  * 标准API
    * 此项目是Web Canvas API的实现，并尽可能紧密地实现该API。有关API文档，请访问[Mozilla Web Canvas API](https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D)。(有关当前API遵从性，请参阅兼容性状态)
    * 标准API支持情况
-
-       -[] 复选框   
-       -[x]复选框  
-
-
+     * function
+        - getContext()
+        - fillRect() 
+        - arc()
+        - arcTo()
+        - beginPath()
+        - bezierCurveTo()
+        - quadraticCurveTo()
+        - clearRect()
+        - clip()
+        - closePath()
+        - createImageData()
+        - createLinearGradient()
+        - createPattern()
+        - createRadialGradient()
+        - drawImage()
+        - ellipse:not support
+        - fill()
+        - fillText() 
+        - getImageData()
+        - getLineDash()
+        - lineTo()
+        - measureText()
+        - moveTo()
+        - putImageData()
+        - rect()
+        - resetTransform()
+        - restore()
+        - rotate()
+        - save()
+        - scale()
+        - setLineDash()
+        - setTransform()
+        - stroke()
+        - strokeRect()
+        - strokeText()
+        - transform()
+        - translate()
+     * propetry
+        - width
+        - height
+        - fillStyle
+        - font
+        - globalAlpha
+        - globalCompositeOperation
+        - lineCap
+        - lineDashOffset
+        - lineJoin
+        - lineWidth
+        - miterLimit
+        - shadowBlur
+        - shadowColor
+        - shadowOffsetX
+        - shadowOffsetY
+        - strokeStyle
+        - textAlign
+        - textBaseline
 
    
 ### 非标准API
