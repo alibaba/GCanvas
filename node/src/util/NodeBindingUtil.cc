@@ -90,4 +90,38 @@ void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)
     if (error)
         std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 }
+
+int readlocalFile(const std::string &path, ChunkContent *content)
+{
+    FILE *pFile;
+    size_t result; // 返回值是读取的内容数量
+
+    pFile = fopen(path.c_str(), "rb");
+
+    if (pFile == NULL)
+    {
+        printf("file not exist \n");
+        return -1;
+    }
+    fseek(pFile, 0, SEEK_END);    // 指针移到文件末位
+    content->size = ftell(pFile); // 获得文件长度
+    rewind(pFile);
+    content->memory = (char *)malloc(sizeof(char) * content->size); // 分配缓冲区，按前面的 lSize
+
+    if (content->memory == nullptr)
+    {
+        printf("memory allocate fail\n");
+        return -1;
+    } // 内存分配错误，退出2
+
+    result = fread(content->memory, 1, content->size, pFile); // 返回值是读取的内容数量
+
+    if (result != content->size)
+    {
+        printf("read file error\n");
+        return -1;
+    }
+    fclose(pFile);
+    return content->size;
+}
 } // namespace NodeBinding

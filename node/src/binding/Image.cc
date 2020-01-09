@@ -126,13 +126,26 @@ void DownloadWorker::OnOK()
 
 void DownloadWorker::Execute()
 {
-    content.size = downloadImage(url, &content);
-    printf("the content size is %d \n",content.size);
-    if (content.size == -1)
+    if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
     {
-        free(content.memory);
-        content.memory = nullptr;
-        return;
+        content.size = downloadImage(url, &content);
+        if (content.size == -1)
+        {
+            free(content.memory);
+            content.memory = nullptr;
+            return;
+        }
+    }
+    else
+    {
+        printf("read the local file \n");
+        content.size = readlocalFile(url, &content);
+        if (content.size == -1)
+        {
+            free(content.memory);
+            content.memory = nullptr;
+            return;
+        }
     }
     lodepng::decode(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
     free(content.memory);
