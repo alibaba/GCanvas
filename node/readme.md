@@ -50,7 +50,7 @@ canvas.createPNG("demo1")
   ##### Image
  ``` javascript
 
-  img.src: string(目前src仅支持url,之后会支持更多)
+  img.src: string
   img.onload:Function
   img.onerror:Function 
 
@@ -66,9 +66,30 @@ canvas.createPNG("demo1")
     console.log(err)
    }
   img.src = 'https://www.baidu.com/img/superlogo_c4d7df0a003d3db9b65e9ef0fe6da1ec.png?where=super'
+
  ```   
   
- * ps:img现在仅仅支持png格式图片
+ ```javascript
+ const fs = require('fs')
+const path = require('path')
+const { createCanvas, Image } = require('bindings')('canvas');
+const img = new Image()
+const canvas = createCanvas(500, 500)
+const ctx = canvas.getContext('2d')
+
+img.onload = () => {
+  ctx.drawImage(img, 0, 0)
+  canvas.createPNG("local")
+}
+img.onerror = err => {
+  throw err
+}
+
+img.src = path.join(__dirname,'images', 'image.png')
+ 
+
+ ```   
+ * ps:img的src现在仅仅支持png格式图片
 
 ##### createPNG
  ```javascript
