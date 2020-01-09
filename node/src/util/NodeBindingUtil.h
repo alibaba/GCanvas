@@ -3,14 +3,14 @@
 #include <napi.h>
 namespace NodeBinding
 {
-struct ChunkContent
+struct ImageContent
 {
     char *memory;
     unsigned int size;
 };
-int readlocalFile(const std::string &path, ChunkContent *content);
+int readLocalImage(const std::string &path, ImageContent *content);
 bool checkArgs(const Napi::CallbackInfo &info, int exectedN);
-unsigned int downloadImage(const std::string &src, ChunkContent *content);
+unsigned int downloadImage(const std::string &src, ImageContent *content);
 void throwError(const Napi::CallbackInfo &info, const std::string &exception);
 } // namespace NodeBinding
 #endif

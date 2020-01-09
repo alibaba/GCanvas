@@ -11,7 +11,7 @@ static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
     size_t realsize = size * nmemb;
-    struct ChunkContent *mem = (struct ChunkContent *)userp;
+    struct ImageContent *mem = (struct ImageContent *)userp;
 
     char *ptr = (char *)realloc(mem->memory, mem->size + realsize + 1);
     if (ptr == NULL)
@@ -43,7 +43,7 @@ void throwError(const Napi::CallbackInfo &info, const std::string &exception)
         .ThrowAsJavaScriptException();
 }
 
-unsigned int downloadImage(const std::string &src, ChunkContent *content)
+unsigned int downloadImage(const std::string &src, ImageContent *content)
 {
     CURL *curl_handle;
     CURLcode res;
@@ -91,7 +91,7 @@ void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)
         std::cout << "decoder error " << error << ": " << lodepng_error_text(error) << std::endl;
 }
 
-int readlocalFile(const std::string &path, ChunkContent *content)
+int readLocalImage(const std::string &path, ImageContent *content)
 {
     FILE *pFile;
     size_t result; // 返回值是读取的内容数量
@@ -111,6 +111,7 @@ int readlocalFile(const std::string &path, ChunkContent *content)
     if (content->memory == nullptr)
     {
         printf("memory allocate fail\n");
+        free(content->memory);
         return -1;
     } // 内存分配错误，退出2
 

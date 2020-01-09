@@ -8,10 +8,10 @@
 
 namespace NodeBinding
 {
-class DownloadWorker : public Napi::AsyncWorker
+class ImageWorker : public Napi::AsyncWorker
 {
 public:
-    DownloadWorker(Napi::Function &callback,
+    ImageWorker(Napi::Function &callback,
                    std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(callback),
                                                                                                  _pixels(out),
                                                                                                  _height(height),
@@ -31,7 +31,7 @@ private:
     std::vector<unsigned char> &_pixels;
     unsigned int &_width;
     unsigned int &_height;
-    ChunkContent content;
+    ImageContent content;
 };
 
 class Image : public Napi::ObjectWrap<Image>
@@ -54,7 +54,7 @@ private:
     Napi::Function onLoadCallback;
     Napi::Function onErrorCallback;
     std::string src;
-    DownloadWorker *mWorker = nullptr;
+    ImageWorker *mWorker = nullptr;
     unsigned int width = 0;
     unsigned int height = 0;
     Napi::Value getSrc(const Napi::CallbackInfo &info);

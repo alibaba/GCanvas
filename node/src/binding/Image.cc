@@ -53,7 +53,7 @@ void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onLoadCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new DownloadWorker(onLoadCallback, pixels, width, height);
+        mWorker = new ImageWorker(onLoadCallback, pixels, width, height);
     }
     mWorker->setOnLoadCallback(this->onLoadCallback);
 }
@@ -64,7 +64,7 @@ void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onErrorCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new DownloadWorker(onLoadCallback, pixels, width, height);
+        mWorker = new ImageWorker(onLoadCallback, pixels, width, height);
     }
     mWorker->setOnErrorCallback(onErrorCallback);
 }
@@ -102,17 +102,17 @@ std::vector<unsigned char> &Image::getPixels()
     return this->pixels;
 }
 
-void DownloadWorker::setOnErrorCallback(Napi::Function func)
+void ImageWorker::setOnErrorCallback(Napi::Function func)
 {
     this->onErrorCallback = Napi::Persistent(func);
 }
 
-void DownloadWorker::setOnLoadCallback(Napi::Function func)
+void ImageWorker::setOnLoadCallback(Napi::Function func)
 {
     this->onLoadCallback = Napi::Persistent(func);
 }
 
-void DownloadWorker::OnOK()
+void ImageWorker::OnOK()
 {
     if (content.size == -1) //download fail
     {
@@ -124,7 +124,7 @@ void DownloadWorker::OnOK()
     }
 }
 
-void DownloadWorker::Execute()
+void ImageWorker::Execute()
 {
     if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
     {
@@ -138,8 +138,7 @@ void DownloadWorker::Execute()
     }
     else
     {
-        printf("read the local file \n");
-        content.size = readlocalFile(url, &content);
+        content.size = readLocalImage(url, &content);
         if (content.size == -1)
         {
             free(content.memory);
