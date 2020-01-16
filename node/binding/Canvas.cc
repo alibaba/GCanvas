@@ -8,6 +8,8 @@ Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
+
+
     checkArgs(info, 2);
     mWidth = info[0].As<Napi::Number>().Int32Value();
     mHeight = info[1].As<Napi::Number>().Int32Value();

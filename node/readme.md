@@ -15,7 +15,7 @@
   
  ``` 
   npm install cmake-js -g //安装cmake-js
-  npm install // 安装项目所需要的依赖
+  local=true npm install // 安装项目所需要的依赖,local=true表示本地构建
   npm run dev // 构建node-addon的binding中间键
  ``` 
 
