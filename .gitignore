@@ -28,4 +28,5 @@ build/
 distribution/
 .vscode
 package-lock.json
+
 *.png

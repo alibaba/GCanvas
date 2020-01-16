@@ -1,6 +1,6 @@
 const { createCanvas, Image } = require('bindings')('canvas');
-let canvas = createCanvas(400, 400);
-let ctx = canvas.getContext('2d');
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d');
 const img = new Image()
 const img2 = new Image()
 

@@ -1,8 +1,8 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
-var canvas = createCanvas(150, 150)
-var ctx = canvas.getContext('2d')
+const canvas = createCanvas(150, 150)
+const ctx = canvas.getContext('2d')
 
 ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 ctx.save() // Save the default state

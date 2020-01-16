@@ -1,10 +1,10 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 
 const { createCanvas, Image } = require('bindings')('canvas');
-var canvas = createCanvas(320, 320)
+const canvas = createCanvas(320, 320)
 // var canvas = Canvas.createCanvas(320, 320)
-var ctx = canvas.getContext('2d')
+const ctx = canvas.getContext('2d')
 
 // Create gradients
 var lingrad = ctx.createLinearGradient(0, 0, 0, 150)

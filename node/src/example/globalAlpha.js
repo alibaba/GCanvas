@@ -1,9 +1,9 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 // var Canvas = require('../app')
 const { createCanvas, Image } = require('bindings')('canvas');
-var canvas = createCanvas(150, 150)
-var ctx = canvas.getContext('2d')
+const canvas = createCanvas(150, 150)
+const ctx = canvas.getContext('2d')
 
 ctx.fillStyle = '#FD0'
 ctx.fillRect(0, 0, 75, 75)

@@ -1,8 +1,8 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
-var canvas = createCanvas(243 * 4, 243)
-var ctx = canvas.getContext('2d')
+const canvas = createCanvas(243 * 4, 243)
+const ctx = canvas.getContext('2d')
 
 function render (level) {
   ctx.fillStyle = getPointColour(122, 122)

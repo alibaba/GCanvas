@@ -1,5 +1,5 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
 function getX(angle) {
   return -Math.sin(angle + Math.PI)
