@@ -1,7 +1,6 @@
 ### GCanvas-node  源代码与运行文档
 
-  * [开发以及运行环境搭建](./env/readme.md)
-  * [源代码构建以及测试运行](./src/readme.md)
+  * [环境以及源代码构建以及测试运行](./src/readme.md)
 
 ### GCanvas-node 使用文档
 

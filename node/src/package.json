@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "cmake-js compile",
     "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
-    "test": "npm run prestart && cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./example/$case && rm  wqy-microhei.ttc .fontcache "
+    "test":"cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./example/$case && rm  wqy-microhei.ttc .fontcache",
+    "test-headless": "npm run prestart && cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./example/$case && rm  wqy-microhei.ttc .fontcache "
   }
 }
