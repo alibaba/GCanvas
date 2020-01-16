@@ -24,9 +24,8 @@ void TextMetrics::Init(Napi::Env env)
 
 Napi::Object TextMetrics::NewInstance(Napi::Env env, const Napi::Value arg)
 {
-    Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({arg});
-    return scope.Escape(napi_value(obj)).ToObject();
+    return obj;
 }
 
 Napi::Value TextMetrics::getWidth(const Napi::CallbackInfo &info)

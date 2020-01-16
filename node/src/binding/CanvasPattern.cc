@@ -27,10 +27,9 @@ ImagePattern::ImagePattern(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Im
 
 Napi::Object ImagePattern::NewInstance(Napi::Env env, const Napi::Value arg)
 {
-    Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({arg});
     obj.Set("name", Napi::String::New(env, "imagePattern"));
-    return scope.Escape(napi_value(obj)).ToObject();
+    return obj;
 }
 
 void ImagePattern::Init(Napi::Env env)

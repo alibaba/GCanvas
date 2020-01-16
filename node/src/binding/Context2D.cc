@@ -82,10 +82,9 @@ void Context2D::Init(Napi::Env env)
 
 Napi::Object Context2D::NewInstance(Napi::Env env)
 {
-    Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({});
     obj.Set("name", Napi::String::New(env, "context2d"));
-    return scope.Escape(napi_value(obj)).ToObject();
+    return obj;
 }
 
 void Context2D::fillRect(const Napi::CallbackInfo &info)

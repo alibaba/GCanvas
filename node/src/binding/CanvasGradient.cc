@@ -45,18 +45,17 @@ void Gradient::Init(Napi::Env env)
 
 Napi::Object Gradient::NewInstance(Napi::Env env, const Napi::CallbackInfo &info)
 {
-    Napi::EscapableHandleScope scope(env);
     if (info.Length() == 4)
     {
         Napi::Object obj = constructor.New({info[0], info[1], info[2], info[3]});
         obj.Set("name", Napi::String::New(env, "linearGradient"));
-        return scope.Escape(napi_value(obj)).ToObject();
+        return obj;
     }
     else if (info.Length() == 6)
     {
         Napi::Object obj = constructor.New({info[0], info[1], info[2], info[3], info[4], info[5]});
         obj.Set("name", Napi::String::New(env, "radialGradient"));
-        return scope.Escape(napi_value(obj)).ToObject();
+        return obj;
     }
     else
     {

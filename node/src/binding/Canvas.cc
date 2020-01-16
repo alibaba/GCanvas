@@ -50,12 +50,11 @@ void Canvas::Init(Napi::Env env)
 
 Napi::Object Canvas::NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2)
 {
-    Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({arg, arg2});
     obj.Set("name", Napi::String::New(env, "canvas"));
     Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(obj);
     canvas->mRef = Napi::ObjectReference::New(obj);
-    return scope.Escape(napi_value(obj)).ToObject();
+    return obj;
 }
 
 Napi::Value Canvas::getContext(const Napi::CallbackInfo &info)

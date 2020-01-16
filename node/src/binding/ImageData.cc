@@ -29,10 +29,9 @@ void ImageData::Init(Napi::Env env)
 
 Napi::Object ImageData::NewInstance(Napi::Env env, const Napi::Value width, const Napi::Value height)
 {
-    Napi::EscapableHandleScope scope(env);
     Napi::Object obj = constructor.New({width, height});
     obj.Set("name", Napi::String::New(env, "imageData"));
-    return scope.Escape(napi_value(obj)).ToObject();
+    return obj;
 }
 
 Napi::Value ImageData::getData(const Napi::CallbackInfo &info)
