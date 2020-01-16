@@ -12,9 +12,9 @@ img.onload = () => {
         ctx.drawImage(img2, 150, 150, 100, 100);
         canvas.createPNG("image");
     }
-    img2.src = "https://mat1.gtimg.com/pingjs/ext2020/qqindex2018/dist/img/qq_logo_2x.png"
+    img2.src = "https://alibaba.github.io/GCanvas/assets/logo-gcanvas.png"
 }
 img.onerror = err => {
     console.log(err)
 }
-img.src = 'https://www.baidu.com/img/superlogo_c4d7df0a003d3db9b65e9ef0fe6da1ec.png?where=super'
+img.src = 'https://alibaba.github.io/GCanvas/assets/logo-gcanvas.png'
