@@ -114,7 +114,7 @@ void ImageWorker::setOnLoadCallback(Napi::Function func)
 
 void ImageWorker::OnOK()
 {
-    if (content.size == -1) //download fail
+    if (content.size <= 0) //download fail
     {
         this->onErrorCallback.Call({Napi::String::New(Env(), "Dowdload image Error")});
     }
@@ -137,7 +137,7 @@ void ImageWorker::Execute()
         }
     }
     else
-    {
+    {//本地文件
         content.size = readLocalImage(url, &content);
         if (content.size == -1)
         {
