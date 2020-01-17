@@ -7,9 +7,7 @@ if  [  -n "$1" ] ;then
 fi
 if [ "$isLocal" = "true" ];then
     echo "local build"
-    echo $PWD
-    npm run dev
 else
     echo "remote build"
-    git clone https://github.com/alibaba/GCanvas.git && cp  -R ./GCanvas/core ./core/
+    git clone https://github.com/alibaba/GCanvas.git && cp  -R ./GCanvas/core ./core/ && npm run compile
 fi

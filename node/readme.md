@@ -23,7 +23,7 @@
 
  ``` 
    case=app.js npm run test //运行example下的js文件，输出运行结果，可以从导出的png图片中看
-   case=app.js npm run test-headless//如果没有显示环境，可以运行这行
+   case=app.js npm run test-headless//如果没有diplay(系统视窗)环境，可以运行这行
  ```
 
 ### GCanvas-node 使用文档
