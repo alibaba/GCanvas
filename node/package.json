@@ -1,6 +1,6 @@
 {
   "name": "luckzhiwei-gcanvas",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "gcanvas for node developer",
   "dependencies": {
     "bindings": "~1.2.1",
@@ -14,6 +14,7 @@
     "test": "cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache",
     "test-headless": "npm run prestart && cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache "
   },
+  "main": "export.js",
   "engines": {
     "node": ">=10"
   },
