@@ -10,11 +10,12 @@ public:
     static void Init(Napi::Env env);
     static Napi::Object NewInstance(Napi::Env env, const Napi::Value width, const Napi::Value height);
     std::vector<u_int8_t> &getPixles();
-    int getWidth(); 
+    int getWidth();
     int getHeight();
 
 private:
     static Napi::FunctionReference constructor;
+    Napi::ObjectReference mImageDataRef;
     int width = 0;
     int height = 0;
     std::vector<u_int8_t> pixels;
@@ -22,6 +23,7 @@ private:
     void setData(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
+    bool hasImageDataSet = false;
 };
 } // namespace NodeBinding
 
