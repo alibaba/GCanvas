@@ -12,21 +12,26 @@ set(CORE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../core/")
 endif()
 message(STATUS ${CORE_DIR})
 project(canvas)
+ 
+ # CMake JS
 include_directories(${CMAKE_JS_INC})
+
 include_directories("./util")
+include_directories("./third_party")
+include_directories("./third_party/font/freetype2/")
+include_directories("./renderContext/")
+
 include_directories("${CORE_DIR}")
 include_directories("${CORE_DIR}src/")
 include_directories("${CORE_DIR}src/gcanvas")
 include_directories("${CORE_DIR}src/support")
 include_directories("${CORE_DIR}src/platform/Android")
 include_directories("${CORE_DIR}src/platform/Linux")
-include_directories("./third_party")
-include_directories("./third_party/font/freetype2/")
-include_directories("./renderContext/")
+
 set(SOURCE_FILES 
         ./binding/Export.cc
         ./binding/Canvas.cc
-        ./binding/Context2D.cc
+        ./binding/CanvasRenderingContext2D.cc
         ./binding/CanvasGradient.cc
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc

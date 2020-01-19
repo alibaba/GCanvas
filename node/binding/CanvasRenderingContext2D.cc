@@ -1,8 +1,8 @@
-#include "Context2D.h"
-#include "CanvasGradient.h"
-#include "TextMetrics.h"
-#include "Image.h"
+#include "CanvasRenderingContext2D.h"
 #include <iostream>
+#include "CanvasGradient.h"
+#include "Image.h"
+#include "TextMetrics.h"
 namespace NodeBinding
 {
 Napi::FunctionReference Context2D::constructor;
@@ -142,17 +142,17 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
                 std::string *colorArray = &gradient->getColors()[0];
                 mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
             }
-            else if (namePropetry == "imagePattern")
+            else if (namePropetry == "pattern")
             {
-                ImagePattern *imagePattern = Napi::ObjectWrap<ImagePattern>::Unwrap(object);
-                int textureId = mRenderContext->getCtx()->BindImage(&imagePattern->content->getPixels()[0], GL_RGBA,
-                                                                    imagePattern->content->getWidth(),
-                                                                    imagePattern->content->getHeight());
-                mRenderContext->getCtx()->SetFillStylePattern(textureId,
-                                                              imagePattern->content->getWidth(),
-                                                              imagePattern->content->getHeight(),
-                                                              imagePattern->getRepetition().c_str(),
-                                                              false);
+                Pattern *pattern = Napi::ObjectWrap<Pattern>::Unwrap(object);
+                int textureId = mRenderContext->getCtx()->BindImage(
+                    &pattern->content->getPixels()[0], GL_RGBA,
+                    pattern->content->getWidth(),
+                    pattern->content->getHeight());
+                mRenderContext->getCtx()->SetFillStylePattern(
+                    textureId, pattern->content->getWidth(),
+                    pattern->content->getHeight(),
+                    pattern->getRepetition().c_str(), false);
             }
             else
             {
@@ -291,9 +291,9 @@ Napi::Value Context2D::createPattern(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 2);
 
     Image *img = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
-    Napi::Object ret = ImagePattern::NewInstance(env, info[1]);
-    ImagePattern *imgPattern = Napi::ObjectWrap<ImagePattern>::Unwrap(ret);
-    imgPattern->content = std::make_shared<Image>(*img);
+    Napi::Object ret = Pattern::NewInstance(env, info[1]);
+    Pattern *pattern = Napi::ObjectWrap<Pattern>::Unwrap(ret);
+    pattern->content = std::make_shared<Image>(*img);
     return ret;
 }
 Napi::Value Context2D::createRadialGradient(const Napi::CallbackInfo &info)
@@ -914,18 +914,19 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                 float *offsetArr = &gradient->getOffsets()[0];
                 std::string *colorArray = &gradient->getColors()[0];
                 mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
-            }
-            else if (namePropetry == "imagePattern")
+            } 
+            else if (namePropetry == "pattern") 
             {
-                ImagePattern *imagePattern = Napi::ObjectWrap<ImagePattern>::Unwrap(object);
-                int textureId = mRenderContext->getCtx()->BindImage(&imagePattern->content->getPixels()[0], GL_RGBA,
-                                                                    imagePattern->content->getWidth(),
-                                                                    imagePattern->content->getHeight());
-                mRenderContext->getCtx()->SetFillStylePattern(textureId,
-                                                              imagePattern->content->getWidth(),
-                                                              imagePattern->content->getHeight(),
-                                                              imagePattern->getRepetition().c_str(),
-                                                              true);
+                Pattern *pattern =
+                    Napi::ObjectWrap<Pattern>::Unwrap(object);
+                int textureId = mRenderContext->getCtx()->BindImage(
+                    &pattern->content->getPixels()[0], GL_RGBA,
+                    pattern->content->getWidth(),
+                    pattern->content->getHeight());
+                mRenderContext->getCtx()->SetFillStylePattern(
+                    textureId, pattern->content->getWidth(),
+                    pattern->content->getHeight(),
+                    pattern->getRepetition().c_str(), true);
             }
             else
             {

@@ -1,7 +1,7 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 #include "GRenderContext.h"
-#include "Context2D.h"
+#include "CanvasRenderingContext2D.h"
 #include "CanvasGradient.h"
 #include "ImageData.h"
 #include "CanvasPattern.h"

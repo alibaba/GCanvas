@@ -1,5 +1,5 @@
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#ifndef CONTEXT2D_H
+#define CONTEXT2D_H
 #include <napi.h>
 #include "GRenderContext.h"
 #include "ImageData.h"

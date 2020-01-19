@@ -14,7 +14,7 @@ void TextMetrics::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "textMetric",
+                    "TextMetric",
                     {
                         InstanceAccessor("width", &TextMetrics::getWidth, nullptr),
                     });

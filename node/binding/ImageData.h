@@ -1,5 +1,5 @@
-#ifndef IMG_DATA_H
-#define IMG_DATA_H
+#ifndef IMAGEDATA_H
+#define IMAGEDATA_H
 #include <napi.h>
 namespace NodeBinding
 {
@@ -21,9 +21,7 @@ private:
     Napi::Value getData(const Napi::CallbackInfo &info);
     void setData(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
-    void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
-    void setHeight(const Napi::CallbackInfo &info, const Napi::Value &value);
 };
 } // namespace NodeBinding
 
