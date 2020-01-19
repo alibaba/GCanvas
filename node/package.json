@@ -1,5 +1,5 @@
 {
-  "name": "luckzhiwei-gcanvas",
+  "name": "node-gcanvas",
   "version": "1.0.3",
   "description": "gcanvas for node developer",
   "dependencies": {

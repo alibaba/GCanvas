@@ -33,7 +33,7 @@ void Canvas::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "canvas",
+                    "Canvas",
                     {
                         InstanceAccessor("width", &Canvas::getWidth, nullptr),
                         InstanceAccessor("height", &Canvas::getHeight, nullptr),
@@ -46,7 +46,7 @@ void Canvas::Init(Napi::Env env)
     Gradient::Init(env);
     ImageData::Init(env);
     TextMetrics::Init(env);
-    ImagePattern::Init(env);
+    Pattern::Init(env);
     return;
 }
 

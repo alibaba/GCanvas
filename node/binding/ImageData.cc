@@ -17,9 +17,9 @@ void ImageData::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "imagedata",
+                    "ImageData",
                     {
-                        InstanceAccessor("data", &ImageData::getData, &ImageData::setData),
+                        InstanceAccessor("data", &ImageData::getData, nullptr),
                         InstanceAccessor("width", &ImageData::getWidth, nullptr),
                         InstanceAccessor("height", &ImageData::getHeight, nullptr),
                     });
@@ -36,24 +36,17 @@ Napi::Object ImageData::NewInstance(Napi::Env env, const Napi::Value width, cons
 
 Napi::Value ImageData::getData(const Napi::CallbackInfo &info)
 {
-    // return Napi::Array::New
+
 }
-void ImageData::setData(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-}
+
 Napi::Value ImageData::getWidth(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->width);
 }
-void ImageData::setWidth(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-}
+
 Napi::Value ImageData::getHeight(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->height);
-}
-void ImageData::setHeight(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
 }
 
 int ImageData::getWidth()

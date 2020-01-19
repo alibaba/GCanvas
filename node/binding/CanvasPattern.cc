@@ -2,10 +2,10 @@
 #include "NodeBindingUtil.h"
 namespace NodeBinding
 {
-Napi::FunctionReference ImagePattern::constructor;
+Napi::FunctionReference Pattern::constructor;
 
-ImagePattern::ImagePattern(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ImagePattern>(info)
-{
+Pattern::Pattern(const Napi::CallbackInfo &info)
+    : Napi::ObjectWrap<Pattern>(info) {
     if (info[0].IsNull())
     {
         this->repetition = "repeat";
@@ -25,20 +25,18 @@ ImagePattern::ImagePattern(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Im
     }
 }
 
-Napi::Object ImagePattern::NewInstance(Napi::Env env, const Napi::Value arg)
-{
+Napi::Object Pattern::NewInstance(Napi::Env env, const Napi::Value arg) {
     Napi::Object obj = constructor.New({arg});
-    obj.Set("name", Napi::String::New(env, "imagePattern"));
+    obj.Set("name", Napi::String::New(env, "pattern"));
     return obj;
 }
 
-void ImagePattern::Init(Napi::Env env)
-{
+void Pattern::Init(Napi::Env env) {
     Napi::HandleScope scope(env);
 
     Napi::Function func =
         DefineClass(env,
-                    "canvasPattern",
+                    "CanvasPattern",
                     {
 
                     });
@@ -46,8 +44,5 @@ void ImagePattern::Init(Napi::Env env)
     constructor.SuppressDestruct();
 }
 
-const std::string &ImagePattern::getRepetition()
-{
-    return this->repetition;
-}
+const std::string &Pattern::getRepetition() { return this->repetition; }
 } // namespace NodeBinding

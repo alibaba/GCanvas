@@ -1,5 +1,5 @@
 #include "CanvasGradient.h"
-#include "Context2D.h"
+#include "CanvasRenderingContext2D.h"
 #include "NodeBindingUtil.h"
 namespace NodeBinding
 {
@@ -35,7 +35,7 @@ void Gradient::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "gradient",
+                    "CanvasGradient",
                     {
                         InstanceMethod("addColorStop", &Gradient::addColorStop),
                     });
