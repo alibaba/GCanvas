@@ -316,7 +316,7 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
     float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
     float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
-    
+
     if (info.Length() == 3)
     {
         desX = info[1].As<Napi::Number>().FloatValue();
@@ -526,7 +526,6 @@ void Context2D::putImageData(const Napi::CallbackInfo &info)
             dirtyWidth = info[5].As<Napi::Number>().Int32Value();
             dirtyHeight = info[6].As<Napi::Number>().Int32Value();
         }
-
         this->mRenderContext->getCtx()->PutImageData(
             &imgData->getPixles()[0], //content
             imgData->getWidth(),      //imageData width
@@ -914,8 +913,8 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                 float *offsetArr = &gradient->getOffsets()[0];
                 std::string *colorArray = &gradient->getColors()[0];
                 mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
-            } 
-            else if (namePropetry == "pattern") 
+            }
+            else if (namePropetry == "pattern")
             {
                 Pattern *pattern =
                     Napi::ObjectWrap<Pattern>::Unwrap(object);

@@ -36,7 +36,25 @@ Napi::Object ImageData::NewInstance(Napi::Env env, const Napi::Value width, cons
 
 Napi::Value ImageData::getData(const Napi::CallbackInfo &info)
 {
+    hasImageDataSet = true;
+    if (this->mImageDataRef.IsEmpty())
+    {
+        Napi::Array ret = Napi::Array::New(info.Env(), this->pixels.size());
 
+        if (!this->pixels.empty())
+        {
+            for (int i = 0; i < pixels.size(); i++)
+            {
+                ret.Set(i, Napi::Number::New(info.Env(), pixels[i]));
+            }
+        }
+        this->mImageDataRef = Napi::ObjectReference::New(ret);
+        return ret;
+    }
+    else
+    {
+        return this->mImageDataRef.Value();
+    }
 }
 
 Napi::Value ImageData::getWidth(const Napi::CallbackInfo &info)
@@ -60,6 +78,15 @@ int ImageData::getHeight()
 
 std::vector<u_int8_t> &ImageData::getPixles()
 {
+    if (!this->mImageDataRef.IsEmpty() && hasImageDataSet)
+    {
+        Napi::Array ret = this->mImageDataRef.Value().As<Napi::Array>();
+        for (int i = 0; i < this->pixels.size(); i++)
+        {
+            this->pixels[i] = ret.Get(i).As<Napi::Number>().Int32Value();
+        }
+        hasImageDataSet = false;
+    }
     return this->pixels;
 }
 } // namespace NodeBinding

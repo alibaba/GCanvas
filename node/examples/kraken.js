@@ -6,18 +6,21 @@ const ctx = canvas.getContext('2d');
 const img = new Image()
 
 img.onload = () => {
-    ctx.drawImage(img, 0, 0);
-    canvas.createPNG("kraken");
+  ctx.drawImage(img, 0, 0);
+  buildKernel()
+  blurTest()
+  canvas.createPNG("kraken");
+
 }
 img.onerror = err => {
-    console.log(err)
+  console.log(err)
 }
 img.src = path.join(__dirname, 'images', 'squid.png')
 
 var sigma = 10 // radius
 var kernel, kernelSize, kernelSum
 
-function buildKernel () {
+function buildKernel() {
   var i, j, g
   var ss = sigma * sigma
   var factor = 2 * Math.PI * ss
@@ -49,7 +52,7 @@ function buildKernel () {
   }
 }
 
-function blurTest () {
+function blurTest() {
   var x, y, i, j
   var r, g, b, a
 
@@ -59,11 +62,8 @@ function blurTest () {
   var data = imgData.data
   var width = imgData.width
   var height = imgData.height
-
-  console.log('... getImageData, width:'+width+",height:"+height)
-
+  console.log('... getImageData, width:' + width + ",height:" + height)
   var startTime = (new Date()).getTime()
-
   for (y = 0; y < height; ++y) {
     for (x = 0; x < width; ++x) {
       r = 0
@@ -92,16 +92,15 @@ function blurTest () {
   }
 
   var finishTime = Date.now() - startTime
+  console.log('... finished in %dms', finishTime)
   for (i = 0; i < data.length; i++) {
     imgData.data[i] = data[i]
   }
-
+  for (i = 0; i < 5; i++) {
+    console.log(data[i]);
+    console.log(imgData.data[i]);
+  }
+  console.log('... putImageData')
   ctx.putImageData(imgData, 0, 0)
 
-  console.log('... putImageData')
-
-  console.log('... finished in %dms', finishTime)
 }
-
-buildKernel()
-blurTest()
