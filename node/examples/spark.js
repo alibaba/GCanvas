@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
-const canvas = createCanvas(40*5, 15*5)
+const canvas = createCanvas(40, 15)
 const ctx = canvas.getContext('2d')
 
 function spark(ctx, data) {
