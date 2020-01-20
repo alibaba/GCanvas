@@ -54,8 +54,7 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("strokeText", &Context2D::strokeText),
                         InstanceMethod("transform", &Context2D::transform),
                         InstanceMethod("translate", &Context2D::translate),
-                        InstanceMethod("fillRect", &Context2D::fillRect),
-
+    
                         InstanceAccessor("fillStyle", &Context2D::getFillStyle, &Context2D::setFillStyle),
                         InstanceAccessor("font", &Context2D::getfont, &Context2D::setfont),
                         InstanceAccessor("globalAlpha", &Context2D::getglobalAlpha, &Context2D::setglobalAlpha),
@@ -99,6 +98,7 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
     if (this->mRenderContext)
     {
         this->mRenderContext->getCtx()->FillRect(x, y, width, height);
+        this->mRenderContext->drawFrame();
     }
     return;
 }
@@ -676,6 +676,7 @@ void Context2D::strokeRect(const Napi::CallbackInfo &info)
     if (mRenderContext)
     {
         this->mRenderContext->getCtx()->StrokeRect(x, y, width, height);
+        this->mRenderContext->drawFrame();
     }
 }
 void Context2D::strokeText(const Napi::CallbackInfo &info)

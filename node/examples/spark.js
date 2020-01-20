@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
-const canvas = createCanvas(40, 15)
+const canvas = createCanvas(40*5, 15*5)
 const ctx = canvas.getContext('2d')
 
 function spark(ctx, data) {
@@ -13,9 +13,7 @@ function spark(ctx, data) {
   var max = Math.max.apply(null, data)
 
   ctx.fillStyle = 'rgba(0,0,255,0.5)'
-  ctx.strokeStyle = 'red'
   ctx.lineWidth = 1
-
   data.forEach(function (n, i) {
     var x = i * barWidth + pad
     var y = height * (n / max)
@@ -24,6 +22,7 @@ function spark(ctx, data) {
     ctx.fillRect(x, height, barWidth - pad, -y)
   })
 
+  ctx.strokeStyle = 'red'
   ctx.stroke()
 }
 
