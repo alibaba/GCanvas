@@ -43,6 +43,11 @@ void throwError(const Napi::CallbackInfo &info, const std::string &exception)
         .ThrowAsJavaScriptException();
 }
 
+void throwError(const Napi::Env &env, const std::string &exception)
+{
+    Napi::TypeError::New(env, exception)
+        .ThrowAsJavaScriptException();
+}
 unsigned int downloadImage(const std::string &src, ImageContent *content)
 {
     CURL *curl_handle;

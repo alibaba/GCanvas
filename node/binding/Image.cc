@@ -53,7 +53,7 @@ void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onLoadCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new ImageWorker(onLoadCallback, pixels, width, height);
+        mWorker = new ImageWorker(info.Env(),pixels, width, height);
     }
     mWorker->setOnLoadCallback(this->onLoadCallback);
 }
@@ -64,7 +64,7 @@ void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onErrorCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new ImageWorker(onLoadCallback, pixels, width, height);
+        mWorker = new ImageWorker(info.Env(),pixels, width, height);
     }
     mWorker->setOnErrorCallback(onErrorCallback);
 }
@@ -137,7 +137,7 @@ void ImageWorker::Execute()
         }
     }
     else
-    {//本地文件
+    { //本地文件
         content.size = readLocalImage(url, &content);
         if (content.size == -1)
         {

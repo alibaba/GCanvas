@@ -11,11 +11,9 @@ namespace NodeBinding
 class ImageWorker : public Napi::AsyncWorker
 {
 public:
-    ImageWorker(Napi::Function &callback,
-                   std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(callback),
-                                                                                                 _pixels(out),
-                                                                                                 _height(height),
-                                                                                                 _width(width)
+    ImageWorker(Napi::Env env, std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) :  Napi::AsyncWorker(env), _pixels(out),
+                                                                                                              _height(height),
+                                                                                                              _width(width)
     {
     }
 

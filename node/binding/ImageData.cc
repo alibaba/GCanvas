@@ -36,7 +36,7 @@ Napi::Object ImageData::NewInstance(Napi::Env env, const Napi::Value width, cons
 
 Napi::Value ImageData::getData(const Napi::CallbackInfo &info)
 {
-    hasImageDataSet = true;
+    hasImageDataWrite = true;
     if (this->mImageDataRef.IsEmpty())
     {
         Napi::Array ret = Napi::Array::New(info.Env(), this->pixels.size());
@@ -78,14 +78,14 @@ int ImageData::getHeight()
 
 std::vector<u_int8_t> &ImageData::getPixles()
 {
-    if (!this->mImageDataRef.IsEmpty() && hasImageDataSet)
+    if (!this->mImageDataRef.IsEmpty() && hasImageDataWrite)
     {
         Napi::Array ret = this->mImageDataRef.Value().As<Napi::Array>();
         for (int i = 0; i < this->pixels.size(); i++)
         {
             this->pixels[i] = ret.Get(i).As<Napi::Number>().Int32Value();
         }
-        hasImageDataSet = false;
+        hasImageDataWrite = false;
     }
     return this->pixels;
 }

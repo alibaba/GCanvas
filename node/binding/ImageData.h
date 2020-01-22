@@ -23,7 +23,7 @@ private:
     void setData(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
-    bool hasImageDataSet = false;
+    bool hasImageDataWrite = false;
 };
 } // namespace NodeBinding
 
