@@ -62,13 +62,13 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)content);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5L);
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 1L);
     res = curl_easy_perform(curl_handle);
     if (res != CURLE_OK)
     {
         fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
-        content->size = -1;
+        content->size = 0;
     }
     curl_easy_cleanup(curl_handle);
     curl_global_cleanup();

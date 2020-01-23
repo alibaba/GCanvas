@@ -19,6 +19,7 @@ public:
 
     void Execute();
     void OnOK();
+    void OnError(const Napi::Error& e);
     std::string url;
     void setOnErrorCallback(Napi::Function func);
     void setOnLoadCallback(Napi::Function func);
@@ -62,9 +63,7 @@ private:
     Napi::Value getOnError(const Napi::CallbackInfo &info);
     void setOnError(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
-    void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
-    void setHeight(const Napi::CallbackInfo &info, const Napi::Value &value);
 };
 } // namespace NodeBinding
 

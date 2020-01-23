@@ -53,7 +53,7 @@ void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onLoadCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new ImageWorker(info.Env(),pixels, width, height);
+        mWorker = new ImageWorker(info.Env(), pixels, width, height);
     }
     mWorker->setOnLoadCallback(this->onLoadCallback);
 }
@@ -64,7 +64,7 @@ void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
     this->onErrorCallback = value.As<Napi::Function>();
     if (!mWorker)
     {
-        mWorker = new ImageWorker(info.Env(),pixels, width, height);
+        mWorker = new ImageWorker(info.Env(), pixels, width, height);
     }
     mWorker->setOnErrorCallback(onErrorCallback);
 }
@@ -73,15 +73,9 @@ Napi::Value Image::getWidth(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->width);
 }
-void Image::setWidth(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-}
 Napi::Value Image::getHeight(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->height);
-}
-void Image::setHeight(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
 }
 
 int Image::getWidth()
@@ -114,14 +108,12 @@ void ImageWorker::setOnLoadCallback(Napi::Function func)
 
 void ImageWorker::OnOK()
 {
-    if (content.size <= 0) //download fail
-    {
-        this->onErrorCallback.Call({Napi::String::New(Env(), "Dowdload image Error")});
-    }
-    else //download success
-    {
-        this->onLoadCallback.Call({Env().Undefined()});
-    }
+    this->onLoadCallback.Call({Env().Undefined()});
+}
+
+void ImageWorker::OnError(const Napi::Error &e)
+{
+    this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
 }
 
 void ImageWorker::Execute()
@@ -129,20 +121,23 @@ void ImageWorker::Execute()
     if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
     {
         content.size = downloadImage(url, &content);
-        if (content.size == -1)
+        if ((int)content.size <= 0)
         {
             free(content.memory);
             content.memory = nullptr;
+            //why iteral not working?
+            this->SetError(std::move("Image Download Fail"));
             return;
         }
     }
     else
     { //本地文件
         content.size = readLocalImage(url, &content);
-        if (content.size == -1)
+        if ((int)content.size <= 0)
         {
             free(content.memory);
             content.memory = nullptr;
+            this->SetError(std::move("Image Read Fail"));
             return;
         }
     }
