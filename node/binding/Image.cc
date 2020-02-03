@@ -125,7 +125,6 @@ void ImageWorker::Execute()
         {
             free(content.memory);
             content.memory = nullptr;
-            //why iteral not working?
             this->SetError(std::move("Image Download Fail"));
             return;
         }
