@@ -11,7 +11,7 @@ img.onload = () => {
   canvas.createPNG("passedThroughGrayscale")
 }
 img.onerror = err => {
-  console.log("Image onload error!!!")
+  console.log(err)
   throw err
 }
 

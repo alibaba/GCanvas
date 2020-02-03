@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include <napi.h>
+#define TIMEOUT_VALUE 5L
 namespace NodeBinding
 {
 struct ImageContent

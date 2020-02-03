@@ -6,7 +6,6 @@
 #include <iostream>
 namespace NodeBinding
 {
-
 static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -62,7 +61,7 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)content);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 1L);
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, TIMEOUT_VALUE);
     res = curl_easy_perform(curl_handle);
     if (res != CURLE_OK)
     {
