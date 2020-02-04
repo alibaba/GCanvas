@@ -31,7 +31,6 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("createPattern", &Context2D::createPattern),
                         InstanceMethod("createRadialGradient", &Context2D::createRadialGradient),
                         InstanceMethod("drawImage", &Context2D::drawImage),
-                        InstanceMethod("ellipse", &Context2D::ellipse),
                         InstanceMethod("fill", &Context2D::fill),
                         InstanceMethod("fillText", &Context2D::fillText),
                         InstanceMethod("getImageData", &Context2D::getImageData),
@@ -355,16 +354,6 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
                                                   desWidth,                              //desWidth
                                                   desHeight);                            //desHeight
         this->mRenderContext->drawFrame();
-    }
-}
-void Context2D::ellipse(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
-
-    NodeBinding::checkArgs(info, 4);
-    if (mRenderContext)
-    {
-        // this->mBackend->getCtx()->
     }
 }
 void Context2D::fill(const Napi::CallbackInfo &info)

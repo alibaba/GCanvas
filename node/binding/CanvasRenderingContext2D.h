@@ -40,7 +40,6 @@ private:
     Napi::Value createPattern(const Napi::CallbackInfo &info);
     Napi::Value createRadialGradient(const Napi::CallbackInfo &info);
     void drawImage(const Napi::CallbackInfo &info);
-    void ellipse(const Napi::CallbackInfo &info);
     void fill(const Napi::CallbackInfo &info);
     void fillText(const Napi::CallbackInfo &info);
     Napi::Value getImageData(const Napi::CallbackInfo &info);
