@@ -1,30 +1,27 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 const { createCanvas, Image } = require('bindings')('canvas');
 
-
 var img = new Image()
-var start = new Date()
 
-img.onerror = function (err) {
+img.onerror = err => {
+  console.log("Image onload error!!!")
   throw err
 }
 
-img.onload = function () {
+
+
+img.onload = () => {
+  console.log("Image onload success!!!")
   var width = 100
   var height = 100
-  const canvas = createCanvas(width, height)
-  const ctx = canvas.getContext('2d')
-  var out = fs.createWriteStream(path.join(__dirname, 'resize.png'))
+  var canvas = createCanvas(width, height)
+  var ctx = canvas.getContext('2d')
 
-  ctx.imageSmoothingEnabled = true
+  // ctx.imageSmoothingEnabled = true
   ctx.drawImage(img, 0, 0, width, height)
+  
   canvas.createPNG("resize")
-//   canvas.createPNGStream().pipe(out)
-
-//   out.on('finish', function () {
-//     console.log('Resized and saved in %dms', new Date() - start)
-//   })
 }
 
-img.src = (process.argv[2] || path.join(__dirname, 'images', 'squid.png'))
+img.src = path.join(__dirname, 'images', 'squid.png')
