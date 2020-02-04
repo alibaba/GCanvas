@@ -6,7 +6,6 @@
 #include <iostream>
 namespace NodeBinding
 {
-
 static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -43,6 +42,11 @@ void throwError(const Napi::CallbackInfo &info, const std::string &exception)
         .ThrowAsJavaScriptException();
 }
 
+void throwError(const Napi::Env &env, const std::string &exception)
+{
+    Napi::TypeError::New(env, exception)
+        .ThrowAsJavaScriptException();
+}
 unsigned int downloadImage(const std::string &src, ImageContent *content)
 {
     CURL *curl_handle;
@@ -57,13 +61,13 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)content);
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, 5L);
+    curl_easy_setopt(curl_handle, CURLOPT_TIMEOUT, TIMEOUT_VALUE);
     res = curl_easy_perform(curl_handle);
     if (res != CURLE_OK)
     {
         fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
-        content->size = -1;
+        content->size = 0;
     }
     curl_easy_cleanup(curl_handle);
     curl_global_cleanup();

@@ -3,7 +3,6 @@ const path = require('path')
 
 const { createCanvas, Image } = require('bindings')('canvas');
 const canvas = createCanvas(320, 320)
-// var canvas = Canvas.createCanvas(320, 320)
 const ctx = canvas.getContext('2d')
 
 // Create gradients
@@ -14,7 +13,7 @@ lingrad.addColorStop(0.5, '#26C000')
 lingrad.addColorStop(1, '#fff')
 
 var lingrad2 = ctx.createLinearGradient(0, 50, 0, 95)
-lingrad2.addColorStop(0.5, '#000')
+lingrad2.addColorStop(0.5, '#ff000')
 lingrad2.addColorStop(1, 'rgba(0,0,0,0)')
 
 // assign gradients to fill and stroke styles

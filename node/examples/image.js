@@ -8,6 +8,9 @@ img.onload = () => {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.drawImage(img, 0, 0, 100, 100);
+    img2.onerror = err => {
+        console.log(err)
+    }
     img2.onload = () => {
         ctx.drawImage(img2, 150, 150, 100, 100);
         canvas.createPNG("image");

@@ -32,8 +32,8 @@
 ``` javascript
   
 const { createCanvas, Image } = require('bindings')('canvas');
-let canvas = createCanvas(400, 400);
-var ctx = canvas.getContext('2d')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
 
 ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 ctx.save() // Save the default state

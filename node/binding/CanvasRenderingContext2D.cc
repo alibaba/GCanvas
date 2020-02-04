@@ -31,7 +31,6 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("createPattern", &Context2D::createPattern),
                         InstanceMethod("createRadialGradient", &Context2D::createRadialGradient),
                         InstanceMethod("drawImage", &Context2D::drawImage),
-                        InstanceMethod("ellipse", &Context2D::ellipse),
                         InstanceMethod("fill", &Context2D::fill),
                         InstanceMethod("fillText", &Context2D::fillText),
                         InstanceMethod("getImageData", &Context2D::getImageData),
@@ -54,8 +53,7 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("strokeText", &Context2D::strokeText),
                         InstanceMethod("transform", &Context2D::transform),
                         InstanceMethod("translate", &Context2D::translate),
-                        InstanceMethod("fillRect", &Context2D::fillRect),
-
+    
                         InstanceAccessor("fillStyle", &Context2D::getFillStyle, &Context2D::setFillStyle),
                         InstanceAccessor("font", &Context2D::getfont, &Context2D::setfont),
                         InstanceAccessor("globalAlpha", &Context2D::getglobalAlpha, &Context2D::setglobalAlpha),
@@ -99,6 +97,7 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
     if (this->mRenderContext)
     {
         this->mRenderContext->getCtx()->FillRect(x, y, width, height);
+        this->mRenderContext->drawFrame();
     }
     return;
 }
@@ -355,16 +354,6 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
                                                   desWidth,                              //desWidth
                                                   desHeight);                            //desHeight
         this->mRenderContext->drawFrame();
-    }
-}
-void Context2D::ellipse(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
-
-    NodeBinding::checkArgs(info, 4);
-    if (mRenderContext)
-    {
-        // this->mBackend->getCtx()->
     }
 }
 void Context2D::fill(const Napi::CallbackInfo &info)
@@ -676,6 +665,7 @@ void Context2D::strokeRect(const Napi::CallbackInfo &info)
     if (mRenderContext)
     {
         this->mRenderContext->getCtx()->StrokeRect(x, y, width, height);
+        this->mRenderContext->drawFrame();
     }
 }
 void Context2D::strokeText(const Napi::CallbackInfo &info)

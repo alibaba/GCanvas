@@ -11,16 +11,15 @@ namespace NodeBinding
 class ImageWorker : public Napi::AsyncWorker
 {
 public:
-    ImageWorker(Napi::Function &callback,
-                   std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(callback),
-                                                                                                 _pixels(out),
-                                                                                                 _height(height),
-                                                                                                 _width(width)
+    ImageWorker(Napi::Env env, std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) :  Napi::AsyncWorker(env), _pixels(out),
+                                                                                                              _height(height),
+                                                                                                              _width(width)
     {
     }
 
     void Execute();
     void OnOK();
+    void OnError(const Napi::Error& e);
     std::string url;
     void setOnErrorCallback(Napi::Function func);
     void setOnLoadCallback(Napi::Function func);
@@ -64,9 +63,7 @@ private:
     Napi::Value getOnError(const Napi::CallbackInfo &info);
     void setOnError(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
-    void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
-    void setHeight(const Napi::CallbackInfo &info, const Napi::Value &value);
 };
 } // namespace NodeBinding
 

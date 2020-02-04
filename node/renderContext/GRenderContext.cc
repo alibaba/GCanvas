@@ -103,6 +103,8 @@ void GRenderContext::initRenderEnviroment()
 void GRenderContext::initCanvas()
 {
     mCanvas->CreateContext();
+    mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("white"));
+    mCanvas->GetGCanvasContext()->ClearScreen();
     mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
 }
 void GRenderContext::drawFrame()
