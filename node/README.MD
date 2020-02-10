@@ -5,7 +5,7 @@
   * 系统环境：ubuntu >=18:04
  *  工具链:cmake
  *  依赖安装
-       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev
+       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev
        * [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html)
 
 ### Node-canvas  源代码构建以及测试运行
