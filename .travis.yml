@@ -2,16 +2,21 @@ language: cpp
 sudo: true
 compiler:
 - g++
+language: node_js
+node_js:
+  - 10
 os:
 - linux
+dist: bionic
 addons:
   apt:
     packages:
     - xvfb
     - cppcheck
 before_install:
-- sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev
+- sudo apt-get update && sudo apt-get install libglfw3-dev libgles2-mesa-dev libcurl4-openssl-dev 
 - sudo apt-get install libboost-all-dev
+- npm install -g cmake-js
 - |
   if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
     mkdir -p external/cmake
@@ -38,4 +43,7 @@ script:
 - cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
 - "./gcanvasTest"
 - cat result.txt | awk '{printf "%-30s| %-18s|  %-20s\n",$1,$2,$3}'| column -t 
+- cd ../../../../ && cd ./node/ && local=true npm install && npm run dev
+- case=app.js npm run test 
+
 

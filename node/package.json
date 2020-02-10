@@ -1,0 +1,28 @@
+{
+  "name": "@gcanvas/node",
+  "version": "1.0.7",
+  "description": "gcanvas for node developer",
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "node-addon-api": "^1.0.0"
+  },
+  "scripts": {
+    "install": "./script/install.sh $local",
+    "dev": "cmake-js build",
+    "compile": "cmake-js compile --CDCORE_DIR=./core/",
+    "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
+    "test": "cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache",
+    "test-headless": "npm run prestart && cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache "
+  },
+  "main": "export.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "keywords": [
+    "node",
+    "GCanvas",
+    "2D",
+    "Graphic",
+    "Light"
+  ]
+}
