@@ -38,11 +38,6 @@ class Image : public Napi::ObjectWrap<Image>
 public:
     Image(const Napi::CallbackInfo &info);
     static void Init(Napi::Env env, Napi::Object exports);
-    virtual ~Image()
-    {
-        delete (mWorker);
-        this->mWorker = nullptr;
-    }
     int getWidth();
     int getHeight();
     std::vector<unsigned char> &getPixels();

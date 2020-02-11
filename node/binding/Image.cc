@@ -108,12 +108,18 @@ void ImageWorker::setOnLoadCallback(Napi::Function func)
 
 void ImageWorker::OnOK()
 {
-    this->onLoadCallback.Call({Env().Undefined()});
+    if( this->onLoadCallback )
+    {
+        this->onLoadCallback.Call({Env().Undefined()});
+    }
 }
 
 void ImageWorker::OnError(const Napi::Error &e)
 {
-    this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
+    if(this->onErrorCallback)
+    {
+        this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
+    }
 }
 
 void ImageWorker::Execute()
