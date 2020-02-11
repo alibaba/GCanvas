@@ -61,7 +61,6 @@ GFont *
 GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFontStyle *fontStyle,
                             wchar_t charCode, const float size)
 {
-#if 1
   std::string fontName = fontStyle->GetName();
   char key[256] = {0};
   snprintf(key, 256, "%s_%d_%f", fontName.c_str(), charCode, size);
@@ -96,89 +95,7 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
   GFontSet &fontSet = mFontCache[key];
   fontSet.font = font;
   return font;
-#else
-    char key[256] = {0};
-    snprintf(key, 256, "%s_%s_%f_%d", contextId.c_str(),
-             fontStyle->GetFamily().c_str(),
-             size, fontStyle->GetWeight());
-    std::map<std::string, GFontSet>::iterator iter = mFontCache.find(key);
-    if (iter != mFontCache.end())
-    {
-        if (iter->second.font->IsGlyphExistedInFont(charCode))
-        {
-            return iter->second.font;
 
-        }
-        if (iter->second.fallbackFont)
-        {
-            return iter->second.fallbackFont;
-        }
-
-    }
-
-    const char *defaultSystemFontLocation = "./";
-
-    auto systemFontLocation = SystemFontInformation::GetSystemFontInformation()
-            ->GetSystemFontLocation();
-    const char *currentFontLocation = (systemFontLocation != nullptr)
-                                      ? systemFontLocation
-                                      : defaultSystemFontLocation;
-
-    const char *currentFontFile = nullptr;
-
-
-    auto fontFamily = SystemFontInformation::GetSystemFontInformation()->FindFontFamily(
-            fontStyle->GetFamily().c_str());
-
-    if (fontFamily != nullptr)
-    {
-        currentFontFile = fontFamily->MatchFamilyStyle(*fontStyle);
-    }
-
-    if (nullptr != currentFontFile)
-    {
-        currentFontFile = TrySpecFont(charCode, size, currentFontLocation,
-                                      currentFontFile);
-    }
-
-    if (currentFontFile == nullptr)
-    {
-        currentFontFile = TryDefaultFont(charCode, size, currentFontLocation);
-        if (nullptr == currentFontFile)
-        {
-            currentFontFile = TryDefaultFallbackFont(charCode, size, currentFontLocation);
-            if (nullptr == currentFontFile)
-            {
-                currentFontFile = TryOtherFallbackFont(context, charCode, size, currentFontLocation,
-                                                       fontStyle);
-            }
-        }
-    }
-
-    std::string fontFileFullPath = currentFontLocation;
-    if (currentFontFile[0] == '/')
-    {
-        fontFileFullPath = currentFontFile;
-
-    }
-    else
-    {
-        fontFileFullPath += currentFontFile;
-
-    }
-
-    GFont *font = new GFont(context, mFontManager, fontFileFullPath.c_str(), size);
-    GFontSet &fontSet = mFontCache[key];
-    if (fontSet.font)
-    {
-        fontSet.fallbackFont = font;
-    }
-    else
-    {
-        fontSet.font = font;
-    }
-    return font;
-#endif
 }
 
 char *GFontCache::TrySpecFont(const wchar_t charCode, const float size,
