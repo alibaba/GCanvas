@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
+#include "Util.h"
 
 namespace NodeBinding
 {
