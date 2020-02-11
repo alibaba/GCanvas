@@ -5,11 +5,46 @@
   * 系统环境：ubuntu >=18:04
  *  工具链:cmake
  *  依赖安装
-       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev
+       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev
        * [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html)
 
+### 环境搭建 Docker化
+Dockerfile
+```
+
+FROM ubuntu:18.04
+
+ADD ./sources.list /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget
+
+
+ADD cmake.zip ./cmake/
+
+RUN apt-get install -y zip && cd ./cmake/ && unzip cmake.zip 
+
+
+ENV PATH="/cmake/cmake/bin/:${PATH}"
+
+RUN apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_10.x | bash -
+
+RUN apt-get install -y nodejs 
+
+RUN export DISPLAY=':99.0' && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+
+ADD ./freetype.tar ./freetype/
+
+RUN cd ./freetype/freetype-2.8.1  && ./configure && make && make install
+
+RUN npm config set registry https://registry.npm.taobao.org && npm install -g cmake-js
+#install curl-dev lib 
+RUN apt-get install libcurl4-openssl-dev 
+
+
+```
+
 ### Node-canvas  源代码构建以及测试运行
- 默认已经使用docker环境进行node-canvas的源代码构建和运行，node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。  
+ node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。  
 
 构建步骤如下
   
