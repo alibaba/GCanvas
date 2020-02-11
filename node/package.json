@@ -9,6 +9,7 @@
   "scripts": {
     "install": "./script/install.sh $local",
     "dev": "cmake-js build",
+    "debug": "cmake-js -D build",
     "compile": "cmake-js compile --CDCORE_DIR=./core/", 
     "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
     "test": "cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache",
