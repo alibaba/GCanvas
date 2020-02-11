@@ -512,8 +512,6 @@ void Context2D::putImageData(const Napi::CallbackInfo &info)
         int dirtyWidth = imgData->getWidth();
         int dirtyHeight = imgData->getHeight();
         
-        printf("putImageData, x:%d,y:%d,dirtyWidht=%d,dirtyHeight=%d\n", x, y, dirtyWidth, dirtyHeight);
-
         if (info.Length() == 7)
         {
             dirtyX = info[3].As<Napi::Number>().Int32Value();
