@@ -1,6 +1,6 @@
 {
-  "name": "@gcanvas/node",
-  "version": "1.0.7",
+  "name": "luckzhiwei-gcanvas",
+  "version": "1.0.8",
   "description": "gcanvas for node developer",
   "dependencies": {
     "bindings": "~1.2.1",
