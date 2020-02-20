@@ -254,10 +254,28 @@ void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
 void Context2D::clip(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    NodeBinding::checkArgs(info, 0);
+
+    GFillRule rule = FILL_RULE_NONZERO;
+    if (info.Length() == 1)
+    {
+        std::string value = info[0].As<Napi::String>().Utf8Value();
+        if (value == "nonzero")
+        {
+            rule = FILL_RULE_NONZERO;
+        }
+        else if (value == "evenodd")
+        {
+            rule = FILL_RULE_EVENODD;
+        }
+        else
+        {
+            throwError(info, "fill rule value invaild");
+        }
+    }
+    
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Clip();
+        this->mRenderContext->getCtx()->Clip(rule);
     }
 }
 void Context2D::closePath(const Napi::CallbackInfo &info)
