@@ -121,7 +121,7 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     {
         if (format == PNG_FORAMT)
         {
-            encodePixelsToFile(fileName + ".png", data, mWidth, mHeight);
+            encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
         }
         else if (format == JPEG_FORMAT)
         {

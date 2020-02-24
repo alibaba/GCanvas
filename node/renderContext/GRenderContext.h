@@ -12,7 +12,7 @@
 
 namespace NodeBinding
 {
-extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
+extern void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height);
 extern void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image);
 extern void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, int height);
 enum PIC_FORMAT

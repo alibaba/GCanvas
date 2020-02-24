@@ -76,7 +76,7 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
     return content->size;
 }
 
-void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height)
+void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height)
 {
     //write the pixles to file
     unsigned error = lodepng::encode(filename.c_str(), buffer, width, height);
