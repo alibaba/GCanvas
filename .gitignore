@@ -10,7 +10,6 @@ external
 
 local.properties
 gradle/
-.gradle
 .idea/
 .gradle/
 *.iml

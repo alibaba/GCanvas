@@ -126,12 +126,15 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = properties.getProperty("bintray.user")    //读取 local.properties 文件里面的 bintray.user
-    key = properties.getProperty("bintray.apikey")   //读取 local.properties 文件里面的 bintray.apikey
+    //读取 local.properties 文件里面的 bintray.user,对应的是https://bintray.com/signup/oss 的用户名
+    user = properties.getProperty("bintray.user")  
+     //读取 local.properties 文件里面的 bintray.apikey,对应的是https://bintray.com/signup/oss的api-key
+    key = properties.getProperty("bintray.apikey")  
     configurations = ['archives']
     pkg {
         repo = "GCanvas"
         name = "${project.group}:${project.ext.id}"
+        //读取 local.properties 文件里面的 bintray.user,对应的是https://bintray.com/signup/oss 的用户名
         userOrg = properties.getProperty("bintray.userOrg")
         licenses = ['Apache-2.0']
         websiteUrl = "https://g-platform.github.io"
