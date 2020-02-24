@@ -111,14 +111,28 @@ void GRenderContext::drawFrame()
     this->drawCount++;
 }
 
-void GRenderContext::render2file(std::string fileName)
+void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
 {
-    int size = 4 * mWidth * mHeight;
-    unsigned char *data = new unsigned char[size];
+    int size = 4 * this->mWidth * this->mHeight;
+    unsigned char *data = nullptr;
+    data = new unsigned char[size];
     glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    encodePixelsToFile(fileName + ".png", data, mWidth, mHeight);
-    delete data;
-    data = nullptr;
+    if (data)
+    {
+        if (format == PNG_FORAMT)
+        {
+            encodePixelsToFile(fileName + ".png", data, mWidth, mHeight);
+        }
+        else if (format == JPEG_FORMAT)
+        {
+            encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
+        }
+    }
+    if (data)
+    {
+        delete data;
+        data = nullptr;
+    }
 }
 
 void GRenderContext::destoryRenderEnviroment()

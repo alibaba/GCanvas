@@ -1,5 +1,6 @@
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
+#include "jpeglib.h"
 #include <curl/curl.h>
 #include <string>
 #include <vector>
@@ -83,6 +84,38 @@ void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int he
     {
         std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << filename << std::endl;
     }
+}
+
+void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, int height)
+{
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    JSAMPROW row_pointer[1]; /* pointer to JSAMPLE row[s] */
+    cinfo.err = jpeg_std_error(&jerr);
+    int row_stride;
+    jpeg_create_compress(&cinfo);
+    FILE *outfile;
+    if ((outfile = fopen(filename.c_str(), "wb")) == NULL)
+    {
+        std::cout << "file not found " << filename << std::endl;
+        return;
+    }
+    jpeg_stdio_dest(&cinfo, outfile);
+    cinfo.image_width = width;
+    cinfo.image_height = height;
+    cinfo.input_components = 4;
+    cinfo.in_color_space = JCS_EXT_RGBA;
+    jpeg_set_defaults(&cinfo);
+    jpeg_start_compress(&cinfo, TRUE);
+    row_stride = width * 4;
+    while (cinfo.next_scanline < cinfo.image_height)
+    {
+        row_pointer[0] = &buffer[cinfo.next_scanline * row_stride];
+        (void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+    fclose(outfile);
 }
 
 void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)

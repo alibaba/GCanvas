@@ -9,7 +9,6 @@ Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
 
-
     checkArgs(info, 2);
     mWidth = info[0].As<Napi::Number>().Int32Value();
     mHeight = info[1].As<Napi::Number>().Int32Value();
@@ -39,6 +38,7 @@ void Canvas::Init(Napi::Env env)
                         InstanceAccessor("height", &Canvas::getHeight, nullptr),
                         InstanceMethod("getContext", &Canvas::getContext),
                         InstanceMethod("createPNG", &Canvas::createPNG),
+                        InstanceMethod("createJPEG", &Canvas::createJPEG),
                     });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
@@ -93,7 +93,18 @@ void Canvas::createPNG(const Napi::CallbackInfo &info)
     if (this->mRenderContext)
     {
         this->mRenderContext->drawFrame();
-        this->mRenderContext->render2file(arg.c_str());
+        this->mRenderContext->render2file(arg.c_str(), PNG_FORAMT);
+    }
+    return;
+}
+void Canvas::createJPEG(const Napi::CallbackInfo &info)
+{
+    NodeBinding::checkArgs(info, 1);
+    std::string arg = info[0].As<Napi::String>().Utf8Value();
+    if (this->mRenderContext)
+    {
+        this->mRenderContext->drawFrame();
+        this->mRenderContext->render2file(arg.c_str(), JPEG_FORMAT);
     }
     return;
 }

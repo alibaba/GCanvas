@@ -3,7 +3,7 @@ const { createCanvas, Image } = require('bindings')('canvas');
 
 function WriteFont(options) {
     var self = this;
-    this.canvas = createCanvas(600, 600);
+    this.canvas = createCanvas(400, 600);
     var obj = {
         canvas: this.canvas,
         context: this.canvas.getContext("2d"),
@@ -11,8 +11,8 @@ function WriteFont(options) {
         lastWriteTime: -1,
         lastWriteSpeed: 0,
         lastWriteWidth: 0,
-        canvasWidth: 600,
-        canvasHeight: 600,
+        canvasWidth: this.canvas.width,
+        canvasHeight: this.canvas.height,
         isShowBorder: true,
         bgColor: '#fff',
         borderWidth: 6,
@@ -104,8 +104,8 @@ function WriteFont(options) {
         this.canvas.height = obj.canvasHeight;
     }
 
-    this.canvasInit();
-    this.canvasClear();
+    // this.canvasInit();
+    // this.canvasClear();
     this.option = obj;
     obj.control = {
         clearCanvas: self.canvasClear
@@ -121,7 +121,8 @@ var writeCanvas = new WriteFont({
     borderColor: '#ff6666'
 });
 
-writeCanvas.writeBegin();
+writeCanvas.canvasInit();
+writeCanvas.canvasClear();
 writeCanvas.save();
 
 

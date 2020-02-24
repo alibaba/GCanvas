@@ -146,6 +146,7 @@ void ImageWorker::Execute()
             return;
         }
     }
+    
     lodepng::decode(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
     free(content.memory);
     content.memory = nullptr;
