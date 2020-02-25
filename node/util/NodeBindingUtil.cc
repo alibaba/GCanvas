@@ -203,7 +203,7 @@ void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, in
     fclose(outfile);
 }
 
-void decodeFromJEPGImage(std::vector<unsigned char> &pixels, const unsigned int width, const unsigned int height, const unsigned char *content, const unsigned int len)
+void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -214,6 +214,11 @@ void decodeFromJEPGImage(std::vector<unsigned char> &pixels, const unsigned int 
     jpeg_mem_src(&cinfo, content, len);
     (void)jpeg_read_header(&cinfo, TRUE);
     (void)jpeg_start_decompress(&cinfo);
+    //rgba
+    cinfo.output_components = 4;
+    cinfo.out_color_space = JCS_EXT_RGBA;
+    width = cinfo.output_width;
+    height = cinfo.output_height;
     row_stride = cinfo.output_width * cinfo.output_components;
     buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
     while (cinfo.output_scanline < cinfo.output_height)
@@ -228,7 +233,7 @@ void decodeFromJEPGImage(std::vector<unsigned char> &pixels, const unsigned int 
     jpeg_destroy_decompress(&cinfo);
 }
 
-void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int width, unsigned int height, const unsigned char *content, int len)
+void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     lodepng::decode(pixels, width, height, content, len);
 }

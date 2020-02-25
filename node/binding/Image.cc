@@ -146,25 +146,21 @@ void ImageWorker::Execute()
             return;
         }
     }
-    lodepng::decode(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
-    // PIC_FORMAT format = judgePicFormatFromContent(content.memory, content.size);
-    // if (format == PNG_FORAMT)
-    // {
-    //     decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
-    // }
-    // else if (format == JPEG_FORMAT)
-    // {
-    //     decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
-    // }
-    // else if (format == UNKOWN)
-    // {
-    //     this->SetError(std::move("Image Format Unspported"));
-    // }
-    // std::cout << _pixels.size() << std::endl;
-    // for (int i = 0; i < 8; i++)
-    // {
-    //     printf("the value is %d\n", _pixels[i]);
-    // }
+
+    PIC_FORMAT format = judgePicFormatFromContent(content.memory, content.size);
+    if (format == PNG_FORAMT)
+    {
+        decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
+    }
+    else if (format == JPEG_FORMAT)
+    {
+        decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+    }
+    else if (format == UNKOWN)
+    {
+        this->SetError(std::move("Image Format Unspported"));
+    }
+    std::cout << _pixels.size() << std::endl;
     free(content.memory);
     content.memory = nullptr;
 }
