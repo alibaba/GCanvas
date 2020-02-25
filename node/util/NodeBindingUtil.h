@@ -9,6 +9,15 @@ struct ImageContent
     char *memory;
     unsigned int size;
 };
+enum PIC_FORMAT
+{
+    PNG_FORAMT,
+    JPEG_FORMAT,
+    UNKOWN,
+};
+PIC_FORMAT judgePicFormatFromContent(char *content, int len);
+void decodeFromJEPGImage(std::vector<unsigned char> &pixels, const unsigned int width, const unsigned int height, const unsigned char *content, const unsigned int len);
+void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int width, unsigned int height, const unsigned char *content, int len);
 int readLocalImage(const std::string &path, ImageContent *content);
 bool checkArgs(const Napi::CallbackInfo &info, int exectedN);
 unsigned int downloadImage(const std::string &src, ImageContent *content);
