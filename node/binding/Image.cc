@@ -160,7 +160,6 @@ void ImageWorker::Execute()
     {
         this->SetError(std::move("Image Format Unspported"));
     }
-    std::cout << _pixels.size() << std::endl;
     free(content.memory);
     content.memory = nullptr;
 }
