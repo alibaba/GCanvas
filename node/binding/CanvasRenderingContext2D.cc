@@ -2,6 +2,7 @@
 #include <iostream>
 #include "CanvasGradient.h"
 #include "Image.h"
+#include "Canvas.h"
 #include "TextMetrics.h"
 namespace NodeBinding
 {
@@ -255,10 +256,28 @@ void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
 void Context2D::clip(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    NodeBinding::checkArgs(info, 0);
+
+    GFillRule rule = FILL_RULE_NONZERO;
+    if (info.Length() == 1)
+    {
+        std::string value = info[0].As<Napi::String>().Utf8Value();
+        if (value == "nonzero")
+        {
+            rule = FILL_RULE_NONZERO;
+        }
+        else if (value == "evenodd")
+        {
+            rule = FILL_RULE_EVENODD;
+        }
+        else
+        {
+            throwError(info, "fill rule value invaild");
+        }
+    }
+    
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Clip();
+        this->mRenderContext->getCtx()->Clip(rule);
     }
 }
 void Context2D::closePath(const Napi::CallbackInfo &info)
@@ -313,9 +332,47 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         return;
     }
 
-    Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
-    float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
+    if( !mRenderContext )
+    {
+        throwError(info, "rendercontext invaild");
+        return;
+    }
+
+    float srcX = 0, srcY = 0, srcWidth = 0, srcHeight = 0;
     float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
+
+    int textureId = 0;
+    int textureWidth = 0, textureHeight = 0; 
+
+    Napi::Object object = info[0].As<Napi::Object>();
+    Napi::Value name = object.Get("name");
+    if (name.IsString() )
+    {
+       std::string namePropetry = name.As<Napi::String>().Utf8Value();
+        if(  namePropetry == "canvas" )
+        {
+            Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(info[0].As<Napi::Object>());
+            srcWidth = canvas->Width();
+            srcHeight = canvas->Height();
+
+            GTexture* texture = mRenderContext->getCtx()->GetFboTexture();
+            textureWidth = texture->GetWidth();
+            textureHeight = texture->GetHeight();
+            textureId = texture->GetTextureID();
+        }
+    }
+    else
+    {
+        Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
+        srcWidth = image->getWidth();
+        srcHeight = image->getHeight();
+        textureWidth = srcWidth;
+        textureHeight = srcHeight;
+        textureId = mRenderContext->getCtx()->BindImage( &image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+    }
+    
+    // float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
+    // float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
 
     if (info.Length() == 3)
     {
@@ -343,9 +400,13 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
-        int textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, image->getWidth(), image->getHeight());
+
+
+
+        // int textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, image->getWidth(), image->getHeight());
         this->mRenderContext->getCtx()->DrawImage(textureId,
-                                                  image->getWidth(), image->getHeight(), // image width & height
+                                                  textureWidth, 
+                                                  textureHeight, // image width & height
                                                   srcX,                                  // srcX
                                                   srcY,                                  // srcY
                                                   srcWidth,                              // srcWidth
