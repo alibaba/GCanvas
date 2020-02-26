@@ -1,15 +1,29 @@
 #include "GRenderContext.h"
 #include <fstream>
 #include <cmath>
+#include "GFrameBufferObject.h"
+#include "GLUtil.h"
+#include "Util.h"
+
 namespace NodeBinding
 {
-GRenderContext::GRenderContext(int width, int height) : mWidth(width), mHeight(height)
-{
+GRenderContext::GRenderContext(int width, int height)
+    : mWidth(width), mHeight(height), mRatio(2.0) {
     GCanvasConfig config = {true, true};
-    this->mCanvas = std::make_shared<gcanvas::GCanvas>("benchmark", config, nullptr);
+    this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+    mCanvasWidth = width * mRatio;
+    mCanvasHeight = height * mRatio;
 }
 
-void GRenderContext::initRenderEnviroment()
+GRenderContext::GRenderContext(int width, int height, int ratio)
+    : mWidth(width), mHeight(height), mRatio(ratio) {
+    GCanvasConfig config = {true, true};
+    this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+    mCanvasWidth = width * mRatio;
+    mCanvasHeight = height * mRatio;
+}
+
+void GRenderContext::initRenderEnviroment() 
 {
 #ifdef CONTEXT_ES20
     EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
@@ -75,12 +89,12 @@ void GRenderContext::initRenderEnviroment()
     GLuint renderBuffer;
     glGenRenderbuffers(1, &renderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer);
     GLuint depthRenderbuffer;
     glGenRenderbuffers(1, &depthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
 
@@ -105,7 +119,8 @@ void GRenderContext::initCanvas()
     mCanvas->CreateContext();
     mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("white"));
     mCanvas->GetGCanvasContext()->ClearScreen();
-    mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
+    mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
+    mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
 }
 void GRenderContext::drawFrame()
 {
@@ -115,9 +130,24 @@ void GRenderContext::drawFrame()
 
 void GRenderContext::render2file(std::string fileName)
 {
-    int size = 4 * mWidth * mHeight;
-    unsigned char *data = new unsigned char[size];
-    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    int size = 4 * mCanvasWidth * mCanvasHeight;
+    unsigned char *inputData = new unsigned char[size];
+    if( !inputData ){
+        printf("Error: allocate inputData memeroy faied! \n");
+        return;
+    }
+    glReadPixels(0, 0, mWidth * 2, mHeight * 2, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
+
+    unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+    if( !data ){
+        printf("Error: allocate data memeroy faied! \n");
+        return;
+    }
+
+    gcanvas::PixelsSampler(mWidth * 2, mHeight * 2, reinterpret_cast<int *>(inputData), mWidth, mHeight, reinterpret_cast<int *>(data));
+    gcanvas::FlipPixel(data, mWidth, mHeight);
+    delete inputData;
+
     encodePixelsToFile(fileName + ".png", data, mWidth, mHeight);
     delete data;
     data = nullptr;

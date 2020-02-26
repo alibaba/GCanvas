@@ -9,6 +9,7 @@
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
 #include "Util.h"
+#include "GFrameBufferObject.h"
 
 namespace NodeBinding
 {
@@ -21,6 +22,7 @@ public:
     {
     }
     GRenderContext(int width, int height);
+    GRenderContext(int width, int height, int ratio);
     virtual ~GRenderContext() {}
     void initRenderEnviroment();
     void render2file(std::string caseName);
@@ -34,6 +36,9 @@ private:
     void initCanvas();
     int mHeight;
     int mWidth;
+    int mCanvasHeight;
+    int mCanvasWidth;
+    int mRatio;
     int drawCount = 0;
 };
 } // namespace NodeBinding
