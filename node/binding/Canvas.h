@@ -17,6 +17,7 @@ public:
     virtual ~Canvas();
     static Napi::Object NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2);
     Napi::ObjectReference mRef;
+    
 private:
     static Napi::FunctionReference constructor;
     Napi::Value getWidth(const Napi::CallbackInfo &info);
@@ -27,6 +28,7 @@ private:
     void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
     void setHeight(const Napi::CallbackInfo &info, const Napi::Value &value);
     void createPNG(const Napi::CallbackInfo &info);
+    void createJPEG(const Napi::CallbackInfo &info);
 
     int mWidth = 0;
     int mHeight = 0;

@@ -8,11 +8,13 @@
 #include <unordered_map>
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
+#include "Util.h"
 
 namespace NodeBinding
 {
-extern void encodePixelsToFile(std::string filename, uint8_t *buffer, int width, int height);
+extern void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height);
 extern void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image);
+extern void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, int height);
 class GRenderContext
 {
 public:
@@ -20,13 +22,15 @@ public:
     {
     }
     GRenderContext(int width, int height);
-    virtual ~GRenderContext() {}
+    virtual ~GRenderContext();
     void initRenderEnviroment();
-    void render2file(std::string caseName);
+    void render2file(std::string caseName,PIC_FORMAT format);
     void drawFrame();
     GCanvasContext *getCtx() { return mCanvas->GetGCanvasContext(); }
     int inline getWdith() { return this->mWidth; }
     int inline getHeight() { return this->mHeight; }
+    void destoryRenderEnviroment();
+    void recordTextures(int textureId);
 
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
@@ -34,6 +38,13 @@ private:
     int mHeight;
     int mWidth;
     int drawCount = 0;
+    EGLDisplay mEglDisplay;
+    EGLSurface mEglSurface;
+    EGLContext mEglContext;
+    GLuint mFboId = 0;
+    GLuint mRenderBuffer = 0;
+    GLuint mDepthRenderbuffer = 0;
+    std::vector<int> textures;
 };
 } // namespace NodeBinding
 

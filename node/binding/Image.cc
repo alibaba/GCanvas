@@ -108,12 +108,18 @@ void ImageWorker::setOnLoadCallback(Napi::Function func)
 
 void ImageWorker::OnOK()
 {
-    this->onLoadCallback.Call({Env().Undefined()});
+    if (this->onLoadCallback)
+    {
+        this->onLoadCallback.Call({Env().Undefined()});
+    }
 }
 
 void ImageWorker::OnError(const Napi::Error &e)
 {
-    this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
+    if (this->onErrorCallback)
+    {
+        this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
+    }
 }
 
 void ImageWorker::Execute()
@@ -140,7 +146,20 @@ void ImageWorker::Execute()
             return;
         }
     }
-    lodepng::decode(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
+
+    PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
+    if (format == PNG_FORAMT)
+    {
+        decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
+    }
+    else if (format == JPEG_FORMAT)
+    {
+        decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+    }
+    else if (format == UNKOWN_PIC_FORMAT)
+    {
+        this->SetError(std::move("Image Format Unspported"));
+    }
     free(content.memory);
     content.memory = nullptr;
 }

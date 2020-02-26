@@ -53,7 +53,7 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("strokeText", &Context2D::strokeText),
                         InstanceMethod("transform", &Context2D::transform),
                         InstanceMethod("translate", &Context2D::translate),
-    
+
                         InstanceAccessor("fillStyle", &Context2D::getFillStyle, &Context2D::setFillStyle),
                         InstanceAccessor("font", &Context2D::getfont, &Context2D::setfont),
                         InstanceAccessor("globalAlpha", &Context2D::getglobalAlpha, &Context2D::setglobalAlpha),
@@ -152,6 +152,7 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
                     textureId, pattern->content->getWidth(),
                     pattern->content->getHeight(),
                     pattern->getRepetition().c_str(), false);
+                mRenderContext->recordTextures(textureId);
             }
             else
             {
@@ -353,6 +354,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
                                                   desY,                                  //desStartY
                                                   desWidth,                              //desWidth
                                                   desHeight);                            //desHeight
+
+        this->mRenderContext->recordTextures(textureId);
         this->mRenderContext->drawFrame();
     }
 }
@@ -427,6 +430,10 @@ Napi::Value Context2D::getImageData(const Napi::CallbackInfo &info)
         Napi::Object imageDataObj = ImageData::NewInstance(env, info[2], info[3]);
         ImageData *ptr = Napi::ObjectWrap<ImageData>::Unwrap(imageDataObj);
         this->mRenderContext->getCtx()->GetImageData(x, y, width, height, &ptr->getPixles()[0]);
+
+        //flipY
+        gcanvas::FlipPixel(&ptr->getPixles()[0], width, height);
+
         return imageDataObj;
     }
 }
@@ -916,6 +923,7 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                     textureId, pattern->content->getWidth(),
                     pattern->content->getHeight(),
                     pattern->getRepetition().c_str(), true);
+                this->mRenderContext->recordTextures(textureId);
             }
             else
             {
