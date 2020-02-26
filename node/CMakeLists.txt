@@ -89,6 +89,7 @@ target_link_libraries(${PROJECT_NAME}
                       glfw
                       freetype
                       boost_system
+                      jpeg
                       curl)
 
 # Include N-API wrappers

@@ -13,11 +13,11 @@ img.onload = () => {
     }
     img2.onload = () => {
         ctx.drawImage(img2, 150, 150, 100, 100);
-        canvas.createPNG("image");
+        canvas.createPNG("imagejpeg");
     }
-    img2.src = "https://alibaba.github.io/GCanvas/assets/logo-gcanvas.png"
+    img2.src = "http://192.168.2.101:3000/demo1.jpg"
 }
 img.onerror = err => {
     console.log(err)
 }
-img.src = "https://alibaba.github.io/GCanvas/assets/logo-gcanvas.png"
+img.src = 'http://192.168.2.101:3000/demo1.jpg'

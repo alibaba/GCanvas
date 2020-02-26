@@ -30,10 +30,10 @@ void GRenderContext::initRenderEnviroment()
 #endif
 
     // Step 1 - Get the default display.
-    EGLDisplay eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+    mEglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
 
     // Step 2 - Initialize EGL.
-    eglInitialize(eglDisplay, 0, 0);
+    eglInitialize(mEglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
     // Step 3 - Make OpenGL ES the current API.
@@ -56,7 +56,7 @@ void GRenderContext::initRenderEnviroment()
     // Step 5 - Find a config that matches all requirements.
     int iConfigs;
     EGLConfig eglConfig;
-    eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+    eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                     &iConfigs);
 
     if (iConfigs != 1)
@@ -66,25 +66,21 @@ void GRenderContext::initRenderEnviroment()
     }
 
     // Step 6 - Create a surface to draw to.
-    EGLSurface eglSurface;
-    // eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig,  (EGLNativeWindowType)NULL, NULL);
-    eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, NULL);
+
+    mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
-    EGLContext eglContext;
+
 #ifdef CONTEXT_ES20
-    eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+    mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
-    eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, NULL);
+    mEglContext = eglCreateContext(eglDisplay, eglConfig, NULL, NULL);
 #endif
 
     // Step 8 - Bind the context to the current thread
-    eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+    eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext);
     // end of standard gl context setup
 
     // Step 9 - create framebuffer object
-    GLuint fboId = 0;
-    glGenFramebuffers(1, &fboId);
-    glBindFramebuffer(GL_FRAMEBUFFER, fboId);
 
     GLuint renderBuffer;
     glGenRenderbuffers(1, &renderBuffer);
@@ -128,7 +124,7 @@ void GRenderContext::drawFrame()
     this->drawCount++;
 }
 
-void GRenderContext::render2file(std::string fileName)
+void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
 {
     int size = 4 * mCanvasWidth * mCanvasHeight;
     unsigned char *inputData = new unsigned char[size];
@@ -146,10 +142,65 @@ void GRenderContext::render2file(std::string fileName)
 
     gcanvas::PixelsSampler(mWidth * 2, mHeight * 2, reinterpret_cast<int *>(inputData), mWidth, mHeight, reinterpret_cast<int *>(data));
     gcanvas::FlipPixel(data, mWidth, mHeight);
+  
     delete inputData;
-
-    encodePixelsToFile(fileName + ".png", data, mWidth, mHeight);
+    inputData = nullptr;
+    
+    if (format == PNG_FORAMT)
+    {
+        encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
+    }
+    else if (format == JPEG_FORMAT)
+    {
+        encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
+    }
     delete data;
     data = nullptr;
+}
+
+void GRenderContext::destoryRenderEnviroment()
+{
+    if (this->mFboId != 0)
+    {
+        glDeleteFramebuffers(1, &this->mFboId);
+    }
+    if (this->mRenderBuffer != 0)
+    {
+        glDeleteRenderbuffers(1, &this->mRenderBuffer);
+    }
+    if (this->mDepthRenderbuffer != 0)
+    {
+        glDeleteRenderbuffers(1, &this->mDepthRenderbuffer);
+    }
+    if (this->textures.size() > 0)
+    {
+        glDeleteTextures(this->textures.size(), (GLuint *)&textures[0]);
+    }
+    if (mEglDisplay != EGL_NO_DISPLAY)
+    {
+        eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        if (mEglContext != EGL_NO_CONTEXT)
+        {
+            eglDestroyContext(mEglDisplay, mEglContext);
+        }
+        if (mEglSurface != EGL_NO_SURFACE)
+        {
+            eglDestroySurface(mEglDisplay, mEglSurface);
+        }
+        eglTerminate(mEglDisplay);
+    }
+    mEglDisplay = EGL_NO_DISPLAY;
+    mEglContext = EGL_NO_CONTEXT;
+    mEglSurface = EGL_NO_SURFACE;
+}
+
+void GRenderContext::recordTextures(int textureId)
+{
+    this->textures.push_back(textureId);
+}
+
+GRenderContext::~GRenderContext()
+{
+    this->destoryRenderEnviroment();
 }
 } // namespace NodeBinding

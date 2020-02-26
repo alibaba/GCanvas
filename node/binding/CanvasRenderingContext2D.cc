@@ -54,7 +54,7 @@ void Context2D::Init(Napi::Env env)
                         InstanceMethod("strokeText", &Context2D::strokeText),
                         InstanceMethod("transform", &Context2D::transform),
                         InstanceMethod("translate", &Context2D::translate),
-    
+
                         InstanceAccessor("fillStyle", &Context2D::getFillStyle, &Context2D::setFillStyle),
                         InstanceAccessor("font", &Context2D::getfont, &Context2D::setfont),
                         InstanceAccessor("globalAlpha", &Context2D::getglobalAlpha, &Context2D::setglobalAlpha),
@@ -153,6 +153,7 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
                     textureId, pattern->content->getWidth(),
                     pattern->content->getHeight(),
                     pattern->getRepetition().c_str(), false);
+                mRenderContext->recordTextures(textureId);
             }
             else
             {
@@ -414,6 +415,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
                                                   desY,                                  //desStartY
                                                   desWidth,                              //desWidth
                                                   desHeight);                            //desHeight
+
+        this->mRenderContext->recordTextures(textureId);
         this->mRenderContext->drawFrame();
     }
 }
@@ -572,7 +575,7 @@ void Context2D::putImageData(const Napi::CallbackInfo &info)
         int dirtyY = 0;
         int dirtyWidth = imgData->getWidth();
         int dirtyHeight = imgData->getHeight();
-        
+
         if (info.Length() == 7)
         {
             dirtyX = info[3].As<Napi::Number>().Int32Value();
@@ -981,6 +984,7 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                     textureId, pattern->content->getWidth(),
                     pattern->content->getHeight(),
                     pattern->getRepetition().c_str(), true);
+                this->mRenderContext->recordTextures(textureId);
             }
             else
             {

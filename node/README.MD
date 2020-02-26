@@ -5,7 +5,7 @@
   * 系统环境：ubuntu >=18:04
  *  工具链:cmake
  *  依赖安装
-       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev
+       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev libjpeg-dev
        * [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html)
 
 ### 环境搭建 Docker化
@@ -38,7 +38,7 @@ RUN cd ./freetype/freetype-2.8.1  && ./configure && make && make install
 
 RUN npm config set registry https://registry.npm.taobao.org && npm install -g cmake-js
 #install curl-dev lib 
-RUN apt-get install libcurl4-openssl-dev 
+RUN apt-get install libcurl4-openssl-dev libjpeg-dev
 
 
 ```

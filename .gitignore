@@ -10,7 +10,6 @@ external
 
 local.properties
 gradle/
-.gradle
 .idea/
 .gradle/
 *.iml
@@ -29,3 +28,4 @@ distribution/
 .vscode
 package-lock.json
 /node/*.png
+/node/*.jpg
