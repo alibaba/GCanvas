@@ -352,13 +352,27 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         if(  namePropetry == "canvas" )
         {
             Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(info[0].As<Napi::Object>());
-            srcWidth = canvas->getWidth();
-            srcHeight = canvas->getHeight();
+            textureWidth = canvas->getWidth();
+            textureHeight = canvas->getHeight();
+            srcWidth = textureWidth;
+            srcHeight = textureHeight;
+            
+            size_t size = srcWidth * srcHeight * 4;
+            uint8_t *pixels = new uint8_t[size];
+            if( !pixels )
+            {
+                printf("DrawImage with canvas, memory allocate failed!\n");
+                return;
+            }
 
-            GTexture* texture = mRenderContext->getCtx()->GetFboTexture();
-            textureWidth = texture->GetWidth();
-            textureHeight = texture->GetHeight();
-            textureId = texture->GetTextureID();
+            //fixme later
+            canvas->mRenderContext->BindFBO();
+            canvas->mRenderContext->getCtx()->GetImageData(0, 0, textureWidth, textureHeight, pixels);
+            int textureId = canvas->mRenderContext->getCtx()->BindImage(pixels, GL_RGBA, textureWidth, textureHeight);
+            printf("drawImage with canvas, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+            
+            delete [] pixels;
+            pixels = nullptr;
         }
     }
     else
@@ -369,6 +383,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         textureWidth = srcWidth;
         textureHeight = srcHeight;
         textureId = mRenderContext->getCtx()->BindImage( &image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+        printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+
     }
     
     // float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();

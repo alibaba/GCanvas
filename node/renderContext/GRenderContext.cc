@@ -151,9 +151,7 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
         return;
     }
 
-    BindFBO();
     glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
-    UnbindFBO();
 
     unsigned char *data = new unsigned char[4 * mWidth * mHeight];
     if( !data ){
@@ -236,16 +234,13 @@ void GRenderContext::recordTextures(int textureId)
 
 void GRenderContext::BindFBO()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
-    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
-}
+    GLint curFBOId = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curFBOId);
 
-void GRenderContext::UnbindFBO()
-{
+    if( curFBOId != mFboId )
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
+    }
 }
 
 GRenderContext::~GRenderContext()

@@ -35,7 +35,6 @@ public:
     void recordTextures(int textureId);
     
     void BindFBO();
-    void UnbindFBO();
 
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
