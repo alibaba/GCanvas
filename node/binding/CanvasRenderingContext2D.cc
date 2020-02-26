@@ -352,8 +352,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         if(  namePropetry == "canvas" )
         {
             Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(info[0].As<Napi::Object>());
-            srcWidth = canvas->Width();
-            srcHeight = canvas->Height();
+            srcWidth = canvas->getWidth();
+            srcHeight = canvas->getHeight();
 
             GTexture* texture = mRenderContext->getCtx()->GetFboTexture();
             textureWidth = texture->GetWidth();

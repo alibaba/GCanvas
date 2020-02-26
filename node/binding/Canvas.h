@@ -17,8 +17,8 @@ public:
     virtual ~Canvas();
     static Napi::Object NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2);
     Napi::ObjectReference mRef;
-    int Width();
-    int Height();
+    int getWidth();
+    int getHeight();
 private:
     static Napi::FunctionReference constructor;
     Napi::Value getWidth(const Napi::CallbackInfo &info);
