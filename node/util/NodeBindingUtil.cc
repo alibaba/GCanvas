@@ -100,7 +100,7 @@ void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image)
 PIC_FORMAT getImageTypeByMagic(const unsigned char *data, unsigned int len)
 {
     if (len < 16)
-        return UNKOWN;
+        return UNKOWN_PIC_FORMAT;
 
     // .jpg:  FF D8 FF
     // .png:  89 50 4E 47 0D 0A 1A 0A
@@ -116,23 +116,23 @@ PIC_FORMAT getImageTypeByMagic(const unsigned char *data, unsigned int len)
     switch (data[0])
     {
     case (unsigned char)'\xFF':
-        return (!strncmp((const char *)data, "\xFF\xD8\xFF", 3)) ? JPEG_FORMAT : UNKOWN;
+        return (!strncmp((const char *)data, "\xFF\xD8\xFF", 3)) ? JPEG_FORMAT : UNKOWN_PIC_FORMAT;
 
     case (unsigned char)'\x89':
         return (!strncmp((const char *)data,
                          "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8))
                    ? PNG_FORAMT
-                   : UNKOWN;
+                   : UNKOWN_PIC_FORMAT;
     default:
-        return UNKOWN;
+        return UNKOWN_PIC_FORMAT;
     }
 }
 
-PIC_FORMAT judgePicFormatFromContent(char *content, int len)
+PIC_FORMAT getPicFormatFromContent(char *content, int len)
 {
     if (content == nullptr || len <= 0)
     {
-        return UNKOWN;
+        return UNKOWN_PIC_FORMAT;
     }
     return getImageTypeByMagic((unsigned char *)content, (unsigned int)len);
 }

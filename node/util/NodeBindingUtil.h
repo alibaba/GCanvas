@@ -13,9 +13,9 @@ enum PIC_FORMAT
 {
     PNG_FORAMT,
     JPEG_FORMAT,
-    UNKOWN,
+    UNKOWN_PIC_FORMAT,
 };
-PIC_FORMAT judgePicFormatFromContent(char *content, int len);
+PIC_FORMAT getPicFormatFromContent(char *content, int len);
 void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len);
 void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len);
 int readLocalImage(const std::string &path, ImageContent *content);

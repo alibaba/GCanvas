@@ -147,7 +147,7 @@ void ImageWorker::Execute()
         }
     }
 
-    PIC_FORMAT format = judgePicFormatFromContent(content.memory, content.size);
+    PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
     if (format == PNG_FORAMT)
     {
         decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
@@ -156,7 +156,7 @@ void ImageWorker::Execute()
     {
         decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
     }
-    else if (format == UNKOWN)
+    else if (format == UNKOWN_PIC_FORMAT)
     {
         this->SetError(std::move("Image Format Unspported"));
     }
