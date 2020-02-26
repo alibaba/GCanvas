@@ -81,6 +81,8 @@ void GRenderContext::initRenderEnviroment()
     // end of standard gl context setup
 
     // Step 9 - create framebuffer object
+    glGenFramebuffers(1, &mFboId);
+    glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
 
     GLuint renderBuffer;
     glGenRenderbuffers(1, &renderBuffer);
@@ -137,6 +139,8 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     unsigned char *data = new unsigned char[4 * mWidth * mHeight];
     if( !data ){
         printf("Error: allocate data memeroy faied! \n");
+        delete inputData;
+        inputData = nullptr;
         return;
     }
 
