@@ -4,12 +4,19 @@
 #include "GFrameBufferObject.h"
 #include "GLUtil.h"
 #include "Util.h"
+#include <EGL/egl.h>
+#include <vector>
 
 namespace NodeBinding
 {
+
+static std::vector<GRenderContext*> g_RenderContextVC;
+static EGLDisplay g_eglDisplay = nullptr;
+static EGLContext g_eglContext = nullptr;
+
 GRenderContext::GRenderContext(int width, int height)
     : mWidth(width), mHeight(height), mRatio(2.0) {
-    GCanvasConfig config = {true, true};
+    GCanvasConfig config = {true, false};
     this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
     mCanvasWidth = width * mRatio;
     mCanvasHeight = height * mRatio;
@@ -30,10 +37,13 @@ void GRenderContext::initRenderEnviroment()
 #endif
 
     // Step 1 - Get the default display.
-    mEglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+    if( !g_eglDisplay )
+    {
+        g_eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+    }
 
     // Step 2 - Initialize EGL.
-    eglInitialize(mEglDisplay, 0, 0);
+    eglInitialize(g_eglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
     // Step 3 - Make OpenGL ES the current API.
@@ -56,7 +66,7 @@ void GRenderContext::initRenderEnviroment()
     // Step 5 - Find a config that matches all requirements.
     int iConfigs;
     EGLConfig eglConfig;
-    eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+    eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                     &iConfigs);
 
     if (iConfigs != 1)
@@ -67,34 +77,35 @@ void GRenderContext::initRenderEnviroment()
 
     // Step 6 - Create a surface to draw to.
 
-    mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
+    mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
 
-#ifdef CONTEXT_ES20
-    mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
-#else
-    mEglContext = eglCreateContext(eglDisplay, eglConfig, NULL, NULL);
-#endif
+    if( !g_eglContext )
+    {
+    #ifdef CONTEXT_ES20
+        g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+    #else
+        g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
+    #endif
+    }
 
     // Step 8 - Bind the context to the current thread
-    eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext);
+    eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext);
     // end of standard gl context setup
 
     // Step 9 - create framebuffer object
     glGenFramebuffers(1, &mFboId);
     glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
 
-    GLuint renderBuffer;
-    glGenRenderbuffers(1, &renderBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, renderBuffer);
+    glGenRenderbuffers(1, &mRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderBuffer);
-    GLuint depthRenderbuffer;
-    glGenRenderbuffers(1, &depthRenderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
+    glGenRenderbuffers(1, &mDepthRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
 
     // check FBO status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -104,6 +115,7 @@ void GRenderContext::initRenderEnviroment()
     }
     else
     {
+        printf("FBO create success %p, fboId=%d, renderbufferId=%d depthbufferId=%d\n", this, mFboId, mRenderBuffer, mDepthRenderbuffer);
         // printf("FBO creation succeddedn \n ");
     }
 
@@ -111,7 +123,11 @@ void GRenderContext::initRenderEnviroment()
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
     this->initCanvas();
+
+    g_RenderContextVC.push_back(this);
+
 }
+
 void GRenderContext::initCanvas()
 {
     mCanvas->CreateContext();
@@ -134,7 +150,10 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
         printf("Error: allocate inputData memeroy faied! \n");
         return;
     }
-    glReadPixels(0, 0, mWidth * 2, mHeight * 2, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
+
+    BindFBO();
+    glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
+    UnbindFBO();
 
     unsigned char *data = new unsigned char[4 * mWidth * mHeight];
     if( !data ){
@@ -144,7 +163,7 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
         return;
     }
 
-    gcanvas::PixelsSampler(mWidth * 2, mHeight * 2, reinterpret_cast<int *>(inputData), mWidth, mHeight, reinterpret_cast<int *>(data));
+    gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, reinterpret_cast<int *>(inputData), mWidth, mHeight, reinterpret_cast<int *>(data));
     gcanvas::FlipPixel(data, mWidth, mHeight);
   
     delete inputData;
@@ -180,27 +199,53 @@ void GRenderContext::destoryRenderEnviroment()
     {
         glDeleteTextures(this->textures.size(), (GLuint *)&textures[0]);
     }
-    if (mEglDisplay != EGL_NO_DISPLAY)
+
+    if (mEglSurface != EGL_NO_SURFACE)
     {
-        eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (mEglContext != EGL_NO_CONTEXT)
-        {
-            eglDestroyContext(mEglDisplay, mEglContext);
-        }
-        if (mEglSurface != EGL_NO_SURFACE)
-        {
-            eglDestroySurface(mEglDisplay, mEglSurface);
-        }
-        eglTerminate(mEglDisplay);
+        eglDestroySurface(g_eglDisplay, mEglSurface);
+        mEglSurface = EGL_NO_SURFACE;
     }
-    mEglDisplay = EGL_NO_DISPLAY;
-    mEglContext = EGL_NO_CONTEXT;
-    mEglSurface = EGL_NO_SURFACE;
+
+    std::vector<GRenderContext*>::iterator iter = find(g_RenderContextVC.begin(), g_RenderContextVC.end(), this);
+    if( iter != g_RenderContextVC.end() )
+    {
+        g_RenderContextVC.erase(iter);
+    }
+
+    if( g_RenderContextVC.size() <= 0 )
+    {
+        if (g_eglDisplay != EGL_NO_DISPLAY)
+        {
+            eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            if (g_eglContext != EGL_NO_CONTEXT)
+            {
+                eglDestroyContext(g_eglDisplay, g_eglContext);
+            }
+            eglTerminate(g_eglDisplay);
+        }
+
+        g_eglDisplay = EGL_NO_DISPLAY;
+        g_eglContext = EGL_NO_CONTEXT;
+    }
 }
 
 void GRenderContext::recordTextures(int textureId)
 {
     this->textures.push_back(textureId);
+}
+
+void GRenderContext::BindFBO()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
+    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
+}
+
+void GRenderContext::UnbindFBO()
+{
 }
 
 GRenderContext::~GRenderContext()
