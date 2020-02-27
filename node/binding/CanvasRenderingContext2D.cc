@@ -95,10 +95,10 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
     float width = info[2].As<Napi::Number>().FloatValue();
     float height = info[3].As<Napi::Number>().FloatValue();
 
-    if (this->mRenderContext)
+    if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->FillRect(x, y, width, height);
-        this->mRenderContext->drawFrame();
+        mRenderContext->getCtx()->FillRect(x, y, width, height);
+        mRenderContext->drawFrame();
     }
     return;
 }
@@ -107,12 +107,12 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
 {
     NodeBinding::checkArgs(info, 1);
 
-    if (this->mRenderContext)
+    if (mRenderContext)
     {
         if (value.IsString())
         {
             std::string arg = value.As<Napi::String>().Utf8Value();
-            this->mRenderContext->getCtx()->SetFillStyle(arg.c_str());
+            mRenderContext->getCtx()->SetFillStyle(arg.c_str());
         }
         else if (value.IsObject())
         {
@@ -167,9 +167,9 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
 Napi::Value Context2D::getFillStyle(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    if (this->mRenderContext)
+    if (mRenderContext)
     {
-        return Napi::String::New(env, gcanvas::ColorToString(this->mRenderContext->getCtx()->FillStyle()));
+        return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->FillStyle()));
     }
     return Napi::String::New(env, "");
 }
@@ -184,7 +184,7 @@ void Context2D::clearRect(const Napi::CallbackInfo &info)
     float height = info[3].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->ClearRect(x, y, width, height);
+        mRenderContext->getCtx()->ClearRect(x, y, width, height);
     }
 }
 
@@ -209,7 +209,7 @@ void Context2D::arc(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
+        mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
     }
 }
 void Context2D::arcTo(const Napi::CallbackInfo &info)
@@ -224,7 +224,7 @@ void Context2D::arcTo(const Napi::CallbackInfo &info)
     float r = info[4].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->ArcTo(x1, y1, x2, y2, r);
+        mRenderContext->getCtx()->ArcTo(x1, y1, x2, y2, r);
     }
 }
 void Context2D::beginPath(const Napi::CallbackInfo &info)
@@ -234,7 +234,7 @@ void Context2D::beginPath(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->BeginPath();
+        mRenderContext->getCtx()->BeginPath();
     }
 }
 void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
@@ -250,7 +250,7 @@ void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
     float y = info[5].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+        mRenderContext->getCtx()->BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
     }
 }
 void Context2D::clip(const Napi::CallbackInfo &info)
@@ -277,7 +277,7 @@ void Context2D::clip(const Napi::CallbackInfo &info)
     
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Clip(rule);
+        mRenderContext->getCtx()->Clip(rule);
     }
 }
 void Context2D::closePath(const Napi::CallbackInfo &info)
@@ -287,7 +287,7 @@ void Context2D::closePath(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->ClosePath();
+        mRenderContext->getCtx()->ClosePath();
     }
 }
 Napi::Value Context2D::createImageData(const Napi::CallbackInfo &info)
@@ -352,13 +352,27 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         if(  namePropetry == "canvas" )
         {
             Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(info[0].As<Napi::Object>());
-            srcWidth = canvas->Width();
-            srcHeight = canvas->Height();
+            textureWidth = canvas->getWidth();
+            textureHeight = canvas->getHeight();
+            srcWidth = textureWidth;
+            srcHeight = textureHeight;
+            
+            size_t size = srcWidth * srcHeight * 4;
+            uint8_t *pixels = new uint8_t[size];
+            if( !pixels )
+            {
+                printf("DrawImage with canvas, memory allocate failed!\n");
+                return;
+            }
 
-            GTexture* texture = mRenderContext->getCtx()->GetFboTexture();
-            textureWidth = texture->GetWidth();
-            textureHeight = texture->GetHeight();
-            textureId = texture->GetTextureID();
+            //fixme later
+            canvas->mRenderContext->BindFBO();
+            canvas->mRenderContext->getCtx()->GetImageData(0, 0, textureWidth, textureHeight, pixels);
+            int textureId = canvas->mRenderContext->getCtx()->BindImage(pixels, GL_RGBA, textureWidth, textureHeight);
+            printf("drawImage with canvas, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+            
+            delete [] pixels;
+            pixels = nullptr;
         }
     }
     else
@@ -369,6 +383,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         textureWidth = srcWidth;
         textureHeight = srcHeight;
         textureId = mRenderContext->getCtx()->BindImage( &image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+        printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+
     }
     
     // float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
@@ -400,24 +416,20 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
+        mRenderContext->getCtx()->DrawImage(textureId,
+                                            textureWidth, 
+                                            textureHeight, // image width & height
+                                            srcX,                                  // srcX
+                                            srcY,                                  // srcY
+                                            srcWidth,                              // srcWidth
+                                            srcHeight,                             //srcHeight
+                                            desX,                                  //desStartX
+                                            desY,                                  //desStartY
+                                            desWidth,                              //desWidth
+                                            desHeight);                            //desHeight
 
-
-
-        // int textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, image->getWidth(), image->getHeight());
-        this->mRenderContext->getCtx()->DrawImage(textureId,
-                                                  textureWidth, 
-                                                  textureHeight, // image width & height
-                                                  srcX,                                  // srcX
-                                                  srcY,                                  // srcY
-                                                  srcWidth,                              // srcWidth
-                                                  srcHeight,                             //srcHeight
-                                                  desX,                                  //desStartX
-                                                  desY,                                  //desStartY
-                                                  desWidth,                              //desWidth
-                                                  desHeight);                            //desHeight
-
-        this->mRenderContext->recordTextures(textureId);
-        this->mRenderContext->drawFrame();
+        mRenderContext->recordTextures(textureId);
+        mRenderContext->drawFrame();
     }
 }
 void Context2D::fill(const Napi::CallbackInfo &info)
@@ -443,8 +455,8 @@ void Context2D::fill(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Fill(rule);
-        this->mRenderContext->drawFrame();
+        mRenderContext->getCtx()->Fill(rule);
+        mRenderContext->drawFrame();
     }
 }
 void Context2D::fillText(const Napi::CallbackInfo &info)
@@ -464,13 +476,13 @@ void Context2D::fillText(const Napi::CallbackInfo &info)
         if (info.Length() == 4)
         {
             float maxWidth = info[3].As<Napi::Number>().FloatValue();
-            this->mRenderContext->getCtx()->DrawText(content.c_str(), x, y, maxWidth);
+            mRenderContext->getCtx()->DrawText(content.c_str(), x, y, maxWidth);
         }
         else
         {
-            this->mRenderContext->getCtx()->DrawText(content.c_str(), x, y);
+            mRenderContext->getCtx()->DrawText(content.c_str(), x, y);
         }
-        this->mRenderContext->drawFrame();
+        mRenderContext->drawFrame();
     }
 }
 Napi::Value Context2D::getImageData(const Napi::CallbackInfo &info)
@@ -490,7 +502,7 @@ Napi::Value Context2D::getImageData(const Napi::CallbackInfo &info)
 
         Napi::Object imageDataObj = ImageData::NewInstance(env, info[2], info[3]);
         ImageData *ptr = Napi::ObjectWrap<ImageData>::Unwrap(imageDataObj);
-        this->mRenderContext->getCtx()->GetImageData(x, y, width, height, &ptr->getPixles()[0]);
+        mRenderContext->getCtx()->GetImageData(x, y, width, height, &ptr->getPixles()[0]);
 
         //flipY
         gcanvas::FlipPixel(&ptr->getPixles()[0], width, height);
@@ -506,7 +518,7 @@ Napi::Value Context2D::getLineDash(const Napi::CallbackInfo &info)
     Napi::Array ret = Napi::Array::New(env);
     if (mRenderContext)
     {
-        std::vector<float> dash = this->mRenderContext->getCtx()->LineDash();
+        std::vector<float> dash = mRenderContext->getCtx()->LineDash();
         for (int i = 0; i < dash.size(); i++)
         {
             ret.Set(i, Napi::Number::New(env, dash[i]));
@@ -522,7 +534,7 @@ void Context2D::lineTo(const Napi::CallbackInfo &info)
     float y = info[1].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->LineTo(x, y);
+        mRenderContext->getCtx()->LineTo(x, y);
     }
 }
 Napi::Value Context2D::measureText(const Napi::CallbackInfo &info)
@@ -533,7 +545,7 @@ Napi::Value Context2D::measureText(const Napi::CallbackInfo &info)
     std::string text = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
-        float width = this->mRenderContext->getCtx()->MeasureTextWidth(text.c_str());
+        float width = mRenderContext->getCtx()->MeasureTextWidth(text.c_str());
         return TextMetrics::NewInstance(env, Napi::Number::New(env, width));
     }
     else
@@ -550,7 +562,7 @@ void Context2D::moveTo(const Napi::CallbackInfo &info)
     float y = info[1].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->MoveTo(x, y);
+        mRenderContext->getCtx()->MoveTo(x, y);
     }
 }
 void Context2D::putImageData(const Napi::CallbackInfo &info)
@@ -583,7 +595,7 @@ void Context2D::putImageData(const Napi::CallbackInfo &info)
             dirtyWidth = info[5].As<Napi::Number>().Int32Value();
             dirtyHeight = info[6].As<Napi::Number>().Int32Value();
         }
-        this->mRenderContext->getCtx()->PutImageData(
+        mRenderContext->getCtx()->PutImageData(
             &imgData->getPixles()[0], //content
             imgData->getWidth(),      //imageData width
             imgData->getHeight(),     //imageData height
@@ -606,7 +618,7 @@ void Context2D::quadraticCurveTo(const Napi::CallbackInfo &info)
     float y = info[3].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->QuadraticCurveTo(cpx, cpy, x, y);
+        mRenderContext->getCtx()->QuadraticCurveTo(cpx, cpy, x, y);
     }
 }
 void Context2D::rect(const Napi::CallbackInfo &info)
@@ -620,7 +632,7 @@ void Context2D::rect(const Napi::CallbackInfo &info)
     float height = info[3].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Rect(x, y, width, height);
+        mRenderContext->getCtx()->Rect(x, y, width, height);
     }
 }
 void Context2D::resetTransform(const Napi::CallbackInfo &info)
@@ -630,7 +642,7 @@ void Context2D::resetTransform(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->ResetTransform();
+        mRenderContext->getCtx()->ResetTransform();
     }
 }
 void Context2D::restore(const Napi::CallbackInfo &info)
@@ -640,7 +652,7 @@ void Context2D::restore(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Restore();
+        mRenderContext->getCtx()->Restore();
     }
 }
 void Context2D::rotate(const Napi::CallbackInfo &info)
@@ -650,7 +662,7 @@ void Context2D::rotate(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 1);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Rotate(angle);
+        mRenderContext->getCtx()->Rotate(angle);
     }
 }
 void Context2D::save(const Napi::CallbackInfo &info)
@@ -660,7 +672,7 @@ void Context2D::save(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Save();
+        mRenderContext->getCtx()->Save();
     }
 }
 void Context2D::scale(const Napi::CallbackInfo &info)
@@ -671,7 +683,7 @@ void Context2D::scale(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 2);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Scale(x, y);
+        mRenderContext->getCtx()->Scale(x, y);
     }
 }
 void Context2D::setLineDash(const Napi::CallbackInfo &info)
@@ -687,7 +699,7 @@ void Context2D::setLineDash(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->SetLineDash(std::move(dash));
+        mRenderContext->getCtx()->SetLineDash(std::move(dash));
     }
 }
 void Context2D::setCanvasRef(NodeBinding::Canvas *canvas)
@@ -708,7 +720,7 @@ void Context2D::setTransform(const Napi::CallbackInfo &info)
     float translateY = info[5].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->SetTransform(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
+        mRenderContext->getCtx()->SetTransform(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
     }
 }
 void Context2D::stroke(const Napi::CallbackInfo &info)
@@ -718,8 +730,8 @@ void Context2D::stroke(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Stroke();
-        this->mRenderContext->drawFrame();
+        mRenderContext->getCtx()->Stroke();
+        mRenderContext->drawFrame();
     }
 }
 void Context2D::strokeRect(const Napi::CallbackInfo &info)
@@ -732,8 +744,8 @@ void Context2D::strokeRect(const Napi::CallbackInfo &info)
     float height = info[3].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->StrokeRect(x, y, width, height);
-        this->mRenderContext->drawFrame();
+        mRenderContext->getCtx()->StrokeRect(x, y, width, height);
+        mRenderContext->drawFrame();
     }
 }
 void Context2D::strokeText(const Napi::CallbackInfo &info)
@@ -752,13 +764,13 @@ void Context2D::strokeText(const Napi::CallbackInfo &info)
         if (info.Length() == 4)
         {
             float maxWidth = info[3].As<Napi::Number>().FloatValue();
-            this->mRenderContext->getCtx()->StrokeText(content.c_str(), x, y, maxWidth);
+            mRenderContext->getCtx()->StrokeText(content.c_str(), x, y, maxWidth);
         }
         else
         {
-            this->mRenderContext->getCtx()->StrokeText(content.c_str(), x, y);
+            mRenderContext->getCtx()->StrokeText(content.c_str(), x, y);
         }
-        this->mRenderContext->drawFrame();
+        mRenderContext->drawFrame();
     }
 }
 void Context2D::transform(const Napi::CallbackInfo &info)
@@ -774,7 +786,7 @@ void Context2D::transform(const Napi::CallbackInfo &info)
     float translateY = info[5].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Transfrom(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
+        mRenderContext->getCtx()->Transfrom(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
     }
 }
 void Context2D::translate(const Napi::CallbackInfo &info)
@@ -785,7 +797,7 @@ void Context2D::translate(const Napi::CallbackInfo &info)
     NodeBinding::checkArgs(info, 2);
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->Translate(tx, ty);
+        mRenderContext->getCtx()->Translate(tx, ty);
     }
 }
 
@@ -859,7 +871,7 @@ void Context2D::setlineCap(const Napi::CallbackInfo &info, const Napi::Value &va
     std::string lineCap = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->SetLineCap(lineCap.c_str());
+        mRenderContext->getCtx()->SetLineCap(lineCap.c_str());
     }
 }
 void Context2D::setlineDashOffset(const Napi::CallbackInfo &info, const Napi::Value &value)
@@ -868,7 +880,7 @@ void Context2D::setlineDashOffset(const Napi::CallbackInfo &info, const Napi::Va
     if (mRenderContext)
     {
         float offset = info[0].As<Napi::Number>().FloatValue();
-        this->mRenderContext->getCtx()->SetLineDashOffset(offset);
+        mRenderContext->getCtx()->SetLineDashOffset(offset);
     }
 }
 void Context2D::setlineJoin(const Napi::CallbackInfo &info, const Napi::Value &value)
@@ -913,7 +925,7 @@ void Context2D::setshadowColor(const Napi::CallbackInfo &info, const Napi::Value
     std::string color = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
-        this->mRenderContext->getCtx()->SetShadowColor(color.c_str());
+        mRenderContext->getCtx()->SetShadowColor(color.c_str());
     }
 }
 void Context2D::setshadowOffsetX(const Napi::CallbackInfo &info, const Napi::Value &value)
@@ -937,12 +949,12 @@ void Context2D::setshadowOffsetY(const Napi::CallbackInfo &info, const Napi::Val
 void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value &value)
 {
     NodeBinding::checkArgs(info, 1);
-    if (this->mRenderContext)
+    if (mRenderContext)
     {
         if (value.IsString())
         {
             std::string arg = value.As<Napi::String>().Utf8Value();
-            this->mRenderContext->getCtx()->SetStrokeStyle(arg.c_str());
+            mRenderContext->getCtx()->SetStrokeStyle(arg.c_str());
         }
         else if (value.IsObject())
         {
@@ -984,7 +996,7 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                     textureId, pattern->content->getWidth(),
                     pattern->content->getHeight(),
                     pattern->getRepetition().c_str(), true);
-                this->mRenderContext->recordTextures(textureId);
+                mRenderContext->recordTextures(textureId);
             }
             else
             {
@@ -1230,9 +1242,9 @@ Napi::Value Context2D::getshadowOffsetY(const Napi::CallbackInfo &info)
 Napi::Value Context2D::getstrokeStyle(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    if (this->mRenderContext)
+    if (mRenderContext)
     {
-        return Napi::String::New(env, gcanvas::ColorToString(this->mRenderContext->getCtx()->StrokeStyle()));
+        return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->StrokeStyle()));
     }
     return Napi::String::New(env, "");
 }
@@ -1302,6 +1314,6 @@ Napi::Value Context2D::getCanvas(const Napi::CallbackInfo &info)
 
 Context2D::~Context2D()
 {
-    this->mRenderContext = nullptr;
+    mRenderContext = nullptr;
 }
 } // namespace NodeBinding

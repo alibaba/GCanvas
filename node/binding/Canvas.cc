@@ -16,12 +16,12 @@ Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
     mRenderContext->initRenderEnviroment();
 }
 
-int Canvas::Width()
+int Canvas::getWidth()
 {
     return mWidth;
 }
 
-int Canvas::Height()
+int Canvas::getHeight()
 {
     return mHeight;
 }

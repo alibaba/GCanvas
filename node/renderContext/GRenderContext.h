@@ -33,6 +33,8 @@ public:
     int inline getHeight() { return this->mHeight; }
     void destoryRenderEnviroment();
     void recordTextures(int textureId);
+    
+    void BindFBO();
 
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
@@ -43,9 +45,9 @@ private:
     int mCanvasWidth;
     int mRatio;
     int drawCount = 0;
-    EGLDisplay mEglDisplay;
+    // EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    EGLContext mEglContext;
+    // EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;

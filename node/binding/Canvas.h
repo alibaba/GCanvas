@@ -17,8 +17,10 @@ public:
     virtual ~Canvas();
     static Napi::Object NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2);
     Napi::ObjectReference mRef;
-    int Width();
-    int Height();
+    int getWidth();
+    int getHeight();
+    std::shared_ptr<GRenderContext> mRenderContext;
+    
 private:
     static Napi::FunctionReference constructor;
     Napi::Value getWidth(const Napi::CallbackInfo &info);
@@ -33,7 +35,6 @@ private:
 
     int mWidth = 0;
     int mHeight = 0;
-    std::shared_ptr<GRenderContext> mRenderContext;
 };
 } // namespace NodeBinding
 #endif
