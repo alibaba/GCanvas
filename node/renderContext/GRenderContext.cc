@@ -161,7 +161,7 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
         return;
     }
 
-    gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, reinterpret_cast<int *>(inputData), mWidth, mHeight, reinterpret_cast<int *>(data));
+    gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)inputData, mWidth, mHeight, (int *)data);
     gcanvas::FlipPixel(data, mWidth, mHeight);
   
     delete inputData;
