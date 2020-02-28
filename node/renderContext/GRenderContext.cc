@@ -1,25 +1,49 @@
 #include "GRenderContext.h"
 #include <fstream>
 #include <cmath>
+#include "GFrameBufferObject.h"
+#include "GLUtil.h"
+#include "Util.h"
+#include <EGL/egl.h>
+#include <vector>
+
 namespace NodeBinding
 {
-GRenderContext::GRenderContext(int width, int height) : mWidth(width), mHeight(height)
-{
-    GCanvasConfig config = {true, true};
-    this->mCanvas = std::make_shared<gcanvas::GCanvas>("benchmark", config, nullptr);
+
+static std::vector<GRenderContext*> g_RenderContextVC;
+static EGLDisplay g_eglDisplay = nullptr;
+static EGLContext g_eglContext = nullptr;
+
+GRenderContext::GRenderContext(int width, int height)
+    : mWidth(width), mHeight(height), mRatio(2.0) {
+    GCanvasConfig config = {true, false};
+    this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+    mCanvasWidth = width * mRatio;
+    mCanvasHeight = height * mRatio;
 }
 
-void GRenderContext::initRenderEnviroment()
+GRenderContext::GRenderContext(int width, int height, int ratio)
+    : mWidth(width), mHeight(height), mRatio(ratio) {
+    GCanvasConfig config = {true, true};
+    this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+    mCanvasWidth = width * mRatio;
+    mCanvasHeight = height * mRatio;
+}
+
+void GRenderContext::initRenderEnviroment() 
 {
 #ifdef CONTEXT_ES20
     EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 #endif
 
     // Step 1 - Get the default display.
-    mEglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+    if( !g_eglDisplay )
+    {
+        g_eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+    }
 
     // Step 2 - Initialize EGL.
-    eglInitialize(mEglDisplay, 0, 0);
+    eglInitialize(g_eglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
     // Step 3 - Make OpenGL ES the current API.
@@ -42,7 +66,7 @@ void GRenderContext::initRenderEnviroment()
     // Step 5 - Find a config that matches all requirements.
     int iConfigs;
     EGLConfig eglConfig;
-    eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+    eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                     &iConfigs);
 
     if (iConfigs != 1)
@@ -53,32 +77,33 @@ void GRenderContext::initRenderEnviroment()
 
     // Step 6 - Create a surface to draw to.
 
-    mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
+    mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
 
-#ifdef CONTEXT_ES20
-    mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
-#else
-    mEglContext = eglCreateContext(eglDisplay, eglConfig, NULL, NULL);
-#endif
+    if( !g_eglContext )
+    {
+    #ifdef CONTEXT_ES20
+        g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+    #else
+        g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
+    #endif
+    }
 
     // Step 8 - Bind the context to the current thread
-    eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext);
+    eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext);
     // end of standard gl context setup
 
     // Step 9 - create framebuffer object
-
     glGenFramebuffers(1, &mFboId);
     glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
 
     glGenRenderbuffers(1, &mRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
-
     glGenRenderbuffers(1, &mDepthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mWidth, mHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
 
@@ -90,6 +115,7 @@ void GRenderContext::initRenderEnviroment()
     }
     else
     {
+        printf("FBO create success %p, fboId=%d, renderbufferId=%d depthbufferId=%d\n", this, mFboId, mRenderBuffer, mDepthRenderbuffer);
         // printf("FBO creation succeddedn \n ");
     }
 
@@ -97,13 +123,18 @@ void GRenderContext::initRenderEnviroment()
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
     glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
     this->initCanvas();
+
+    g_RenderContextVC.push_back(this);
+
 }
+
 void GRenderContext::initCanvas()
 {
     mCanvas->CreateContext();
     mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("white"));
     mCanvas->GetGCanvasContext()->ClearScreen();
-    mCanvas->OnSurfaceChanged(0, 0, mWidth, mHeight);
+    mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
+    mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
 }
 void GRenderContext::drawFrame()
 {
@@ -113,26 +144,39 @@ void GRenderContext::drawFrame()
 
 void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
 {
-    int size = 4 * this->mWidth * this->mHeight;
-    unsigned char *data = nullptr;
-    data = new unsigned char[size];
-    glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    if (data)
-    {
-        if (format == PNG_FORAMT)
-        {
-            encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
-        }
-        else if (format == JPEG_FORMAT)
-        {
-            encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
-        }
+    int size = 4 * mCanvasWidth * mCanvasHeight;
+    unsigned char *inputData = new unsigned char[size];
+    if( !inputData ){
+        printf("Error: allocate inputData memeroy faied! \n");
+        return;
     }
-    if (data)
-    {
-        delete data;
-        data = nullptr;
+
+    glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
+
+    unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+    if( !data ){
+        printf("Error: allocate data memeroy faied! \n");
+        delete inputData;
+        inputData = nullptr;
+        return;
     }
+
+    gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)inputData, mWidth, mHeight, (int *)data);
+    gcanvas::FlipPixel(data, mWidth, mHeight);
+  
+    delete inputData;
+    inputData = nullptr;
+    
+    if (format == PNG_FORAMT)
+    {
+        encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
+    }
+    else if (format == JPEG_FORMAT)
+    {
+        encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
+    }
+    delete data;
+    data = nullptr;
 }
 
 void GRenderContext::destoryRenderEnviroment()
@@ -153,27 +197,50 @@ void GRenderContext::destoryRenderEnviroment()
     {
         glDeleteTextures(this->textures.size(), (GLuint *)&textures[0]);
     }
-    if (mEglDisplay != EGL_NO_DISPLAY)
+
+    if (mEglSurface != EGL_NO_SURFACE)
     {
-        eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (mEglContext != EGL_NO_CONTEXT)
-        {
-            eglDestroyContext(mEglDisplay, mEglContext);
-        }
-        if (mEglSurface != EGL_NO_SURFACE)
-        {
-            eglDestroySurface(mEglDisplay, mEglSurface);
-        }
-        eglTerminate(mEglDisplay);
+        eglDestroySurface(g_eglDisplay, mEglSurface);
+        mEglSurface = EGL_NO_SURFACE;
     }
-    mEglDisplay = EGL_NO_DISPLAY;
-    mEglContext = EGL_NO_CONTEXT;
-    mEglSurface = EGL_NO_SURFACE;
+
+    std::vector<GRenderContext*>::iterator iter = find(g_RenderContextVC.begin(), g_RenderContextVC.end(), this);
+    if( iter != g_RenderContextVC.end() )
+    {
+        g_RenderContextVC.erase(iter);
+    }
+
+    if( g_RenderContextVC.size() <= 0 )
+    {
+        if (g_eglDisplay != EGL_NO_DISPLAY)
+        {
+            eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            if (g_eglContext != EGL_NO_CONTEXT)
+            {
+                eglDestroyContext(g_eglDisplay, g_eglContext);
+            }
+            eglTerminate(g_eglDisplay);
+        }
+
+        g_eglDisplay = EGL_NO_DISPLAY;
+        g_eglContext = EGL_NO_CONTEXT;
+    }
 }
 
 void GRenderContext::recordTextures(int textureId)
 {
     this->textures.push_back(textureId);
+}
+
+void GRenderContext::BindFBO()
+{
+    GLint curFBOId = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curFBOId);
+
+    if( curFBOId != mFboId )
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
+    }
 }
 
 GRenderContext::~GRenderContext()

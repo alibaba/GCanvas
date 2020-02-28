@@ -9,6 +9,7 @@
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
 #include "Util.h"
+#include "GFrameBufferObject.h"
 
 namespace NodeBinding
 {
@@ -22,6 +23,7 @@ public:
     {
     }
     GRenderContext(int width, int height);
+    GRenderContext(int width, int height, int ratio);
     virtual ~GRenderContext();
     void initRenderEnviroment();
     void render2file(std::string caseName,PIC_FORMAT format);
@@ -31,16 +33,21 @@ public:
     int inline getHeight() { return this->mHeight; }
     void destoryRenderEnviroment();
     void recordTextures(int textureId);
+    
+    void BindFBO();
 
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
     int mHeight;
     int mWidth;
+    int mCanvasHeight;
+    int mCanvasWidth;
+    int mRatio;
     int drawCount = 0;
-    EGLDisplay mEglDisplay;
+    // EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    EGLContext mEglContext;
+    // EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
