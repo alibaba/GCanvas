@@ -1,65 +1,29 @@
-### GCanvas-node  源代码与运行文档
-### 环境搭建
+### GCanvas-node
 
-  * node 版本 >=10.0
-  * 系统环境：ubuntu >=18:04
- *  工具链:cmake
- *  依赖安装
-       * sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev libjpeg-dev
-       * [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html)
+### 简介
 
-### 环境搭建 Docker化
-Dockerfile
-```
+GCanvasNode是以GCanvas为backend的node渲染库
 
-FROM ubuntu:18.04
-
-ADD ./sources.list /etc/apt/sources.list
-
-RUN apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget
-
-
-ADD cmake.zip ./cmake/
-
-RUN apt-get install -y zip && cd ./cmake/ && unzip cmake.zip 
-
-
-ENV PATH="/cmake/cmake/bin/:${PATH}"
-
-RUN apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-RUN apt-get install -y nodejs 
-
-RUN export DISPLAY=':99.0' && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-
-ADD ./freetype.tar ./freetype/
-
-RUN cd ./freetype/freetype-2.8.1  && ./configure && make && make install
-
-RUN npm config set registry https://registry.npm.taobao.org && npm install -g cmake-js
-#install curl-dev lib 
-RUN apt-get install libcurl4-openssl-dev libjpeg-dev
-
+### 安装
 
 ```
+npm install @gcanvas/node
+```
+要求:保证node版本 >=10.0。
 
-### Node-canvas  源代码构建以及测试运行
- node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。  
 
-构建步骤如下
-  
- ``` 
-  npm install cmake-js -g //安装cmake-js
-  local=true npm install // 安装项目所需要的依赖,local=true表示本地构建
-  npm run dev // 构建node-addon的binding中间键
- ``` 
+### 编译
 
-运行步骤
+系统环境需要安装cmake构建工具，版本>=3.8.0
 
- ``` 
-   case=app.js npm run test //运行example下的js文件，输出运行结果，可以从导出的png图片中看
-   case=app.js npm run test-headless//如果没有diplay(系统视窗)环境，可以运行这行
- ```
+OS | Command
+----- | -----
+OS X | 即将支持
+Ubuntu 18.04 |  `sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev libjpeg-dev`  && install [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html) && install cmake
+Windows  | 暂不支持
+Docker   | [Dockerfile](./docker/Dockerfile)
+
+
 
 ### GCanvas-node 使用文档
 
@@ -204,7 +168,7 @@ img.src = path.join(__dirname,'images', 'image.png')
  
 
  ```   
- * ps:img的src现在仅仅支持png格式图片
+ * ps:img的src现在仅仅支持png或者jpeg格式图片
 
 ##### createPNG
  ```javascript
@@ -217,3 +181,35 @@ img.src = path.join(__dirname,'images', 'image.png')
    ctx.fillRect(0, 0, 150, 150) 
    canvas.createPNG("demo1") //生成一张png的图片
  ```  
+
+##### createPNG
+ ```javascript
+   createPNG(name:string) => void
+ ```  
+  ```javascript
+  const { createCanvas, Image } = require('bindings')('canvas');
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+ctx.fillStyle = '#09F' 
+ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
+canvas.createJPEG("demo2")
+
+ ```  
+
+ ### Node-canvas  源代码构建以及测试运行
+ node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。  
+
+构建步骤如下
+  
+ ``` 
+  npm install cmake-js -g //安装cmake-js
+  local=true npm install // 安装项目所需要的依赖,local=true表示本地构建
+  npm run dev // 构建node-addon的binding中间键
+ ``` 
+
+运行步骤
+
+ ``` 
+   case=app.js npm run test //运行example下的js文件，输出运行结果，可以从导出的png图片中看
+   case=app.js npm run test-headless//如果没有diplay(系统视窗)环境，可以运行这行
+ ```
