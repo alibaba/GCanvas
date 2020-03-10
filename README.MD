@@ -1,6 +1,6 @@
 # [GCanvas](https://alibaba.github.io/GCanvas/)
 
-GCanvas is a cross-platform rendering engine for mobile devices developed by Alibaba. It is written with C++ based on OpenGL ES,  so it can provide high performance 2D/WebGL rendering capabilities for Javascript runtime. It also  has browser-like canvas APIs, so it's very convenient and flexiable for use, especially for web developers.
+GCanvas is a cross-platform rendering engine for mobile devices developed by Alibaba. It is written with C++ based on OpenGL ES,  so it can provide high performance 2D/WebGL rendering capabilities for JavaScript runtime. It also  has browser-like canvas APIs, so it's very convenient and flexiable for use, especially for web developers.
 
 Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 
@@ -32,7 +32,7 @@ Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
 ## Features
 - Cross-platform, support popular iOS and Android.
 - High performance, accelerate graphic draw by OpenGL ES.
-- Provide javascript runtime,  such as [Weex](https://github.com/apache/incubator-weex) and [ReactNative](https://github.com/facebook/react-native/).  convenient to use Javascript API like HTML canvas.
+- Provide JavaScript runtime,  such as [Weex](https://github.com/apache/incubator-weex) and [ReactNative](https://github.com/facebook/react-native/).  convenient to use JavaScript API like HTML canvas.
 - Scalable Architecture, easy to implement a GCanvas bridge by yourself following the guide [Custom Native Bridge](https://alibaba.github.io/GCanvas/docs/Custom%20Bridge.html) .
 - Small size.
 
@@ -49,7 +49,7 @@ Follow [Weex Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCa
 ### ReactNative
 Follow [ReactNative Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html)  to integrate GCanvas on ReactNative.
 
-### Javascript
+### JavaScript
 Try our [Playground](https://alibaba.github.io/GCanvas/playground.html).
 GCanvas has browser-like canvas APIs, so almost all of the APIs are exactly same as HTML5 canvas. At this moment, we have already supported 90% of 2D APIs and 99% of WebGL APIs. You can find out those informations in [2D  APIs](https://alibaba.github.io/GCanvas/docs/Graphics%202D.html) and [WebGL APIs](https://alibaba.github.io/GCanvas/docs/WebGL.html).
 
