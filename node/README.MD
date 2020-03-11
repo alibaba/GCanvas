@@ -314,7 +314,7 @@ canvas.createJPEG("demo2")
  ```    
  ``` javascript
 
-   let canvas = createCanvas(400, 400);//
+   let canvas = createCanvas(400, 400);
  ``` 
   
   ##### Image
@@ -398,7 +398,7 @@ Node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。
  ``` 
   npm install cmake-js -g //安装cmake-js
   local=true npm install // 安装项目所需要的依赖,local=true表示基于源代码安装
-  npm run compile // 构建工程
+  cmake-js compile  // 构建工程
  ``` 
 
 运行步骤
@@ -418,7 +418,7 @@ Step Of Build
  ``` 
   npm install cmake-js -g //install cmake-js
   local=true npm install // install dependency ,local=true means install with source
-  npm run compile // build project
+  cmake-js compile // build project
  ``` 
 
 Step Of Running
