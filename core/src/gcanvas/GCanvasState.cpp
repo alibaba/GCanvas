@@ -50,6 +50,8 @@ GCanvasState::GCanvasState(const GCanvasState &state)
     mLineCap = state.mLineCap;
     mLineJoin = state.mLineJoin;
     mMiterLimit = state.mMiterLimit;
+    mLineDashOffset = state.mLineDashOffset;
+    mLineDash = state.mLineDash;
     mShader = state.mShader;
     
     mFillStyle = nullptr;
@@ -105,6 +107,8 @@ GCanvasState &GCanvasState::operator=(const GCanvasState &state)
     mLineCap = state.mLineCap;
     mLineJoin = state.mLineJoin;
     mMiterLimit = state.mMiterLimit;
+    mLineDashOffset = state.mLineDashOffset;
+    mLineDash = state.mLineDash;
     mShader = state.mShader;
     
     mFillStyle = nullptr;
@@ -143,6 +147,9 @@ GCanvasState &GCanvasState::operator=(const GCanvasState &state)
     {
         mClipPath = new GPath(*(state.mClipPath));
     }
+    
+    mTextureId = state.mTextureId;
+
     mShadowColor = state.mShadowColor;
     mShadowBlur = state.mShadowBlur;
     mShadowOffsetX = state.mShadowOffsetX;
@@ -168,5 +175,9 @@ GCanvasState::~GCanvasState()
     if (mFillStyle != nullptr)
     {
         delete mFillStyle;
+    }
+    if (mStrokeStyle != nullptr) {
+        delete mStrokeStyle;
+        mStrokeStyle = nullptr;
     }
 }
