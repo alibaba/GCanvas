@@ -608,7 +608,14 @@ void GPath::drawArcToContext(GCanvasContext *context, GPoint point,
     }
     else
     {
-        angle2 = acosf(v1.x * v2.x + v1.y * v2.y);
+		float v = v1.x * v2.x + v1.y * v2.y;
+		if( v < -1.0 ) {
+			v = -1.0;
+		}
+		else if( v > 1.0 ) {
+			v = 1.0;
+		}
+		angle2 = acosf( v );
     }
 
     if (fixAndroidCompatible && std::isnan(angle2))
