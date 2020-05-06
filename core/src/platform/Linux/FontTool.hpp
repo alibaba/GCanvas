@@ -14,39 +14,50 @@
 #include <vector>
 #include FT_FREETYPE_H
 
-namespace NSFontTool {
+namespace NSFontTool
+{
 
 inline bool walkDirectoryFiles(const std::string &dir,
-                        std::vector<std::string> &files) {
-  if (!boost::filesystem::exists(dir)) {
+                               std::vector<std::string> &files)
+{
+  if (!boost::filesystem::exists(dir))
+  {
     FAIL("Directory not exists: %s", dir.c_str());
     return false;
   }
-  if (!boost::filesystem::is_directory(dir)) {
+  if (!boost::filesystem::is_directory(dir))
+  {
     FAIL("Not a directory: %s", dir.c_str());
     return false;
   }
   bool res = false;
   for (boost::filesystem::directory_entry &x :
-       boost::filesystem::directory_iterator(dir)) {
+       boost::filesystem::directory_iterator(dir))
+  {
     auto &p = x.path();
-    if (boost::filesystem::is_regular_file(p)) {
+    if (boost::filesystem::is_regular_file(p))
+    {
       files.push_back(p.c_str());
       res = true;
-    } else if (boost::filesystem::is_directory(p)) {
+    }
+    else if (boost::filesystem::is_directory(p))
+    {
       res = walkDirectoryFiles(p.c_str(), files) || res;
     }
   }
   return res;
 }
 
-inline std::string getLoweredFileExt(const std::string &fp) {
+inline std::string getLoweredFileExt(const std::string &fp)
+{
   int e = fp.find_last_of(".");
-  if (e == fp.npos) {
+  if (e == fp.npos)
+  {
     return fp;
   }
   std::string ext = fp.substr(e + 1, fp.size() - e);
-  for (size_t i = 0; i < ext.size(); i++) {
+  for (size_t i = 0; i < ext.size(); i++)
+  {
     ext[i] = tolower(ext[i]);
   }
   return ext;
@@ -60,13 +71,16 @@ inline std::string getLoweredFileExt(const std::string &fp) {
  * 2) building typeface cache
  * 3) exporting/importing typeface cache
  */
-class TypefaceLoader {
+class TypefaceLoader
+{
 public:
-  enum TypefaceSourceType {
+  enum TypefaceSourceType
+  {
     TST_LOCAL,
     TST_NET,
   };
-  struct Typeface {
+  struct Typeface
+  {
     // source info
     TypefaceSourceType sourceType;
     std::string source;
@@ -80,22 +94,28 @@ public:
     std::string familyName;
     std::string styleName;
 
-    FT_Face getFace() {
-      if (face) {
+    FT_Face getFace()
+    {
+      if (face)
+      {
         return face;
       }
 
       TypefaceLoader *tl = TypefaceLoader::getInstance();
       ASSERT(tl);
 
-      if (sourceType == TST_LOCAL) {
-        if (0 != FT_New_Face(tl->getFreetype(), source.c_str(), index, &face)) {
+      if (sourceType == TST_LOCAL)
+      {
+        if (0 != FT_New_Face(tl->getFreetype(), source.c_str(), index, &face))
+        {
           FAIL("Failed to load typeface %lu from font: %s", index,
                source.c_str());
         }
         ASSERT(face);
         return face;
-      } else if (sourceType == TST_NET) {
+      }
+      else if (sourceType == TST_NET)
+      {
         FAIL("Unimplemented: loadFace from TST_NET");
         return nullptr;
       }
@@ -115,11 +135,14 @@ private:
 
   TypefaceLoader &operator=(const TypefaceLoader &) = delete;
 
-  TypefaceLoader *init() {
-    if (mInited) {
+  TypefaceLoader *init()
+  {
+    if (mInited)
+    {
       return this;
     }
-    if (0 != FT_Init_FreeType(&mFreetype)) {
+    if (0 != FT_Init_FreeType(&mFreetype))
+    {
       FAIL("Failed to init freetype.");
       return nullptr;
     }
@@ -128,29 +151,38 @@ private:
   }
 
 public:
-  ~TypefaceLoader() {
-    for (size_t i = 0; i < mFaces.size(); i++) {
-      if (mFaces[i].face) {
+  ~TypefaceLoader()
+  {
+    for (size_t i = 0; i < mFaces.size(); i++)
+    {
+      if (mFaces[i].face)
+      {
         FT_Done_Face(mFaces[i].face);
       }
     }
-    if (mFreetype) {
+    if (mFreetype)
+    {
       FT_Done_FreeType(mFreetype);
     }
   }
 
-  void clearFontCache() {
-    for (size_t i = 0; i < mFaces.size(); i++) {
-      if (mFaces[i].face) {
+  void clearFontCache()
+  {
+    for (size_t i = 0; i < mFaces.size(); i++)
+    {
+      if (mFaces[i].face)
+      {
         FT_Done_Face(mFaces[i].face);
       }
     }
     mFaces.clear();
   }
 
-  void dumpFontCache() {
+  void dumpFontCache()
+  {
     DEBUG("Number of cached typefaces: %lu", mFaces.size());
-    for (size_t i = 0; i < mFaces.size(); i++) {
+    for (size_t i = 0; i < mFaces.size(); i++)
+    {
       auto &face = mFaces[i];
       DEBUG("Typeface: %s, %s. (%s)", face.familyName.c_str(),
             face.styleName.c_str(), face.psName.c_str());
@@ -166,55 +198,66 @@ public:
 
   std::vector<Typeface> &getFaces() { return mFaces; }
 
-  static TypefaceLoader *getInstance() {
+  static TypefaceLoader *getInstance()
+  {
     static std::unique_ptr<TypefaceLoader> instance(new TypefaceLoader());
     ASSERT(instance);
     return instance->init();
   }
 
 public:
-  bool buildFontCacheFromDir(const std::string &dir) {
+  bool buildFontCacheFromDir(const std::string &dir)
+  {
     std::vector<std::string> files;
-    if (!walkDirectoryFiles(dir, files)) {
+    if (!walkDirectoryFiles(dir, files))
+    {
       return false;
     }
     bool res = false;
-    for (size_t i = 0; i < files.size(); i++) {
+    for (size_t i = 0; i < files.size(); i++)
+    {
       const std::string &ext = getLoweredFileExt(files[i]);
-      if (ext == "ttf" || ext == "ttc" || ext == "otf") {
+      if (ext == "ttf" || ext == "ttc" || ext == "otf")
+      {
         res = loadFontFromFile(files[i], true) || res;
       }
     }
     return res;
   }
 
-  bool buildFontCacheFromUrl(const std::string &url) {
+  bool buildFontCacheFromUrl(const std::string &url)
+  {
     return loadFontFromUrl(url, true);
   }
 
-  bool exportFontCache(const std::string &fp) {
+  bool exportFontCache(const std::string &fp)
+  {
     // TODO add validity info in cache file
 
     std::ofstream cacheFile(fp, std::ios::out | std::ios::binary);
-    if (!cacheFile.is_open()) {
+    if (!cacheFile.is_open())
+    {
       FAIL("Failed to open file to export font cache: %s", fp.c_str());
       return false;
     }
     size_t nFaces = mFaces.size();
     cacheFile.write((const char *)(&nFaces), sizeof(size_t));
     INFO("Exporting %lu typefaces...", nFaces);
-    for (size_t i = 0; i < nFaces; i++) {
+    for (size_t i = 0; i < nFaces; i++)
+    {
       const Typeface &face = mFaces[i];
       cacheFile.write((const char *)(&face.sourceType),
                       sizeof(TypefaceSourceType));
       cacheFile.write((const char *)(&face.index), sizeof(size_t));
-#define WRITE_STDSTR(s)                                                        \
-  do {                                                                         \
-    size_t len = s.size();                                                     \
-    cacheFile.write((const char *)(&len), sizeof(size_t));                     \
-    if (len > 0) {                                                             \
-      cacheFile.write((const char *)(&s[0]), len);                             \
-    }                                                                          \
+#define WRITE_STDSTR(s)                                    \
+  do                                                       \
+  {                                                        \
+    size_t len = s.size();                                 \
+    cacheFile.write((const char *)(&len), sizeof(size_t)); \
+    if (len > 0)                                           \
+    {                                                      \
+      cacheFile.write((const char *)(&s[0]), len);         \
+    }                                                      \
   } while (0)
       WRITE_STDSTR(face.source);
       WRITE_STDSTR(face.psName);
@@ -226,9 +269,11 @@ public:
     return true;
   }
 
-  bool importFontCache(const std::string &fp) {
+  bool importFontCache(const std::string &fp)
+  {
     std::ifstream cacheFile(fp, std::ios::in | std::ios::binary);
-    if (!cacheFile.is_open()) {
+    if (!cacheFile.is_open())
+    {
       FAIL("Failed to open file to import font cache: %s", fp.c_str());
       return false;
     }
@@ -239,50 +284,60 @@ public:
     cacheFile.read((char *)(&nFaces), sizeof(size_t));
     INFO("Importing %lu typefaces...", nFaces);
     mFaces.resize(nFaces);
-    for (size_t i = 0; i < nFaces; i++) {
+    for (size_t i = 0; i < nFaces; i++)
+    {
       Typeface &face = mFaces[i];
       cacheFile.read((char *)(&face.sourceType), sizeof(TypefaceSourceType));
       cacheFile.read((char *)(&face.index), sizeof(size_t));
       face.face = nullptr;
-#define READ_STDSTR(s)                                                         \
-  do {                                                                         \
-    size_t len = 0;                                                            \
-    cacheFile.read((char *)(&len), sizeof(size_t));                            \
-    if (len > 0) {                                                             \
-      s.resize(len);                                                           \
-      cacheFile.read((char *)(&s[0]), len);                                    \
-    }                                                                          \
+#define READ_STDSTR(s)                              \
+  do                                                \
+  {                                                 \
+    size_t len = 0;                                 \
+    cacheFile.read((char *)(&len), sizeof(size_t)); \
+    if (len > 0)                                    \
+    {                                               \
+      s.resize(len);                                \
+      cacheFile.read((char *)(&s[0]), len);         \
+    }                                               \
   } while (0)
       READ_STDSTR(face.source);
       READ_STDSTR(face.psName);
       READ_STDSTR(face.familyName);
       READ_STDSTR(face.styleName);
 #undef READ_STDSTR
+      face.source = FONT_PATH + face.source;
     }
+
     cacheFile.close();
     return true;
   }
 
-  bool loadFontFromFile(const std::string &fp, bool cache = false) {
+  bool loadFontFromFile(const std::string &fp, bool cache = false)
+  {
     ASSERT(mInited);
     FT_Face face;
     size_t nLoadedTypeface = 0;
     INFO("Loading font from file: %s", fp.c_str());
 
     // find out the number of typefaces in this font
-    if (0 != FT_New_Face(mFreetype, fp.c_str(), -1, &face)) {
+    if (0 != FT_New_Face(mFreetype, fp.c_str(), -1, &face))
+    {
       FAIL("Failed to load typefaces from font: %s", fp.c_str());
       return false;
     }
-    if (face->num_faces < 1) {
+    if (face->num_faces < 1)
+    {
       FAIL("Zero typeface in this font: %s", fp.c_str());
       return false;
     }
 
     // load actual typefaces
     size_t nFaces = face->num_faces;
-    for (size_t i = 0; i < nFaces; i++) {
-      if (0 != FT_New_Face(mFreetype, fp.c_str(), i, &face)) {
+    for (size_t i = 0; i < nFaces; i++)
+    {
+      if (0 != FT_New_Face(mFreetype, fp.c_str(), i, &face))
+      {
         FAIL("Failed to load typeface %lu from font: %s", i, fp.c_str());
         continue;
       }
@@ -296,21 +351,17 @@ public:
            psName.c_str());
 
       // skip fonts of invalid names
-      if (!((psName.find("?") == psName.npos) && (faName.find("?") == faName.npos) && (stName.find("?") == stName.npos))
-        || psName.empty() || psName == "-"
-        || stName.empty()
-        || psName == "UNKNOWN_POSTSCRIPT_NAME"
-        || faName == "UNKNOWN_FAMILY_NAME"
-        || stName == "UNKNOWN_STYLE_NAME") {
+      if (!((psName.find("?") == psName.npos) && (faName.find("?") == faName.npos) && (stName.find("?") == stName.npos)) || psName.empty() || psName == "-" || stName.empty() || psName == "UNKNOWN_POSTSCRIPT_NAME" || faName == "UNKNOWN_FAMILY_NAME" || stName == "UNKNOWN_STYLE_NAME")
+      {
         WARN("Skipping typeface of invalid names: %s, %s. (%s)",
              faName.c_str(), stName.c_str(), psName.c_str());
         FT_Done_Face(face);
         continue;
       }
 
-
       // reject non-vector-format typeface
-      if (0 == (face->face_flags & FT_FACE_FLAG_SCALABLE)) {
+      if (0 == (face->face_flags & FT_FACE_FLAG_SCALABLE))
+      {
         WARN("Skipping non-vector-format typeface: %s, %s. (%s)",
              faName.c_str(), stName.c_str(), psName.c_str());
         FT_Done_Face(face);
@@ -318,8 +369,10 @@ public:
       }
 
       // if load only cache, destroy face to reduce memory usage
-      if (cache) {
-        if (0 != FT_Done_Face(face)) {
+      if (cache)
+      {
+        if (0 != FT_Done_Face(face))
+        {
           FAIL("Failed to destroy typeface for making cache: %s, %s. (%s)",
                faName.c_str(), stName.c_str(), psName.c_str());
         }
@@ -341,13 +394,15 @@ public:
       nLoadedTypeface += 1;
     }
 
-    if (nLoadedTypeface > 0) {
+    if (nLoadedTypeface > 0)
+    {
       return true;
     }
     return false;
   }
 
-  bool loadFontFromUrl(const std::string &url, bool cache = false) {
+  bool loadFontFromUrl(const std::string &url, bool cache = false)
+  {
     FAIL("Unimplemented: loadFontFromUrl");
     return false;
   }
@@ -364,17 +419,21 @@ public:
  * 3) provide fallback typeface given charcode and name
  * 4) provide some caching mechanism to improve matching
  */
-class TypefaceProvider {
+class TypefaceProvider
+{
 public:
   typedef TypefaceLoader::Typeface Typeface;
 
-  struct CssFont {
-    enum FontStyle {
+  struct CssFont
+  {
+    enum FontStyle
+    {
       FS_NORMAL,
       FS_ITALIC,
       FS_OBLIQUE,
     };
-    enum FontWeight {
+    enum FontWeight
+    {
       FW_NUMBER_100 = 100,
       FW_NUMBER_200 = 200,
       FW_NUMBER_300 = 300,
@@ -384,7 +443,8 @@ public:
       FW_BOLD = 700,
       FW_NUMBER_800 = 800,
     };
-    enum FontStretch {
+    enum FontStretch
+    {
       FST_ULTRA_CONDENSED,
       FST_EXTRA_CONDENSED,
       FST_CONDENSED,
@@ -411,21 +471,25 @@ private:
   TypefaceProvider() : mTypefaceLoader(TypefaceLoader::getInstance()) {}
 
   std::vector<Typeface *>
-  selectTypefacesByPostscriptName(const std::string &name) {
+  selectTypefacesByPostscriptName(const std::string &name)
+  {
     ASSERT(mTypefaceLoader);
     std::vector<Typeface *> faces;
 
     auto &tfs = mTypefaceLoader->getFaces();
-    for (size_t i = 0; i < tfs.size(); i++) {
+    for (size_t i = 0; i < tfs.size(); i++)
+    {
       auto &tf = tfs[i];
-      if (tf.psName == name) {
+      if (tf.psName == name)
+      {
         faces.push_back(&tf);
       }
     }
     return std::move(faces);
   }
 
-  std::vector<Typeface *> selectTypefacesByCssFont(const std::string &font) {
+  std::vector<Typeface *> selectTypefacesByCssFont(const std::string &font)
+  {
     ASSERT(mTypefaceLoader);
     std::vector<Typeface *> faces;
 
@@ -435,17 +499,21 @@ private:
   }
 
 public:
-  static TypefaceProvider *getInstance() {
+  static TypefaceProvider *getInstance()
+  {
     static TypefaceProvider instance;
     return &instance;
   }
 
-  const std::vector<Typeface *> &selectTypefaces(const std::string &key = "") {
+  const std::vector<Typeface *> &selectTypefaces(const std::string &key = "")
+  {
     ASSERT(mTypefaceLoader);
 
     // return typefaces if already in cache
     auto it = mTypefacesCache.find(key);
-    if (it != mTypefacesCache.end()) {
+
+    if (it != mTypefacesCache.end())
+    {
       return it->second;
     }
 
@@ -453,9 +521,11 @@ public:
     std::vector<Typeface *> faces;
 
     // empty key means all available typefaces
-    if (key.empty()) {
+    if (key.empty())
+    {
       auto &tfs = mTypefaceLoader->getFaces();
-      for (size_t i = 0; i < tfs.size(); i++) {
+      for (size_t i = 0; i < tfs.size(); i++)
+      {
         faces.push_back(&tfs[i]);
       }
 
@@ -471,14 +541,16 @@ public:
 
     // try postscript name first
     faces = selectTypefacesByPostscriptName(key);
-    if (!faces.empty()) {
+    if (!faces.empty())
+    {
       mTypefacesCache[key] = std::move(faces);
       return mTypefacesCache[key];
     }
 
     // then try css font rule
     faces = selectTypefacesByCssFont(key);
-    if (!faces.empty()) {
+    if (!faces.empty())
+    {
       mTypefacesCache[key] = std::move(faces);
       return mTypefacesCache[key];
     }
@@ -487,23 +559,29 @@ public:
     return cEmptyFaces;
   }
 
-  Typeface *selectTypeface(wchar_t charcode, const std::string &key = "") {
+  Typeface *selectTypeface(wchar_t charcode, const std::string &key = "")
+  {
     const std::vector<Typeface *> &faces = selectTypefaces(key);
 
-    for (auto it = faces.rbegin(); it != faces.rend(); it++) {
+    for (auto it = faces.rbegin(); it != faces.rend(); it++)
+    {
       FT_Face face = (*it)->getFace();
       FT_UInt glyphIndex = FT_Get_Char_Index(face, charcode);
-      if (glyphIndex != 0) {
+      if (glyphIndex != 0)
+      {
         return (*it);
       }
     }
     return nullptr;
   }
 
-  Typeface *selectFallbackTypeface(const std::string &key = "") {
+  Typeface *selectFallbackTypeface(const std::string &key = "")
+  {
     const std::vector<Typeface *> &faces = selectTypefaces(key);
-    if (faces.empty()) {
-      if (key.empty()) {
+    if (faces.empty())
+    {
+      if (key.empty())
+      {
         WARN("Not even single fallback typeface is available.");
       }
       return nullptr;
@@ -532,19 +610,25 @@ public:
  *     *) support text decorations: underline, strikethrough
  *   c) provide text measuring APIs: measureText
  */
-class TextManager {
+class TextManager
+{
 public:
-  struct TextAtlases {};
+  struct TextAtlases
+  {
+  };
 
-  struct TextLayouter {
-    enum TextAlign {
+  struct TextLayouter
+  {
+    enum TextAlign
+    {
       TA_START,
       TA_END,
       TA_LEFT,
       TA_RIGHT,
       TA_CENTER,
     };
-    enum TextBaseline {
+    enum TextBaseline
+    {
       TB_TOP,
       TB_HANGING,
       TB_MIDDLE,
@@ -563,7 +647,8 @@ public:
   typedef TextLayouter::TextAlign TextAlign;
   typedef TextLayouter::TextBaseline TextBaseline;
 
-  enum TextDecoration {
+  enum TextDecoration
+  {
     TD_NONE,
     TD_UNDERLINE,
     TD_STRIKE_THROUGH,
@@ -582,7 +667,8 @@ private:
   FT_Face mCurrFace;
   TextDecoration mTextDecoration;
 
-  bool loadFaceOfChar(wchar_t charcode) {
+  bool loadFaceOfChar(wchar_t charcode)
+  {
     ASSERT(mTypefaceProvider);
     Typeface *t = nullptr;
 
@@ -590,37 +676,44 @@ private:
     t = mTypefaceProvider->selectTypeface(charcode, mFontName);
 
     // if not exists, find substitute typeface containing this glyph
-    if (!t) {
+    if (!t)
+    {
       t = mTypefaceProvider->selectTypeface(charcode);
     }
 
     // if not exsits, find fallback typeface mathcing font name
-    if (!t) {
+    if (!t)
+    {
       t = mTypefaceProvider->selectFallbackTypeface(mFontName);
     }
 
     // if not exists, find any available typeface
-    if (!t) {
+    if (!t)
+    {
       t = mTypefaceProvider->selectFallbackTypeface();
     }
 
     // if still not exists, fail the loading
-    if (!t) {
+    if (!t)
+    {
       return false;
     }
 
     // get face and setup charmap if it's the first time to load this face
     FT_Face f = t->getFace();
-    if (!f) {
+    if (!f)
+    {
       return false;
     }
-    if (f != mCurrFace) {
+    if (f != mCurrFace)
+    {
       mCurrFace = f;
 
       // set to unicode charmap by default
       // TODO add support for different charmap based on encoding guessing of
       // charcodes and on the actual charmaps of this typeface
-      if (0 != FT_Select_Charmap(mCurrFace, FT_ENCODING_UNICODE)) {
+      if (0 != FT_Select_Charmap(mCurrFace, FT_ENCODING_UNICODE))
+      {
         FAIL("Failed to set unicode encoding for typeface: %s, %s",
              mCurrFace->family_name, mCurrFace->style_name);
         return false;
@@ -628,7 +721,8 @@ private:
     }
 
     // set size
-    if (0 != FT_Set_Char_Size(mCurrFace, mFontSize * 64, 0, 300, 300)) {
+    if (0 != FT_Set_Char_Size(mCurrFace, mFontSize * 64, 0, 300, 300))
+    {
       FAIL("Failed to set size for typeface: %s, %s", mCurrFace->family_name,
            mCurrFace->style_name);
       return false;
@@ -638,13 +732,16 @@ private:
     return true;
   }
 
-  void dumpBitmap(const std::string &name, const FT_Bitmap &bitmap) {
+  void dumpBitmap(const std::string &name, const FT_Bitmap &bitmap)
+  {
     ASSERT(bitmap.pixel_mode == FT_PIXEL_MODE_GRAY);
     std::string fp = name + ".ppm";
 
     PPMWriter ppm(bitmap.width, bitmap.rows);
-    for (unsigned int i = 0; i < bitmap.width; i++) {
-      for (unsigned int j = 0; j < bitmap.rows; j++) {
+    for (unsigned int i = 0; i < bitmap.width; i++)
+    {
+      for (unsigned int j = 0; j < bitmap.rows; j++)
+      {
         double p = bitmap.buffer[i + bitmap.width * j];
         ppm.setPixel(i, j, p, p, p);
       }
@@ -652,25 +749,35 @@ private:
     ppm.writeFile(fp);
   }
 
-  void dumpOutline(const FT_Outline &outline) {
+  void dumpOutline(const FT_Outline &outline)
+  {
     short start = 0;
-    for (short i = 0; i < outline.n_contours; i++) {
+    for (short i = 0; i < outline.n_contours; i++)
+    {
       short end = outline.contours[i];
 
       printf("contour %d (%d points):", i, end - start + 1);
-      for (short j = start; j <= end; j++) {
+      for (short j = start; j <= end; j++)
+      {
         short tag = outline.tags[j];
 #define FP266(x) (x >> 6), (x & ((0x1 << 7) - 1))
-        if ((tag & 0x1) == 1) {
+        if ((tag & 0x1) == 1)
+        {
           printf(" P(%ld.%ld, %ld.%ld)", FP266(outline.points[j].x),
                  FP266(outline.points[j].y));
-        } else if ((tag & 0x3) == 0) {
+        }
+        else if ((tag & 0x3) == 0)
+        {
           printf(" CP2(%ld.%ld, %ld.%ld)", FP266(outline.points[j].x),
                  FP266(outline.points[j].y));
-        } else if ((tag & 0x3) == 2) {
+        }
+        else if ((tag & 0x3) == 2)
+        {
           printf(" CP3(%ld.%ld, %ld.%ld)", FP266(outline.points[j].x),
                  FP266(outline.points[j].y));
-        } else {
+        }
+        else
+        {
           printf(" (?)");
         }
 #undef FP266
@@ -687,7 +794,8 @@ public:
         mTypefaceProvider(TypefaceProvider::getInstance()), mCurrFace(nullptr),
         mTextDecoration(TD_NONE) {}
 
-  void setFont(const std::string &name, long size) {
+  void setFont(const std::string &name, long size)
+  {
     mFontName = name;
     mFontSize = size;
   }
@@ -702,23 +810,28 @@ public:
 
 public:
   bool drawText(const std::string &text, double x, double y,
-                bool isStroke = false) {
+                bool isStroke = false)
+  {
     std::wstring wtext = utf8converter.from_bytes(text);
 
-    for (size_t i = 0; i < wtext.size(); i++) {
-      if (!loadFaceOfChar(wtext[i])) {
+    for (size_t i = 0; i < wtext.size(); i++)
+    {
+      if (!loadFaceOfChar(wtext[i]))
+      {
         return false;
       }
       ASSERT(mCurrFace);
 
       FT_UInt gi = FT_Get_Char_Index(mCurrFace, wtext[i]);
-      if (0 != FT_Load_Glyph(mCurrFace, gi, 0)) {
+      if (0 != FT_Load_Glyph(mCurrFace, gi, 0))
+      {
         FAIL("Failed to load glyph of index: %u", gi);
         return false;
       }
 
       std::string glyphStr = utf8converter.to_bytes(wtext[i]);
-      if (0 != FT_Render_Glyph(mCurrFace->glyph, FT_RENDER_MODE_NORMAL)) {
+      if (0 != FT_Render_Glyph(mCurrFace->glyph, FT_RENDER_MODE_NORMAL))
+      {
         FAIL("Failed to render glyph to bitmap: %s", glyphStr.c_str());
         return false;
       }
@@ -730,17 +843,21 @@ public:
     return true;
   }
 
-  bool exportTextOutlines(const std::string &text, double x, double y) {
+  bool exportTextOutlines(const std::string &text, double x, double y)
+  {
     std::wstring wtext = utf8converter.from_bytes(text);
 
-    for (size_t i = 0; i < wtext.size(); i++) {
-      if (!loadFaceOfChar(wtext[i])) {
+    for (size_t i = 0; i < wtext.size(); i++)
+    {
+      if (!loadFaceOfChar(wtext[i]))
+      {
         return false;
       }
       ASSERT(mCurrFace);
 
       FT_UInt gi = FT_Get_Char_Index(mCurrFace, wtext[i]);
-      if (0 != FT_Load_Glyph(mCurrFace, gi, 0)) {
+      if (0 != FT_Load_Glyph(mCurrFace, gi, 0))
+      {
         FAIL("Failed to load glyph of index: %u", gi);
         return false;
       }
@@ -752,7 +869,8 @@ public:
     return true;
   }
 
-  double measureText(const std::string &text) {
+  double measureText(const std::string &text)
+  {
     WARN("Not implemented yet: measureText");
     std::wstring wtext = utf8converter.from_bytes(text);
     return 0;

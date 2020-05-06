@@ -13,8 +13,9 @@
     "debug": "cmake-js -D build",
     "compile": "cmake-js compile --CDCORE_DIR=./core/",
     "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
-    "test": "cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache",
-    "test-headless": "npm run prestart && cp ./third_party/font/wqy-microhei.ttc ./  &&  cp ./third_party/font/.fontcache  ./ &&  node ./examples/$case && rm  wqy-microhei.ttc .fontcache "
+    "movefont": "cp ./third_party/font/wqy-microhei.ttc /usr/local/share/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  /usr/local/share/fonts/.fontcache",
+    "test": "npm run movefont && node ./examples/$case",
+    "test-headless": "npm run prestart && npm run movefont && node ./examples/$case"
   },
   "main": "export.js",
   "engines": {

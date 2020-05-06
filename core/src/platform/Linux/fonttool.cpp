@@ -1,5 +1,4 @@
 #include "FontTool.hpp"
-#include "utils.hpp"
 #include "argh.h"
 #include <codecvt>
 #include <ft2build.h>

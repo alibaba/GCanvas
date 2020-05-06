@@ -11,8 +11,10 @@
 #include <assert.h>
 #include "support/Log.h"
 #include "GFont.h"
+#include "utils.hpp"
 #include "GFontCache.h"
 #include "support/CharacterSet.h"
+
 
 
 class GFontManagerImplement : public GFontManager
@@ -62,7 +64,9 @@ GFontManagerImplement::GFontManagerImplement(GCanvasContext *context) : GFontMan
     using NSFontTool::TypefaceLoader;
     TypefaceLoader *tl = TypefaceLoader::getInstance();
     ASSERT(tl);
-    ASSERT(tl->importFontCache(".fontcache"));  
+    std::string path= FONT_PATH".fontcache";
+    printf("the font path is %s",path.c_str());
+    ASSERT(tl->importFontCache(path));  
 
 }
 
