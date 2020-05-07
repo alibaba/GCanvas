@@ -1,5 +1,5 @@
 {
-  "name": "@gcanvas/node",
+  "name": "luckzhiwei",
   "version": "1.0.1",
   "description": "gcanvas for node developer",
   "dependencies": {
@@ -13,7 +13,7 @@
     "debug": "cmake-js -D build",
     "compile": "cmake-js compile --CDCORE_DIR=./core/",
     "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
-    "movefont": "mkdir -p ~/gcanvasAssets/fonts/   && cp ./third_party/font/wqy-microhei.ttc ~/gcanvasAssets/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  ~/gcanvasAssets/fonts/.fontcache",
+    "movefont": "mkdir -p ~/.gAssets/fonts/   && cp ./third_party/font/wqy-microhei.ttc ~/.gAssets/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  ~/.gAssets/fonts/.fontcache",
     "test": "npm run movefont && node ./examples/$case",
     "test-headless": "npm run prestart && npm run movefont && node ./examples/$case"
   },
