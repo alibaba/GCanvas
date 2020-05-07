@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
-#define FONT_PATH "/usr/local/share/fonts/"
+#define FONT_PATH "/gcanvasAssets/fonts/"
 /*****************************************************************************/
 /* Common                                                                    */
 /*****************************************************************************/

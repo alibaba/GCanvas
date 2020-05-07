@@ -284,6 +284,8 @@ public:
     cacheFile.read((char *)(&nFaces), sizeof(size_t));
     INFO("Importing %lu typefaces...", nFaces);
     mFaces.resize(nFaces);
+    std::string home(getenv("HOME"));
+    std::string pathPreFix= home+ FONT_PATH;
     for (size_t i = 0; i < nFaces; i++)
     {
       Typeface &face = mFaces[i];
@@ -306,7 +308,8 @@ public:
       READ_STDSTR(face.familyName);
       READ_STDSTR(face.styleName);
 #undef READ_STDSTR
-      face.source = FONT_PATH + face.source;
+
+      face.source = pathPreFix + face.source;
     }
 
     cacheFile.close();

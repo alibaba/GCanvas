@@ -13,7 +13,7 @@
     "debug": "cmake-js -D build",
     "compile": "cmake-js compile --CDCORE_DIR=./core/",
     "prestart": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
-    "movefont": "cp ./third_party/font/wqy-microhei.ttc /usr/local/share/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  /usr/local/share/fonts/.fontcache",
+    "movefont": "mkdir -p ~/gcanvasAssets/fonts/   && cp ./third_party/font/wqy-microhei.ttc ~/gcanvasAssets/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  ~/gcanvasAssets/fonts/.fontcache",
     "test": "npm run movefont && node ./examples/$case",
     "test-headless": "npm run prestart && npm run movefont && node ./examples/$case"
   },
