@@ -1,13 +1,13 @@
 {
-  "name": "@gcanvas/node",
-  "version": "1.0.1",
+  "name": "luckzhiwei-gcanvas",
+  "version": "1.1.4",
   "description": "gcanvas for node developer",
   "dependencies": {
     "bindings": "~1.2.1",
     "node-addon-api": "^1.0.0"
   },
   "scripts": {
-    "preinstall": "npm install cmake-js -g",
+    "preinstall": "sudo npm install cmake-js -g",
     "install": "./script/install.sh $local",
     "dev": "cmake-js build",
     "debug": "cmake-js -D build",
