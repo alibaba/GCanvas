@@ -99,7 +99,7 @@ void GRenderContext::initRenderEnviroment()
 
     glGenRenderbuffers(1, &mRenderBuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA ,mCanvasWidth, mCanvasHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
     glGenRenderbuffers(1, &mDepthRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
