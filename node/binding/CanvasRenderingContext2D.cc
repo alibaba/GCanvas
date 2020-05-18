@@ -100,6 +100,7 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->FillRect(x, y, width, height);
         mRenderContext->drawFrame();
     }
+    printf("fillRect called \n");
     return;
 }
 
@@ -129,18 +130,24 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mLinearGradientInfo->startX, gradient->mLinearGradientInfo->startY};
                 float endArr[] = {gradient->mLinearGradientInfo->endX, gradient->mLinearGradientInfo->endY};
-                float *offsetArr = &gradient->getOffsets()[0];
-                std::string *colorArray = &gradient->getColors()[0];
-                mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
+                 const  std::vector<ColorStop> colorStop=gradient->getColorStops();
+                float offsetArr[colorStop.size()];
+                std::string colorArray[colorStop.size()];
+               for(int i=0;i<colorStop.size();i++){
+                       printf("the offset is %f  the color is %s \n",colorStop[i].offset,colorStop[i].color.c_str());
+                      offsetArr[i]=colorStop[i].offset;
+                      colorArray[i]=colorStop[i].color;
+               }
+               mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
             }
             else if (namePropetry == "radialGradient")
             {
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mRadialGradientInfo->startX, gradient->mRadialGradientInfo->startY, gradient->mRadialGradientInfo->startR};
                 float endArr[] = {gradient->mRadialGradientInfo->endX, gradient->mRadialGradientInfo->endY, gradient->mRadialGradientInfo->endR};
-                float *offsetArr = &gradient->getOffsets()[0];
-                std::string *colorArray = &gradient->getColors()[0];
-                mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
+                // float *offsetArr = &gradient->getOffsets()[0];
+                // std::string *colorArray = &gradient->getColors()[0];
+                // mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
             }
             else if (namePropetry == "pattern")
             {
@@ -161,6 +168,7 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
             }
         }
     }
+    printf("setFillStyle called \n");
     return;
 }
 
@@ -171,6 +179,7 @@ Napi::Value Context2D::getFillStyle(const Napi::CallbackInfo &info)
     {
         return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->FillStyle()));
     }
+    printf("getFillStyle called \n");
     return Napi::String::New(env, "");
 }
 
@@ -186,6 +195,7 @@ void Context2D::clearRect(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ClearRect(x, y, width, height);
     }
+    printf("clearRect called \n");
 }
 
 void Context2D::arc(const Napi::CallbackInfo &info)
@@ -209,8 +219,10 @@ void Context2D::arc(const Napi::CallbackInfo &info)
     }
     if (mRenderContext)
     {
+        printf("the x is %f y is %f r is %f \n",x,y,r);
         mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
     }
+        printf("arc called \n");
 }
 void Context2D::arcTo(const Napi::CallbackInfo &info)
 {
@@ -226,6 +238,7 @@ void Context2D::arcTo(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ArcTo(x1, y1, x2, y2, r);
     }
+    printf("arcTo called \n");
 }
 void Context2D::beginPath(const Napi::CallbackInfo &info)
 {
@@ -236,6 +249,7 @@ void Context2D::beginPath(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->BeginPath();
     }
+    printf("beginPath called \n");
 }
 void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
 {
@@ -279,6 +293,7 @@ void Context2D::clip(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Clip(rule);
     }
+    printf("clip called \n");
 }
 void Context2D::closePath(const Napi::CallbackInfo &info)
 {
@@ -289,6 +304,7 @@ void Context2D::closePath(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ClosePath();
     }
+     printf("closePath called \n");
 }
 Napi::Value Context2D::createImageData(const Napi::CallbackInfo &info)
 {
@@ -302,6 +318,7 @@ Napi::Value Context2D::createLinearGradient(const Napi::CallbackInfo &info)
     Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 4);
+    printf("createLinearGradient called \n");
     return Gradient::NewInstance(env, info);
 }
 Napi::Value Context2D::createPattern(const Napi::CallbackInfo &info)
@@ -313,18 +330,19 @@ Napi::Value Context2D::createPattern(const Napi::CallbackInfo &info)
     Napi::Object ret = Pattern::NewInstance(env, info[1]);
     Pattern *pattern = Napi::ObjectWrap<Pattern>::Unwrap(ret);
     pattern->content = std::make_shared<Image>(*img);
+    printf("createPattern called");
     return ret;
 }
 Napi::Value Context2D::createRadialGradient(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 6);
+    printf("createRadialGradient called");
     return Gradient::NewInstance(env, info);
 }
 void Context2D::drawImage(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    printf("drawimage call \n");
     if (info.Length() < 3 || (info.Length() != 3 && info.Length() != 5 && info.Length() != 9))
     {
         Napi::TypeError::New(info.Env(), "wrong argument number")
@@ -431,6 +449,7 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         mRenderContext->recordTextures(textureId);
         mRenderContext->drawFrame();
     }
+     printf("drawImage called \n");
 }
 void Context2D::fill(const Napi::CallbackInfo &info)
 {
@@ -458,6 +477,7 @@ void Context2D::fill(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->Fill(rule);
         mRenderContext->drawFrame();
     }
+    printf("fill called \n");
 }
 void Context2D::fillText(const Napi::CallbackInfo &info)
 {
@@ -564,6 +584,7 @@ void Context2D::moveTo(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->MoveTo(x, y);
     }
+    printf("move to called \n");
 }
 void Context2D::putImageData(const Napi::CallbackInfo &info)
 {
@@ -634,6 +655,7 @@ void Context2D::rect(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Rect(x, y, width, height);
     }
+    printf("rect called");
 
 }
 void Context2D::resetTransform(const Napi::CallbackInfo &info)
@@ -645,6 +667,7 @@ void Context2D::resetTransform(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ResetTransform();
     }
+    printf("resetTransform called \n");
 }
 void Context2D::restore(const Napi::CallbackInfo &info)
 {
@@ -655,6 +678,7 @@ void Context2D::restore(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Restore();
     }
+        printf("restore called \n");
 }
 void Context2D::rotate(const Napi::CallbackInfo &info)
 {
@@ -671,6 +695,7 @@ void Context2D::save(const Napi::CallbackInfo &info)
     Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
+    printf("saved called \n");
     if (mRenderContext)
     {
         mRenderContext->getCtx()->Save();
@@ -686,6 +711,7 @@ void Context2D::scale(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Scale(x, y);
     }
+    printf("scale called \n");
 }
 void Context2D::setLineDash(const Napi::CallbackInfo &info)
 {
@@ -781,14 +807,15 @@ void Context2D::transform(const Napi::CallbackInfo &info)
 
     NodeBinding::checkArgs(info, 6);
     float scaleX = info[0].As<Napi::Number>().FloatValue();
-    float scaleY = info[1].As<Napi::Number>().FloatValue();
-    float rotateX = info[2].As<Napi::Number>().FloatValue();
-    float rototaY = info[3].As<Napi::Number>().FloatValue();
+    float  rotateX= info[1].As<Napi::Number>().FloatValue();
+    float rotateY = info[2].As<Napi::Number>().FloatValue();
+    float scaleY = info[3].As<Napi::Number>().FloatValue();
     float translateX = info[4].As<Napi::Number>().FloatValue();
     float translateY = info[5].As<Napi::Number>().FloatValue();
+    printf("the Transfrom called  scaleX %f scaleY %f rotateX %f rototaY %f translateX %f  translateY %f \n",scaleX,scaleY,rotateX,rotateY,translateX,translateY);
     if (mRenderContext)
     {
-        mRenderContext->getCtx()->Transfrom(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
+        mRenderContext->getCtx()->Transfrom(scaleX, rotateX, rotateY, scaleY, translateX, translateY);
     }
 }
 void Context2D::translate(const Napi::CallbackInfo &info)
@@ -801,6 +828,7 @@ void Context2D::translate(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Translate(tx, ty);
     }
+    printf("translate called \n");
 }
 
 void Context2D::setfont(const Napi::CallbackInfo &info, const Napi::Value &value)
@@ -973,8 +1001,14 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mLinearGradientInfo->startX, gradient->mLinearGradientInfo->startY};
                 float endArr[] = {gradient->mLinearGradientInfo->endX, gradient->mLinearGradientInfo->endY};
-                float *offsetArr = &gradient->getOffsets()[0];
-                std::string *colorArray = &gradient->getColors()[0];
+               const  std::vector<ColorStop> colorStop=gradient->getColorStops();
+                float offsetArr[colorStop.size()];
+                std::string colorArray[colorStop.size()];
+               for(int i=0;i<colorStop.size();i++){
+                      printf("the offset is %f  the color is %s",colorStop[i].offset,colorStop[i].color.c_str());
+                      offsetArr[i]=colorStop[i].offset;
+                      colorArray[i]=colorStop[i].color;
+               }
                 mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
             }
             else if (namePropetry == "radialGradient")
@@ -982,9 +1016,9 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mRadialGradientInfo->startX, gradient->mRadialGradientInfo->startY, gradient->mRadialGradientInfo->startR};
                 float endArr[] = {gradient->mRadialGradientInfo->endX, gradient->mRadialGradientInfo->endY, gradient->mRadialGradientInfo->endR};
-                float *offsetArr = &gradient->getOffsets()[0];
-                std::string *colorArray = &gradient->getColors()[0];
-                mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
+                // float *offsetArr = &gradient->getOffsets()[0];
+                // std::string *colorArray = &gradient->getColors()[0];
+                // mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
             }
             else if (namePropetry == "pattern")
             {

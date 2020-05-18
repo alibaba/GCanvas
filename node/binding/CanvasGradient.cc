@@ -1,6 +1,7 @@
 #include "CanvasGradient.h"
 #include "CanvasRenderingContext2D.h"
 #include "NodeBindingUtil.h"
+#include <algorithm> 
 namespace NodeBinding
 {
 Napi::FunctionReference Gradient::constructor;
@@ -82,8 +83,12 @@ void Gradient::addColorStop(const Napi::CallbackInfo &info)
         throwError(info, "the arg type is invaild");
     }
     std::string color = info[1].As<Napi::String>().Utf8Value();
-    offsets.push_back(offset);
-    colors.push_back(std::move(color));
+    offsets.push_back(ColorStop(offset,color));
+    std::sort(offsets.begin(),offsets.end(),less_than_key());
     return;
+}
+
+const   std::vector<ColorStop> &  Gradient::getColorStops(){
+        return this->offsets;
 }
 } // namespace NodeBinding
