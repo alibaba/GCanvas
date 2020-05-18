@@ -5,7 +5,15 @@
 #include "Canvas.h"
 #include "TextMetrics.h"
 
-#define INSTANCE_METHOD()
+#define DEFINE_VOID_METHOD(method_name) \ 
+     void Context2D::method_name(const Napi::CallbackInfo &info){   \
+      printf("the function:  " #method_name " is  called \n");   \ 
+
+
+#define DEFINE_RETURN_VALUE_METHOD(method_name) \ 
+     Napi::Value  Context2D::method_name(const Napi::CallbackInfo &info){   \
+    printf("the function : " #method_name " is  called \n");   \ 
+
 
 namespace NodeBinding
 {
@@ -103,7 +111,6 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->FillRect(x, y, width, height);
         mRenderContext->drawFrame();
     }
-    printf("fillRect called \n");
     return;
 }
 
@@ -178,15 +185,12 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
     printf("setFillStyle called \n");
     return;
 }
-
-Napi::Value Context2D::getFillStyle(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_RETURN_VALUE_METHOD(getFillStyle)
+        Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->FillStyle()));
     }
-    printf("getFillStyle called \n");
     return Napi::String::New(env, "");
 }
 
@@ -697,17 +701,19 @@ void Context2D::rotate(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->Rotate(angle);
     }
 }
-void Context2D::save(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
-
+DEFINE_VOID_METHOD(save)
+     Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 0);
-    printf("saved called \n");
     if (mRenderContext)
     {
         mRenderContext->getCtx()->Save();
     }
 }
+
+// void Context2D::save(const Napi::CallbackInfo &info)
+// {
+
+// }
 void Context2D::scale(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
