@@ -40,6 +40,7 @@ public:
     static void Init(Napi::Env env, Napi::Object exports);
     int getWidth();
     int getHeight();
+    int textureId=-1;
     std::vector<unsigned char> &getPixels();
 
 private:

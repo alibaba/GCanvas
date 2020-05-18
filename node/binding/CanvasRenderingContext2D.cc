@@ -274,7 +274,7 @@ void Context2D::clip(const Napi::CallbackInfo &info)
             throwError(info, "fill rule value invaild");
         }
     }
-    
+
     if (mRenderContext)
     {
         mRenderContext->getCtx()->Clip(rule);
@@ -324,7 +324,7 @@ Napi::Value Context2D::createRadialGradient(const Napi::CallbackInfo &info)
 void Context2D::drawImage(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-
+    printf("drawimage call \n");
     if (info.Length() < 3 || (info.Length() != 3 && info.Length() != 5 && info.Length() != 9))
     {
         Napi::TypeError::New(info.Env(), "wrong argument number")
@@ -332,7 +332,7 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         return;
     }
 
-    if( !mRenderContext )
+    if (!mRenderContext)
     {
         throwError(info, "rendercontext invaild");
         return;
@@ -342,24 +342,24 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
 
     int textureId = 0;
-    int textureWidth = 0, textureHeight = 0; 
+    int textureWidth = 0, textureHeight = 0;
 
     Napi::Object object = info[0].As<Napi::Object>();
-    Napi::Value name = object.Get("name");
-    if (name.IsString() )
+    Napi::Value name = object.Get("name");    
+    if (name.IsString())
     {
-       std::string namePropetry = name.As<Napi::String>().Utf8Value();
-        if(  namePropetry == "canvas" )
+        std::string namePropetry = name.As<Napi::String>().Utf8Value();
+        if (namePropetry == "canvas")
         {
             Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(info[0].As<Napi::Object>());
             textureWidth = canvas->getWidth();
             textureHeight = canvas->getHeight();
             srcWidth = textureWidth;
             srcHeight = textureHeight;
-            
+
             size_t size = srcWidth * srcHeight * 4;
             uint8_t *pixels = new uint8_t[size];
-            if( !pixels )
+            if (!pixels)
             {
                 printf("DrawImage with canvas, memory allocate failed!\n");
                 return;
@@ -370,8 +370,8 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
             canvas->mRenderContext->getCtx()->GetImageData(0, 0, textureWidth, textureHeight, pixels);
             int textureId = canvas->mRenderContext->getCtx()->BindImage(pixels, GL_RGBA, textureWidth, textureHeight);
             printf("drawImage with canvas, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
-            
-            delete [] pixels;
+
+            delete[] pixels;
             pixels = nullptr;
         }
     }
@@ -382,13 +382,13 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         srcHeight = image->getHeight();
         textureWidth = srcWidth;
         textureHeight = srcHeight;
-        textureId = mRenderContext->getCtx()->BindImage( &image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
-        printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
-
+        if (image->textureId == -1)
+        {
+            image->textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+        }
+        textureId = image->textureId;
+        // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
     }
-    
-    // float srcX = 0, srcY = 0, srcWidth = image->getWidth(), srcHeight = image->getHeight();
-    // float desX = 0, desY = 0, desWidth = mRenderContext->getWdith(), desHeight = mRenderContext->getHeight();
 
     if (info.Length() == 3)
     {
@@ -417,16 +417,16 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
     if (mRenderContext)
     {
         mRenderContext->getCtx()->DrawImage(textureId,
-                                            textureWidth, 
+                                            textureWidth,
                                             textureHeight, // image width & height
-                                            srcX,                                  // srcX
-                                            srcY,                                  // srcY
-                                            srcWidth,                              // srcWidth
-                                            srcHeight,                             //srcHeight
-                                            desX,                                  //desStartX
-                                            desY,                                  //desStartY
-                                            desWidth,                              //desWidth
-                                            desHeight);                            //desHeight
+                                            srcX,          // srcX
+                                            srcY,          // srcY
+                                            srcWidth,      // srcWidth
+                                            srcHeight,     //srcHeight
+                                            desX,          //desStartX
+                                            desY,          //desStartY
+                                            desWidth,      //desWidth
+                                            desHeight);    //desHeight
 
         mRenderContext->recordTextures(textureId);
         mRenderContext->drawFrame();
@@ -634,6 +634,7 @@ void Context2D::rect(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Rect(x, y, width, height);
     }
+
 }
 void Context2D::resetTransform(const Napi::CallbackInfo &info)
 {
@@ -772,6 +773,7 @@ void Context2D::strokeText(const Napi::CallbackInfo &info)
         }
         mRenderContext->drawFrame();
     }
+    printf("the stroke text \n");
 }
 void Context2D::transform(const Napi::CallbackInfo &info)
 {
