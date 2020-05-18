@@ -4,6 +4,9 @@
 #include "Image.h"
 #include "Canvas.h"
 #include "TextMetrics.h"
+
+#define INSTANCE_METHOD()
+
 namespace NodeBinding
 {
 Napi::FunctionReference Context2D::constructor;
@@ -131,23 +134,27 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
                 float startArr[] = {gradient->mLinearGradientInfo->startX, gradient->mLinearGradientInfo->startY};
                 float endArr[] = {gradient->mLinearGradientInfo->endX, gradient->mLinearGradientInfo->endY};
                  const  std::vector<ColorStop> colorStop=gradient->getColorStops();
-                float offsetArr[colorStop.size()];
+                float offsetArray[colorStop.size()];
                 std::string colorArray[colorStop.size()];
-               for(int i=0;i<colorStop.size();i++){
-                       printf("the offset is %f  the color is %s \n",colorStop[i].offset,colorStop[i].color.c_str());
-                      offsetArr[i]=colorStop[i].offset;
-                      colorArray[i]=colorStop[i].color;
-               }
-               mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
+                for(int i=0;i<colorStop.size();i++){
+                    offsetArray[i]=colorStop[i].offset;
+                     colorArray[i]=colorStop[i].color;
+                }
+               mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArray, colorArray);
             }
             else if (namePropetry == "radialGradient")
             {
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mRadialGradientInfo->startX, gradient->mRadialGradientInfo->startY, gradient->mRadialGradientInfo->startR};
                 float endArr[] = {gradient->mRadialGradientInfo->endX, gradient->mRadialGradientInfo->endY, gradient->mRadialGradientInfo->endR};
-                // float *offsetArr = &gradient->getOffsets()[0];
-                // std::string *colorArray = &gradient->getColors()[0];
-                // mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray);
+                const  std::vector<ColorStop> colorStop=gradient->getColorStops();
+                float offsetArray[colorStop.size()];
+                std::string colorArray[colorStop.size()];
+                 for(int i=0;i<colorStop.size();i++){
+                    offsetArray[i]=colorStop[i].offset;
+                     colorArray[i]=colorStop[i].color;
+                }
+                mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArray, colorArray);
             }
             else if (namePropetry == "pattern")
             {
@@ -1002,23 +1009,27 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
                 float startArr[] = {gradient->mLinearGradientInfo->startX, gradient->mLinearGradientInfo->startY};
                 float endArr[] = {gradient->mLinearGradientInfo->endX, gradient->mLinearGradientInfo->endY};
                const  std::vector<ColorStop> colorStop=gradient->getColorStops();
-                float offsetArr[colorStop.size()];
+                float offsetArray[colorStop.size()];
                 std::string colorArray[colorStop.size()];
-               for(int i=0;i<colorStop.size();i++){
-                      printf("the offset is %f  the color is %s",colorStop[i].offset,colorStop[i].color.c_str());
-                      offsetArr[i]=colorStop[i].offset;
-                      colorArray[i]=colorStop[i].color;
-               }
-                mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
+                   for(int i=0;i<colorStop.size();i++){
+                    offsetArray[i]=colorStop[i].offset;
+                     colorArray[i]=colorStop[i].color;
+                }
+                mRenderContext->getCtx()->SetFillStyleLinearGradient(startArr, endArr, gradient->getCount(), offsetArray, colorArray, true);
             }
             else if (namePropetry == "radialGradient")
             {
                 Gradient *gradient = Napi::ObjectWrap<Gradient>::Unwrap(object);
                 float startArr[] = {gradient->mRadialGradientInfo->startX, gradient->mRadialGradientInfo->startY, gradient->mRadialGradientInfo->startR};
                 float endArr[] = {gradient->mRadialGradientInfo->endX, gradient->mRadialGradientInfo->endY, gradient->mRadialGradientInfo->endR};
-                // float *offsetArr = &gradient->getOffsets()[0];
-                // std::string *colorArray = &gradient->getColors()[0];
-                // mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArr, colorArray, true);
+                const  std::vector<ColorStop> colorStop=gradient->getColorStops();
+                float offsetArray[colorStop.size()];
+                std::string colorArray[colorStop.size()];
+                for(int i=0;i<colorStop.size();i++){
+                    offsetArray[i]=colorStop[i].offset;
+                    colorArray[i]=colorStop[i].color;
+                }
+                mRenderContext->getCtx()->SetFillStyleRadialGradient(startArr, endArr, gradient->getCount(), offsetArray, colorArray, true);
             }
             else if (namePropetry == "pattern")
             {
