@@ -5,15 +5,23 @@
 #include "Canvas.h"
 #include "TextMetrics.h"
 
-#define DEFINE_VOID_METHOD(method_name) \ 
-     void Context2D::method_name(const Napi::CallbackInfo &info){   \
-      printf("the function:  " #method_name " is  called \n");   \ 
+#define DEFINE_VOID_METHOD(methodName) \ 
+     void Context2D::methodName(const Napi::CallbackInfo &info){   \
+      printf("the function :  " #methodName " is  called \n");   \ 
 
 
-#define DEFINE_RETURN_VALUE_METHOD(method_name) \ 
-     Napi::Value  Context2D::method_name(const Napi::CallbackInfo &info){   \
-    printf("the function : " #method_name " is  called \n");   \ 
+#define DEFINE_RETURN_VALUE_METHOD(methodName) \ 
+     Napi::Value  Context2D::methodName(const Napi::CallbackInfo &info){   \
+    printf("the function : " #methodName " is  called \n");   \ 
 
+
+#define DEFINE_SETTER_METHOD(methodName) \ 
+     void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \
+    printf("the function : " #methodName " is  called \n");   \ 
+
+#define DEFINE_GETTER_METHOD(methodName) \ 
+     Napi::Value Context2D::methodName(const Napi::CallbackInfo &info) {  \
+    printf("the function : " #methodName " is  called \n");   \ 
 
 namespace NodeBinding
 {
@@ -96,10 +104,8 @@ Napi::Object Context2D::NewInstance(Napi::Env env)
     obj.Set("name", Napi::String::New(env, "context2d"));
     return obj;
 }
-
-void Context2D::fillRect(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(fillRect)
+  Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
@@ -114,8 +120,7 @@ void Context2D::fillRect(const Napi::CallbackInfo &info)
     return;
 }
 
-void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
+DEFINE_SETTER_METHOD(setFillStyle)
     NodeBinding::checkArgs(info, 1);
 
     if (mRenderContext)
@@ -182,9 +187,9 @@ void Context2D::setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &
             }
         }
     }
-    printf("setFillStyle called \n");
     return;
 }
+
 DEFINE_RETURN_VALUE_METHOD(getFillStyle)
         Napi::Env env = info.Env();
     if (mRenderContext)
@@ -194,9 +199,8 @@ DEFINE_RETURN_VALUE_METHOD(getFillStyle)
     return Napi::String::New(env, "");
 }
 
-void Context2D::clearRect(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(clearRect)
+  Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
@@ -206,12 +210,10 @@ void Context2D::clearRect(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ClearRect(x, y, width, height);
     }
-    printf("clearRect called \n");
 }
 
-void Context2D::arc(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(arc)
+ Napi::Env env = info.Env();
     if (info.Length() < 5)
     {
         throwError(info, "wrong argument number");
@@ -233,11 +235,10 @@ void Context2D::arc(const Napi::CallbackInfo &info)
         printf("the x is %f y is %f r is %f \n",x,y,r);
         mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
     }
-        printf("arc called \n");
 }
-void Context2D::arcTo(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+  
+ DEFINE_VOID_METHOD(arcTo)  
+ Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 5);
     float x1 = info[0].As<Napi::Number>().FloatValue();
@@ -249,22 +250,20 @@ void Context2D::arcTo(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->ArcTo(x1, y1, x2, y2, r);
     }
-    printf("arcTo called \n");
 }
-void Context2D::beginPath(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(beginPath)
+ Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
         mRenderContext->getCtx()->BeginPath();
     }
-    printf("beginPath called \n");
 }
-void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(bezierCurveTo)
+  Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 6);
     float cp1x = info[0].As<Napi::Number>().FloatValue();
@@ -278,9 +277,8 @@ void Context2D::bezierCurveTo(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
     }
 }
-void Context2D::clip(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+ DEFINE_VOID_METHOD(clip)
+ Napi::Env env = info.Env();
 
     GFillRule rule = FILL_RULE_NONZERO;
     if (info.Length() == 1)
@@ -304,56 +302,50 @@ void Context2D::clip(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Clip(rule);
     }
-    printf("clip called \n");
 }
-void Context2D::closePath(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(closePath)
+  Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
         mRenderContext->getCtx()->ClosePath();
     }
-     printf("closePath called \n");
 }
-Napi::Value Context2D::createImageData(const Napi::CallbackInfo &info)
-{
+ DEFINE_GETTER_METHOD(createImageData)   
     Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 2);
     return ImageData::NewInstance(info.Env(), info[0], info[1]);
 }
-Napi::Value Context2D::createLinearGradient(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+ 
+DEFINE_GETTER_METHOD(createLinearGradient)
+Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 4);
-    printf("createLinearGradient called \n");
     return Gradient::NewInstance(env, info);
 }
-Napi::Value Context2D::createPattern(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_GETTER_METHOD(createPattern)
+Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 2);
 
     Image *img = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
     Napi::Object ret = Pattern::NewInstance(env, info[1]);
     Pattern *pattern = Napi::ObjectWrap<Pattern>::Unwrap(ret);
     pattern->content = std::make_shared<Image>(*img);
-    printf("createPattern called");
     return ret;
 }
-Napi::Value Context2D::createRadialGradient(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_GETTER_METHOD(createRadialGradient)
+ Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 6);
-    printf("createRadialGradient called");
     return Gradient::NewInstance(env, info);
 }
-void Context2D::drawImage(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_VOID_METHOD(drawImage)
+ Napi::Env env = info.Env();
     if (info.Length() < 3 || (info.Length() != 3 && info.Length() != 5 && info.Length() != 9))
     {
         Napi::TypeError::New(info.Env(), "wrong argument number")
@@ -460,11 +452,10 @@ void Context2D::drawImage(const Napi::CallbackInfo &info)
         mRenderContext->recordTextures(textureId);
         mRenderContext->drawFrame();
     }
-     printf("drawImage called \n");
 }
-void Context2D::fill(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_VOID_METHOD(fill)
+ Napi::Env env = info.Env();
 
     GFillRule rule = FILL_RULE_NONZERO;
     if (info.Length() == 1)
@@ -488,11 +479,9 @@ void Context2D::fill(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->Fill(rule);
         mRenderContext->drawFrame();
     }
-    printf("fill called \n");
 }
-void Context2D::fillText(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(fillText)
+Napi::Env env = info.Env();
 
     if (info.Length() < 3)
     {
@@ -516,9 +505,8 @@ void Context2D::fillText(const Napi::CallbackInfo &info)
         mRenderContext->drawFrame();
     }
 }
-Napi::Value Context2D::getImageData(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_RETURN_VALUE_METHOD(getImageData) 
+  Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 4);
     if (mRenderContext)
@@ -540,10 +528,10 @@ Napi::Value Context2D::getImageData(const Napi::CallbackInfo &info)
 
         return imageDataObj;
     }
-}
-Napi::Value Context2D::getLineDash(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+}   
+  
+DEFINE_RETURN_VALUE_METHOD(getLineDash)
+ Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
     Napi::Array ret = Napi::Array::New(env);
@@ -557,9 +545,8 @@ Napi::Value Context2D::getLineDash(const Napi::CallbackInfo &info)
     }
     return ret;
 }
-void Context2D::lineTo(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(lineTo)
+Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 2);
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
@@ -568,9 +555,9 @@ void Context2D::lineTo(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->LineTo(x, y);
     }
 }
-Napi::Value Context2D::measureText(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_RETURN_VALUE_METHOD(measureText)
+Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 1);
     std::string text = info[0].As<Napi::String>().Utf8Value();
@@ -584,9 +571,8 @@ Napi::Value Context2D::measureText(const Napi::CallbackInfo &info)
         return env.Undefined();
     }
 }
-void Context2D::moveTo(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(moveTo)
+Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 2);
     float x = info[0].As<Napi::Number>().FloatValue();
@@ -595,11 +581,10 @@ void Context2D::moveTo(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->MoveTo(x, y);
     }
-    printf("move to called \n");
 }
-void Context2D::putImageData(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(putImageData)
+Napi::Env env = info.Env();
     if (info.Length() < 3)
     {
         throwError(info, "wrong argument number");
@@ -640,9 +625,9 @@ void Context2D::putImageData(const Napi::CallbackInfo &info)
         );
     }
 }
-void Context2D::quadraticCurveTo(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_VOID_METHOD(quadraticCurveTo)
+Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
     float cpx = info[0].As<Napi::Number>().FloatValue();
     float cpy = info[1].As<Napi::Number>().FloatValue();
@@ -653,9 +638,9 @@ void Context2D::quadraticCurveTo(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->QuadraticCurveTo(cpx, cpy, x, y);
     }
 }
-void Context2D::rect(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_VOID_METHOD(rect)
+ Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 4);
     float x = info[0].As<Napi::Number>().FloatValue();
@@ -666,33 +651,28 @@ void Context2D::rect(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Rect(x, y, width, height);
     }
-    printf("rect called");
-
 }
-void Context2D::resetTransform(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(resetTransform)
+  Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
         mRenderContext->getCtx()->ResetTransform();
     }
-    printf("resetTransform called \n");
 }
-void Context2D::restore(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
 
+DEFINE_VOID_METHOD(restore)
+   Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
     {
         mRenderContext->getCtx()->Restore();
     }
-        printf("restore called \n");
 }
-void Context2D::rotate(const Napi::CallbackInfo &info)
-{
+
+DEFINE_VOID_METHOD(rotate)
     Napi::Env env = info.Env();
     float angle = info[0].As<Napi::Number>().FloatValue();
     NodeBinding::checkArgs(info, 1);
@@ -701,6 +681,7 @@ void Context2D::rotate(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->Rotate(angle);
     }
 }
+    
 DEFINE_VOID_METHOD(save)
      Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 0);
@@ -709,14 +690,8 @@ DEFINE_VOID_METHOD(save)
         mRenderContext->getCtx()->Save();
     }
 }
-
-// void Context2D::save(const Napi::CallbackInfo &info)
-// {
-
-// }
-void Context2D::scale(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(scale)
+ Napi::Env env = info.Env();
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
     NodeBinding::checkArgs(info, 2);
@@ -724,11 +699,10 @@ void Context2D::scale(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Scale(x, y);
     }
-    printf("scale called \n");
 }
-void Context2D::setLineDash(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(setLineDash)
+  Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 1);
     Napi::Array array = info[0].As<Napi::Array>();
 
@@ -741,14 +715,13 @@ void Context2D::setLineDash(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->SetLineDash(std::move(dash));
     }
-}
+ }  
 void Context2D::setCanvasRef(NodeBinding::Canvas *canvas)
 {
     this->mCanvas = canvas;
 }
-void Context2D::setTransform(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(setTransform)
+Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 6);
 
@@ -763,9 +736,9 @@ void Context2D::setTransform(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->SetTransform(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
     }
 }
-void Context2D::stroke(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_VOID_METHOD(stroke)
+   Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 0);
     if (mRenderContext)
@@ -774,9 +747,8 @@ void Context2D::stroke(const Napi::CallbackInfo &info)
         mRenderContext->drawFrame();
     }
 }
-void Context2D::strokeRect(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+ DEFINE_VOID_METHOD(strokeRect)
+ Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
@@ -788,9 +760,9 @@ void Context2D::strokeRect(const Napi::CallbackInfo &info)
         mRenderContext->drawFrame();
     }
 }
-void Context2D::strokeText(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+ DEFINE_VOID_METHOD(strokeText)
+      Napi::Env env = info.Env();
     if (info.Length() < 3)
     {
         Napi::TypeError::New(info.Env(), "wrong argument number")
@@ -812,11 +784,9 @@ void Context2D::strokeText(const Napi::CallbackInfo &info)
         }
         mRenderContext->drawFrame();
     }
-    printf("the stroke text \n");
 }
-void Context2D::transform(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(transform)
+Napi::Env env = info.Env();
 
     NodeBinding::checkArgs(info, 6);
     float scaleX = info[0].As<Napi::Number>().FloatValue();
@@ -831,9 +801,8 @@ void Context2D::transform(const Napi::CallbackInfo &info)
         mRenderContext->getCtx()->Transfrom(scaleX, rotateX, rotateY, scaleY, translateX, translateY);
     }
 }
-void Context2D::translate(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+DEFINE_VOID_METHOD(translate)
+Napi::Env env = info.Env();
     float tx = info[0].As<Napi::Number>().FloatValue();
     float ty = info[1].As<Napi::Number>().FloatValue();
     NodeBinding::checkArgs(info, 2);
@@ -841,31 +810,29 @@ void Context2D::translate(const Napi::CallbackInfo &info)
     {
         mRenderContext->getCtx()->Translate(tx, ty);
     }
-    printf("translate called \n");
 }
-
-void Context2D::setfont(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+    
+DEFINE_SETTER_METHOD(setfont)
+   NodeBinding::checkArgs(info, 1);
     std::string font = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetFont(font.c_str());
     }
 }
-void Context2D::setglobalAlpha(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+
+ DEFINE_SETTER_METHOD(setglobalAlpha)
+ NodeBinding::checkArgs(info, 1);
     float colorValue = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetGlobalAlpha(colorValue);
     }
 }
+    
 //TODO
-void Context2D::setglobalCompositeOperation(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+DEFINE_SETTER_METHOD(setglobalCompositeOperation)
+   NodeBinding::checkArgs(info, 1);
     std::string opValue = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -908,90 +875,86 @@ void Context2D::setglobalCompositeOperation(const Napi::CallbackInfo &info, cons
     }
 }
 
-void Context2D::setlineCap(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+DEFINE_SETTER_METHOD(setlineCap)
+ NodeBinding::checkArgs(info, 1);
     std::string lineCap = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetLineCap(lineCap.c_str());
     }
 }
-void Context2D::setlineDashOffset(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+   
+DEFINE_SETTER_METHOD(setlineDashOffset)
+ NodeBinding::checkArgs(info, 1);
     if (mRenderContext)
     {
         float offset = info[0].As<Napi::Number>().FloatValue();
         mRenderContext->getCtx()->SetLineDashOffset(offset);
     }
 }
-void Context2D::setlineJoin(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+ DEFINE_SETTER_METHOD(setlineJoin)
+NodeBinding::checkArgs(info, 1);
     std::string lineJoin = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetLineJoin(lineJoin.c_str());
     }
 }
-void Context2D::setlineWidth(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+ DEFINE_SETTER_METHOD(setlineWidth)
+NodeBinding::checkArgs(info, 1);
     float lineWidth = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetLineWidth(lineWidth);
     }
 }
-void Context2D::setmiterLimit(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+
+DEFINE_SETTER_METHOD(setmiterLimit)
+   NodeBinding::checkArgs(info, 1);
     float miterLimit = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetMiterLimit(miterLimit);
     }
 }
-void Context2D::setshadowBlur(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+
+DEFINE_SETTER_METHOD(setshadowBlur)
+ NodeBinding::checkArgs(info, 1);
     float shadowBlur = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetShadowBlur(shadowBlur);
     }
-}
-void Context2D::setshadowColor(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+} 
+DEFINE_SETTER_METHOD(setshadowColor) 
+  NodeBinding::checkArgs(info, 1);
     std::string color = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetShadowColor(color.c_str());
     }
 }
-void Context2D::setshadowOffsetX(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+
+DEFINE_SETTER_METHOD(setshadowOffsetX)
+  NodeBinding::checkArgs(info, 1);
     float offsetX = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetShadowOffsetX(offsetX);
     }
 }
-void Context2D::setshadowOffsetY(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+  
+DEFINE_SETTER_METHOD(setshadowOffsetY) 
+NodeBinding::checkArgs(info, 1);
     float offsetY = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetShadowOffsetY(offsetY);
     }
-}
-void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+} 
+
+DEFINE_SETTER_METHOD(setstrokeStyle)
+NodeBinding::checkArgs(info, 1);
     if (mRenderContext)
     {
         if (value.IsString())
@@ -1059,9 +1022,9 @@ void Context2D::setstrokeStyle(const Napi::CallbackInfo &info, const Napi::Value
     }
     return;
 }
-void Context2D::settextAlign(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+    
+DEFINE_SETTER_METHOD(settextAlign)
+NodeBinding::checkArgs(info, 1);
     std::string textAlign = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -1091,9 +1054,9 @@ void Context2D::settextAlign(const Napi::CallbackInfo &info, const Napi::Value &
         }
     }
 }
-void Context2D::settextBaseline(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    NodeBinding::checkArgs(info, 1);
+
+DEFINE_SETTER_METHOD(settextBaseline)
+     NodeBinding::checkArgs(info, 1);
     std::string baseline = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -1123,10 +1086,9 @@ void Context2D::settextBaseline(const Napi::CallbackInfo &info, const Napi::Valu
         }
     }
 }
-
-Napi::Value Context2D::getfont(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_GETTER_METHOD(getfont)
+  Napi::Env env = info.Env();
     if (mRenderContext)
     {
         std::string value = mRenderContext->getCtx()->mCurrentState->mFont->GetOriginFontName();
@@ -1134,9 +1096,9 @@ Napi::Value Context2D::getfont(const Napi::CallbackInfo &info)
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getglobalAlpha(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+  
+DEFINE_GETTER_METHOD(getglobalAlpha)
+Napi::Env env = info.Env();
     if (mRenderContext)
     {
         float value = mRenderContext->getCtx()->GlobalAlpha();
@@ -1144,9 +1106,9 @@ Napi::Value Context2D::getglobalAlpha(const Napi::CallbackInfo &info)
     }
     return Napi::Number::New(env, -1.0f);
 }
-Napi::Value Context2D::getglobalCompositeOperation(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_GETTER_METHOD(getglobalCompositeOperation)
+   Napi::Env env = info.Env();
     if (mRenderContext)
     {
         GCompositeOperation value = mRenderContext->getCtx()->GlobalCompositeOperation();
@@ -1185,8 +1147,8 @@ Napi::Value Context2D::getglobalCompositeOperation(const Napi::CallbackInfo &inf
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getlineCap(const Napi::CallbackInfo &info)
-{
+ 
+DEFINE_GETTER_METHOD(getlineCap)
     Napi::Env env = info.Env();
     if (mRenderContext)
     {
@@ -1206,9 +1168,9 @@ Napi::Value Context2D::getlineCap(const Napi::CallbackInfo &info)
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getlineDashOffset(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+
+DEFINE_GETTER_METHOD(getlineDashOffset)
+ Napi::Env env = info.Env();
     if (mRenderContext)
     {
         float value = mRenderContext->getCtx()->LineDashOffset();
@@ -1216,9 +1178,9 @@ Napi::Value Context2D::getlineDashOffset(const Napi::CallbackInfo &info)
     }
     return Napi::Number::New(env, -1);
 }
-Napi::Value Context2D::getlineJoin(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_GETTER_METHOD(getlineJoin)
+Napi::Env env = info.Env();
     if (mRenderContext)
     {
         GLineJoin value = mRenderContext->getCtx()->LineJoin();
@@ -1237,73 +1199,70 @@ Napi::Value Context2D::getlineJoin(const Napi::CallbackInfo &info)
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getlineWidth(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_GETTER_METHOD(getlineWidth)
+ Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::Number::New(env, mRenderContext->getCtx()->LineWidth());
     }
     return Napi::Number::New(env, -1);
-}
-Napi::Value Context2D::getmiterLimit(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+}   
+DEFINE_GETTER_METHOD(getmiterLimit)
+Napi::Env env = info.Env();
     if (mRenderContext)
     {
         float value = mRenderContext->getCtx()->MiterLimit();
         return Napi::Number::New(env, value);
     }
     return Napi::Number::New(env, -1);
-}
-Napi::Value Context2D::getshadowBlur(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+}    
+DEFINE_GETTER_METHOD(getshadowBlur)
+ Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowBlur);
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getshadowColor(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_GETTER_METHOD(getshadowColor)
+  Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->mCurrentState->mShadowColor));
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getshadowOffsetX(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+  
+DEFINE_GETTER_METHOD(getshadowOffsetX)
+ Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowOffsetX);
     }
     return Napi::Number::New(env, -1);
 }
-Napi::Value Context2D::getshadowOffsetY(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+   
+DEFINE_GETTER_METHOD(getshadowOffsetY)
+Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowOffsetY);
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::getstrokeStyle(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+    
+DEFINE_GETTER_METHOD(getstrokeStyle)
+Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->StrokeStyle()));
     }
     return Napi::String::New(env, "");
 }
-Napi::Value Context2D::gettextAlign(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+ DEFINE_GETTER_METHOD(gettextAlign) 
+     Napi::Env env = info.Env();
     if (mRenderContext)
     {
         GTextAlign value = mRenderContext->getCtx()->TextAlign();
@@ -1329,10 +1288,10 @@ Napi::Value Context2D::gettextAlign(const Napi::CallbackInfo &info)
         }
     }
     return Napi::String::New(env, "");
-}
-Napi::Value Context2D::gettextBaseline(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
+}  
+
+DEFINE_GETTER_METHOD(gettextBaseline)
+  Napi::Env env = info.Env();
     if (mRenderContext)
     {
         GTextBaseline value = mRenderContext->getCtx()->TextBaseline();
@@ -1359,11 +1318,10 @@ Napi::Value Context2D::gettextBaseline(const Napi::CallbackInfo &info)
     }
     return Napi::String::New(env, "");
 }
-
-Napi::Value Context2D::getCanvas(const Napi::CallbackInfo &info)
-{
-    return mCanvas->mRef.Value();
+ DEFINE_GETTER_METHOD(getCanvas) 
+ return mCanvas->mRef.Value();
 }
+    
 
 Context2D::~Context2D()
 {
