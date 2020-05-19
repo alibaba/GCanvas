@@ -7,21 +7,25 @@
 
 #define DEFINE_VOID_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info){   \
-      printf("the function :  " #methodName " is  called \n");   \ 
+      //printf("the function :  " #methodName " is  called \n");   \ 
 
 
 #define DEFINE_RETURN_VALUE_METHOD(methodName) \ 
      Napi::Value  Context2D::methodName(const Napi::CallbackInfo &info){   \
-    printf("the function : " #methodName " is  called \n");   \ 
+   // printf("the function : " #methodName " is  called \n");   \ 
 
 
 #define DEFINE_SETTER_METHOD(methodName) \ 
-     void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \
-    printf("the function : " #methodName " is  called \n");   \ 
+     void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \ 
+      NodeBinding::checkArgs(info, 1); \
+    if(info[0].As<Napi::Value>().IsUndefined()){ \
+          return ;  \
+    }  \
+    // printf("the function : " #methodName " is  called \n");   \ 
 
 #define DEFINE_GETTER_METHOD(methodName) \ 
      Napi::Value Context2D::methodName(const Napi::CallbackInfo &info) {  \
-    printf("the function : " #methodName " is  called \n");   \ 
+    // printf("the function : " #methodName " is  called \n");   \ 
 
 namespace NodeBinding
 {
@@ -121,8 +125,6 @@ DEFINE_VOID_METHOD(fillRect)
 }
 
 DEFINE_SETTER_METHOD(setFillStyle)
-    NodeBinding::checkArgs(info, 1);
-
     if (mRenderContext)
     {
         if (value.IsString())
@@ -191,7 +193,7 @@ DEFINE_SETTER_METHOD(setFillStyle)
 }
 
 DEFINE_RETURN_VALUE_METHOD(getFillStyle)
-        Napi::Env env = info.Env();
+     Napi::Env env = info.Env();
     if (mRenderContext)
     {
         return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->FillStyle()));
@@ -813,7 +815,6 @@ Napi::Env env = info.Env();
 }
     
 DEFINE_SETTER_METHOD(setfont)
-   NodeBinding::checkArgs(info, 1);
     std::string font = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -822,7 +823,6 @@ DEFINE_SETTER_METHOD(setfont)
 }
 
  DEFINE_SETTER_METHOD(setglobalAlpha)
- NodeBinding::checkArgs(info, 1);
     float colorValue = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -832,7 +832,6 @@ DEFINE_SETTER_METHOD(setfont)
     
 //TODO
 DEFINE_SETTER_METHOD(setglobalCompositeOperation)
-   NodeBinding::checkArgs(info, 1);
     std::string opValue = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -876,7 +875,6 @@ DEFINE_SETTER_METHOD(setglobalCompositeOperation)
 }
 
 DEFINE_SETTER_METHOD(setlineCap)
- NodeBinding::checkArgs(info, 1);
     std::string lineCap = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -885,7 +883,6 @@ DEFINE_SETTER_METHOD(setlineCap)
 }
    
 DEFINE_SETTER_METHOD(setlineDashOffset)
- NodeBinding::checkArgs(info, 1);
     if (mRenderContext)
     {
         float offset = info[0].As<Napi::Number>().FloatValue();
@@ -893,7 +890,6 @@ DEFINE_SETTER_METHOD(setlineDashOffset)
     }
 }
  DEFINE_SETTER_METHOD(setlineJoin)
-NodeBinding::checkArgs(info, 1);
     std::string lineJoin = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -901,7 +897,6 @@ NodeBinding::checkArgs(info, 1);
     }
 }
  DEFINE_SETTER_METHOD(setlineWidth)
-NodeBinding::checkArgs(info, 1);
     float lineWidth = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -910,7 +905,6 @@ NodeBinding::checkArgs(info, 1);
 }
 
 DEFINE_SETTER_METHOD(setmiterLimit)
-   NodeBinding::checkArgs(info, 1);
     float miterLimit = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -919,7 +913,6 @@ DEFINE_SETTER_METHOD(setmiterLimit)
 }
 
 DEFINE_SETTER_METHOD(setshadowBlur)
- NodeBinding::checkArgs(info, 1);
     float shadowBlur = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -927,7 +920,6 @@ DEFINE_SETTER_METHOD(setshadowBlur)
     }
 } 
 DEFINE_SETTER_METHOD(setshadowColor) 
-  NodeBinding::checkArgs(info, 1);
     std::string color = info[0].As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -936,7 +928,6 @@ DEFINE_SETTER_METHOD(setshadowColor)
 }
 
 DEFINE_SETTER_METHOD(setshadowOffsetX)
-  NodeBinding::checkArgs(info, 1);
     float offsetX = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -945,7 +936,6 @@ DEFINE_SETTER_METHOD(setshadowOffsetX)
 }
   
 DEFINE_SETTER_METHOD(setshadowOffsetY) 
-NodeBinding::checkArgs(info, 1);
     float offsetY = info[0].As<Napi::Number>().FloatValue();
     if (mRenderContext)
     {
@@ -954,7 +944,6 @@ NodeBinding::checkArgs(info, 1);
 } 
 
 DEFINE_SETTER_METHOD(setstrokeStyle)
-NodeBinding::checkArgs(info, 1);
     if (mRenderContext)
     {
         if (value.IsString())
@@ -1024,7 +1013,6 @@ NodeBinding::checkArgs(info, 1);
 }
     
 DEFINE_SETTER_METHOD(settextAlign)
-NodeBinding::checkArgs(info, 1);
     std::string textAlign = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
@@ -1056,7 +1044,6 @@ NodeBinding::checkArgs(info, 1);
 }
 
 DEFINE_SETTER_METHOD(settextBaseline)
-     NodeBinding::checkArgs(info, 1);
     std::string baseline = value.As<Napi::String>().Utf8Value();
     if (mRenderContext)
     {
