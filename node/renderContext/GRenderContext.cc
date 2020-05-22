@@ -12,7 +12,7 @@ namespace NodeBinding
 
     static std::vector<GRenderContext *> g_RenderContextVC;
     static EGLDisplay g_eglDisplay = nullptr;
-    static EGLContext g_eglContext = nullptr;
+    // static EGLContext g_eglContext = nullptr;
     static std::vector<GLuint> fboVector;
 
     GRenderContext::GRenderContext(int width, int height)
@@ -83,17 +83,17 @@ namespace NodeBinding
         mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
         // Step 7 - Create a context.
 
-        if (!g_eglContext)
+        if (!mEglContext)
         {
 #ifdef CONTEXT_ES20
-            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+            mEglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
-            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
+            mEglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
 #endif
         }
 
         // Step 8 - Bind the context to the current thread
-        if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
+        if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, mEglContext))
         {
             EGLint error = eglGetError();
             printf("eglMakeCurrent fail the erroer is %x\n", error);
@@ -153,10 +153,12 @@ namespace NodeBinding
         //         return;
         //     }
         // }
-        if (g_eglContext != EGL_NO_CONTEXT && g_eglDisplay != EGL_NO_DISPLAY)
+        if (mEglContext != EGL_NO_CONTEXT && g_eglDisplay != EGL_NO_DISPLAY)
         {
-            if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
+            if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, mEglContext))
             {
+                EGLint error = eglGetError();
+                printf("eglMakeCurrent fail the erroer is %x\n", error);
                 printf("eglMakeCurrent fail \n");
                 exit(-1);
             }
@@ -268,15 +270,15 @@ namespace NodeBinding
             if (g_eglDisplay != EGL_NO_DISPLAY)
             {
                 eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                if (g_eglContext != EGL_NO_CONTEXT)
+                if (mEglContext != EGL_NO_CONTEXT)
                 {
-                    eglDestroyContext(g_eglDisplay, g_eglContext);
+                    eglDestroyContext(g_eglDisplay, mEglContext);
                 }
                 eglTerminate(g_eglDisplay);
             }
 
             g_eglDisplay = EGL_NO_DISPLAY;
-            g_eglContext = EGL_NO_CONTEXT;
+            mEglContext = EGL_NO_CONTEXT;
         }
     }
 

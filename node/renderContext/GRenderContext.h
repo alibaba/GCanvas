@@ -48,7 +48,7 @@ private:
     int drawCount = 0;
     // EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    // EGLContext mEglContext;
+    EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
