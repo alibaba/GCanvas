@@ -28,7 +28,7 @@ public:
     virtual ~GRenderContext();
     void initRenderEnviroment();
     void render2file(std::string caseName,PIC_FORMAT format);
-    void drawFrame();
+    void drawFrame(bool needdraw=true,bool isRender2File=false);
     GCanvasContext *getCtx() { return mCanvas->GetGCanvasContext(); }
     int inline getWdith() { return this->mWidth; }
     int inline getHeight() { return this->mHeight; }
@@ -46,9 +46,9 @@ private:
     int mCanvasWidth;
     int mRatio;
     int drawCount = 0;
-    EGLDisplay mEglDisplay;
+    // EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    EGLContext mEglContext;
+    // EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;

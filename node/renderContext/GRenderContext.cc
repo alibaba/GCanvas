@@ -11,8 +11,8 @@ namespace NodeBinding
 {
 
     static std::vector<GRenderContext *> g_RenderContextVC;
-    // static EGLDisplay g_eglDisplay = nullptr;
-    // static EGLContext g_eglContext = nullptr;
+    static EGLDisplay g_eglDisplay = nullptr;
+    static EGLContext g_eglContext = nullptr;
 
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0)
@@ -39,13 +39,13 @@ namespace NodeBinding
 #endif
 
         // Step 1 - Get the default display.
-        if (!mEglDisplay)
+        if (!g_eglDisplay)
         {
-            mEglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+            g_eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
         }
 
         // Step 2 - Initialize EGL.
-        eglInitialize(mEglDisplay, 0, 0);
+        eglInitialize(g_eglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
         // Step 3 - Make OpenGL ES the current API.
@@ -68,7 +68,7 @@ namespace NodeBinding
         // Step 5 - Find a config that matches all requirements.
         int iConfigs;
         EGLConfig eglConfig;
-        eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+        eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                         &iConfigs);
 
         if (iConfigs != 1)
@@ -79,22 +79,23 @@ namespace NodeBinding
 
         // Step 6 - Create a surface to draw to.
 
-        mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
+        mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
         // Step 7 - Create a context.
 
-        if (!mEglContext)
+        if (!g_eglContext)
         {
 #ifdef CONTEXT_ES20
-            mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
+             g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
-            g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
+            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
 #endif
         }
 
         // Step 8 - Bind the context to the current thread
-        if (!eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext))
+        if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
         {
-            printf("eglMakeCurrent fail \n");
+            EGLint error = eglGetError();
+            printf("eglMakeCurrent fail the erroer is %x\n",error);
             exit(-1);
         }
         // end of standard gl context setup
@@ -135,30 +136,47 @@ namespace NodeBinding
 
     void GRenderContext::makeCurrent()
     {
-        if (mEglContext != EGL_NO_CONTEXT && mEglContext != EGL_NO_DISPLAY)
+        // if (g_eglContext != nullptr)
+        // {
+        //     EGLContext p = eglGetCurrentContext();
+        //     if (mEglContext == p)
+        //     {
+        //         printf("current context \n");
+        //         return;
+        //     }
+        // }
+        if (g_eglContext != EGL_NO_CONTEXT && g_eglDisplay != EGL_NO_DISPLAY)
         {
-            if (!eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext))
+            if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
             {
                 printf("eglMakeCurrent fail \n");
                 exit(-1);
             }
         }
+        this->BindFBO();
     }
 
     void GRenderContext::initCanvas()
     {
         mCanvas->CreateContext();
-        mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("red"));
+        mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("white"));
         mCanvas->GetGCanvasContext()->ClearScreen();
         mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
         mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
-        mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
-        mCanvas->GetGCanvasContext()->FillRect(0, 0, mCanvasWidth, mCanvasHeight);
+        // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
+        // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
     }
-    void GRenderContext::drawFrame()
+    void GRenderContext::drawFrame(bool needdraw,bool isRender2File)
     {
-        printf("drawframe() \n");
-        mCanvas->drawFrame();
+        // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
+        // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
+        // printf("drawFrame hack \n");
+        if(needdraw){
+            mCanvas->drawFrame();
+        }
+        if(isRender2File){
+            this->render2file("test",PNG_FORAMT);
+        }
         this->drawCount++;
     }
 
@@ -225,7 +243,7 @@ namespace NodeBinding
 
         if (mEglSurface != EGL_NO_SURFACE)
         {
-            eglDestroySurface(mEglDisplay, mEglSurface);
+            eglDestroySurface(g_eglDisplay, mEglSurface);
             mEglSurface = EGL_NO_SURFACE;
         }
 
@@ -237,18 +255,18 @@ namespace NodeBinding
 
         if (g_RenderContextVC.size() <= 0)
         {
-            if (mEglDisplay != EGL_NO_DISPLAY)
+            if (g_eglDisplay != EGL_NO_DISPLAY)
             {
-                eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                if (mEglContext != EGL_NO_CONTEXT)
+                eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+                if (g_eglContext != EGL_NO_CONTEXT)
                 {
-                    eglDestroyContext(mEglDisplay, mEglContext);
+                    eglDestroyContext(g_eglDisplay, g_eglContext);
                 }
-                eglTerminate(mEglDisplay);
+                eglTerminate(g_eglDisplay);
             }
 
-            mEglDisplay = EGL_NO_DISPLAY;
-            mEglContext = EGL_NO_CONTEXT;
+            g_eglDisplay = EGL_NO_DISPLAY;
+            g_eglContext = EGL_NO_CONTEXT;
         }
     }
 
@@ -264,6 +282,7 @@ namespace NodeBinding
         if (curFBOId != mFboId)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
+            printf("bindfbo value is %d\n",mFboId);
         }
     }
 
