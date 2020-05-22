@@ -11,8 +11,8 @@ namespace NodeBinding
 {
 
 static std::vector<GRenderContext*> g_RenderContextVC;
-static EGLDisplay g_eglDisplay = nullptr;
-static EGLContext g_eglContext = nullptr;
+// static EGLDisplay g_eglDisplay = nullptr;
+// static EGLContext g_eglContext = nullptr;
 
 GRenderContext::GRenderContext(int width, int height)
     : mWidth(width), mHeight(height), mRatio(2.0) {
@@ -37,13 +37,13 @@ void GRenderContext::initRenderEnviroment()
 #endif
 
     // Step 1 - Get the default display.
-    if( !g_eglDisplay )
+    if( !mEglDisplay )
     {
-        g_eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+        mEglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
     }
 
     // Step 2 - Initialize EGL.
-    eglInitialize(g_eglDisplay, 0, 0);
+    eglInitialize(mEglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
     // Step 3 - Make OpenGL ES the current API.
@@ -66,7 +66,7 @@ void GRenderContext::initRenderEnviroment()
     // Step 5 - Find a config that matches all requirements.
     int iConfigs;
     EGLConfig eglConfig;
-    eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+    eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                     &iConfigs);
 
     if (iConfigs != 1)
@@ -77,20 +77,20 @@ void GRenderContext::initRenderEnviroment()
 
     // Step 6 - Create a surface to draw to.
 
-    mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
+    mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
     // Step 7 - Create a context.
 
-    if( !g_eglContext )
+    if( !mEglContext )
     {
     #ifdef CONTEXT_ES20
-        g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+        mEglDisplay = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
     #else
         g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
     #endif
     }
 
     // Step 8 - Bind the context to the current thread
-    eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext);
+    eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext);
     // end of standard gl context setup
 
     // Step 9 - create framebuffer object
@@ -128,6 +128,22 @@ void GRenderContext::initRenderEnviroment()
 
 }
 
+
+void GRenderContext::makeCurrent(){
+        // EGLSurface currentSurface = eglGetCurrentSurface(EGL_DRAW);
+        // printf("currentSurface is %d \n",&currentSurface);
+        //   printf("mSurface is %d \n",&this->mEglSurface);
+        // if(currentSurface==mEglSurface){
+        //     printf("called makeCurrent no need \n");
+        //     return;
+        // }
+        if(mEglContext!=EGL_NO_CONTEXT && mEglContext!=EGL_NO_DISPLAY){
+               eglMakeCurrent(mEglDisplay,mEglSurface,mEglSurface,mEglContext);
+        }
+        this->BindFBO();
+}
+
+
 void GRenderContext::initCanvas()
 {
     mCanvas->CreateContext();
@@ -152,7 +168,9 @@ void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     }
 
     glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
-
+    for(int i=0;i<4;i++){
+        printf("the pxiels is %d \n",inputData[i]);
+    }
     unsigned char *data = new unsigned char[4 * mWidth * mHeight];
     if( !data ){
         printf("Error: allocate data memeroy faied! \n");
@@ -200,7 +218,7 @@ void GRenderContext::destoryRenderEnviroment()
 
     if (mEglSurface != EGL_NO_SURFACE)
     {
-        eglDestroySurface(g_eglDisplay, mEglSurface);
+        eglDestroySurface(mEglDisplay, mEglSurface);
         mEglSurface = EGL_NO_SURFACE;
     }
 
@@ -212,18 +230,18 @@ void GRenderContext::destoryRenderEnviroment()
 
     if( g_RenderContextVC.size() <= 0 )
     {
-        if (g_eglDisplay != EGL_NO_DISPLAY)
+        if (mEglDisplay != EGL_NO_DISPLAY)
         {
-            eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-            if (g_eglContext != EGL_NO_CONTEXT)
+            eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            if (mEglContext != EGL_NO_CONTEXT)
             {
-                eglDestroyContext(g_eglDisplay, g_eglContext);
+                eglDestroyContext(mEglDisplay, mEglContext);
             }
-            eglTerminate(g_eglDisplay);
+            eglTerminate(mEglDisplay);
         }
 
-        g_eglDisplay = EGL_NO_DISPLAY;
-        g_eglContext = EGL_NO_CONTEXT;
+        mEglDisplay = EGL_NO_DISPLAY;
+        mEglContext = EGL_NO_CONTEXT;
     }
 }
 
@@ -236,7 +254,8 @@ void GRenderContext::BindFBO()
 {
     GLint curFBOId = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curFBOId);
-
+    printf("current fbo is %d \n",curFBOId);
+    printf("mfbo is %d \n",mFboId);
     if( curFBOId != mFboId )
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFboId);

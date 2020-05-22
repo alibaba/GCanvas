@@ -21,6 +21,7 @@ class GRenderContext
 public:
     GRenderContext() : mWidth(0), mHeight(0), mCanvas(nullptr)
     {
+        
     }
     GRenderContext(int width, int height);
     GRenderContext(int width, int height, int ratio);
@@ -35,7 +36,7 @@ public:
     void recordTextures(int textureId);
     
     void BindFBO();
-
+    void makeCurrent();
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -45,9 +46,9 @@ private:
     int mCanvasWidth;
     int mRatio;
     int drawCount = 0;
-    // EGLDisplay mEglDisplay;
+    EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    // EGLContext mEglContext;
+    EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;

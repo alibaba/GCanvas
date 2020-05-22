@@ -102,6 +102,7 @@ void Canvas::createPNG(const Napi::CallbackInfo &info)
     std::string arg = info[0].As<Napi::String>().Utf8Value();
     if (this->mRenderContext)
     {
+        this->mRenderContext->makeCurrent();
         this->mRenderContext->drawFrame();
         this->mRenderContext->render2file(arg.c_str(), PNG_FORAMT);
     }
@@ -113,6 +114,7 @@ void Canvas::createJPEG(const Napi::CallbackInfo &info)
     std::string arg = info[0].As<Napi::String>().Utf8Value();
     if (this->mRenderContext)
     {
+        this->mRenderContext->makeCurrent();
         this->mRenderContext->drawFrame();
         this->mRenderContext->render2file(arg.c_str(), JPEG_FORMAT);
     }
