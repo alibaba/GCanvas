@@ -93,7 +93,7 @@ namespace NodeBinding
         }
 
         // Step 8 - Bind the context to the current thread
-        if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
+        if (eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext) != EGL_TRUE)
         {
             EGLint error = eglGetError();
             printf("eglMakeCurrent fail the erroer is %x\n", error);
@@ -108,14 +108,8 @@ namespace NodeBinding
         glGenRenderbuffers(1, &mRenderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
-        // if (fboVector.size() == 0)
-        // {
+
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
-        // }
-        // else if (fboVector.size() == 1)
-        // {
-        //     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, mRenderBuffer);
-        // }
         glGenRenderbuffers(1, &mDepthRenderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
@@ -155,13 +149,13 @@ namespace NodeBinding
         // }
         if (g_eglContext != EGL_NO_CONTEXT && g_eglDisplay != EGL_NO_DISPLAY)
         {
-            if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
+            if (eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext) != EGL_TRUE)
             {
                 printf("eglMakeCurrent fail \n");
                 exit(-1);
             }
         }
-        this->BindFBO();
+        // this->BindFBO();
     }
 
     void GRenderContext::initCanvas()

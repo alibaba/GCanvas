@@ -103,7 +103,7 @@ void Canvas::createPNG(const Napi::CallbackInfo &info)
     if (this->mRenderContext)
     {
         this->mRenderContext->makeCurrent();
-        this->mRenderContext->drawFrame();
+        this->mRenderContext->drawFrame(false,false);
         this->mRenderContext->render2file(arg.c_str(), PNG_FORAMT);
     }
     return;

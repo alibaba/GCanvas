@@ -1939,7 +1939,6 @@ void GCanvasContext::FillRect(float x, float y, float w, float h)
 void GCanvasContext::DoFillRect(float x, float y, float w, float h)
 {
     GColorRGBA color = BlendFillColor(this);
-    printf("the color is r %f g %f b %f a %f \n",color.rgba.r,color.rgba.g,color.rgba.b,color.rgba.a);
     ApplyFillStylePipeline();
     PushRectangle(x, y, w, h, 0, 0, 0, 0, color);
 }
