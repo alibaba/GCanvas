@@ -21,7 +21,7 @@
 #define DEFINE_SETTER_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \ 
       NodeBinding::checkArgs(info, 1); \
-       mRenderContext->makeCurrent(); \
+      mRenderContext->makeCurrent(); \
     if(info[0].As<Napi::Value>().IsUndefined()){ \
           return ;  \
     }  \
