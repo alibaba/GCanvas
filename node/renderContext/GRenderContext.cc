@@ -13,6 +13,7 @@ namespace NodeBinding
     static std::vector<GRenderContext *> g_RenderContextVC;
     static EGLDisplay g_eglDisplay = nullptr;
     static EGLContext g_eglContext = nullptr;
+    static std::vector<GLuint> fboVector;
 
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0)
@@ -85,7 +86,7 @@ namespace NodeBinding
         if (!g_eglContext)
         {
 #ifdef CONTEXT_ES20
-             g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
             g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
 #endif
@@ -95,7 +96,7 @@ namespace NodeBinding
         if (!eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext))
         {
             EGLint error = eglGetError();
-            printf("eglMakeCurrent fail the erroer is %x\n",error);
+            printf("eglMakeCurrent fail the erroer is %x\n", error);
             exit(-1);
         }
         // end of standard gl context setup
@@ -107,7 +108,14 @@ namespace NodeBinding
         glGenRenderbuffers(1, &mRenderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
+        // if (fboVector.size() == 0)
+        // {
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
+        // }
+        // else if (fboVector.size() == 1)
+        // {
+        //     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, mRenderBuffer);
+        // }
         glGenRenderbuffers(1, &mDepthRenderbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mDepthRenderbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
@@ -130,7 +138,7 @@ namespace NodeBinding
         glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
         glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
         this->initCanvas();
-
+        fboVector.push_back(mFboId);
         // g_RenderContextVC.push_back(this);
     }
 
@@ -166,16 +174,18 @@ namespace NodeBinding
         // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
         // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
     }
-    void GRenderContext::drawFrame(bool needdraw,bool isRender2File)
+    void GRenderContext::drawFrame(bool needdraw, bool isRender2File)
     {
         // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
         // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
         // printf("drawFrame hack \n");
-        if(needdraw){
+        if (needdraw)
+        {
             mCanvas->drawFrame();
         }
-        if(isRender2File){
-            this->render2file("test",PNG_FORAMT);
+        if (isRender2File)
+        {
+            this->render2file("test", PNG_FORAMT);
         }
         this->drawCount++;
     }
@@ -282,7 +292,7 @@ namespace NodeBinding
         if (curFBOId != mFboId)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
-            printf("bindfbo value is %d\n",mFboId);
+            printf("bindfbo value is %d\n", mFboId);
         }
     }
 
