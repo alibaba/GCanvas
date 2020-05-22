@@ -46,7 +46,7 @@ private:
     int mCanvasWidth;
     int mRatio;
     int drawCount = 0;
-    // EGLDisplay mEglDisplay;
+    EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
     // EGLContext mEglContext;
     GLuint mFboId = 0;
