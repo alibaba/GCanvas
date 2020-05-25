@@ -178,38 +178,46 @@ namespace NodeBinding
         this->drawCount++;
     }
 
-    void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
+    int GRenderContext::readPixelAndSampleFromCurrentCtx(unsigned char *data)
     {
         int size = 4 * mCanvasWidth * mCanvasHeight;
         unsigned char *inputData = new unsigned char[size];
         if (!inputData)
         {
             printf("Error: allocate inputData memeroy faied! \n");
-            return;
+            return -1;
         }
         glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
-        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+
         if (!data)
         {
             printf("Error: allocate data memeroy faied! \n");
             delete inputData;
             inputData = nullptr;
-            return;
+            return -1;
         }
-
         gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)inputData, mWidth, mHeight, (int *)data);
         gcanvas::FlipPixel(data, mWidth, mHeight);
-
         delete inputData;
         inputData = nullptr;
-
-        if (format == PNG_FORAMT)
+        return 0;
+    }
+    void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
+    {
+        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        if (ret == 0)
         {
-            encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
-        }
-        else if (format == JPEG_FORMAT)
-        {
-            encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
+            if (format == PNG_FORAMT)
+            {
+                encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
+            }
+            else if (format == JPEG_FORMAT)
+            {
+                encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
+            }
+        }else{
+            //fixme 
         }
         delete data;
         data = nullptr;
@@ -269,7 +277,7 @@ namespace NodeBinding
         if (curFBOId != mFboId)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
-            printf("bindfbo value is %d\n", mFboId);
+            // printf("bindfbo value is %d\n", mFboId);
         }
     }
 

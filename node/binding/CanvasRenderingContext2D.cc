@@ -8,13 +8,13 @@
 #define DEFINE_VOID_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info){   \
      mRenderContext->makeCurrent(); \
-      printf("the function :  " #methodName " is  called \n");   \ 
+    //   printf("the function :  " #methodName " is  called \n");   \ 
 
 
 #define DEFINE_RETURN_VALUE_METHOD(methodName) \ 
      Napi::Value  Context2D::methodName(const Napi::CallbackInfo &info){   \
      mRenderContext->makeCurrent(); \
-    printf("the function : " #methodName " is  called \n");   \  
+    // printf("the function : " #methodName " is  called \n");   \  
     
 
 
@@ -25,12 +25,12 @@
     if(info[0].As<Napi::Value>().IsUndefined()){ \
           return ;  \
     }  \
-    printf("the function : " #methodName " is  called \n");   \ 
+    // printf("the function : " #methodName " is  called \n");   \ 
 
 #define DEFINE_GETTER_METHOD(methodName) \ 
      Napi::Value Context2D::methodName(const Napi::CallbackInfo &info) {  \
       mRenderContext->makeCurrent(); \
-    printf("the function : " #methodName " is  called \n");   \ 
+    // printf("the function : " #methodName " is  called \n");   \ 
 
 namespace NodeBinding
 {

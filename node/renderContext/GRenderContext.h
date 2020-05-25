@@ -53,6 +53,7 @@ private:
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
     std::vector<int> textures;
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 };
 } // namespace NodeBinding
 
