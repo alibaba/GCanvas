@@ -12,10 +12,9 @@ namespace NodeBinding
 
     static std::vector<GRenderContext *> g_RenderContextVC;
     static EGLContext g_eglContext = nullptr;
-    static std::vector<GLuint> fboVector;
 
     GRenderContext::GRenderContext(int width, int height)
-        : mWidth(width), mHeight(height), mRatio(2.0),mEglDisplay(EGL_NO_DISPLAY)
+        : mWidth(width), mHeight(height), mRatio(2.0), mEglDisplay(EGL_NO_DISPLAY)
     {
         GCanvasConfig config = {true, false};
         this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
@@ -24,7 +23,7 @@ namespace NodeBinding
     }
 
     GRenderContext::GRenderContext(int width, int height, int ratio)
-        : mWidth(width), mHeight(height), mRatio(ratio),mEglDisplay(EGL_NO_DISPLAY)
+        : mWidth(width), mHeight(height), mRatio(ratio), mEglDisplay(EGL_NO_DISPLAY)
     {
         GCanvasConfig config = {true, true};
         this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
@@ -85,20 +84,19 @@ namespace NodeBinding
 #ifdef CONTEXT_ES20
             g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
-            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
-   
+            g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
+
 #endif
-            mEglContext=g_eglContext;
+            mEglContext = g_eglContext;
         }
         else
         {
-            #ifdef CONTEXT_ES20
+#ifdef CONTEXT_ES20
             mEglContext = eglCreateContext(mEglDisplay, eglConfig, g_eglContext, ai32ContextAttribs);
-    #else
-            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
-        #endif
+#else
+            mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
+#endif
         }
-        
 
         // Step 8 - Bind the context to the current thread
         if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) != EGL_TRUE)
@@ -123,7 +121,7 @@ namespace NodeBinding
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
- 
+
         // check FBO status
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -140,8 +138,7 @@ namespace NodeBinding
         glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
         glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
         this->initCanvas();
-        fboVector.push_back(mFboId);
-        // g_RenderContextVC.push_back(this);
+        g_RenderContextVC.push_back(this);
     }
 
     void GRenderContext::makeCurrent()
@@ -150,8 +147,8 @@ namespace NodeBinding
         {
             //判断当前上下文是否是该canvas的上下文
             EGLContext currentContext = eglGetCurrentContext();
-            EGLSurface  currentSurface=eglGetCurrentSurface(EGL_DRAW);
-            if (mEglContext == currentContext && currentSurface==mEglSurface)
+            EGLSurface currentSurface = eglGetCurrentSurface(EGL_DRAW);
+            if (mEglContext == currentContext && currentSurface == mEglSurface)
             {
                 return;
             }
@@ -242,28 +239,22 @@ namespace NodeBinding
             eglDestroySurface(mEglDisplay, mEglSurface);
             mEglSurface = EGL_NO_SURFACE;
         }
-
         std::vector<GRenderContext *>::iterator iter = find(g_RenderContextVC.begin(), g_RenderContextVC.end(), this);
         if (iter != g_RenderContextVC.end())
         {
             g_RenderContextVC.erase(iter);
         }
-
-        if (g_RenderContextVC.size() <= 0)
+        if (mEglDisplay != EGL_NO_DISPLAY)
         {
-            if (mEglDisplay != EGL_NO_DISPLAY)
+            eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+            if (mEglContext != EGL_NO_CONTEXT)
             {
-                eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                if (mEglContext != EGL_NO_CONTEXT)
-                {
-                    eglDestroyContext(mEglDisplay, mEglContext);
-                }
-                eglTerminate(mEglDisplay);
+                eglDestroyContext(mEglDisplay, mEglContext);
             }
-
-            mEglDisplay = EGL_NO_DISPLAY;
-            mEglContext = EGL_NO_CONTEXT;
+            eglTerminate(mEglDisplay);
         }
+        mEglDisplay = EGL_NO_DISPLAY;
+        mEglContext = EGL_NO_CONTEXT;
     }
 
     void GRenderContext::recordTextures(int textureId)
