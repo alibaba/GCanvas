@@ -125,7 +125,7 @@ DEFINE_VOID_METHOD(fillRect)
     if (mRenderContext)
     {
         mRenderContext->getCtx()->FillRect(x, y, width, height);
-        mRenderContext->drawFrame(true,true);
+        mRenderContext->drawFrame();
     }
     return;
 }

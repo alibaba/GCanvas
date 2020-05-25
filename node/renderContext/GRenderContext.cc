@@ -146,15 +146,16 @@ namespace NodeBinding
 
     void GRenderContext::makeCurrent()
     {
-        // if (g_eglContext != nullptr)
-        // {
-        //     EGLContext p = eglGetCurrentContext();
-        //     if (mEglContext == p)
-        //     {
-        //         printf("current context \n");
-        //         return;
-        //     }
-        // }
+        if (mEglContext != nullptr)
+        {
+            //判断当前上下文是否是该canvas的上下文
+            EGLContext currentContext = eglGetCurrentContext();
+            EGLSurface  currentSurface=eglGetCurrentSurface(EGL_DRAW);
+            if (mEglContext == currentContext && currentSurface==mEglSurface)
+            {
+                return;
+            }
+        }
         if (mEglContext != EGL_NO_CONTEXT && mEglDisplay != EGL_NO_DISPLAY)
         {
             if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) != EGL_TRUE)
@@ -173,24 +174,10 @@ namespace NodeBinding
         mCanvas->GetGCanvasContext()->ClearScreen();
         mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
         mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
-        // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
-        // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
     }
-    void GRenderContext::drawFrame(bool needdraw, bool isRender2File)
+    void GRenderContext::drawFrame()
     {
-        // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
-        // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
-        // mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("purple"));
-        // mCanvas->GetGCanvasContext()->ClearScreen();
-        // printf("drawFrame hack \n");
-        if (needdraw)
-        {
-            mCanvas->drawFrame();
-        }
-        if (isRender2File)
-        {
-            this->render2file("test", PNG_FORAMT);
-        }
+        mCanvas->drawFrame();
         this->drawCount++;
     }
 
@@ -203,12 +190,7 @@ namespace NodeBinding
             printf("Error: allocate inputData memeroy faied! \n");
             return;
         }
-        // glReadBuffer(GL_COLOR_ATTACHMENT0);
         glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
-        for (int i = 0; i < 4; i++)
-        {
-            printf("the pxiels is %d \n", inputData[i]);
-        }
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
         if (!data)
         {

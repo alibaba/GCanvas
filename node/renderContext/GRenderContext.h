@@ -28,7 +28,7 @@ public:
     virtual ~GRenderContext();
     void initRenderEnviroment();
     void render2file(std::string caseName,PIC_FORMAT format);
-    void drawFrame(bool needdraw=true,bool isRender2File=false);
+    void drawFrame();
     GCanvasContext *getCtx() { return mCanvas->GetGCanvasContext(); }
     int inline getWdith() { return this->mWidth; }
     int inline getHeight() { return this->mHeight; }
