@@ -14,6 +14,12 @@ namespace NodeBinding
     static EGLDisplay g_eglDisplay = nullptr;
     static EGLContext g_eglContext = nullptr;
     static std::vector<GLuint> fboVector;
+    // static const GLenum draw_buffers[] =
+    //     {
+    //         GL_COLOR_ATTACHMENT0,
+    //         GL_COLOR_ATTACHMENT1,
+    //         GL_COLOR_ATTACHMENT2
+    //     };
 
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0)
@@ -42,11 +48,10 @@ namespace NodeBinding
         // Step 1 - Get the default display.
         if (!g_eglDisplay)
         {
-            g_eglDisplay = eglGetDisplay((EGLNativeDisplayType)0);
+            g_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            // Step 2 - Initialize EGL.
+            eglInitialize(g_eglDisplay, 0, 0);
         }
-
-        // Step 2 - Initialize EGL.
-        eglInitialize(g_eglDisplay, 0, 0);
 
 #ifdef CONTEXT_ES20
         // Step 3 - Make OpenGL ES the current API.
@@ -155,7 +160,7 @@ namespace NodeBinding
                 exit(-1);
             }
         }
-        // this->BindFBO();
+        this->BindFBO();
     }
 
     void GRenderContext::initCanvas()
@@ -172,6 +177,8 @@ namespace NodeBinding
     {
         // mCanvas->GetGCanvasContext()->SetFillStyle("#ff00ff");
         // mCanvas->GetGCanvasContext()->FillRect(0,0,mCanvasWidth, mCanvasHeight);
+        // mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("purple"));
+        // mCanvas->GetGCanvasContext()->ClearScreen();
         // printf("drawFrame hack \n");
         if (needdraw)
         {
@@ -193,7 +200,7 @@ namespace NodeBinding
             printf("Error: allocate inputData memeroy faied! \n");
             return;
         }
-
+        // glReadBuffer(GL_COLOR_ATTACHMENT0);
         glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
         for (int i = 0; i < 4; i++)
         {
