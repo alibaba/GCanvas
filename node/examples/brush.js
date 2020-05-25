@@ -1,5 +1,4 @@
-const { createCanvas, Image } = require('bindings')('canvas');
-
+const { createCanvas, Image } = require('../export')
 
 function WriteFont(options) {
     var self = this;

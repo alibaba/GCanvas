@@ -36,7 +36,7 @@ Napi::Value Canvas::getHeight(const Napi::CallbackInfo &info)
     return Napi::Number::New(info.Env(), mHeight);
 }
 
-void Canvas::Init(Napi::Env env)
+void Canvas::Init(Napi::Env env,Napi::Object exports)
 {
     Napi::HandleScope scope(env);
 
@@ -57,6 +57,7 @@ void Canvas::Init(Napi::Env env)
     ImageData::Init(env);
     TextMetrics::Init(env);
     Pattern::Init(env);
+    exports.Set("Canvas", func);
     return;
 }
 

@@ -12,7 +12,7 @@ namespace NodeBinding
 class Canvas : public Napi::ObjectWrap<Canvas>
 {
 public:
-    static void Init(Napi::Env env);
+    static void Init(Napi::Env env,Napi::Object exports);
     Canvas(const Napi::CallbackInfo &info);
     virtual ~Canvas();
     static Napi::Object NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2);

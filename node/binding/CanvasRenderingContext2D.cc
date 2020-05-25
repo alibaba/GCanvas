@@ -240,7 +240,6 @@ DEFINE_VOID_METHOD(arc)
     }
     if (mRenderContext)
     {
-        printf("the x is %f y is %f r is %f \n",x,y,r);
         mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
     }
 }
