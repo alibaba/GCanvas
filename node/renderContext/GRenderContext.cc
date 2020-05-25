@@ -11,18 +11,11 @@ namespace NodeBinding
 {
 
     static std::vector<GRenderContext *> g_RenderContextVC;
-    static EGLDisplay g_eglDisplay = nullptr;
     static EGLContext g_eglContext = nullptr;
     static std::vector<GLuint> fboVector;
-    // static const GLenum draw_buffers[] =
-    //     {
-    //         GL_COLOR_ATTACHMENT0,
-    //         GL_COLOR_ATTACHMENT1,
-    //         GL_COLOR_ATTACHMENT2
-    //     };
 
     GRenderContext::GRenderContext(int width, int height)
-        : mWidth(width), mHeight(height), mRatio(2.0)
+        : mWidth(width), mHeight(height), mRatio(2.0),mEglDisplay(EGL_NO_DISPLAY)
     {
         GCanvasConfig config = {true, false};
         this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
@@ -31,7 +24,7 @@ namespace NodeBinding
     }
 
     GRenderContext::GRenderContext(int width, int height, int ratio)
-        : mWidth(width), mHeight(height), mRatio(ratio)
+        : mWidth(width), mHeight(height), mRatio(ratio),mEglDisplay(EGL_NO_DISPLAY)
     {
         GCanvasConfig config = {true, true};
         this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
@@ -46,11 +39,11 @@ namespace NodeBinding
 #endif
 
         // Step 1 - Get the default display.
-        if (!g_eglDisplay)
+        if (!mEglDisplay)
         {
-            g_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
             // Step 2 - Initialize EGL.
-            eglInitialize(g_eglDisplay, 0, 0);
+            eglInitialize(mEglDisplay, 0, 0);
         }
 
 #ifdef CONTEXT_ES20
@@ -74,9 +67,8 @@ namespace NodeBinding
         // Step 5 - Find a config that matches all requirements.
         int iConfigs;
         EGLConfig eglConfig;
-        eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+        eglChooseConfig(mEglDisplay, pi32ConfigAttribs, &eglConfig, 1,
                         &iConfigs);
-
         if (iConfigs != 1)
         {
             printf("Error: eglChooseConfig(): config not found \n");
@@ -85,20 +77,31 @@ namespace NodeBinding
 
         // Step 6 - Create a surface to draw to.
 
-        mEglSurface = eglCreatePbufferSurface(g_eglDisplay, eglConfig, NULL);
+        mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
         // Step 7 - Create a context.
 
         if (!g_eglContext)
         {
 #ifdef CONTEXT_ES20
-            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+            g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
             g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
+   
 #endif
+            mEglContext=g_eglContext;
         }
+        else
+        {
+            #ifdef CONTEXT_ES20
+            mEglContext = eglCreateContext(mEglDisplay, eglConfig, g_eglContext, ai32ContextAttribs);
+    #else
+            g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, NULL);
+        #endif
+        }
+        
 
         // Step 8 - Bind the context to the current thread
-        if (eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext) != EGL_TRUE)
+        if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) != EGL_TRUE)
         {
             EGLint error = eglGetError();
             printf("eglMakeCurrent fail the erroer is %x\n", error);
@@ -120,7 +123,7 @@ namespace NodeBinding
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
-
+ 
         // check FBO status
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
@@ -152,9 +155,9 @@ namespace NodeBinding
         //         return;
         //     }
         // }
-        if (g_eglContext != EGL_NO_CONTEXT && g_eglDisplay != EGL_NO_DISPLAY)
+        if (mEglContext != EGL_NO_CONTEXT && mEglDisplay != EGL_NO_DISPLAY)
         {
-            if (eglMakeCurrent(g_eglDisplay, mEglSurface, mEglSurface, g_eglContext) != EGL_TRUE)
+            if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) != EGL_TRUE)
             {
                 printf("eglMakeCurrent fail \n");
                 exit(-1);
@@ -254,7 +257,7 @@ namespace NodeBinding
 
         if (mEglSurface != EGL_NO_SURFACE)
         {
-            eglDestroySurface(g_eglDisplay, mEglSurface);
+            eglDestroySurface(mEglDisplay, mEglSurface);
             mEglSurface = EGL_NO_SURFACE;
         }
 
@@ -266,18 +269,18 @@ namespace NodeBinding
 
         if (g_RenderContextVC.size() <= 0)
         {
-            if (g_eglDisplay != EGL_NO_DISPLAY)
+            if (mEglDisplay != EGL_NO_DISPLAY)
             {
-                eglMakeCurrent(g_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                if (g_eglContext != EGL_NO_CONTEXT)
+                eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+                if (mEglContext != EGL_NO_CONTEXT)
                 {
-                    eglDestroyContext(g_eglDisplay, g_eglContext);
+                    eglDestroyContext(mEglDisplay, mEglContext);
                 }
-                eglTerminate(g_eglDisplay);
+                eglTerminate(mEglDisplay);
             }
 
-            g_eglDisplay = EGL_NO_DISPLAY;
-            g_eglContext = EGL_NO_CONTEXT;
+            mEglDisplay = EGL_NO_DISPLAY;
+            mEglContext = EGL_NO_CONTEXT;
         }
     }
 
