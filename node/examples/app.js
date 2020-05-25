@@ -21,9 +21,8 @@ ctx.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 
 ctx.restore() // Restore original state
 ctx.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
-// var stream = canvas.createPNGStream();
-// stream.on('data', function (chunk) {
-//     console.log('chunk called');
-//     out.write(chunk);
-// });
-canvas.createPNG("demo1")
+var stream = canvas.createPNGStream();
+stream.on('data', function (chunk) {
+    out.write(chunk);
+});
+// canvas.createPNG("demo1")

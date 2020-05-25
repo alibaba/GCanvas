@@ -125,13 +125,30 @@ namespace NodeBinding
     Napi::Value Canvas::createPNGStreamSync(const Napi::CallbackInfo &info)
     {
         NodeBinding::checkArgs(info, 2);
-        Napi::FunctionReference callback = Napi::Persistent(info[0].As<Napi::Function>());
+        Napi::Function callback = info[0].As<Napi::Function>();
         if (this->mRenderContext)
         {
             this->mRenderContext->makeCurrent();
             this->mRenderContext->drawFrame();
         }
-        
+        std::vector<unsigned char> in;
+        int ret = this->mRenderContext->getImagePixel(in, PNG_FORAMT);
+        if (ret == 0)
+        {
+            //handlescope 表示作用域,一般调用callback函数时使用
+            Napi::HandleScope scope(info.Env());
+            Napi::Buffer<unsigned char> buffer = Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
+            callback.Call({info.Env().Null(),
+                           buffer,
+                           Napi::Number::New(info.Env(), in.size())});
+        }
+        else
+        {
+            Napi::HandleScope scope(info.Env());
+            callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
+                           info.Env().Null(),
+                           info.Env().Null()});
+        }
     }
     Canvas::~Canvas()
     {

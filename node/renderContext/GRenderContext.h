@@ -37,6 +37,7 @@ public:
     
     void BindFBO();
     void makeCurrent();
+    int getImagePixel(std::vector<unsigned char> &in, PIC_FORMAT format);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -54,6 +55,7 @@ private:
     GLuint mDepthRenderbuffer = 0;
     std::vector<int> textures;
     int readPixelAndSampleFromCurrentCtx(unsigned char *data);
+   
 };
 } // namespace NodeBinding
 

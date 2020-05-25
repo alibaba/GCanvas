@@ -178,28 +178,50 @@ namespace NodeBinding
         this->drawCount++;
     }
 
+    int GRenderContext::getImagePixel(std::vector<unsigned char> &in, PIC_FORMAT format)
+    {
+        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        if (ret == 0)
+        {
+            if (format == PNG_FORAMT)
+            {
+                lodepng::encode(in, data, mWidth, mHeight);
+            }
+        }
+        else
+        {
+            return -1;
+        }
+        delete data;
+        data = nullptr;
+        return 0;
+    }
+
     int GRenderContext::readPixelAndSampleFromCurrentCtx(unsigned char *data)
     {
+        //canvas的width默认是width的2倍,这样可以增高分辨率
         int size = 4 * mCanvasWidth * mCanvasHeight;
-        unsigned char *inputData = new unsigned char[size];
-        if (!inputData)
+        unsigned char *canvasData = new unsigned char[size];
+        if (!canvasData)
         {
             printf("Error: allocate inputData memeroy faied! \n");
             return -1;
         }
-        glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, inputData);
+        glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, canvasData);
 
         if (!data)
         {
             printf("Error: allocate data memeroy faied! \n");
-            delete inputData;
-            inputData = nullptr;
+            delete canvasData;
+            canvasData = nullptr;
             return -1;
         }
-        gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)inputData, mWidth, mHeight, (int *)data);
+        //使用gcanvas进行采样，提高导出图片的清晰度
+        gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)canvasData, mWidth, mHeight, (int *)data);
         gcanvas::FlipPixel(data, mWidth, mHeight);
-        delete inputData;
-        inputData = nullptr;
+        delete canvasData;
+        canvasData = nullptr;
         return 0;
     }
     void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
@@ -216,8 +238,10 @@ namespace NodeBinding
             {
                 encodePixelsToJPEGFile(fileName + ".jpg", data, mWidth, mHeight);
             }
-        }else{
-            //fixme 
+        }
+        else
+        //todo
+        {
         }
         delete data;
         data = nullptr;

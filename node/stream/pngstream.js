@@ -11,14 +11,13 @@ function noop() { }
 PNGStream.prototype._read = function _read() {
     this._read = noop;
     this.canvas.createPNGStreamSync((err, chunk, len) => {
-        console.log(`the err is ${err} the chunk is ${chunk} the len is ${len}`);
-        // if (err) {
-        //     this.emit('error', err);
-        // } else if (len) {
-        //     this.push(chunk);
-        // } else {
-        //     this.push(null);
-        // }
+        if (err) {
+            this.emit('error', err);
+        } else if (len) {
+            this.push(chunk);
+        } else {
+            this.push(null);
+        }
     }, this.options);
 }
 util.inherits(PNGStream, Readable);
