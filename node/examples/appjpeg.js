@@ -19,8 +19,9 @@ ctx.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 ctx.restore() // Restore original state
 ctx.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
 const fs = require('fs')
-const out = fs.createWriteStream(__dirname + '/demo1.jpg');
-const stream=canvas.createJPEGStream();
+const path = require('path');
+const out = fs.createWriteStream(path.resolve(__dirname, '..')+ '/demo1.jpg');
+const stream = canvas.createJPEGStream();
 stream.on('data', function (chunk) {
     out.write(chunk);
 });

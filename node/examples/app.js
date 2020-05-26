@@ -2,8 +2,8 @@ const { createCanvas, Image } = require('../export')
 const canvas = createCanvas(400, 400);
 const ctx = canvas.getContext('2d')
 const fs = require('fs')
-
-const out = fs.createWriteStream(__dirname + '/demo1.png');
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.png');
 
 ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 ctx.save() // Save the default state
