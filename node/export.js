@@ -1,18 +1,23 @@
-const { Canvas, Image } = require('bindings')('canvas');
+const { createCanvas, Image } = require('bindings')('canvas');
 const { PNGStream } = require("./stream/pngstream");
-const {JPGStream} =require('./stream/jpgstream')
+const { JPGStream } = require('./stream/jpgstream')
 module.exports = {
-    createCanvas: createCanvas,
+    createCanvas: createCanvasInner,
     Image: Image,
 }
-Canvas.prototype.createPNGStream = function (options) {
-    return new PNGStream(this, options);
-}
-Canvas.prototype.createJPEGStream = function (options) {
-    return new JPGStream(this, options);
-}
-function createCanvas(width, height) {
-    return new Canvas(width, height);
+function createCanvasInner(width, height) {
+    let canvas = createCanvas(width, height);
+    Object.defineProperty(canvas, 'createPNGStream', {
+        value: function (options) {
+            return new PNGStream(canvas, options);
+        }
+    })
+    Object.defineProperty(canvas, 'createJPEGStream', {
+        value: function (options) {
+            return new JPGStream(canvas, options);
+        }
+    })
+    return canvas;
 }
 
 

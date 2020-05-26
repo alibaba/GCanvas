@@ -14,6 +14,8 @@ namespace NodeBinding
         mHeight = info[1].As<Napi::Number>().Int32Value();
         mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
         mRenderContext->initRenderEnviroment();
+
+        
     }
 
     int Canvas::getWidth()
@@ -51,15 +53,9 @@ namespace NodeBinding
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
                             InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
-                        });
+                        });              
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
-        Context2D::Init(env);
-        Gradient::Init(env);
-        ImageData::Init(env);
-        TextMetrics::Init(env);
-        Pattern::Init(env);
-        exports.Set("Canvas", func);
         return;
     }
 
