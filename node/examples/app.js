@@ -25,4 +25,3 @@ var stream = canvas.createPNGStream();
 stream.on('data', function (chunk) {
     out.write(chunk);
 });
-// canvas.createPNG("demo1")

@@ -50,6 +50,7 @@ namespace NodeBinding
                             InstanceMethod("createPNG", &Canvas::createPNG),
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
+                            InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
                         });
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
@@ -122,6 +123,41 @@ namespace NodeBinding
         }
         return;
     }
+    Napi::Value Canvas::createJPGStreamSync(const Napi::CallbackInfo &info)
+    {
+        NodeBinding::checkArgs(info, 2);
+        Napi::Function callback = info[0].As<Napi::Function>();
+        if (this->mRenderContext)
+        {
+            this->mRenderContext->makeCurrent();
+            this->mRenderContext->drawFrame();
+        }
+        unsigned char *data = (unsigned char *)malloc(1 * sizeof(unsigned char));
+        unsigned long size = 0;
+        int ret = this->mRenderContext->getImagePixelJPG(&data, size);
+        if (ret == 0 && size > 0)
+        {
+            //handlescope 表示作用域,一般调用callback函数时使用
+            Napi::HandleScope scope(info.Env());
+            Napi::Buffer<unsigned char> buffer = Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
+            callback.Call({info.Env().Null(),
+                           buffer,
+                           Napi::Number::New(info.Env(), size)});
+        }
+        else
+        {
+            Napi::HandleScope scope(info.Env());
+            callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
+                           info.Env().Null(),
+                           info.Env().Null()});
+        }
+        if (data)
+        {
+            delete data;
+            data = nullptr;
+        }
+    }
+
     Napi::Value Canvas::createPNGStreamSync(const Napi::CallbackInfo &info)
     {
         NodeBinding::checkArgs(info, 2);
@@ -132,7 +168,7 @@ namespace NodeBinding
             this->mRenderContext->drawFrame();
         }
         std::vector<unsigned char> in;
-        int ret = this->mRenderContext->getImagePixel(in, PNG_FORAMT);
+        int ret = this->mRenderContext->getImagePixelPNG(in);
         if (ret == 0)
         {
             //handlescope 表示作用域,一般调用callback函数时使用

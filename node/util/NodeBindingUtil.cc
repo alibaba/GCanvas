@@ -233,8 +233,42 @@ void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width
     jpeg_destroy_decompress(&cinfo);
 }
 
+void encodeJPEGInBuffer(unsigned char **out,unsigned long &size ,unsigned char *data,int width,int height)
+{   
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    JSAMPROW row_pointer[1]; /* pointer to JSAMPLE row[s] */
+    cinfo.err = jpeg_std_error(&jerr);
+    int row_stride;
+    jpeg_create_compress(&cinfo);
+    unsigned long tmpSize=0;
+    jpeg_mem_dest(&cinfo,out,&tmpSize);
+    cinfo.image_width = width;
+    cinfo.image_height = height;
+    cinfo.input_components = 4;
+    cinfo.in_color_space = JCS_EXT_RGBA;
+    jpeg_set_defaults(&cinfo);
+    jpeg_start_compress(&cinfo, TRUE);
+    row_stride = width * 4;
+    while (cinfo.next_scanline < cinfo.image_height)
+    {
+        row_pointer[0] = &data[cinfo.next_scanline * row_stride];
+        (void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    //todo fix jpeg_mem_dest tmpsize always 4096
+    size= 4*width*height;
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+}
+
 void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     lodepng::decode(pixels, width, height, content, len);
 }
+
+void encodePNGInBuffer(std::vector<unsigned char> &in,unsigned char *data,int width,int height)
+{
+    lodepng::encode(in, data, width, height);
+}
+
 } // namespace NodeBinding

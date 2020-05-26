@@ -8,6 +8,7 @@
 
 namespace NodeBinding
 {
+//使用asyncWorker来进行node中的异步调用
 class ImageWorker : public Napi::AsyncWorker
 {
 public:

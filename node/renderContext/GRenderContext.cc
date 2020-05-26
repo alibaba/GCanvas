@@ -148,7 +148,7 @@ namespace NodeBinding
             //判断当前上下文是否是该canvas的上下文
             EGLContext currentContext = eglGetCurrentContext();
             EGLSurface currentSurface = eglGetCurrentSurface(EGL_DRAW);
-            if (mEglContext == currentContext && currentSurface == mEglSurface)
+            if (mEglContext == currentContext && mEglSurface == currentSurface)
             {
                 return;
             }
@@ -178,19 +178,37 @@ namespace NodeBinding
         this->drawCount++;
     }
 
-    int GRenderContext::getImagePixel(std::vector<unsigned char> &in, PIC_FORMAT format)
+    int GRenderContext::getImagePixelPNG(std::vector<unsigned char> &in)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
         int ret = this->readPixelAndSampleFromCurrentCtx(data);
         if (ret == 0)
         {
-            if (format == PNG_FORAMT)
-            {
-                lodepng::encode(in, data, mWidth, mHeight);
-            }
+            encodePNGInBuffer(in, data, mWidth, mHeight);
         }
         else
         {
+            delete data;
+            data = nullptr;
+            return -1;
+        }
+        delete data;
+        data = nullptr;
+        return 0;
+    }
+    
+    int GRenderContext::getImagePixelJPG(unsigned char **in, unsigned long &size)
+    {
+        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        if (ret == 0)
+        {
+            encodeJPEGInBuffer(in, size, data, mWidth, mHeight);
+        }
+        else
+        {
+            delete data;
+            data = nullptr;
             return -1;
         }
         delete data;
