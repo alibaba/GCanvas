@@ -72,8 +72,10 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
   TypefaceProvider *tp = TypefaceProvider::getInstance();
   ASSERT(tp);
   TypefaceProvider::Typeface *face;
+//   printf("call selectTypeface \n");
   face = tp->selectTypeface(charCode, fontName);
   if (!face || (face->sourceType == TypefaceLoader::TST_NET)) {
+    // printf("tp->selectTypeface called \n");
     face = tp->selectTypeface(charCode);
   }
   if (!face || (face->sourceType == TypefaceLoader::TST_NET)) {
@@ -83,6 +85,7 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, std::string contextId, GFon
     face = tp->selectFallbackTypeface();
   }
   if (!face) {
+    //  printf("No typeface selected \n"); 
     WARN("No typeface selected.");
     return nullptr;
   }

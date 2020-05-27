@@ -802,7 +802,7 @@ Napi::Env env = info.Env();
     float scaleY = info[3].As<Napi::Number>().FloatValue();
     float translateX = info[4].As<Napi::Number>().FloatValue();
     float translateY = info[5].As<Napi::Number>().FloatValue();
-    printf("the Transfrom called  scaleX %f scaleY %f rotateX %f rototaY %f translateX %f  translateY %f \n",scaleX,scaleY,rotateX,rotateY,translateX,translateY);
+    // printf("the Transfrom called  scaleX %f scaleY %f rotateX %f rototaY %f translateX %f  translateY %f \n",scaleX,scaleY,rotateX,rotateY,translateX,translateY);
     if (mRenderContext)
     {
         mRenderContext->getCtx()->Transfrom(scaleX, rotateX, rotateY, scaleY, translateX, translateY);
@@ -821,6 +821,7 @@ Napi::Env env = info.Env();
     
 DEFINE_SETTER_METHOD(setfont)
     std::string font = value.As<Napi::String>().Utf8Value();
+    // printf("the set fon value is %s \n",font.c_str());
     if (mRenderContext)
     {
         mRenderContext->getCtx()->SetFont(font.c_str());
