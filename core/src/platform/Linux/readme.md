@@ -23,33 +23,33 @@
             ```
 
              ```
-              the fp value is .fontcache 
-the face.source is /home/mingzong/.gAssets/fonts/./站酷酷黑_0.ttf 
-the face.psName is HuXiaoBoKuHei 
-the face.familyName is HuXiaoBo_KuHei 
-the face.styleName is Regular 
-the face.source is /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc 
-the face.psName is WenQuanYiMicroHei 
-the face.familyName is WenQuanYi Micro Hei 
-the face.styleName is Regular 
-the face.source is /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc 
-the face.psName is WenQuanYiMicroHeiMono 
-the face.familyName is WenQuanYi Micro Hei Mono 
-the face.styleName is Regular 
-[DEBUG] Number of cached typefaces: 3
-[DEBUG] Typeface: HuXiaoBo_KuHei, Regular. (HuXiaoBoKuHei)
-[DEBUG]     source type: TST_LOCAL
-[DEBUG]     source: /home/mingzong/.gAssets/fonts/./站酷酷黑_0.ttf
-[DEBUG]     index: 0
-[DEBUG]     face: (nil)
-[DEBUG] Typeface: WenQuanYi Micro Hei, Regular. (WenQuanYiMicroHei)
-[DEBUG]     source type: TST_LOCAL
-[DEBUG]     source: /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc
-[DEBUG]     index: 0
-[DEBUG]     face: (nil)
-[DEBUG] Typeface: WenQuanYi Micro Hei Mono, Regular. (WenQuanYiMicroHeiMono)
-[DEBUG]     source type: TST_LOCAL
-[DEBUG]     source: /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc
-[DEBUG]     index: 1
-[DEBUG]     face: (nil)
+            the fp value is .fontcache 
+            the face.source is /home/mingzong/.gAssets/fonts/./站酷酷黑_0.ttf 
+            the face.psName is HuXiaoBoKuHei 
+            the face.familyName is HuXiaoBo_KuHei 
+            the face.styleName is Regular 
+            the face.source is /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc 
+            the face.psName is WenQuanYiMicroHei 
+            the face.familyName is WenQuanYi Micro Hei 
+            the face.styleName is Regular 
+             the face.source is /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc 
+            the face.psName is WenQuanYiMicroHeiMono 
+            the face.familyName is WenQuanYi Micro Hei Mono 
+            the face.styleName is Regular 
+            [DEBUG] Number of cached typefaces: 3
+            [DEBUG] Typeface: HuXiaoBo_KuHei, Regular. (HuXiaoBoKuHei)
+            [DEBUG]     source type: TST_LOCAL
+            [DEBUG]     source: /home/mingzong/.gAssets/fonts/./站酷酷黑_0.ttf
+            [DEBUG]     index: 0
+            [DEBUG]     face: (nil)
+            [DEBUG] Typeface: WenQuanYi Micro Hei, Regular. (WenQuanYiMicroHei)
+            [DEBUG]     source type: TST_LOCAL
+            [DEBUG]     source: /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc
+            [DEBUG]     index: 0
+            [DEBUG]     face: (nil)
+            [DEBUG] Typeface: WenQuanYi Micro Hei Mono, Regular. (WenQuanYiMicroHeiMono)
+            [DEBUG]     source type: TST_LOCAL
+            [DEBUG]     source: /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc
+            [DEBUG]     index: 1
+            [DEBUG]     face: (nil)
             ```
