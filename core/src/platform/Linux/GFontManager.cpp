@@ -67,10 +67,8 @@ GFontManagerImplement::GFontManagerImplement(GCanvasContext *context) : GFontMan
     ASSERT(tl);
     std::string home(getenv("HOME"));
     std::string path= home+ FONT_PATH".fontcache";
-    
+    //加载fontcache
     ASSERT(tl->importFontCache(path));  
-    // std::string testPath=home+FONT_PATH"站酷酷黑_0.ttf";
-    // ASSERT(tl->importFontCache(testPath));
 
 }
 
