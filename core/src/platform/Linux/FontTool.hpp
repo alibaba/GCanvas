@@ -310,6 +310,11 @@ public:
 #undef READ_STDSTR
 
       face.source = pathPreFix + face.source;
+      printf("the face.source is %s \n",face.source.c_str());
+      printf("the face.psName is %s \n",face.psName.c_str());
+      printf("the face.familyName is %s \n",face.familyName.c_str());
+      printf("the face.styleName is %s \n",face.styleName.c_str());
+
     }
 
     cacheFile.close();
