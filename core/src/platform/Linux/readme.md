@@ -23,7 +23,6 @@
             ```
 
              ```
-            the fp value is .fontcache 
             the face.source is /home/mingzong/.gAssets/fonts/./站酷酷黑_0.ttf 
             the face.psName is HuXiaoBoKuHei 
             the face.familyName is HuXiaoBo_KuHei 
@@ -52,4 +51,4 @@
             [DEBUG]     source: /home/mingzong/.gAssets/fonts/./wqy-microhei.ttc
             [DEBUG]     index: 1
             [DEBUG]     face: (nil)
-            ```
+        ```
