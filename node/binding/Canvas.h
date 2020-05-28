@@ -28,6 +28,7 @@ private:
     Napi::Value getContext(const Napi::CallbackInfo &info);
     Napi::Value createPNGStreamSync(const Napi::CallbackInfo &info);
     Napi::Value createJPGStreamSync(const Napi::CallbackInfo &info);
+    Napi::Value Buffer(const Napi::CallbackInfo &info);
     Napi::ObjectReference context2dRef;
 
     void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);

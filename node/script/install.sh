@@ -10,6 +10,6 @@ if [ "$isLocal" = "true" ];then
 else
     echo "remote build"
     mkdir -p ~/.gAssets/fonts/
-    git clone https://github.com/alibaba/GCanvas.git && cp  -R ./GCanvas/core ./core/  && npm run compile && cp ./third_party/font/wqy-microhei.ttc ~/.gAssets/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  ~/.gAssets/fonts/.fontcache
+    git clone https://github.com/alibaba/GCanvas.git && cd ./GCanvas/ && git checkout origin/fabric_gcanvas &&  cd .. && cp  -R ./GCanvas/core ./core/  && npm run compile && cp ./third_party/font/wqy-microhei.ttc ~/.gAssets/fonts/wqy-microhei.ttc &&  cp ./third_party/font/.fontcache  ~/.gAssets/fonts/.fontcache
     rm -rf ./GCanvas/
 fi

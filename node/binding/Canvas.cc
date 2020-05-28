@@ -14,8 +14,6 @@ namespace NodeBinding
         mHeight = info[1].As<Napi::Number>().Int32Value();
         mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
         mRenderContext->initRenderEnviroment();
-
-        
     }
 
     int Canvas::getWidth()
@@ -53,7 +51,8 @@ namespace NodeBinding
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
                             InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
-                        });              
+                            InstanceMethod("toBuffer", &Canvas::Buffer),
+                        });
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
         return;
@@ -180,6 +179,24 @@ namespace NodeBinding
             callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
                            info.Env().Null(),
                            info.Env().Null()});
+        }
+    }
+    Napi::Value Canvas::Buffer(const Napi::CallbackInfo &info)
+    {
+        if (info.Length() == 0)
+        {
+            if (this->mRenderContext)
+            {
+                this->mRenderContext->makeCurrent();
+                this->mRenderContext->drawFrame();
+            }
+            std::vector<unsigned char> in;
+            int ret = this->mRenderContext->getImagePixelPNG(in);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
+        }
+        else
+        {
+            return info.Env().Undefined();
         }
     }
     Canvas::~Canvas()
