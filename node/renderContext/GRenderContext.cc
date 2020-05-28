@@ -115,7 +115,7 @@ namespace NodeBinding
 
         glGenRenderbuffers(1, &mRenderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA4, mCanvasWidth, mCanvasHeight);
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
         glGenRenderbuffers(1, &mDepthRenderbuffer);
@@ -141,7 +141,6 @@ namespace NodeBinding
         glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
         this->initCanvas();
         fboVector.push_back(mFboId);
-        // g_RenderContextVC.push_back(this);
     }
 
     void GRenderContext::makeCurrent()

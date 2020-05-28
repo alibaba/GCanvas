@@ -416,6 +416,9 @@ DEFINE_VOID_METHOD(drawImage)
             image->textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
         }
         textureId = image->textureId;
+        for(int i=0;i<4;i++){
+            printf("the image pxiels is %d \n",image->getPixels()[i]);
+        }
         // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
     }
 
