@@ -135,6 +135,7 @@ namespace NodeBinding
         {
             //handlescope 表示作用域,一般调用callback函数时使用
             Napi::HandleScope scope(info.Env());
+
             Napi::Buffer<unsigned char> buffer = Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
             callback.Call({info.Env().Null(),
                            buffer,
@@ -146,11 +147,6 @@ namespace NodeBinding
             callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
                            info.Env().Null(),
                            info.Env().Null()});
-        }
-        if (data)
-        {
-            delete data;
-            data = nullptr;
         }
     }
 
