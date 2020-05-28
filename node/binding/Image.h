@@ -8,6 +8,7 @@
 
 namespace NodeBinding
 {
+//使用asyncWorker来进行node中的异步调用
 class ImageWorker : public Napi::AsyncWorker
 {
 public:
@@ -40,6 +41,7 @@ public:
     static void Init(Napi::Env env, Napi::Object exports);
     int getWidth();
     int getHeight();
+    int textureId=-1;
     std::vector<unsigned char> &getPixels();
 
 private:

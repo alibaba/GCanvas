@@ -16,11 +16,14 @@ namespace NodeBinding
 extern void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height);
 extern void decodeFile2Pixels(std::string filename, std::vector<unsigned char> &image);
 extern void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, int height);
+extern void encodePNGInBuffer(std::vector<unsigned char> &in,unsigned char *data,int width,int height);
+extern void encodeJPEGInBuffer(unsigned char **in,unsigned long &size,unsigned char *data,int width,int height);
 class GRenderContext
 {
 public:
     GRenderContext() : mWidth(0), mHeight(0), mCanvas(nullptr)
     {
+        
     }
     GRenderContext(int width, int height);
     GRenderContext(int width, int height, int ratio);
@@ -35,7 +38,9 @@ public:
     void recordTextures(int textureId);
     
     void BindFBO();
-
+    void makeCurrent();
+    int getImagePixelPNG(std::vector<unsigned char> &in);
+    int getImagePixelJPG(unsigned char **data,unsigned long &size);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -45,13 +50,15 @@ private:
     int mCanvasWidth;
     int mRatio;
     int drawCount = 0;
-    // EGLDisplay mEglDisplay;
+    EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
-    // EGLContext mEglContext;
+    EGLContext mEglContext;
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
     std::vector<int> textures;
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
+   
 };
 } // namespace NodeBinding
 

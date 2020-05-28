@@ -529,7 +529,6 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
     {
         glBindTexture(GL_TEXTURE_2D, mCurrentState->mTextureId);
     }
-
     //draw call
     mDrawCallCount++;
     glDrawArrays(geometry_type, 0, mVertexBufferIndex);

@@ -1,4 +1,4 @@
-const { createCanvas, Image } = require('bindings')('canvas');
+const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(1000, 600)
 const ctx = canvas.getContext('2d')
 

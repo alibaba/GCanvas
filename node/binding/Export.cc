@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Canvas.h"
 #include "Image.h"
+#include "TextMetrics.h"
 
 Napi::Object createCanvas(const Napi::CallbackInfo &info)
 {
@@ -17,10 +18,16 @@ Napi::Object createCanvas(const Napi::CallbackInfo &info)
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
-  NodeBinding::Canvas::Init(env);
+  //所有binding对象的初始化入口
+  NodeBinding::Canvas::Init(env, exports);
+  NodeBinding::Image::Init(env, exports);
+  NodeBinding::Context2D::Init(env);
+  NodeBinding::Gradient::Init(env);
+  NodeBinding::ImageData::Init(env);
+  NodeBinding::TextMetrics::Init(env);
+  NodeBinding::Pattern::Init(env);
   exports.Set(Napi::String::New(env, "createCanvas"),
               Napi::Function::New(env, createCanvas));
-  NodeBinding::Image::Init(env, exports);
   return exports;
 }
 
