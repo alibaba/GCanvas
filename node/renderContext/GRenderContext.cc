@@ -11,7 +11,7 @@ namespace NodeBinding
 {
 
     static std::vector<GRenderContext *> g_RenderContextVC;
-    static EGLContext g_eglContext = nullptr;
+    static EGLContext g_eglContext = EGL_NO_CONTEXT;
 
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0), mEglDisplay(EGL_NO_DISPLAY)
@@ -79,7 +79,7 @@ namespace NodeBinding
         mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
         // Step 7 - Create a context.
 
-        if (!g_eglContext)
+        if (g_eglContext==EGL_NO_CONTEXT)
         {
 #ifdef CONTEXT_ES20
             g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
@@ -102,7 +102,7 @@ namespace NodeBinding
         if (eglMakeCurrent(mEglDisplay, mEglSurface, mEglSurface, mEglContext) != EGL_TRUE)
         {
             EGLint error = eglGetError();
-            printf("eglMakeCurrent fail the erroer is %x\n", error);
+            printf("eglMakeCurrent fail the error is %x\n", error);
             exit(-1);
         }
         // end of standard gl context setup
@@ -121,12 +121,12 @@ namespace NodeBinding
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, mCanvasWidth, mCanvasHeight);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mDepthRenderbuffer);
-
         // check FBO status
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
-            printf("Problem with OpenGL framebuffer after specifying color render buffer: n%x \n", status);
+            EGLint error = eglGetError();
+            printf("Problem with OpenGL framebuffer after specifying color render buffer:  %x  the glError is %x \n", status,error);
             exit(-1);
         }
         else
@@ -303,8 +303,11 @@ namespace NodeBinding
             }
             eglTerminate(mEglDisplay);
         }
-        mEglDisplay = EGL_NO_DISPLAY;
-        mEglContext = EGL_NO_CONTEXT;
+         mEglDisplay = EGL_NO_DISPLAY;
+         mEglContext = EGL_NO_CONTEXT;
+         if(g_RenderContextVC.size()==0){
+             g_eglContext=EGL_NO_CONTEXT;
+         }
     }
 
     void GRenderContext::recordTextures(int textureId)
