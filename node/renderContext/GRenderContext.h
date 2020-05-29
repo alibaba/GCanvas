@@ -41,6 +41,7 @@ public:
     void makeCurrent();
     int getImagePixelPNG(std::vector<unsigned char> &in);
     int getImagePixelJPG(unsigned char **data,unsigned long &size);
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -56,9 +57,7 @@ private:
     GLuint mFboId = 0;
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
-    std::vector<int> textures;
-    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
-   
+    std::vector<int> textures; 
 };
 } // namespace NodeBinding
 
