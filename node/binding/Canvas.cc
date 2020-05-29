@@ -14,8 +14,6 @@ namespace NodeBinding
         mHeight = info[1].As<Napi::Number>().Int32Value();
         mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
         mRenderContext->initRenderEnviroment();
-
-        
     }
 
     int Canvas::getWidth()
@@ -53,7 +51,8 @@ namespace NodeBinding
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
                             InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
-                        });              
+                            InstanceMethod("toBuffer", &Canvas::Buffer),
+                        });
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
         return;
@@ -122,42 +121,47 @@ namespace NodeBinding
     Napi::Value Canvas::createJPGStreamSync(const Napi::CallbackInfo &info)
     {
         NodeBinding::checkArgs(info, 2);
-        Napi::Function callback = info[0].As<Napi::Function>();
-        if (this->mRenderContext)
-        {
-            this->mRenderContext->makeCurrent();
-            this->mRenderContext->drawFrame();
-        }
-        unsigned char *data = (unsigned char *)malloc(1 * sizeof(unsigned char));
         unsigned long size = 0;
-        int ret = this->mRenderContext->getImagePixelJPG(&data, size);
-        if (ret == 0 && size > 0)
-        {
-            //handlescope 表示作用域,一般调用callback函数时使用
-            Napi::HandleScope scope(info.Env());
-            Napi::Buffer<unsigned char> buffer = Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
-            callback.Call({info.Env().Null(),
-                           buffer,
-                           Napi::Number::New(info.Env(), size)});
-        }
-        else
-        {
-            Napi::HandleScope scope(info.Env());
-            callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
-                           info.Env().Null(),
-                           info.Env().Null()});
-        }
-        if (data)
-        {
-            delete data;
-            data = nullptr;
-        }
+        Napi::Buffer<unsigned char> buffer = this->getJPGBuffer(info, size);
+        Napi::Function callback = info[0].As<Napi::Function>();
+        //handlescope 表示作用域,一般调用callback函数时使用
+        Napi::HandleScope scope(info.Env());
+        callback.Call({info.Env().Null(),
+                       buffer,
+                       Napi::Number::New(info.Env(), size)});
+        // }
+        // else
+        // {
+        //     Napi::HandleScope scope(info.Env());
+        //     callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
+        //                    info.Env().Null(),
+        //                    info.Env().Null()});
+        // }
     }
 
     Napi::Value Canvas::createPNGStreamSync(const Napi::CallbackInfo &info)
     {
         NodeBinding::checkArgs(info, 2);
+        unsigned long size = 0;
+        Napi::Buffer<unsigned char> buffer = this->getPNGBuffer(info, size);
         Napi::Function callback = info[0].As<Napi::Function>();
+
+        //handlescope 表示作用域,一般调用callback函数时使用
+        Napi::HandleScope scope(info.Env());
+        callback.Call({info.Env().Null(),
+                       buffer,
+                       Napi::Number::New(info.Env(), size)});
+        // }
+        // else
+        // {
+        //     Napi::HandleScope scope(info.Env());
+        //     callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
+        //                    info.Env().Null(),
+        //                    info.Env().Null()});
+        // }
+    }
+    Napi::Buffer<unsigned char> Canvas::getPNGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
+    {
         if (this->mRenderContext)
         {
             this->mRenderContext->makeCurrent();
@@ -167,19 +171,65 @@ namespace NodeBinding
         int ret = this->mRenderContext->getImagePixelPNG(in);
         if (ret == 0)
         {
-            //handlescope 表示作用域,一般调用callback函数时使用
-            Napi::HandleScope scope(info.Env());
-            Napi::Buffer<unsigned char> buffer = Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
-            callback.Call({info.Env().Null(),
-                           buffer,
-                           Napi::Number::New(info.Env(), in.size())});
+            size = in.size();
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
         }
         else
         {
-            Napi::HandleScope scope(info.Env());
-            callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
-                           info.Env().Null(),
-                           info.Env().Null()});
+            throwError(info.Env(), "createPNGBuffer fail");
+        }
+    }
+    Napi::Buffer<unsigned char> Canvas::getJPGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
+    {
+        if (this->mRenderContext)
+        {
+            this->mRenderContext->makeCurrent();
+            this->mRenderContext->drawFrame();
+        }
+        unsigned char *data = nullptr;
+        int ret = this->mRenderContext->getImagePixelJPG(&data, size);
+        if (ret == 0)
+        {
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
+        }
+        else
+        {
+            throwError(info.Env(), "createJPGBuffer fail");
+        }
+    }
+    Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
+    {
+        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
+        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(data);
+        return Napi::Buffer<unsigned char>::Copy(info.Env(), data, 4 * mWidth * mHeight);
+    }
+    Napi::Value Canvas::Buffer(const Napi::CallbackInfo &info)
+    {
+        unsigned long size = 0;
+        //默认输出png 编码
+        if (info.Length() == 0)
+        {
+            return this->getPNGBuffer(info, size);
+        }
+        else
+        {
+            if (info.Length() == 1)
+            {
+                std::string mimeType = info[0].As<Napi::String>().Utf8Value();
+                if (mimeType == "image/png")
+                {
+                    return this->getPNGBuffer(info, size);
+                }
+                else if (mimeType == "image/jpeg")
+                {
+                    return this->getJPGBuffer(info, size);
+                }
+                else if (mimeType == "raw")
+                {
+                    return this->getRawDataBuffer(info, size);
+                }
+            }
+            return info.Env().Null();
         }
     }
     Canvas::~Canvas()

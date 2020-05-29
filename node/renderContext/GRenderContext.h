@@ -41,6 +41,7 @@ public:
     void makeCurrent();
     int getImagePixelPNG(std::vector<unsigned char> &in);
     int getImagePixelJPG(unsigned char **data,unsigned long &size);
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
