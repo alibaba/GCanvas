@@ -12,6 +12,7 @@ namespace NodeBinding
 
     static std::vector<GRenderContext *> g_RenderContextVC;
     static EGLContext g_eglContext = EGL_NO_CONTEXT;
+    static EGLDisplay g_eglDisplay = EGL_NO_DISPLAY;
 
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0), mEglDisplay(EGL_NO_DISPLAY)
@@ -33,6 +34,7 @@ namespace NodeBinding
 
     void GRenderContext::initRenderEnviroment()
     {
+        InitSharedContextIfNot();
 #ifdef CONTEXT_ES20
         EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 #endif
@@ -79,15 +81,14 @@ namespace NodeBinding
         mEglSurface = eglCreatePbufferSurface(mEglDisplay, eglConfig, NULL);
         // Step 7 - Create a context.
 
-        if (g_eglContext==EGL_NO_CONTEXT)
+        if (g_eglContext == EGL_NO_CONTEXT)
         {
 #ifdef CONTEXT_ES20
-            g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
+            mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, ai32ContextAttribs);
 #else
-            g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
-
+            mEglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
 #endif
-            mEglContext = g_eglContext;
+            // g_eglContext = mEglContext;
         }
         else
         {
@@ -126,7 +127,7 @@ namespace NodeBinding
         if (status != GL_FRAMEBUFFER_COMPLETE)
         {
             EGLint error = eglGetError();
-            printf("Problem with OpenGL framebuffer after specifying color render buffer:  %x  the glError is %x \n", status,error);
+            printf("Problem with OpenGL framebuffer after specifying color render buffer:  %x  the glError is %x \n", status, error);
             exit(-1);
         }
         else
@@ -145,7 +146,7 @@ namespace NodeBinding
     {
         if (mEglContext != nullptr)
         {
-            //判断当前上下文是否是该canvas的上下文
+            //判断当前上下文是否是该canvas的上下文,减少makecurrent的切换过程
             EGLContext currentContext = eglGetCurrentContext();
             EGLSurface currentSurface = eglGetCurrentSurface(EGL_DRAW);
             if (mEglContext == currentContext && mEglSurface == currentSurface)
@@ -196,7 +197,7 @@ namespace NodeBinding
         data = nullptr;
         return 0;
     }
-    
+
     int GRenderContext::getImagePixelJPG(unsigned char **in, unsigned long &size)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
@@ -301,13 +302,15 @@ namespace NodeBinding
             {
                 eglDestroyContext(mEglDisplay, mEglContext);
             }
-            eglTerminate(mEglDisplay);
+            // eglTerminate(mEglDisplay);
         }
-         mEglDisplay = EGL_NO_DISPLAY;
-         mEglContext = EGL_NO_CONTEXT;
-         if(g_RenderContextVC.size()==0){
-             g_eglContext=EGL_NO_CONTEXT;
-         }
+        mEglDisplay = EGL_NO_DISPLAY;
+        mEglContext = EGL_NO_CONTEXT;
+        //todo 考虑何时释放sharedContext?不用释放？等待进程销毁
+        // if (g_RenderContextVC.size() == 0)
+        // {
+        //     g_eglContext = EGL_NO_CONTEXT;
+        // }
     }
 
     void GRenderContext::recordTextures(int textureId)
@@ -323,6 +326,52 @@ namespace NodeBinding
         {
             glBindFramebuffer(GL_FRAMEBUFFER, mFboId);
             // printf("bindfbo value is %d\n", mFboId);
+        }
+    }
+
+    void GRenderContext::InitSharedContextIfNot()
+    {
+        if (g_eglDisplay == EGL_NO_DISPLAY && g_eglContext == EGL_NO_CONTEXT)
+        {
+#ifdef CONTEXT_ES20
+            EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+#endif
+            g_eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            // Step 2 - Initialize EGL.
+            eglInitialize(g_eglDisplay, 0, 0);
+
+            // Step 3 - Make OpenGL ES the current API.
+            eglBindAPI(EGL_OPENGL_ES_API);
+
+            // Step 4 - Specify the required configuration attributes.
+            EGLint pi32ConfigAttribs[5];
+            pi32ConfigAttribs[0] = EGL_SURFACE_TYPE;
+            pi32ConfigAttribs[1] = EGL_WINDOW_BIT;
+            pi32ConfigAttribs[2] = EGL_RENDERABLE_TYPE;
+            pi32ConfigAttribs[3] = EGL_OPENGL_ES2_BIT;
+            pi32ConfigAttribs[4] = EGL_NONE;
+
+            // Step 5 - Find a config that matches all requirements.
+            int iConfigs;
+            EGLConfig eglConfig;
+            eglChooseConfig(g_eglDisplay, pi32ConfigAttribs, &eglConfig, 1,
+                            &iConfigs);
+            if (iConfigs != 1)
+            {
+                printf("Error: eglChooseConfig(): config not found \n");
+                exit(-1);
+            }
+
+            // Step 7 - Create a context.
+
+            if (g_eglContext == EGL_NO_CONTEXT)
+            {
+#ifdef CONTEXT_ES20
+                g_eglContext = eglCreateContext(g_eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+#else
+                g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
+#endif
+            }
         }
     }
 

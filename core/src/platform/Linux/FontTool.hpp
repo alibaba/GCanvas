@@ -283,7 +283,7 @@ namespace NSFontTool
 
       size_t nFaces = 0;
       cacheFile.read((char *)(&nFaces), sizeof(size_t));
-      INFO("Importing %lu typefaces...", nFaces);
+      // INFO("Importing %lu typefaces...", nFaces);
       mFaces.resize(nFaces);
       std::string home(getenv("HOME"));
       std::string pathPreFix = home + FONT_PATH;
