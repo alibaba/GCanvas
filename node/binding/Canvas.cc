@@ -123,20 +123,24 @@ namespace NodeBinding
         NodeBinding::checkArgs(info, 2);
         unsigned long size = 0;
         Napi::Buffer<unsigned char> buffer = this->getJPGBuffer(info, size);
-        Napi::Function callback = info[0].As<Napi::Function>();
-        //handlescope 表示作用域,一般调用callback函数时使用
-        Napi::HandleScope scope(info.Env());
-        callback.Call({info.Env().Null(),
-                       buffer,
-                       Napi::Number::New(info.Env(), size)});
-        // }
-        // else
-        // {
-        //     Napi::HandleScope scope(info.Env());
-        //     callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
-        //                    info.Env().Null(),
-        //                    info.Env().Null()});
-        // }
+        if (size >= 0)
+        {
+            Napi::Function callback = info[0].As<Napi::Function>();
+            //handlescope 表示作用域,一般调用callback函数时使用
+            Napi::HandleScope scope(info.Env());
+            callback.Call({info.Env().Null(),
+                           buffer,
+                           Napi::Number::New(info.Env(), size)});
+        }
+        else
+        {
+            Napi::Function callback = info[0].As<Napi::Function>();
+            Napi::HandleScope scope(info.Env());
+            callback.Call({Napi::String::New(Env(), "createJPGStreamFail"),
+                           info.Env().Null(),
+                           info.Env().Null()});
+        }
+        return info.Env().Undefined();
     }
 
     Napi::Value Canvas::createPNGStreamSync(const Napi::CallbackInfo &info)
@@ -144,21 +148,24 @@ namespace NodeBinding
         NodeBinding::checkArgs(info, 2);
         unsigned long size = 0;
         Napi::Buffer<unsigned char> buffer = this->getPNGBuffer(info, size);
-        Napi::Function callback = info[0].As<Napi::Function>();
-
-        //handlescope 表示作用域,一般调用callback函数时使用
-        Napi::HandleScope scope(info.Env());
-        callback.Call({info.Env().Null(),
-                       buffer,
-                       Napi::Number::New(info.Env(), size)});
-        // }
-        // else
-        // {
-        //     Napi::HandleScope scope(info.Env());
-        //     callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
-        //                    info.Env().Null(),
-        //                    info.Env().Null()});
-        // }
+        if (size >= 0)
+        {
+            Napi::Function callback = info[0].As<Napi::Function>();
+            //handlescope 表示作用域,一般调用callback函数时使用
+            Napi::HandleScope scope(info.Env());
+            callback.Call({info.Env().Null(),
+                           buffer,
+                           Napi::Number::New(info.Env(), size)});
+        }
+        else
+        {
+            Napi::Function callback = info[0].As<Napi::Function>();
+            Napi::HandleScope scope(info.Env());
+            callback.Call({Napi::String::New(Env(), "createPNGStreamFail"),
+                           info.Env().Null(),
+                           info.Env().Null()});
+        }
+        return info.Env().Undefined();
     }
     Napi::Buffer<unsigned char> Canvas::getPNGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
@@ -176,7 +183,7 @@ namespace NodeBinding
         }
         else
         {
-            throwError(info.Env(), "createPNGBuffer fail");
+            return Napi::Buffer<unsigned char>::New(info.Env(), nullptr, 0);
         }
     }
     Napi::Buffer<unsigned char> Canvas::getJPGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
@@ -194,14 +201,23 @@ namespace NodeBinding
         }
         else
         {
-            throwError(info.Env(), "createJPGBuffer fail");
+            size = -1;
+            return Napi::Buffer<unsigned char>::New(info.Env(), nullptr, 0);
         }
     }
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
         int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(data);
-        return Napi::Buffer<unsigned char>::Copy(info.Env(), data, 4 * mWidth * mHeight);
+        if (ret == 0)
+        {
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, 4 * mWidth * mHeight);
+        }
+        else
+        {
+            size = -1;
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
+        }
     }
     Napi::Value Canvas::Buffer(const Napi::CallbackInfo &info)
     {
@@ -213,23 +229,31 @@ namespace NodeBinding
         }
         else
         {
+            Napi::Buffer<unsigned char> ret;
             if (info.Length() == 1)
             {
                 std::string mimeType = info[0].As<Napi::String>().Utf8Value();
                 if (mimeType == "image/png")
                 {
-                    return this->getPNGBuffer(info, size);
+                    ret = this->getPNGBuffer(info, size);
                 }
                 else if (mimeType == "image/jpeg")
                 {
-                    return this->getJPGBuffer(info, size);
+                    ret = this->getJPGBuffer(info, size);
                 }
                 else if (mimeType == "raw")
                 {
-                    return this->getRawDataBuffer(info, size);
+                    ret = this->getRawDataBuffer(info, size);
                 }
             }
-            return info.Env().Null();
+            if (size < 0)
+            {
+                return info.Env().Null();
+            }
+            else
+            {
+                return ret;
+            }
         }
     }
     Canvas::~Canvas()
