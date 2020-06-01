@@ -13,35 +13,10 @@
 #include <vector>
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
+#include "ImageWorker.h"
 
 namespace NodeBinding
 {
-//使用asyncWorker来进行node中的异步调用
-class ImageWorker : public Napi::AsyncWorker
-{
-public:
-    ImageWorker(Napi::Env env, std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(env), _pixels(out),
-                                                                                                             _height(height),
-                                                                                                             _width(width)
-    {
-    }
-
-    void Execute();
-    void OnOK();
-    void OnError(const Napi::Error &e);
-    std::string url;
-    void setOnErrorCallback(Napi::Function func);
-    void setOnLoadCallback(Napi::Function func);
-
-private:
-    Napi::FunctionReference onErrorCallback;
-    Napi::FunctionReference onLoadCallback;
-    std::vector<unsigned char> &_pixels;
-    unsigned int &_width;
-    unsigned int &_height;
-    ImageContent content;
-};
-
 class Image : public Napi::ObjectWrap<Image>
 {
 public:

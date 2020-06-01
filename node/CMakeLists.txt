@@ -36,6 +36,7 @@ set(SOURCE_FILES
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc
         ./binding/Image.cc
+        ./binding/ImageWorker.cc
         ./binding/CanvasPattern.cc
         ./renderContext/GRenderContext.cc
         ./third_party/lodepng.cc
