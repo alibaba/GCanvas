@@ -40,7 +40,7 @@ before_script:
 script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cppcheck --error-exitcode=0 --enable=warning,style,unusedFunction --std=c++11 --verbose --language=c++ core/src; fi
 - cd ./core/test/linux && mkdir build && cd build && cmake ../ && make
-- cp ../util/font/wqy-microhei.ttc ./  &&   cp ../util/font/.fontcache  ./
+- mkdir -p ~/.gAssets/fonts/ && cp ../util/font/wqy-microhei.ttc ~/.gAssets/fonts/wqy-microhei.ttc  &&  cp ../util/font/.fontcache  ~/.gAssets/fonts/.fontcache
 - "./gcanvasTest"
 - cat result.txt | awk '{printf "%-30s| %-18s|  %-20s\n",$1,$2,$3}'| column -t 
 - cd ../../../../ && cd ./node/ && local=true npm install && npm run dev
