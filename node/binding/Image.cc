@@ -78,6 +78,7 @@ void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
             mWorker->Queue();
         }
     }else{
+        printf("cached image bingo \n");
         this->mCallbackSet->mOnLoadCallback.Call({Env().Undefined()});
     }
 }
@@ -140,16 +141,10 @@ std::vector<unsigned char> & Image::getPixels()
 }
 
 void Image::setTextureId(int textureId){
-    if(this->mImageCached){
-        this->mImageCached->textureId=textureId;
-    }
+    this->textureId=textureId;
 }
 int Image::getTextureId(){
-    if(this->mImageCached){
-        return this->mImageCached->textureId;
-    }else{
-        return -1;
-    }
+   return this->textureId;
 }
 
 

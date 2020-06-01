@@ -9,8 +9,6 @@ public:
     }
     unsigned int width = 0;
     unsigned int height = 0;
-    int textureId = -1;
-
 private:
     std::vector<unsigned char> pixels;
 };

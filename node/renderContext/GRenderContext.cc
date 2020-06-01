@@ -327,6 +327,11 @@ namespace NodeBinding
         }
     }
 
+    void GRenderContext::recordImageTexture(std::string url, int textureId)
+    {
+        this->imageTextureMap[url] = textureId;
+    }
+
     void GRenderContext::InitSharedContextIfNot()
     {
         if (g_eglDisplay == EGL_NO_DISPLAY && g_eglContext == EGL_NO_CONTEXT)
@@ -370,6 +375,17 @@ namespace NodeBinding
                 g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
 #endif
             }
+        }
+    }
+    int GRenderContext::getTextureIdByUrl(std::string url)
+    {
+        if (this->imageTextureMap.find(url) == imageTextureMap.end())
+        {
+            return -1;
+        }
+        else
+        {
+            return this->imageTextureMap[url];
         }
     }
 
