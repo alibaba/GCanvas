@@ -59,7 +59,7 @@ namespace NodeBinding
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
                             InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
-                            InstanceMethod("toBuffer", &Canvas::Buffer),
+                            InstanceMethod("toBuffer", &Canvas::ToBuffer),
                         });
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
@@ -227,7 +227,7 @@ namespace NodeBinding
             return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
         }
     }
-    Napi::Value Canvas::Buffer(const Napi::CallbackInfo &info)
+    Napi::Value Canvas::ToBuffer(const Napi::CallbackInfo &info)
     {
         unsigned long size = 0;
         //默认输出png 编码
