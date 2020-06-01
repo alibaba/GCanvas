@@ -93,7 +93,6 @@ std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url){
 }
 
 void cachedImage(const std::string url,std::shared_ptr<ImageCached> imageCached){
-     printf("cached image \n");
      imagePool[url]=imageCached;
 }
 void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height)

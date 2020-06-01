@@ -16,7 +16,7 @@ namespace NodeBinding
 Napi::FunctionReference Image::constructor;
 Image::Image(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Image>(info)
 {
-   this->mCallbackSet=new ImageCallbackTuple();
+   this->mCallbackSet= new ImageCallbackTuple();
 }
 
 Image::~Image(){
@@ -24,6 +24,7 @@ Image::~Image(){
     this->mWorker=nullptr;
     delete this->mCallbackSet;
     this->mCallbackSet=nullptr;
+    this->mImageCached=nullptr;
 }
 
 void Image::Init(Napi::Env env, Napi::Object exports)
@@ -78,7 +79,6 @@ void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
             mWorker->Queue();
         }
     }else{
-        printf("cached image bingo \n");
         this->mCallbackSet->mOnLoadCallback.Call({Env().Undefined()});
     }
 }
