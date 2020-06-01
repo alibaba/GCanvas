@@ -7,6 +7,7 @@
  * the LICENSE file in the root directory of this source tree.
  */
 #include "Image.h"
+#include "Canvas.h"
 #include "NodeBindingUtil.h"
 #include <iostream>
 #include <stdlib.h>
@@ -44,6 +45,13 @@ void Image::Init(Napi::Env env, Napi::Object exports)
     exports.Set("Image", func);
 }
 
+Napi::Object Image::NewInstance(Napi::Env env)
+{
+    Napi::Object obj = constructor.New({});
+    obj.Set("name", Napi::String::New(env, "gImage"));
+    return obj;
+}
+
 Napi::Value Image::getSrc(const Napi::CallbackInfo &info)
 {
     return Napi::String::New(info.Env(), this->src);
@@ -53,12 +61,12 @@ void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
 {
     checkArgs(info, 1);
     this->src = value.As<Napi::String>().Utf8Value();
-    // this->mImageCached= findCacheByUrl(src);
+    this->mImageCached= findCacheByUrl(src);
     if(!this->mImageCached){
         this->mImageCached=std::make_shared<ImageCached>();
         if (!mWorker)
         {
-            mWorker = new ImageWorker(info.Env(), this->mImageCached->getPixels(), 
+            mWorker = new ImageWorker(info.Env(), this->mImageCached, 
             this->mImageCached->width, 
             this->mImageCached->height);
         }
@@ -126,6 +134,7 @@ std::vector<unsigned char> & Image::getPixels()
     if(this->mImageCached){
          return this->mImageCached->getPixels();
      }else{
+         //引用没办法,只能给一个非局部的vector,稍微浪费一点内存
          return this->emptyPixels;
     }
 }

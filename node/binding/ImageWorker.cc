@@ -14,6 +14,7 @@ namespace NodeBinding
 
     void ImageWorker::OnOK()
     {
+        cachedImage(this->url,this->mImage);
         if (this->onLoadCallback)
         {
             this->onLoadCallback.Call({Env().Undefined()});
@@ -56,11 +57,11 @@ namespace NodeBinding
         PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
         if (format == PNG_FORAMT)
         {
-            decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
+            decodeFromPNGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, content.size);
         }
         else if (format == JPEG_FORMAT)
         {
-            decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+            decodeFromJEPGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
         }
         else if (format == UNKOWN_PIC_FORMAT)
         {

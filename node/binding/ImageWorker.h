@@ -10,15 +10,16 @@
 #define IMAGE_WORKER_H
 #include <napi.h>
 #include "NodeBindingUtil.h"
+#include "ImageCahced.h"
 namespace NodeBinding
 {
 //使用asyncWorker来进行node中的异步调用
+void cachedImage(const std::string url,std::shared_ptr<ImageCached> imageCached);
 class ImageWorker : public Napi::AsyncWorker
 {
 public:
     
-    
-    ImageWorker(Napi::Env env, std::vector<unsigned char> &out, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(env), _pixels(out),
+    ImageWorker(Napi::Env env,  std::shared_ptr<ImageCached> image, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(env), mImage(image),
                                                                                                              _height(height),
                                                                                                              _width(width)
     {
@@ -33,7 +34,7 @@ public:
 private:
     Napi::FunctionReference onErrorCallback;
     Napi::FunctionReference onLoadCallback;
-    std::vector<unsigned char> &_pixels;
+    std::shared_ptr<ImageCached> mImage;
     unsigned int &_width;
     unsigned int &_height;
     ImageContent content;

@@ -22,7 +22,7 @@ struct ImageCallbackTuple{
     Napi::FunctionReference mOnErrorCallback;
     Napi::FunctionReference mOnLoadCallback;
 };
-
+extern std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url);
 class Image : public Napi::ObjectWrap<Image>
 {
 public:
@@ -34,7 +34,7 @@ public:
     std::vector<unsigned char> &getPixels();
     void setTextureId(int textureId);
     int getTextureId();
-
+    static Napi::Object NewInstance(Napi::Env env);
 private:
     static Napi::FunctionReference constructor;
     std::string src;

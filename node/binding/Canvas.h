@@ -28,6 +28,7 @@ namespace NodeBinding
         int getWidth();
         int getHeight();
         std::shared_ptr<GRenderContext> mRenderContext;
+        
 
     private:
         static Napi::FunctionReference constructor;
