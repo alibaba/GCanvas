@@ -15,6 +15,14 @@ namespace NodeBinding
 Napi::FunctionReference Image::constructor;
 Image::Image(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Image>(info)
 {
+   this->mCallbackSet=new ImageCallbackTuple();
+}
+
+Image::~Image(){
+    delete this->mWorker;
+    this->mWorker=nullptr;
+    delete this->mCallbackSet;
+    this->mCallbackSet=nullptr;
 }
 
 void Image::Init(Napi::Env env, Napi::Object exports)
@@ -53,28 +61,34 @@ void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
 }
 Napi::Value Image::getOnLoad(const Napi::CallbackInfo &info)
 {
-    return this->onLoadCallback;
+    return this->mCallbackSet->mOnLoadCallback.Value();
 }
+Napi::Value Image::getOnError(const Napi::CallbackInfo &info)
+{
+    return this->mCallbackSet->mOnErrorCallback.Value();
+}
+
 void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
 {
     checkArgs(info, 1);
-    this->onLoadCallback = value.As<Napi::Function>();
+    this->mCallbackSet->mOnLoadCallback = Napi::Persistent(value.As<Napi::Function>());
+
     if (!mWorker)
     {
         mWorker = new ImageWorker(info.Env(), pixels, width, height);
     }
-    mWorker->setOnLoadCallback(this->onLoadCallback);
+    mWorker->setOnLoadCallback(this->mCallbackSet->mOnLoadCallback.Value());
 }
 
 void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
 {
     checkArgs(info, 1);
-    this->onErrorCallback = value.As<Napi::Function>();
+    this->mCallbackSet->mOnErrorCallback = Napi::Persistent(value.As<Napi::Function>());
     if (!mWorker)
     {
         mWorker = new ImageWorker(info.Env(), pixels, width, height);
     }
-    mWorker->setOnErrorCallback(onErrorCallback);
+    mWorker->setOnErrorCallback(this->mCallbackSet->mOnErrorCallback.Value());
 }
 
 Napi::Value Image::getWidth(const Napi::CallbackInfo &info)
@@ -93,10 +107,6 @@ int Image::getWidth()
 int Image::getHeight()
 {
     return this->height;
-}
-Napi::Value Image::getOnError(const Napi::CallbackInfo &info)
-{
-    return this->onErrorCallback;
 }
 
 std::vector<unsigned char> &Image::getPixels()

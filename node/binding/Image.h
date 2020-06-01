@@ -17,10 +17,16 @@
 
 namespace NodeBinding
 {
+struct ImageCallbackTuple{
+    Napi::FunctionReference mOnErrorCallback;
+    Napi::FunctionReference mOnLoadCallback;
+};
+
 class Image : public Napi::ObjectWrap<Image>
 {
 public:
     Image(const Napi::CallbackInfo &info);
+    virtual ~Image();
     static void Init(Napi::Env env, Napi::Object exports);
     int getWidth();
     int getHeight();
@@ -30,9 +36,8 @@ public:
 private:
     std::vector<unsigned char> pixels;
     static Napi::FunctionReference constructor;
-    Napi::Function onLoadCallback;
-    Napi::Function onErrorCallback;
     std::string src;
+    ImageCallbackTuple *mCallbackSet;
     ImageWorker *mWorker = nullptr;
     unsigned int width = 0;
     unsigned int height = 0;
