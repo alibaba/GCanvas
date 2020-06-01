@@ -112,7 +112,7 @@ namespace NSFontTool
                  source.c_str());
           }
           ASSERT(face);
-          // printf("the get face called \n");
+          // INFO("the get face called \n");
           return face;
         }
         else if (sourceType == TST_NET)
@@ -283,7 +283,7 @@ namespace NSFontTool
 
       size_t nFaces = 0;
       cacheFile.read((char *)(&nFaces), sizeof(size_t));
-      INFO("Importing %lu typefaces...", nFaces);
+      // INFO("Importing %lu typefaces...", nFaces);
       mFaces.resize(nFaces);
       std::string home(getenv("HOME"));
       std::string pathPreFix = home + FONT_PATH;
@@ -311,10 +311,10 @@ namespace NSFontTool
 #undef READ_STDSTR
 
         face.source = pathPreFix + face.source;
-        // printf("the face.source is %s \n",face.source.c_str());
-        // printf("the face.psName is %s \n",face.psName.c_str());
-        // printf("the face.familyName is %s \n",face.familyName.c_str());
-        // printf("the face.styleName is %s \n",face.styleName.c_str());
+        // INFO("the face.source is %s \n",face.source.c_str());
+        // INFO("the face.psName is %s \n",face.psName.c_str());
+        // INFO("the face.familyName is %s \n",face.familyName.c_str());
+        // INFO("the face.styleName is %s \n",face.styleName.c_str());
         // this->dumpFontCache();
       }
 
@@ -571,12 +571,12 @@ namespace NSFontTool
     Typeface *selectTypeface(wchar_t charcode, const std::string &key = "")
     {
       const std::vector<Typeface *> &faces = selectTypefaces(key);
-      // printf("the key is %s \n", key.c_str());
+      // INFO("the key is %s \n", key.c_str());
       for (auto it = faces.rbegin(); it != faces.rend(); it++)
       {
         FT_Face face = (*it)->getFace();
         std::string str = (*it)->psName;
-        // printf("the it fontName is %s \n", str.c_str());
+        // INFO("the it fontName is %s \n", str.c_str());
         FT_UInt glyphIndex = FT_Get_Char_Index(face, charcode);
         if (glyphIndex != 0)
         {
@@ -682,7 +682,7 @@ namespace NSFontTool
     {
       ASSERT(mTypefaceProvider);
       Typeface *t = nullptr;
-      printf("loadFaceOfChar caled \n");
+      // INFO("loadFaceOfChar caled \n");
       // find best-matched typeface containing this glyph
       t = mTypefaceProvider->selectTypeface(charcode, mFontName);
 

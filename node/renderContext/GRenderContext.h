@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #define CONTEXT_ES20
 #ifndef GBACKEND_H
 #define GBACKEND_H
@@ -41,6 +49,7 @@ public:
     void makeCurrent();
     int getImagePixelPNG(std::vector<unsigned char> &in);
     int getImagePixelJPG(unsigned char **data,unsigned long &size);
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -57,7 +66,7 @@ private:
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
     std::vector<int> textures;
-    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
+    static void InitSharedContextIfNot();
    
 };
 } // namespace NodeBinding
