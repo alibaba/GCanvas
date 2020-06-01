@@ -438,55 +438,56 @@ else
         if (id == -1)
         {
             id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
-            //缓存下url和纹理id的关系,避免bind
-            mRenderContext->recordImageTexture(image->getUrl(), id);
-            image->setTextureId(id);
         }
-        textureId = image->getTextureId();
-        // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+        //缓存下url和纹理id的关系,避免bind
+        mRenderContext->recordImageTexture(image->getUrl(), id);
+        image->setTextureId(id);
     }
+    textureId = image->getTextureId();
+    // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
+}
 
-    if (info.Length() == 3)
-    {
-        desX = info[1].As<Napi::Number>().FloatValue();
-        desY = info[2].As<Napi::Number>().FloatValue();
-    }
-    else if (info.Length() == 5)
-    {
-        desX = info[1].As<Napi::Number>().FloatValue();
-        desY = info[2].As<Napi::Number>().FloatValue();
-        desWidth = info[3].As<Napi::Number>().FloatValue();
-        desHeight = info[4].As<Napi::Number>().FloatValue();
-    }
-    else if (info.Length() == 9)
-    {
-        srcX = info[1].As<Napi::Number>().FloatValue();
-        srcY = info[2].As<Napi::Number>().FloatValue();
-        srcWidth = info[3].As<Napi::Number>().FloatValue();
-        srcHeight = info[4].As<Napi::Number>().FloatValue();
+if (info.Length() == 3)
+{
+    desX = info[1].As<Napi::Number>().FloatValue();
+    desY = info[2].As<Napi::Number>().FloatValue();
+}
+else if (info.Length() == 5)
+{
+    desX = info[1].As<Napi::Number>().FloatValue();
+    desY = info[2].As<Napi::Number>().FloatValue();
+    desWidth = info[3].As<Napi::Number>().FloatValue();
+    desHeight = info[4].As<Napi::Number>().FloatValue();
+}
+else if (info.Length() == 9)
+{
+    srcX = info[1].As<Napi::Number>().FloatValue();
+    srcY = info[2].As<Napi::Number>().FloatValue();
+    srcWidth = info[3].As<Napi::Number>().FloatValue();
+    srcHeight = info[4].As<Napi::Number>().FloatValue();
 
-        desX = info[5].As<Napi::Number>().FloatValue();
-        desY = info[6].As<Napi::Number>().FloatValue();
-        desWidth = info[7].As<Napi::Number>().FloatValue();
-        desHeight = info[8].As<Napi::Number>().FloatValue();
-    }
-    if (mRenderContext)
-    {
-        mRenderContext->getCtx()->DrawImage(textureId,
-                                            textureWidth,
-                                            textureHeight, // image width & height
-                                            srcX,          // srcX
-                                            srcY,          // srcY
-                                            srcWidth,      // srcWidth
-                                            srcHeight,     //srcHeight
-                                            desX,          //desStartX
-                                            desY,          //desStartY
-                                            desWidth,      //desWidth
-                                            desHeight);    //desHeight
+    desX = info[5].As<Napi::Number>().FloatValue();
+    desY = info[6].As<Napi::Number>().FloatValue();
+    desWidth = info[7].As<Napi::Number>().FloatValue();
+    desHeight = info[8].As<Napi::Number>().FloatValue();
+}
+if (mRenderContext)
+{
+    mRenderContext->getCtx()->DrawImage(textureId,
+                                        textureWidth,
+                                        textureHeight, // image width & height
+                                        srcX,          // srcX
+                                        srcY,          // srcY
+                                        srcWidth,      // srcWidth
+                                        srcHeight,     //srcHeight
+                                        desX,          //desStartX
+                                        desY,          //desStartY
+                                        desWidth,      //desWidth
+                                        desHeight);    //desHeight
 
-        mRenderContext->recordTextures(textureId);
-        mRenderContext->drawFrame();
-    }
+    mRenderContext->recordTextures(textureId);
+    mRenderContext->drawFrame();
+}
 }
 
 DEFINE_VOID_METHOD(fill)
