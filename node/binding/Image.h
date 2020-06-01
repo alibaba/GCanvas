@@ -13,6 +13,7 @@
 #include <vector>
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
+#include "ImageCahced.h"
 #include "ImageWorker.h"
 
 namespace NodeBinding
@@ -30,17 +31,17 @@ public:
     static void Init(Napi::Env env, Napi::Object exports);
     int getWidth();
     int getHeight();
-    int textureId=-1;
     std::vector<unsigned char> &getPixels();
+    void setTextureId(int textureId);
+    int getTextureId();
 
 private:
-    std::vector<unsigned char> pixels;
     static Napi::FunctionReference constructor;
     std::string src;
     ImageCallbackTuple *mCallbackSet;
     ImageWorker *mWorker = nullptr;
-    unsigned int width = 0;
-    unsigned int height = 0;
+    std::vector<unsigned char> emptyPixels;
+    std::shared_ptr<ImageCached> mImageCached;
     Napi::Value getSrc(const Napi::CallbackInfo &info);
     void setSrc(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getOnLoad(const Napi::CallbackInfo &info);

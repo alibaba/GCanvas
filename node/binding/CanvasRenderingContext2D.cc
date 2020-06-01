@@ -418,11 +418,11 @@ DEFINE_VOID_METHOD(drawImage)
         srcHeight = image->getHeight();
         textureWidth = srcWidth;
         textureHeight = srcHeight;
-        if (image->textureId == -1)
+        if (image->getTextureId() == -1)
         {
-            image->textureId = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+            image->setTextureId(mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight));
         }
-        textureId = image->textureId;
+        textureId = image->getTextureId();
         // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
     }
 
