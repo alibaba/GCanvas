@@ -38,9 +38,8 @@ namespace NodeBinding
 #ifdef CONTEXT_ES20
         EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
 #endif
-
         // Step 1 - Get the default display.
-        if (!mEglDisplay)
+        if (mEglDisplay == EGL_NO_DISPLAY)
         {
             mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
             // Step 2 - Initialize EGL.
@@ -302,7 +301,6 @@ namespace NodeBinding
             {
                 eglDestroyContext(mEglDisplay, mEglContext);
             }
-            // eglTerminate(mEglDisplay);
         }
         mEglDisplay = EGL_NO_DISPLAY;
         mEglContext = EGL_NO_CONTEXT;
