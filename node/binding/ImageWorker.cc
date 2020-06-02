@@ -14,7 +14,7 @@ namespace NodeBinding
 
     void ImageWorker::OnOK()
     {
-        cachedImage(this->url,this->mImage);
+        cachedImage(this->url,this->mImageRef);
         if (this->onLoadCallback)
         {
             this->onLoadCallback.Call({Env().Undefined()});
@@ -34,9 +34,11 @@ namespace NodeBinding
         std::shared_ptr<ImageCached> img= findCacheByUrl(url);
         // 命中缓存,直接返回
         if(img){
-            this->mImage=img;
+            this->mImageRef=img;
             return;
         }
+        //fixme why crash?
+        // this->mImageRef=std::make_shared<ImageCached>();
         if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
         {
             content.size = downloadImage(url, &content);
@@ -63,11 +65,12 @@ namespace NodeBinding
         PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
         if (format == PNG_FORAMT)
         {
-            decodeFromPNGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, content.size);
+        //    std::vector<unsigned char> pixels= this->mImageRef->getPixels();
+            decodeFromPNGImage(this->mImageRef->getPixels(), _width, _height, (const unsigned char *)content.memory, content.size);
         }
         else if (format == JPEG_FORMAT)
         {
-            decodeFromJEPGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+            decodeFromJEPGImage(this->mImageRef->getPixels(), _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
         }
         else if (format == UNKOWN_PIC_FORMAT)
         {

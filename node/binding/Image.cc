@@ -61,6 +61,7 @@ namespace NodeBinding
     {
         checkArgs(info, 1);
         this->src = value.As<Napi::String>().Utf8Value();
+        this->mImageCached=std::make_shared<ImageCached>();
         if (!mWorker)
         {
             mWorker = new ImageWorker(info.Env(), this->mImageCached,

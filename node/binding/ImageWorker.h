@@ -19,7 +19,7 @@ class ImageWorker : public Napi::AsyncWorker
 {
 public:
     
-    ImageWorker(Napi::Env env,  std::shared_ptr<ImageCached> &image, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(env), mImage(image),
+    ImageWorker(Napi::Env env,  std::shared_ptr<ImageCached> &image, unsigned int &width, unsigned int &height) : Napi::AsyncWorker(env), mImageRef(image),
                                                                                                              _height(height),
                                                                                                              _width(width)
     {
@@ -34,7 +34,7 @@ public:
 private:
     Napi::FunctionReference onErrorCallback;
     Napi::FunctionReference onLoadCallback;
-    std::shared_ptr<ImageCached> &mImage;
+    std::shared_ptr<ImageCached> &mImageRef;
     unsigned int &_width;
     unsigned int &_height;
     ImageContent content;
