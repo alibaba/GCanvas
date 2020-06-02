@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
 #include "jpeglib.h"
@@ -7,6 +15,7 @@
 #include <iostream>
 namespace NodeBinding
 {
+static std::unordered_map<std::string,std::shared_ptr<ImageCached>> imagePool;
 static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -75,7 +84,17 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
 
     return content->size;
 }
+std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url){
+    if(imagePool.find(url) == imagePool.end()){
+        return nullptr;
+    }else{
+        return imagePool[url];
+    }
+}
 
+void cachedImage(const std::string url,std::shared_ptr<ImageCached> imageCached){
+     imagePool[url]=imageCached;
+}
 void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height)
 {
     //write the pixles to file

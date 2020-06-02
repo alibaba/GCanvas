@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #define CONTEXT_ES20
 #ifndef GBACKEND_H
 #define GBACKEND_H
@@ -5,6 +13,7 @@
 #include <GCanvas.hpp>
 #include "lodepng.h"
 #include <functional>
+#include <unordered_map>
 #include <unordered_map>
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
@@ -36,7 +45,8 @@ public:
     int inline getHeight() { return this->mHeight; }
     void destoryRenderEnviroment();
     void recordTextures(int textureId);
-    
+    void recordImageTexture(std::string url,int textureId);
+    int getTextureIdByUrl(std::string url);
     void BindFBO();
     void makeCurrent();
     int getImagePixelPNG(std::vector<unsigned char> &in);
@@ -58,6 +68,7 @@ private:
     GLuint mRenderBuffer = 0;
     GLuint mDepthRenderbuffer = 0;
     std::vector<int> textures;
+    std::unordered_map<std::string,int> imageTextureMap;
     static void InitSharedContextIfNot();
    
 };

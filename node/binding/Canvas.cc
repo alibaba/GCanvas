@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #include "Canvas.h"
 #include "TextMetrics.h"
 namespace NodeBinding
@@ -51,7 +59,7 @@ namespace NodeBinding
                             InstanceMethod("createJPEG", &Canvas::createJPEG),
                             InstanceMethod("createPNGStreamSync", &Canvas::createPNGStreamSync),
                             InstanceMethod("createJPGStreamSync", &Canvas::createJPGStreamSync),
-                            InstanceMethod("toBuffer", &Canvas::Buffer),
+                            InstanceMethod("toBuffer", &Canvas::ToBuffer),
                         });
         constructor = Napi::Persistent(func);
         constructor.SuppressDestruct();
@@ -219,7 +227,7 @@ namespace NodeBinding
             return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
         }
     }
-    Napi::Value Canvas::Buffer(const Napi::CallbackInfo &info)
+    Napi::Value Canvas::ToBuffer(const Napi::CallbackInfo &info)
     {
         unsigned long size = 0;
         //默认输出png 编码

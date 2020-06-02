@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #ifndef CANVAS_H
 #define CANVAS_H
 #include "GRenderContext.h"
@@ -20,6 +28,7 @@ namespace NodeBinding
         int getWidth();
         int getHeight();
         std::shared_ptr<GRenderContext> mRenderContext;
+        
 
     private:
         static Napi::FunctionReference constructor;
@@ -28,7 +37,7 @@ namespace NodeBinding
         Napi::Value getContext(const Napi::CallbackInfo &info);
         Napi::Value createPNGStreamSync(const Napi::CallbackInfo &info);
         Napi::Value createJPGStreamSync(const Napi::CallbackInfo &info);
-        Napi::Value Buffer(const Napi::CallbackInfo &info);
+        Napi::Value ToBuffer(const Napi::CallbackInfo &info);
         Napi::Buffer<unsigned char> getPNGBuffer(const Napi::CallbackInfo &info, unsigned long &size);
         Napi::Buffer<unsigned char> getJPGBuffer(const Napi::CallbackInfo &info, unsigned long &size);
         Napi::Buffer<unsigned char> getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size);
