@@ -14,7 +14,6 @@
 #include "TextMetrics.h"
 #include <time.h>
 
-
 #define DEFINE_VOID_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info){   \
      clock_t startTime,endTime;  \ 
@@ -432,9 +431,9 @@ else
         if (id == -1)
         {
             id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+            //缓存下url和纹理id的关系,避免重复bind
+             mRenderContext->recordImageTexture(image->getUrl(), id);
         }
-        //缓存下url和纹理id的关系,避免bind
-        mRenderContext->recordImageTexture(image->getUrl(), id);
         image->setTextureId(id);
     }
     textureId = image->getTextureId();
@@ -478,13 +477,9 @@ else if (info.Length() == 9)
                                             desY,          //desStartY
                                             desWidth,      //desWidth
                                             desHeight);    //desHeight
-
         mRenderContext->recordTextures(textureId);
         mRenderContext->drawFrame();
     }
-    // endTime=clock();
-    // double dev=(endTime - startTime) *1.0f/CLOCKS_PER_SEC;
-    // std::cout << "Totle  UsedTime Is: " <<dev*1000.0 << "ms" << std::endl;
 }
 
 DEFINE_VOID_METHOD(fill)

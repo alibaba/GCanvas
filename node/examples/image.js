@@ -15,7 +15,7 @@ img.onload = () => {
         ctx.drawImage(img2, 150, 150, 100, 100);
         canvas.createPNG("image");
     }
-    img2.src = "https://img.alicdn.com/imgextra/i3/80/O1CN011CSgGWymNlCrNO3_!!80-2-luban.png"
+    img2.src = "https://img.alicdn.com/tfs/TB1hr_ICAP2gK0jSZPxXXacQpXa-400-400.png"
 }
 img.onerror = err => {
     console.log(err)

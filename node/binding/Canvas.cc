@@ -267,5 +267,6 @@ namespace NodeBinding
     Canvas::~Canvas()
     {
         this->mRenderContext = nullptr;
+        printf("canvas destroy called \n");
     }
 } // namespace NodeBinding

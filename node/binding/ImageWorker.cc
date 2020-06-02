@@ -31,6 +31,12 @@ namespace NodeBinding
 
     void ImageWorker::Execute()
     {
+        std::shared_ptr<ImageCached> img= findCacheByUrl(url);
+        // 命中缓存,直接返回
+        if(!img){
+            this->mImage=img;
+            return;
+        }
         if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
         {
             content.size = downloadImage(url, &content);
