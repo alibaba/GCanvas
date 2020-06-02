@@ -4,15 +4,20 @@
 #include "Image.h"
 #include "Canvas.h"
 #include "TextMetrics.h"
+#include <time.h>
+
 
 #define DEFINE_VOID_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info){   \
-     mRenderContext->makeCurrent(); \
+     clock_t startTime,endTime;  \ 
+    startTime = clock();                  \
+     mRenderContext->makeCurrent(); \ 
     //   printf("the function :  " #methodName " is  called \n");   \ 
 
 
 #define DEFINE_RETURN_VALUE_METHOD(methodName) \ 
      Napi::Value  Context2D::methodName(const Napi::CallbackInfo &info){   \
+        clock_t startTime,endTime;  \
      mRenderContext->makeCurrent(); \
     // printf("the function : " #methodName " is  called \n");   \  
     
@@ -20,6 +25,7 @@
 
 #define DEFINE_SETTER_METHOD(methodName) \ 
      void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \ 
+        clock_t startTime,endTime;  \
       NodeBinding::checkArgs(info, 1); \
       mRenderContext->makeCurrent(); \
     if(info[0].As<Napi::Value>().IsUndefined()){ \
@@ -29,6 +35,7 @@
 
 #define DEFINE_GETTER_METHOD(methodName) \ 
      Napi::Value Context2D::methodName(const Napi::CallbackInfo &info) {  \
+        clock_t startTime,endTime;  \
       mRenderContext->makeCurrent(); \
     // printf("the function : " #methodName " is  called \n");   \ 
 
@@ -459,6 +466,9 @@ DEFINE_VOID_METHOD(drawImage)
         mRenderContext->recordTextures(textureId);
         mRenderContext->drawFrame();
     }
+    // endTime=clock();
+    // double dev=(endTime - startTime) *1.0f/CLOCKS_PER_SEC;
+    // std::cout << "Totle  UsedTime Is: " <<dev*1000.0 << "ms" << std::endl;
 }
    
 DEFINE_VOID_METHOD(fill)

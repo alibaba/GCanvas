@@ -108,6 +108,9 @@ void ImageWorker::setOnLoadCallback(Napi::Function func)
 
 void ImageWorker::OnOK()
 {
+    endTime=clock();
+    double dev=(endTime - startTime) *1.0f/CLOCKS_PER_SEC;
+    // std::cout << "Download Image  UsedTime Is: " <<dev*1000.0 << "ms" << std::endl;
     if (this->onLoadCallback)
     {
         this->onLoadCallback.Call({Env().Undefined()});
@@ -124,6 +127,7 @@ void ImageWorker::OnError(const Napi::Error &e)
 
 void ImageWorker::Execute()
 {
+    startTime=clock();
     if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
     {
         content.size = downloadImage(url, &content);

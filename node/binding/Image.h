@@ -6,6 +6,7 @@
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
 
+
 namespace NodeBinding
 {
 //使用asyncWorker来进行node中的异步调用
@@ -29,6 +30,7 @@ private:
     Napi::FunctionReference onErrorCallback;
     Napi::FunctionReference onLoadCallback;
     std::vector<unsigned char> &_pixels;
+   clock_t startTime,endTime;
     unsigned int &_width;
     unsigned int &_height;
     ImageContent content;

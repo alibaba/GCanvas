@@ -132,7 +132,7 @@ namespace NodeBinding
         }
         else
         {
-            printf("FBO create success %p, fboId=%d, renderbufferId=%d depthbufferId=%d\n", this, mFboId, mRenderBuffer, mDepthRenderbuffer);
+            printf("FBO Create success %p, FboId=%d, RenderbufferId=%d DepthbufferId=%d\n", this, mFboId, mRenderBuffer, mDepthRenderbuffer);
         }
 
         GLint format = 0, type = 0;
