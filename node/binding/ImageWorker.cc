@@ -33,7 +33,7 @@ namespace NodeBinding
     {
         std::shared_ptr<ImageCached> img= findCacheByUrl(url);
         // 命中缓存,直接返回
-        if(!img){
+        if(img){
             this->mImage=img;
             return;
         }
