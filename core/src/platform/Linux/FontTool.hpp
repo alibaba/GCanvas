@@ -484,13 +484,16 @@ namespace NSFontTool
     {
       ASSERT(mTypefaceLoader);
       std::vector<Typeface *> faces;
+      // INFO("search in postname the name is  %s \n",name.data());
       auto &tfs = mTypefaceLoader->getFaces();
       for (size_t i = 0; i < tfs.size(); i++)
       {
         auto &tf = tfs[i];
+        // INFO("the  post Name is %s \n",tf.psName.data());
         std::size_t found = name.find(tf.psName);
         if (found != std::string::npos)
         {
+          //  INFO("find it! \n");
            faces.push_back(&tf);
         }
       }

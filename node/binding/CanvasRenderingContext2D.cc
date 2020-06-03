@@ -138,7 +138,7 @@ namespace NodeBinding
     if (mRenderContext)
     {
         mRenderContext->getCtx()->FillRect(x, y, width, height);
-        mRenderContext->drawFrame();
+        // mRenderContext->drawFrame();
     }
     return;
 } // namespace NodeBinding
@@ -478,7 +478,7 @@ else if (info.Length() == 9)
                                             desWidth,      //desWidth
                                             desHeight);    //desHeight
         mRenderContext->recordTextures(textureId);
-        mRenderContext->drawFrame();
+        // mRenderContext->drawFrame();
     }
 }
 
@@ -505,7 +505,7 @@ if (info.Length() == 1)
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Fill(rule);
-    mRenderContext->drawFrame();
+    // mRenderContext->drawFrame();
 }
 }
 DEFINE_VOID_METHOD(fillText)
@@ -530,7 +530,7 @@ if (mRenderContext)
     {
         mRenderContext->getCtx()->DrawText(content.c_str(), x, y);
     }
-    mRenderContext->drawFrame();
+    // mRenderContext->drawFrame();
 }
 }
 DEFINE_RETURN_VALUE_METHOD(getImageData)
@@ -772,7 +772,7 @@ NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Stroke();
-    mRenderContext->drawFrame();
+    // mRenderContext->drawFrame();
 }
 }
 DEFINE_VOID_METHOD(strokeRect)
@@ -785,7 +785,7 @@ float height = info[3].As<Napi::Number>().FloatValue();
 if (mRenderContext)
 {
     mRenderContext->getCtx()->StrokeRect(x, y, width, height);
-    mRenderContext->drawFrame();
+    // mRenderContext->drawFrame();
 }
 }
 
@@ -810,7 +810,7 @@ if (mRenderContext)
     {
         mRenderContext->getCtx()->StrokeText(content.c_str(), x, y);
     }
-    mRenderContext->drawFrame();
+    // mRenderContext->drawFrame();
 }
 }
 DEFINE_VOID_METHOD(transform)
