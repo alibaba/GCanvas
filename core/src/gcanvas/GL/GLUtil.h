@@ -10,8 +10,8 @@
 #ifndef GCANVAS_GLUTIL_H
 #define GCANVAS_GLUTIL_H
 
-#include "../gcanvas/GGL.h"
-#include "../support/Log.h"
+#include "GGL.h"
+#include "../../support/Log.h"
 #include <vector>
 
 namespace gcanvas{

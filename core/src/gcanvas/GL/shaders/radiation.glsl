@@ -39,10 +39,13 @@ uniform float     u_stop1;                                     \n\
 uniform float     u_stop2;                                     \n\
 uniform float     u_stop3;                                     \n\
 uniform float     u_stop4;                                     \n\
+uniform mat4      u_invertTransform;                           \n\
 void main()                                                                   \n\
 {                                                                             \n\
    vec4 finalColor = vec4(1.0, 1.0, 1.0, 1.0);                                \n\
-   vec2 x_c0  = v_inPos - u_startPos.xy;                                      \n\
+   vec4 inPos = vec4(v_inPos.x, v_inPos.y, 0.0, 1.0);                         \n\
+   vec4 invertPos = u_invertTransform * inPos;                                \n\
+   vec2 x_c0  = invertPos.xy - u_startPos.xy;                                 \n\
    vec2 c1_c0 = u_endPos.xy - u_startPos.xy;                                  \n\
    float t0 = dot(c1_c0, c1_c0) - u_endPos.z * u_endPos.z;                    \n\
    float t1 = dot(x_c0, c1_c0) + u_startPos.z * u_endPos.z;                   \n\

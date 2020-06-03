@@ -8,8 +8,8 @@
  */
 
 #include "GTexture.h"
-#include "../support/Log.h"
-#include "../support/Util.h"
+#include "../../support/Log.h"
+#include "../../support/Util.h"
 
 
 GLubyte *(*GTexture::loadPixelCallback)(const char *filePath, unsigned int *w,
@@ -46,7 +46,9 @@ GTexture::GTexture(const char *path)
 
 GTexture::~GTexture()
 {
-    glDeleteTextures(1, &mTextureID);
+    if (IsValidate()) {
+        glDeleteTextures(1, &mTextureID);
+    }
     mFormat = mTextureID = mWidth = mHeight = 0;
 }
 
@@ -76,7 +78,7 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
     while ((glerror = glGetError()) != GL_NO_ERROR && errVec)
     {
         GCanvasLog log;
-        fillLogInfo(log, "glerror_before", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        FillLogInfo(log, "glerror_before", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
         errVec->push_back(log);
     }
     
@@ -87,6 +89,9 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
         mTextureID = 0;
     }
 
+    // FIXME
+    // 1.textureSize无需每次get，只需要get一次即可
+    // 2.有可能get textureSize时未makeCurrent or current失败，导致未取到textureSize, 此时应该默认textureSize为2048,能处理大部分纹理尺寸
     GLint maxTextureSize;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
 
@@ -94,7 +99,9 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
     {
         if (errVec) {
             GCanvasLog log;
-            fillLogInfo(log, "texture_size_exceed", "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth, mHeight, maxTextureSize);
+            FillLogInfo(log, "texture_size_exceed",
+                        "<function:%s, width:%d, height:%d, maxSize:%d>", __FUNCTION__, mWidth,
+                        mHeight, maxTextureSize);
             errVec->push_back(log);
         }
         return;
@@ -105,15 +112,18 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
 
     glGenTextures(1, &mTextureID);
     if (mTextureID <= 0 && errVec) {
+        // 有可能OOM导致生成纹理失败
         GCanvasLog log;
-        fillLogInfo(log, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glGetError());
+        FillLogInfo(log, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
+                    glGetError());
         errVec->push_back(log);
     }
     glBindTexture(GL_TEXTURE_2D, mTextureID);
     glerror = glGetError();
     if (glerror && errVec && mWidth > 0 && mHeight > 0) {
         GCanvasLog log;
-        fillLogInfo(log, "bind_texture_fail", "<function:%s, glGetError:%x, width:%d, height:%d>", __FUNCTION__, glerror, mWidth, mHeight);
+        FillLogInfo(log, "bind_texture_fail", "<function:%s, glGetError:%x, width:%d, height:%d>",
+                    __FUNCTION__, glerror, mWidth, mHeight);
         errVec->push_back(log);
     }
 
@@ -124,7 +134,7 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
     glerror = glGetError();
     if (glerror && errVec) {
         GCanvasLog log;
-        fillLogInfo(log, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        FillLogInfo(log, "glTexImage2D_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
         errVec->push_back(log);
     }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -144,7 +154,8 @@ void GTexture::CreateTexture(GLubyte *pixels, std::vector<GCanvasLog> *errVec)
     glerror = glGetError();
     if (glerror && errVec) {
         GCanvasLog log;
-        fillLogInfo(log, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__, glerror);
+        FillLogInfo(log, "glBindTexture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
+                    glerror);
         errVec->push_back(log);
     }
     glFlush();

@@ -18,7 +18,6 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <memory>
 
 struct GCanvasLog;
 
@@ -28,6 +27,9 @@ public:
     GFrameBufferObject();
 
     ~GFrameBufferObject();
+
+
+    GFrameBufferObject(GFrameBufferObject&& src);
 
 
     bool InitFBO(int width, int height, GColorRGBA color, std::vector<GCanvasLog> *errVec = nullptr);
@@ -69,7 +71,6 @@ public:
     int ExpectedHeight()
     {
         return mHeight;
-
     }
 
     bool mIsFboSupported = true;
@@ -82,7 +83,6 @@ public:
 
     int mWidth;
     int mHeight;
-
 };
 
 
@@ -106,7 +106,6 @@ public:
     }
 
     GFrameBufferObjectPtr GetFrameBuffer(int width, int height);
-
 
 private:
 

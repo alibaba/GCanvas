@@ -7,8 +7,7 @@
  * the LICENSE file in the root directory of this source tree.
  */
 #include "GFrameBufferObject.h"
-#include "../support/Log.h"
-#include <functional>
+#include "../../support/Log.h"
 #include "GConvert.h"
 
 #define OES_PACKED_DEPTH_STENCIL "GL_OES_packed_depth_stencil"
@@ -21,6 +20,25 @@ GFrameBufferObject::GFrameBufferObject()
 
 GFrameBufferObject::~GFrameBufferObject() {
     this->DeleteFBO();
+}
+
+
+GFrameBufferObject::GFrameBufferObject(GFrameBufferObject&& src) {
+    this->mIsFboSupported = src.mIsFboSupported;
+
+    this->mFboTexture = src.mFboTexture;
+    this->mFboFrame = src.mFboFrame;
+    this->mFboStencil = src.mFboStencil;
+    this->mSaveFboFrame = src.mSaveFboFrame;
+    this->mSavedTransform = src.mSavedTransform;
+
+    this->mWidth = src.mWidth;
+    this->mHeight = src.mHeight;
+
+    // 清空src数据
+    src.mFboFrame = 0;
+    src.mFboStencil = 0;
+    src.mFboTexture.Detach();
 }
 
 
@@ -38,9 +56,12 @@ void GFrameBufferObject::DeleteFBO() {
         mFboStencil = 0;
     }
 
-    GLuint textureId = mFboTexture.GetTextureID();
-    glDeleteTextures(1, &textureId);
-    mFboTexture.Unbind();
+    if (mFboTexture.IsValidate()) {
+        // mFboTexture析构方法内已经会deleteTextures, 这里不需要如此
+        GLuint textureId = mFboTexture.GetTextureID();
+        glDeleteTextures(1, &textureId);
+        mFboTexture.Unbind();
+    }
 }
 
 
@@ -211,11 +232,14 @@ GFrameBufferObjectPtr GFrameBufferObjectPool::GetFrameBuffer(int width, int heig
 
     auto i = mPool.find(Key(twoPowerWidth, twoPowerHeight));
     if (i == mPool.end()) {
-
+        // LOG_E("GFrameBufferObjectPool not hit");
         GFrameBufferObjectPtr fbo(new GFrameBufferObject(), deleter);
         fbo->InitFBO(twoPowerWidth, twoPowerHeight, GColorTransparent);
         fbo->SetSize(width, height);
+        // no save to pool ??
         return fbo;
+    } else {
+        // LOG_E("GFrameBufferObjectPool hit, %p", i->second);
     }
 
     GFrameBufferObjectPtr fbo(i->second, deleter);

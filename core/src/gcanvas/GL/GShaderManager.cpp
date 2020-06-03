@@ -13,6 +13,7 @@
 #include "shaders/pattern.glsl"
 #include "shaders/radiation.glsl"
 #include "shaders/texture.glsl"
+#include "shaders/blur.glsl"
 #include "shaders/shadow.glsl"
 
 #ifdef ANDROID
@@ -87,7 +88,7 @@ GShaderManager::GShaderManager()
     }
 #endif
 
-    loadDefaultShaders();
+    LoadDefaultShaders();
 
 #ifdef ANDROID
     if (g_use_pre_compile)
@@ -112,29 +113,56 @@ GShaderManager::~GShaderManager()
     }
 }
 
-void GShaderManager::loadDefaultShaders()
-{
+
+void GShaderManager::LoadDefaultShaders() {
+    allShaderCompleted = true;
+    
     GShader *program =
         new DefaultShader(DEFAULT_SHADER, DEFAULT_SHADER_VS, DEFAULT_SHADER_PS);
     addProgram(DEFAULT_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 
     program =
         new TextureShader(TEXTURE_SHADER, TEXTURE_SHADER_VS, TEXTURE_SHADER_PS);
     addProgram(TEXTURE_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
+    
+    program =
+        new ShadowShader(SHADOW_SHADER, SHADOW_SHADER_VS, SHADOW_SHADER_PS);
+    addProgram(SHADOW_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 
     program =
-            new ShadowShader(SHADOW_SHADER, SHADOW_SHADER_VS, SHADOW_SHADER_PS);
-    addProgram(SHADOW_SHADER, program);
+            new BlurShader(BLUR_SHADER, BLUR_SHADER_VS, BLUR_SHADER_PS);
+    addProgram(BLUR_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 
     program =
             new PatternShader(PATTERN_SHADER, PATTERN_SHADER_VS, PATTERN_SHADER_PS);
     addProgram(PATTERN_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 
     program = new LinearGradientShader(LINEAR_SHADER, LINEAR_SHADER_VS,
                                        LINEAR_SHADER_PS);
     addProgram(LINEAR_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 
     program = new RadialGradientShader(RADIAL_SHADER, RADIAL_SHADER_VS,
                                        RADIAL_SHADER_PS);
     addProgram(RADIAL_SHADER, program);
+    if (!program->IsShaderCompleted()) {
+        allShaderCompleted = false;
+    }
 }

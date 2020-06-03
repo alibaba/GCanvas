@@ -12,6 +12,8 @@
 #include <iostream>
 #include <map>
 
+#include "export.h"
+
 class GShader;
 
 class GShaderManager
@@ -19,7 +21,7 @@ class GShaderManager
 public:
 
     // Android depend constructor, set it public
-    GShaderManager();
+    API_EXPORT GShaderManager();
     ~GShaderManager();
 
     static GShaderManager *getSingleton();
@@ -27,12 +29,15 @@ public:
 
     void addProgram(const std::string &key, GShader *program);
     GShader *programForKey(const std::string &key);
+    
+    bool isAllShaderCompleted() { return allShaderCompleted; }
 
 private:
-    void loadDefaultShaders();
+    void LoadDefaultShaders();
 
     std::map< std::string, GShader * > mProgramCaches;
     static GShaderManager *mShaderManager;
+    bool allShaderCompleted;
 };
 
 #endif /* GCANVAS_GSHADERMANAGER_H */

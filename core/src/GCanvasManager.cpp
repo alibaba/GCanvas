@@ -56,12 +56,11 @@ GCanvasManager::~GCanvasManager()
     Clear();
 }
 
-GCanvas* GCanvasManager::NewCanvas(const std::string canvasId, bool onScreen, bool useFbo, GCanvasHooks *hooks)
+GCanvas* GCanvasManager::NewCanvas(const std::string canvasId, GCanvasConfig config, GCanvasHooks *hooks)
 {
     GCanvas *c = GetCanvas(canvasId);
     if (!c)
     {
-        GCanvasConfig config = { !onScreen, useFbo};
         c = new GCanvas(canvasId, config, hooks);
         c->CreateContext();
         mCanvases[canvasId] = c;

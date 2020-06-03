@@ -95,14 +95,18 @@ namespace gcanvas {
                              unsigned int height, std::vector<GCanvasLog> *errVec) {
         if (nullptr == rgbaData)
             return (GLuint) - 1;
-
+        
+        
+        GLint bindingTexture = 0;
+        glGetIntegerv(GL_TEXTURE_BINDING_2D, &bindingTexture);
+        
         GLenum glerror = 0;
         GLuint glID;
         glGenTextures(1, &glID);
         glerror = glGetError();
         if (glerror && errVec) {
             GCanvasLog log;
-            fillLogInfo(log, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
+            FillLogInfo(log, "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
                         glerror);
             errVec->push_back(log);
         }
@@ -110,8 +114,8 @@ namespace gcanvas {
         glerror = glGetError();
         if (glerror && errVec) {
             GCanvasLog log;
-            fillLogInfo(log, "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
-            glerror);
+            FillLogInfo(log, "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
+                        glerror);
             errVec->push_back(log);
         }
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -124,11 +128,13 @@ namespace gcanvas {
         glerror = glGetError();
         if (glerror && errVec) {
             GCanvasLog log;
-            fillLogInfo(log, "glTexImage2D_failglTexImage2D_fail", "<function:%s, glGetError:%x>",
-            __FUNCTION__, glerror);
+            FillLogInfo(log, "glTexImage2D_fail", "<function:%s, glGetError:%x>",
+                        __FUNCTION__, glerror);
             errVec->push_back(log);
         }
-
+        
+        glBindTexture(GL_TEXTURE_2D, bindingTexture);
+        
         return glID;
     }
 

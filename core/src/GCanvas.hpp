@@ -28,9 +28,9 @@ public:
     
     GCanvasContext* GetGCanvasContext() { return mCanvasContext; }
     float GetDevicePixelRatio() { return mCanvasContext->GetDevicePixelRatio();}
-
+    API_EXPORT bool IsGCanvasReady();
+    
     API_EXPORT void drawFrame();
-
 
 public:
     std::string mContextId;

@@ -12,7 +12,7 @@
 #include "GGL.h"
 #include "GPoint.h"
 #include "GTransform.h"
-#include "../support/Log.h"
+#include "../../support/Log.h"
 
 #include <vector>
 
@@ -23,6 +23,7 @@ public:
             const char *fragmentShaderSrc);
 
     virtual ~GShader();
+
 
 #ifdef ANDROID
 
@@ -75,6 +76,12 @@ public:
     std::vector<GCanvasLog>& GetErrorVector(){ return mErrVec;}
     
     void ClearErrorVector() { mErrVec.clear(); }
+    
+    bool IsShaderCompleted() { return isCompleted; }
+
+
+    static void TraceErrorIfHas(GShader* shader, GCanvasHooks* hook, const std::string& contextId);
+
 
 protected:
     virtual void calculateAttributesLocations();
@@ -87,9 +94,13 @@ protected:
     GLint mTexcoordSlot;
     GLint mPositionSlot;
     GLint mColorSlot;
-    GLint mTransfromSlot;
     
+    GLint mTransfromSlot;
+    GTransform mShaderTransform;
+    bool mIsFirstCommit;
+
     std::vector<GCanvasLog> mErrVec;
+    bool isCompleted;
 };
 
 class DefaultShader : public GShader
@@ -170,33 +181,68 @@ class ShadowShader : public GShader
 {
 public:
     ShadowShader(const char *name, const char *vertexShaderSrc,
-                 const char *fragmentShaderSrc);
+                  const char *fragmentShaderSrc);
 
     ~ShadowShader() = default;
 
-
-    void SetDelta(float x, float y)
+    void SetTextSampler(int value)
     {
-        glUniform1f(mXDeltaSlot, x);
-        glUniform1f(mYDeltaSlot, y);
-
+        glUniform1i(mTextureSamplerSlot, value);
     }
-
-    void SetWeight(float w[], int count)
+    
+    void SetShadowColor(float *color)
     {
-        glUniform1fv(mWeightSlot, count, w);
-
+        glUniform4f(mShadowColorSlot, color[0], color[1], color[2], color[3]);
     }
 
 protected:
     void calculateAttributesLocations();
 
 private:
+    GLuint mTextureSamplerSlot;
+    GLuint mShadowColorSlot;
+};
+
+class BlurShader : public GShader
+{
+public:
+    BlurShader(const char *name, const char *vertexShaderSrc,
+                 const char *fragmentShaderSrc);
+
+    ~BlurShader() = default;
+
+
+    void SetDelta(float x, float y)
+    {
+        glUniform1f(mXDeltaSlot, x);
+        glUniform1f(mYDeltaSlot, y);
+    }
+
+
+    void SetBlurRadius(int r) {
+        glUniform1i(mRadiusSlot, r);
+    }
+
+    void SetWeight(float w[], int count)
+    {
+        glUniform1fv(mWeightSlot, count, w);
+    }
+
+    void SetOverideTextureColor(int value)
+    {
+        glUniform1i(mOverrideTextureColorSlot, value);
+    }
+
+protected:
+    void calculateAttributesLocations();
+
+private:
+    GLuint mRadiusSlot;
     GLuint mXDeltaSlot;
     GLuint mYDeltaSlot;
     GLuint mWeightSlot;
     GLuint mSamplerSlot;
-
+    GLuint mOverrideTextureColorSlot;
 };
 
 class PatternShader : public GShader
@@ -350,10 +396,14 @@ public:
         glUniform3f(mStartSlot, start[0], start[1], start[2]);
         glUniform3f(mEndSlot, end[0], end[1], end[2]);
     }
+    
+    void SetInvertTransform(const GTransform &trans);
+    
 protected:
     void calculateAttributesLocations();
     GLuint mStartSlot;
     GLuint mEndSlot;
+    GLuint mInvertTransformSlot;
 
 };
 

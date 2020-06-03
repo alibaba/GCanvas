@@ -19,39 +19,62 @@
 #include "gcanvas/GTextDefine.h"
 
 #include <assert.h>
-GFontManagerAndroid::GFontManagerAndroid(GCanvasContext *context) : GFontManager(context) {
 
+
+
+GFontManager *GFontManager::NewInstance() {
+    return new GFontManagerAndroid(ANDROID_FONT_TEXTURE_SIZE, ANDROID_FONT_TEXTURE_SIZE);
+}
+
+
+GFontManagerAndroid::GFontManagerAndroid(unsigned w, unsigned h) : GFontManager(w, h) {
+    mFontCache = new GFontCache(this);
 }
 
 
 GFontManagerAndroid::~GFontManagerAndroid() {
-    mTreemap.Clear();
-    mGlyphCache.ClearGlyphsTexture();
+    if (mFontCache != nullptr) {
+        delete mFontCache;
+        mFontCache = nullptr;
+    }
 }
 
 
-void GFontManagerAndroid::DrawText(const unsigned short *text,
-                                   unsigned int text_length, float x, float y,
-                                   bool isStroke, gcanvas::GFontStyle *fontStyle) {
+GTexture* GFontManagerAndroid::GetOrCreateFontTexture() {
+    if (!mFontTexture) {
+        std::vector<GCanvasLog> logVec;
+        mFontTexture = new GTexture(ANDROID_FONT_TEXTURE_SIZE, ANDROID_FONT_TEXTURE_SIZE,
+                GL_ALPHA, nullptr, &logVec);
+        // FIXME
+        // LOG_EXCEPTION_VECTOR(mHooks, "SharedFontTexture", logVec);
+    }
+    return mFontTexture;
+}
+
+
+void GFontManagerAndroid::DrawText(const unsigned short *text, unsigned int text_length, float x, float y,
+                                   bool isStroke, GCanvasContext *context, float sx, float sy) {
     if (text == nullptr || text_length == 0) {
         return;
     }
-    std::vector<GFont *> fonts;
 
+    std::vector<GFont*> fonts;
+    gcanvas::GFontStyle* fontStyle = context->mCurrentState->mFont;
     for (unsigned int i = 0; i < text_length; ++i) {
         fonts.push_back(GetFontByCharCode(text[i], fontStyle));
     }
 
-    AdjustTextPenPoint(fonts, text, text_length, isStroke, x, y);
+    // get current font scale
+    AdjustTextPenPoint(context, fonts, text, text_length, isStroke, x, y, sx, sy);
 
     for (unsigned int i = 0; i < text_length; ++i) {
-        FillTextInternal(fonts[i], isStroke, text[i], x, y);
+        DrawTextInternal(context, fonts[i], isStroke, text[i], x, y, sx, sy);
     }
 }
 
 
 float *GFontManagerAndroid::MeasureTextWidthHeight(const char *text, unsigned int textLength,
-                                                   gcanvas::GFontStyle *fontStyle) {
+                                                    gcanvas::GFontStyle *fontStyle) {
     if (text == nullptr || textLength == 0) {
         float *ret = new float[4];
         ret[0] = ret[1] = ret[2] = ret[3] = 0.0;
@@ -62,7 +85,9 @@ float *GFontManagerAndroid::MeasureTextWidthHeight(const char *text, unsigned in
     unsigned short *ucs = lbData->ucs2;
     textLength = lbData->ucs2len;
 
-    std::vector<GFont *> fonts;
+    std::vector<GFont*> fonts;
+    float sx = 1;
+    float sy = 1;
 
     for (unsigned int i = 0; i < textLength; ++i) {
         fonts.push_back(GetFontByCharCode(ucs[i], fontStyle));
@@ -70,23 +95,26 @@ float *GFontManagerAndroid::MeasureTextWidthHeight(const char *text, unsigned in
 
     float deltaX = 0;
     float maxHeight = 0;
+
+    float fontSize = fontStyle->GetSize();
+
     for (unsigned int i = 0; i < textLength; ++i) {
-        auto glyph = fonts[i]->GetGlyph(ucs[i], false);
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy);
 
         if (glyph != nullptr) {
-            deltaX += glyph->advanceX / mContext->mCurrentState->mscaleFontX;
+            deltaX += glyph->advanceX / sx;
         }
     }
 
     if (fonts.size() > 0) {
         //文本高度本来应该去除上下空白的，但是laya1，还是有点问题，所以这个高度，还是用老的高度ascender+descender绝对值
-        maxHeight = fabs(fonts[0]->GetMetrics()->ascender / mContext->mCurrentState->mscaleFontY) +
-                    fabs(fonts[0]->GetMetrics()->descender / mContext->mCurrentState->mscaleFontY);
+        maxHeight = fabs(fonts[0]->GetMetrics()->ascender / sy) +
+                    fabs(fonts[0]->GetMetrics()->descender / sy);
     }
 
-    //如果满足条件则，返回不带空白的文字高度
-    float m_ascender = mContext->mCurrentState->mFont->GetAscender();
-    float m_descender = mContext->mCurrentState->mFont->GetDescender();
+    // 如果满足条件则，返回不带空白的文字高度
+    float m_ascender = fontStyle->GetAscender();
+    float m_descender = fontStyle->GetDescender();
     if (m_ascender > 0 && m_descender > 0) {
         maxHeight = m_ascender + m_descender;
     }
@@ -111,13 +139,12 @@ float GFontManagerAndroid::MeasureText(const char *text,
 
 float *GFontManagerAndroid::MeasureTextExt(const char *text, unsigned int textLength,
                                            gcanvas::GFontStyle *fontStyle) {
-    float *tmpMeasure = MeasureTextWidthHeight(text, textLength, fontStyle);
-    return tmpMeasure;
+    return  MeasureTextWidthHeight(text, textLength, fontStyle);
 }
 
-float *GFontManagerAndroid::PreMeasureTextHeight(const char *text,
-                                                 unsigned int text_length,
-                                                 gcanvas::GFontStyle *fontStyle) {
+
+float *GFontManagerAndroid::PreMeasureTextHeight(const char *text, unsigned int text_length,
+                                                GCanvasContext *context) {
     if (text == nullptr || text_length == 0) {
         float *ret = new float[4];
         ret[0] = ret[1] = ret[2] = ret[3] = 0.0;
@@ -129,7 +156,11 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text,
     unsigned short *ucs = lbData->ucs2;
     text_length = lbData->ucs2len;
 
-    std::vector<GFont *> fonts;
+    std::vector<GFont*> fonts;
+
+    gcanvas::GFontStyle* fontStyle = context->mCurrentState->mFont;
+    float sx = GTransformGetScaleX(context->mCurrentState->mTransform);
+    float sy = GTransformGetScaleY(context->mCurrentState->mTransform);
 
     for (unsigned int i = 0; i < text_length; ++i) {
         fonts.push_back(GetFontByCharCode(ucs[i], fontStyle));
@@ -139,14 +170,14 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text,
     float height = 0;
     float ascender = 0;
     float descender = 0;
-    for (unsigned int i = 0; i < text_length; ++i) {
-        auto glyph = fonts[i]->GetGlyph(ucs[i], false);
 
+    for (unsigned int i = 0; i < text_length; ++i) {
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy);
         if (glyph != nullptr) {
-            top = glyph->offsetY / mContext->mCurrentState->mscaleFontY;
-            height = glyph->height / mContext->mCurrentState->mscaleFontY;
-            ascender = fonts[i]->GetMetrics()->ascender / mContext->mCurrentState->mscaleFontY;
-            descender = fonts[0]->GetMetrics()->descender / mContext->mCurrentState->mscaleFontY;
+            top = glyph->offsetY / sy;
+            height = glyph->height / sy;
+            ascender = fonts[i]->GetMetrics()->ascender / sy;
+            descender = fonts[0]->GetMetrics()->descender / sy;
         }
     }
 
@@ -160,43 +191,46 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text,
     return ret;
 }
 
-void GFontManagerAndroid::AdjustTextPenPoint(std::vector<GFont *> font,
-                                             const unsigned short *text,
-                                             unsigned int textLength,
-                                             bool isStroke,
-        /*out*/ float &x,
-        /*out*/ float &y) {
-    if (mContext->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_START &&
-        mContext->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_LEFT) {
+
+void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont*> font,
+                                             const unsigned short *text, unsigned int textLength,
+                                             bool isStroke, float &x, float &y, float sx, float sy) {
+    gcanvas::GFontStyle *fontStyle = context->mCurrentState->mFont;
+
+    if (context->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_START &&
+        context->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_LEFT) {
         auto left_x = x;
         auto delta_x = 0.0f;
         for (unsigned int i = 0; i < textLength; ++i) {
-            auto glyph = font[i]->GetGlyph(text[i], isStroke);
-
+            auto glyph = font[i]->GetOrLoadGlyph(fontStyle, text[i], isStroke, sx, sy);
             if (glyph != nullptr) {
-                delta_x += glyph->advanceX / mContext->mCurrentState->mscaleFontX;
+                delta_x += glyph->advanceX / sx;
             }
         }
 
-        if (mContext->mCurrentState->mTextAlign == GTextAlign::TEXT_ALIGN_CENTER) {
+        if (context->mCurrentState->mTextAlign == GTextAlign::TEXT_ALIGN_CENTER) {
             x = left_x - delta_x / 2.0f;
-        } else // textAlign is "Right" or "End"
-        {
+        } else { // textAlign is "Right" or "End"
             x = left_x - delta_x;
         }
     }
 
     GFont *font0 = font[0];
-    font0->GetGlyph(text[0], isStroke);
+    // update font metrics
+    const GGlyph* glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy);
+    if (glyph == nullptr) { // fail
+        return;
+    }
+
     auto font_metrics = font0->GetMetrics();
-    auto ascender = font_metrics->ascender / mContext->mCurrentState->mscaleFontY;
-    auto descender = font_metrics->descender / mContext->mCurrentState->mscaleFontY;
+    auto ascender = font_metrics->ascender / sy;
+    auto descender = font_metrics->descender / sy;
 
     //m_ascender，m_descender不能除scale，因为在PreMeasureTextHeight获取这两个值时，已经除过了
-    float m_ascender = mContext->mCurrentState->mFont->GetAscender();
-    float m_descender = mContext->mCurrentState->mFont->GetDescender();
+    float m_ascender = fontStyle->GetAscender();
+    float m_descender = fontStyle->GetDescender();
 
-    switch (mContext->mCurrentState->mTextBaseline) {
+    switch (context->mCurrentState->mTextBaseline) {
         case TEXT_BASELINE_TOP:
         case TEXT_BASELINE_HANGING:
             if (m_ascender > 0 && m_descender > 0) {
@@ -224,35 +258,23 @@ void GFontManagerAndroid::AdjustTextPenPoint(std::vector<GFont *> font,
         default:
             break;
     }
-
 }
 
 
-GFont *GFontManagerAndroid::GetFontByCharCode(wchar_t charCode, gcanvas::GFontStyle *fontStyle) {
-    float devicePixelRatio = 1;
-    if (mContext->GetHiQuality()) {
-        devicePixelRatio = mContext->mDevicePixelRatio;
-    }
-    float size = fontStyle->GetSize() * devicePixelRatio;
 
-    GFont *font = mFontCache->GetOrCreateFont(mContext,
-                                              mContext->mContextId,
-                                              fontStyle, charCode, size);
-    return font;
-}
-
-
-void GFontManagerAndroid::FillTextInternal(GFont *font, bool isStroke, wchar_t charcode,
-                                           float &x, float y) {
+void GFontManagerAndroid::DrawTextInternal(GCanvasContext *context, GFont *font, bool isStroke, wchar_t charCode,
+                                           float &x, float y, float sx, float sy) {
     if (isStroke) {
-        font->DrawText(charcode, mContext, x, y, mContext->StrokeStyle(), isStroke);
-
+        font->DrawText(context, charCode, x, y, context->StrokeStyle(), sx, sy, isStroke);
     } else {
-        font->DrawText(charcode, mContext, x, y, mContext->FillStyle(), isStroke);
-
+        font->DrawText(context, charCode, x, y, context->FillStyle(), sx, sy, isStroke);
     }
 }
 
-void GFontManagerAndroid::SetFontCache(GFontCache *fontCache) {
-    this->mFontCache = fontCache;
+
+/**
+ * query font by charcode
+ */
+GFont *GFontManagerAndroid::GetFontByCharCode(wchar_t charCode, gcanvas::GFontStyle *fontStyle) {
+    return mFontCache->GetOrCreateFont(fontStyle, charCode);
 }

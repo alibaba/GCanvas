@@ -9,8 +9,7 @@
 
 #include "GCanvasState.h"
 
-GCanvasState::GCanvasState()
-{
+GCanvasState::GCanvasState() {
     mGlobalCompositeOp = COMPOSITE_OP_NONE;
     mFillColor.rgba = {0.0f, 0.0f, 0.0f, 1.0f};
     mStrokeColor.rgba = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -26,7 +25,6 @@ GCanvasState::GCanvasState()
     mTextAlign = TEXT_ALIGN_START;
     mTextBaseline = TEXT_BASELINE_ALPHABETIC;
     mTransform = GTransformIdentity;
-    mClipPath = nullptr;
     mShader = nullptr;
     mFillStyle = nullptr;
     mStrokeStyle = nullptr;
@@ -35,138 +33,105 @@ GCanvasState::GCanvasState()
     mShadowBlur = 0;
     mShadowOffsetX = 0;
     mShadowOffsetY = 0;
-
-    mscaleFontX = 1.0f;
-    mscaleFontY = 1.0f;
 }
 
-GCanvasState::GCanvasState(const GCanvasState &state)
-{
-    mGlobalCompositeOp = state.mGlobalCompositeOp;
-    mFillColor.rgba = state.mFillColor.rgba;
-    mStrokeColor.rgba = state.mStrokeColor.rgba;
-    mGlobalAlpha = state.mGlobalAlpha;
-    mLineWidth = state.mLineWidth;
-    mLineCap = state.mLineCap;
-    mLineJoin = state.mLineJoin;
-    mMiterLimit = state.mMiterLimit;
-    mShader = state.mShader;
-    
-    mFillStyle = nullptr;
-    if (state.mFillStyle != nullptr)
-    {
-        mFillStyle = state.mFillStyle->Clone();
-    }
-    mStrokeStyle = nullptr;
-    if ( state.mStrokeStyle != nullptr )
-    {
-        mStrokeStyle = state.mStrokeStyle->Clone();
-    }
-    
-    if (state.mFont != nullptr)
-    {
-        mFont = new gcanvas::GFontStyle(*state.mFont);
-    }
-    else
-    {
-        mFont = nullptr;
-    }
-    
-    mTextAlign = state.mTextAlign;
-    mTextBaseline = state.mTextBaseline;
-    mTransform = state.mTransform;
-    
-    if (state.mClipPath != nullptr)
-    {
-        mClipPath = new GPath(*(state.mClipPath));
-    }
-    else
-    {
-        mClipPath = nullptr;
-    }
-    mTextureId = state.mTextureId;
-    
-    mShadowColor = state.mShadowColor;
-    mShadowBlur = state.mShadowBlur;
-    mShadowOffsetX = state.mShadowOffsetX;
-    mShadowOffsetY = state.mShadowOffsetY;
 
-    mscaleFontX = state.mscaleFontX;
-    mscaleFontY = state.mscaleFontY;
+GCanvasState::GCanvasState(const GCanvasState &state) {
+    mShader = nullptr;
+    mFillStyle = nullptr;
+    mStrokeStyle = nullptr;
+    mFont = nullptr;
+
+    Clone(state);
 }
 
-GCanvasState &GCanvasState::operator=(const GCanvasState &state)
-{
-    mGlobalCompositeOp = state.mGlobalCompositeOp;
-    mFillColor.rgba = state.mFillColor.rgba;
-    mStrokeColor.rgba = state.mStrokeColor.rgba;
-    mGlobalAlpha = state.mGlobalAlpha;
-    mLineWidth = state.mLineWidth;
-    mLineCap = state.mLineCap;
-    mLineJoin = state.mLineJoin;
-    mMiterLimit = state.mMiterLimit;
-    mShader = state.mShader;
-    
-    mFillStyle = nullptr;
-    if (state.mFillStyle != nullptr)
-    {
-        mFillStyle = state.mFillStyle->Clone();
-    }
-    mStrokeStyle = nullptr;
-    if (state.mStrokeStyle != nullptr)
-    {
-        mStrokeStyle = state.mStrokeStyle->Clone();
-    }
-    if (mFont != nullptr)
-    {
-        delete mFont;
-        mFont = nullptr;
-    }
-    
-    if (state.mFont != nullptr)
-    {
-        mFont = new gcanvas::GFontStyle(*state.mFont);
-    }
-    
-    
-    mTextAlign = state.mTextAlign;
-    mTextBaseline = state.mTextBaseline;
-    mTransform = state.mTransform;
-    
-    if (mClipPath != nullptr)
-    {
-        delete mClipPath;
-        mClipPath = nullptr;
-    }
-    
-    if (state.mClipPath != nullptr)
-    {
-        mClipPath = new GPath(*(state.mClipPath));
-    }
-    mShadowColor = state.mShadowColor;
-    mShadowBlur = state.mShadowBlur;
-    mShadowOffsetX = state.mShadowOffsetX;
-    mShadowOffsetY = state.mShadowOffsetY;
 
-    mscaleFontX = state.mscaleFontX;
-    mscaleFontY = state.mscaleFontY;
-    
+GCanvasState &GCanvasState::operator=(const GCanvasState &state) {
+    Clone(state);
     return *this;
 }
 
-GCanvasState::~GCanvasState()
-{
-    if (mClipPath != nullptr)
-    {
-        delete mClipPath;
+
+void GCanvasState::Clone(const GCanvasState& state) {
+    mGlobalCompositeOp = state.mGlobalCompositeOp;
+    mFillColor.rgba = state.mFillColor.rgba;
+    mStrokeColor.rgba = state.mStrokeColor.rgba;
+    mGlobalAlpha = state.mGlobalAlpha;
+    mLineWidth = state.mLineWidth;
+    mLineCap = state.mLineCap;
+    mLineJoin = state.mLineJoin;
+    mMiterLimit = state.mMiterLimit;
+    mLineDashOffset = state.mLineDashOffset;
+    mLineDash = state.mLineDash;
+    mShader = state.mShader;
+
+    mTextAlign = state.mTextAlign;
+    mTextBaseline = state.mTextBaseline;
+    mTransform = state.mTransform;
+
+    mTextureId = state.mTextureId;
+
+    mShadowColor = state.mShadowColor;
+    mShadowBlur = state.mShadowBlur;
+    mShadowOffsetX = state.mShadowOffsetX;
+    mShadowOffsetY = state.mShadowOffsetY;
+
+    ClearStyle();
+
+    if (state.mFillStyle != nullptr) {
+        mFillStyle = state.mFillStyle->Clone();
     }
-    if (mFont != nullptr)
-    {
+
+    if (state.mStrokeStyle != nullptr) {
+        mStrokeStyle = state.mStrokeStyle->Clone();
+    }
+
+    if (state.mFont != nullptr) {
+        mFont = new gcanvas::GFontStyle(*state.mFont);
+    } else {
+        mFont = nullptr;
+    }
+
+
+    ClearClip();
+    if (state.clipPaths.size() > 0) {
+        for (int i = 0; i < state.clipPaths.size(); i++) {
+            GPath* gp = new GPath(*state.clipPaths[i]);
+            clipPaths.push_back(gp);
+        }
+    }
+}
+
+
+void GCanvasState::ClearClip() {
+    if (clipPaths.size() > 0) {
+        for (int i = 0; i < clipPaths.size(); i++) {
+            delete clipPaths[i];
+        }
+        clipPaths.clear();
+    }
+}
+
+
+void GCanvasState::ClearStyle() {
+    if (mFont != nullptr) {
         delete mFont;
         mFont = nullptr;
     }
-    if (mFillStyle != nullptr)
-    {
+
+    if (mFillStyle != nullptr) {
         delete mFillStyle;
+        mFillStyle = nullptr;
     }
+
+    if (mStrokeStyle != nullptr) {
+        delete mStrokeStyle;
+        mStrokeStyle = nullptr;
+    }
+}
+
+
+GCanvasState::~GCanvasState() {
+    ClearClip();
+    ClearStyle();
 }

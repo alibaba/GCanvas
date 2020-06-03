@@ -17,43 +17,63 @@ class GFont;
 
 #include "GCanvas2DContextAndroid.h"
 #include "gcanvas/GFontStyle.h"
+#include "GFontCache.h"
+
+#define ANDROID_FONT_TEXTURE_SIZE 1024
+
+class GFontCache;
 
 
+class GFontManagerAndroid : public GFontManager {
 
-class GFontManagerAndroid : public GFontManager
-{
 public:
 
-    GFontManagerAndroid(GCanvasContext *context);
+    API_EXPORT GFontManagerAndroid(unsigned int w = ANDROID_FONT_TEXTURE_SIZE,
+            unsigned int h = ANDROID_FONT_TEXTURE_SIZE);
+
 
     virtual ~GFontManagerAndroid();
 
-    void DrawText(const unsigned short *text,
-                  unsigned int text_length, float x, float y,
-                  bool isStroke, gcanvas::GFontStyle *fontStyle);
-    float* MeasureTextWidthHeight(const char *text,
-                                  unsigned int text_length, gcanvas::GFontStyle *fontStyle);
-    float MeasureText(const char *text,
-                      unsigned int text_length, gcanvas::GFontStyle *fontStyle);
-    float* MeasureTextExt(const char *text,
-                          unsigned int text_length, gcanvas::GFontStyle *fontStyle);
-    float* PreMeasureTextHeight(const char *text,
-                                unsigned int text_length, gcanvas::GFontStyle *fontStyle);
 
-    void SetFontCache(GFontCache *fontCache);
+    void DrawText(const unsigned short *text, unsigned int text_length, float x, float y,
+                  bool isStroke, GCanvasContext* context, float scaleX = 1, float scaleY = 1) override ;
+
+
+    float MeasureText(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle) override;
+
+
+    float* MeasureTextExt(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle) override;
+
+
+    float* PreMeasureTextHeight(const char *text, unsigned int text_length, GCanvasContext* context) override;
+
+
+    GTexture* GetOrCreateFontTexture() override;
+
+
 private:
-    void AdjustTextPenPoint(std::vector<GFont *> font,
+
+
+    float* MeasureTextWidthHeight(const char *text, unsigned int text_length,
+                            gcanvas::GFontStyle *fontStyle);
+
+
+    void AdjustTextPenPoint(GCanvasContext* context, std::vector<GFont *> font,
                             const unsigned short *text,
                             unsigned int textLength,
                             bool isStroke,
-            /*out*/ float &x,
-            /*out*/ float &y);
+                            float &x, float &y, float sx, float sy);
+
 
     GFont *GetFontByCharCode(wchar_t charCode, gcanvas::GFontStyle *fontStyle);
 
-    void FillTextInternal(GFont *font, bool isStroke, wchar_t text, float &x, float y);
 
-    GFontCache *mFontCache = nullptr;
+    void DrawTextInternal(GCanvasContext *context, GFont *font, bool isStroke, wchar_t text,
+            float& x, float y, float sx, float sy);
+
+    // global FontCache
+    GFontCache *mFontCache;
+
 };
 
 

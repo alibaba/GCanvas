@@ -51,14 +51,8 @@ namespace gcanvas
 
 class GCanvasContext;
 
-@interface GCVFont : NSObject 
-{
-    GCanvasContext* context;
-    GGlyphCache* glyphCache;
-    GTreemap* treemap;
-}
+@interface GCVFont : NSObject
 
-@property(nonatomic,assign) GCanvasContext *context;
 @property(nonatomic,assign) GGlyphCache *glyphCache;
 @property(nonatomic,assign) GTreemap *treemap;
 
@@ -73,9 +67,8 @@ class GCanvasContext;
  *
  * @param fontStyle     fontStyle name
  * @param isStroke      stroke flag
- * @param context       GCanvasContext
  */
-- (void)resetWithFontStyle:(gcanvas::GFontStyle *)fontStyle isStroke:(BOOL)isStroke;
+- (void)resetWithFontStyle:(gcanvas::GFontStyle *)fontStyle isStroke:(BOOL)isStroke context:(GCanvasContext *)context;
 
 /**
  * Get getLayoutForString.
@@ -84,26 +77,34 @@ class GCanvasContext;
  *
  * return  return GFontLayout
  */
-- (GFontLayout *)getLayoutForString:(NSString *)string withFontStyle:(NSString*)fontStyle;
+- (GFontLayout *)getLayoutForString:(NSString *)string
+                       withFontName:(NSString*)fontName;
 
-- (void )drawString:(NSString *)string withFontStyle:(NSString*)fontStyle withLayout:(GFontLayout*)fontLayout withPosition:(CGPoint)destPoint;
+- (void )drawString:(NSString*)string
+       withFontName:(NSString*)fontName
+         withLayout:(GFontLayout*)fontLayout
+       withPosition:(CGPoint)destPoint
+            context:(GCanvasContext *)context;
 
-- (void) getGlyphForChar:(wchar_t)c withFontStyle:(NSString*)fontStyle withFontLayout:(GFontLayout *) fontLayout withOffsetX:(int*) x;
+- (void)getGlyphForChar:(wchar_t)c
+           withFontName:(NSString*)fontName
+         withFontLayout:(GFontLayout *)fontLayout
+            withOffsetX:(int*)x;
 
 /**
  * Create font texture with FontGlyph info
  *
  * @param glyph         CGGlyph
  * @param font          CTFontRef
- * @param fontStyle     NSString
+ * @param fontName     NSString
  * @param glyphInfo     GFontGlyphInfo
  *
  * return  font textureId
  */
 - (void)createGlyph:(CGGlyph)glyph
-             withFont:(CTFontRef)font
-        withFontStyle:(NSString*)fontStyle
-            glyphInfo:(GGlyph *)glyphInfo;
+           withFont:(CTFontRef)font
+       withFontName:(NSString*)fontName
+          glyphInfo:(GGlyph *)glyphInfo;
 
 
 /**
@@ -120,6 +121,9 @@ class GCanvasContext;
                    textAlign:(GTextAlign)textAlign
                     baseLine:(GTextBaseline)baseLine
                      metrics:(GTextMetrics)metrics;
+
+- (NSString *)getFontNameWithCurrentScale:(gcanvas::GFontStyle *)fontStyle
+                                  context:(GCanvasContext *)context;
 
 @end
 
