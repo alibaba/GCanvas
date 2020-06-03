@@ -23,20 +23,19 @@ public:
 
     float MeasureText(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle) override;
 
+    //空实现
     float *MeasureTextExt(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle) override
     {
         return nullptr;
     }
 
+    //空实现
     float *PreMeasureTextHeight(const char *text, unsigned int text_length, GCanvasContext *context) override
     {
         return nullptr;
     }
 
-    GTexture *GetOrCreateFontTexture() override
-    {
-        return nullptr;
-    }
+    GTexture *GetOrCreateFontTexture() override;
 
 private:
     void adjustTextPenPoint(GCanvasContext *context, std::vector<GFont *> font,

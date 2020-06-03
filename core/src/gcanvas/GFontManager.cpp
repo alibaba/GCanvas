@@ -64,7 +64,9 @@ bool GFontManager::LoadGlyphToTexture(GGlyph &glyph) {
         texture = GetOrCreateFontTexture();
         flag = PrepareGlyphTexture((int)glyph.width, (int)glyph.height, rect);
     }
-
+    if(texture==nullptr){
+        printf("GetOrCreateFontTexture is null \n");
+    }
     if (!flag) {
         return false;
     } else {

@@ -17,9 +17,11 @@ const GGlyph *GGlyphCache::GetGlyph(const std::string& fontName,
                                     const wchar_t charCode,
                                     const std::string &glyphKey,
                                     bool isStroke, bool autoLoadTexture) {
+    printf("the GGlyphCache GetGlyph called \n");                                    
     GGlyphMap::iterator iter = mGlyphs.find(make_tuple(fontName, charCode, glyphKey, isStroke));
     if (iter != mGlyphs.end()) {
         if (autoLoadTexture) {
+            printf("the autoLoadTexture \n");   
             if (!iter->second.texture) {
                 // if texture is empty, we save glyph to texture and then get textureId
                 if (!mFontManager.LoadGlyphToTexture(iter->second)) {

@@ -65,13 +65,14 @@ set(SOURCE_FILES
         # # platform srcs
       
         ${CORE_DIR}src/platform/Linux/GFontManagerLinux.cpp
-        ${CORE_DIR}src/platform/Linux/GFont.cpp
-        ${CORE_DIR}src/platform/Linux/GFontCache.cpp
+        ${CORE_DIR}src/platform/Linux/GFontLinux.cpp
+        ${CORE_DIR}src/platform/Linux/GFontCacheLinux.cpp
         # ${CORE_DIR}src/platform/Linux/GSystemFontInformation.cpp
         # ${CORE_DIR}src/platform/Linux/GFontFamily.cpp
         #linux can reuse the android GCanvas2DContextImpl/GFrameBufferObjectImpl
         ${CORE_DIR}src/platform/Android/GCanvas2DContextImpl.cpp
         ${CORE_DIR}src/platform/Android/GFrameBufferObjectImpl.cpp
+        ${CORE_DIR}src/platform/Android/GFreeTypeWrap.cpp
         # support
         ${CORE_DIR}src/support/CharacterSet.cpp
         ${CORE_DIR}src/support/Encode.cpp

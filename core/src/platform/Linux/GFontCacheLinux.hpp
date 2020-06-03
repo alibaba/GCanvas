@@ -15,10 +15,6 @@
 #include <queue>
 #include <string>
 
-
-class GCanvas2DContextAndroid;
-
-
 class GFont;
 namespace gcanvas
 {
@@ -36,8 +32,7 @@ class GFontManager;
 class GFontCache
 {
 public:
-    GFontCache(GFontManager& fontManager);
-
+    GFontCache(GFontManager &fontManager);
 
     ~GFontCache();
 
@@ -51,13 +46,12 @@ public:
 #endif
 
     void ReadyToRemoveCacheForFonts(
-            const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke);
+        const std::map<GFont *, std::vector<wchar_t>> &fontsToBeDeleted, bool isStroke);
 
     void RemoveCacheForFonts(
-            const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke);
+        const std::map<GFont *, std::vector<wchar_t>> &fontsToBeDeleted, bool isStroke);
 
 private:
-
     void Clear();
 
     bool LoadFace(FT_Library *library, const char *filename, const float size,
@@ -80,9 +74,11 @@ private:
                               const std::string &filename);
 
 private:
-    GFontManager& mFontManager;
+    GFontManager &mFontManager;
     std::map<std::string, GFontSet> mFontCache;
-    std::queue<std::map<GFont *, std::vector<wchar_t> > > mCachedPages;
+    std::queue<std::map<GFont *, std::vector<wchar_t>>> mCachedPages;
+    FT_Library mFtLibrary = nullptr;
+    bool LazyInitFontLibrary();
 };
 
 #endif

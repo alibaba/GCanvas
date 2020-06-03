@@ -79,6 +79,7 @@ set(SRC_FILES
         ./src/platform/Android/GPreCompiledShaders.cpp
         ./src/platform/Android/GSystemFontInformation.cpp
         ./src/platform/Android/GFontManagerAndroid.cpp
+    
 
         ./src/platform/Android/egl/GEGLPbufferContext.cpp
         ./src/platform/Android/egl/GEGLWindowContext.cpp

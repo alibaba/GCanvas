@@ -92,7 +92,6 @@ void GCanvasContext::FillText(const unsigned short *text, unsigned int text_leng
     Scale(1 / mDevicePixelRatio * scaleWidth, 1 / mDevicePixelRatio);
     mFontManager->DrawText(text, text_length, 0, 0, isStroke, this, sx, sy);
     Restore();
-
     if (mCurrentState->mShader) {
         mCurrentState->mShader->SetOverideTextureColor(0);
     }

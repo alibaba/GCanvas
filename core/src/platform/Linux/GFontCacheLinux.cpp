@@ -44,6 +44,10 @@ GFont *
 GFontCache::GetOrCreateFont(GCanvasContext *context, GFontStyle *fontStyle,
                             wchar_t charCode, const float size)
 {
+    if (!this->LazyInitFontLibrary())
+    {
+        return nullptr;
+    }
     std::string fontName = fontStyle->GetName();
     char key[256] = {0};
     snprintf(key, 256, "%s_%d_%f", fontName.c_str(), charCode, size);
@@ -83,10 +87,20 @@ GFontCache::GetOrCreateFont(GCanvasContext *context, GFontStyle *fontStyle,
         return nullptr;
     }
 
-    GFont *font = new GFont(mFontManager, face->familyName.c_str());
+    GFont *font = new GFont(mFontManager, face->source.data());
+    font->SetFtLibrary(this->mFtLibrary);
     GFontSet &fontSet = mFontCache[key];
     fontSet.font = font;
     return font;
+}
+
+bool GFontCache::LazyInitFontLibrary()
+{
+    if (mFtLibrary == nullptr)
+    {
+        return gcanvas::GFT_InitLibrary(&mFtLibrary);
+    }
+    return true;
 }
 
 #endif

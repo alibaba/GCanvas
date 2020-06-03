@@ -35,12 +35,15 @@ void GFontManagerImplement::DrawText(const unsigned short *text, unsigned int te
     }
     std::vector<GFont *> fonts;
     gcanvas::GFontStyle *fontStyle = context->mCurrentState->mFont;
+    printf("draw text GetFontByCharCode before \n");
     for (unsigned int i = 0; i < text_length; ++i)
     {
         fonts.push_back(GetFontByCharCode(context, text[i], fontStyle));
     }
+    printf("draw text adjustTextPenPoint before \n");
     adjustTextPenPoint(context, fonts, text, text_length, isStroke, x, y, scaleX, scaleY);
     // float kerning = mContext->mCurrentState->mKerning;
+    printf("draw text  adjustTextPenPoint after \n");
     for (unsigned int i = 0; i < text_length; ++i)
     {
         DrawTextInternal(context, fonts[i], isStroke, text[i], x, y, scaleX, scaleY);
@@ -95,6 +98,7 @@ void GFontManagerImplement::adjustTextPenPoint(GCanvasContext *context, std::vec
                                                bool isStroke,
                                                float &x, float &y, float sx, float sy)
 {
+    printf("the adjustTextPenPoint called \n");
     gcanvas::GFontStyle *fontStyle = context->mCurrentState->mFont;
     if (context->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_START &&
         context->mCurrentState->mTextAlign != GTextAlign::TEXT_ALIGN_LEFT)
@@ -103,6 +107,7 @@ void GFontManagerImplement::adjustTextPenPoint(GCanvasContext *context, std::vec
         auto delta_x = 0.0f;
         for (unsigned int textIndex = 0; textIndex < textLength; ++textIndex)
         {
+            printf("the textIndex is %d", textIndex);
             auto glyph = font[textIndex]->GetOrLoadGlyph(fontStyle, text[textIndex], isStroke, sx, sy);
 
             if (glyph != nullptr)
@@ -122,6 +127,7 @@ void GFontManagerImplement::adjustTextPenPoint(GCanvasContext *context, std::vec
     }
 
     GFont *font0 = font[0];
+    printf("the GetOrLoadGlyph called before \n");
     const GGlyph *glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy);
 
     if (glyph == nullptr)
@@ -158,6 +164,19 @@ GFont *GFontManagerImplement::GetFontByCharCode(GCanvasContext *context, wchar_t
     return mFontCache->GetOrCreateFont(context, fontStyle, charCode, fontSize);
 }
 
+GTexture *GFontManagerImplement::GetOrCreateFontTexture()
+{
+    if (mFontTexture == nullptr)
+    {
+        std::vector<GCanvasLog> logVec;
+        mFontTexture = new GTexture(mTreemap.GetWidth(), mTreemap.GetHeight(), GL_ALPHA, nullptr,
+                                    &logVec);
+        // FIXME
+        // LOG_EXCEPTION_VECTOR(mHooks, mContextId.c_str(), logVec);
+    }
+    return mFontTexture;
+}
+
 void GFontManagerImplement::DrawTextInternal(GCanvasContext *context, GFont *font, bool isStroke, wchar_t text,
                                              float &x, float y, float sx, float sy)
 {
@@ -169,4 +188,5 @@ void GFontManagerImplement::DrawTextInternal(GCanvasContext *context, GFont *fon
     {
         font->DrawText(context, text, x, y, context->FillStyle(), sx, sy, isStroke);
     }
+    printf("DrawTextInternal called \n");
 }
