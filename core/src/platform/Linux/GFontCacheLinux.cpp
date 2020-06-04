@@ -41,7 +41,7 @@ void GFontCache::Clear()
 #ifdef GFONT_LOAD_BY_FREETYPE
 
 GFont *
-GFontCache::GetOrCreateFont(GCanvasContext *context, GFontStyle *fontStyle,
+GFontCache::GetOrCreateFont(GFontStyle *fontStyle,
                             wchar_t charCode, const float size)
 {
     if (!this->LazyInitFontLibrary())

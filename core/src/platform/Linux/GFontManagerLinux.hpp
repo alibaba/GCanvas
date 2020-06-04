@@ -8,12 +8,12 @@
 #include "support/CharacterSet.h"
 #include <stdlib.h>
 
-class GFontManagerImplement : public GFontManager
+class GFontManagerImplementLinux : public GFontManager
 {
 public:
-    GFontManagerImplement(unsigned w, unsigned h);
+    GFontManagerImplementLinux(unsigned w, unsigned h);
 
-    virtual ~GFontManagerImplement()
+    virtual ~GFontManagerImplementLinux()
     {
         delete mFontCache;
     };
@@ -35,16 +35,17 @@ public:
         return nullptr;
     }
 
+
     GTexture *GetOrCreateFontTexture() override;
 
 private:
-    void adjustTextPenPoint(GCanvasContext *context, std::vector<GFont *> font,
+    void AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont *> font,
                             const unsigned short *text,
                             unsigned int textLength,
                             bool isStroke,
                             float &x, float &y, float sx, float sy);
 
-    GFont *GetFontByCharCode(GCanvasContext *context, wchar_t charCode, gcanvas::GFontStyle *fontStyle);
+    GFont *GetFontByCharCode(wchar_t charCode, gcanvas::GFontStyle *fontStyle);
 
     void DrawTextInternal(GCanvasContext *context, GFont *font, bool isStroke, wchar_t text,
                           float &x, float y, float sx, float sy);

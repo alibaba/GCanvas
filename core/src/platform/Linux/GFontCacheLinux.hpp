@@ -38,8 +38,7 @@ public:
 
 #ifdef GFONT_LOAD_BY_FREETYPE
 
-    GFont *GetOrCreateFont(GCanvasContext *context,
-                           gcanvas::GFontStyle *fontStyle, wchar_t charCode, const float size);
+    GFont *GetOrCreateFont(gcanvas::GFontStyle *fontStyle, wchar_t charCode, const float size);
 
 #else
     GFont *GetOrCreateFont(const std::string &key);
