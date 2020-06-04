@@ -61,6 +61,7 @@ set(SOURCE_FILES
         ${CORE_DIR}src/gcanvas/GStrSeparator.cpp
         ${CORE_DIR}src/gcanvas/GL/GTexture.cpp
         ${CORE_DIR}src/gcanvas/GTreemap.cpp
+        ${CORE_DIR}src/gcanvas/GPathStroker.cpp
  
         # # platform srcs
       
