@@ -424,27 +424,27 @@ if (name.IsString())
         delete[] pixels;
         pixels = nullptr;
     }
-}
-else
-{
-    Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
-    srcWidth = image->getWidth();
-    srcHeight = image->getHeight();
-    textureWidth = srcWidth;
-    textureHeight = srcHeight;
-    if (image->getTextureId() == -1)
+    else if (namePropetry == "image")
     {
-        int id = mRenderContext->getTextureIdByUrl(image->getUrl());
-        if (id == -1)
+        Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
+        srcWidth = image->getWidth();
+        srcHeight = image->getHeight();
+        textureWidth = srcWidth;
+        textureHeight = srcHeight;
+        if (image->getTextureId() == -1)
         {
-            id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+            int id = mRenderContext->getTextureIdByUrl(image->getUrl());
+            if (id == -1)
+            {
+                id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+            }
+            //缓存下url和纹理id的关系,避免bind
+            mRenderContext->recordImageTexture(image->getUrl(), id);
+            image->setTextureId(id);
         }
-        //缓存下url和纹理id的关系,避免bind
-        mRenderContext->recordImageTexture(image->getUrl(), id);
-        image->setTextureId(id);
+        textureId = image->getTextureId();
+        // printf("drawImage with image, textureId
     }
-    textureId = image->getTextureId();
-    // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
 }
 
 if (info.Length() == 3)

@@ -49,7 +49,7 @@ void Image::Init(Napi::Env env, Napi::Object exports)
 Napi::Object Image::NewInstance(Napi::Env env)
 {
     Napi::Object obj = constructor.New({});
-    obj.Set("name", Napi::String::New(env, "gImage"));
+    obj.Set("name", Napi::String::New(env, "image"));
     return obj;
 }
 
