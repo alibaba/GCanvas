@@ -443,6 +443,10 @@ if (name.IsString())
             image->setTextureId(id);
         }
         textureId = image->getTextureId();
+        for (int i = 0; i < 4; i++)
+        {
+            printf("the image pxiels is %d \n", image->getPixels()[i]);
+        }
         // printf("drawImage with image, textureId
     }
 }
