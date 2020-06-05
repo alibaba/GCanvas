@@ -10,6 +10,7 @@
 #include <iostream>
 #include "CanvasGradient.h"
 #include "Image.h"
+#include <GL/gl.h>
 #include "Canvas.h"
 #include "TextMetrics.h"
 
@@ -396,6 +397,8 @@ int textureWidth = 0, textureHeight = 0;
 
 Napi::Object object = info[0].As<Napi::Object>();
 Napi::Value name = object.Get("name");
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 if (name.IsString())
 {
     std::string namePropetry = name.As<Napi::String>().Utf8Value();
@@ -443,11 +446,6 @@ if (name.IsString())
             image->setTextureId(id);
         }
         textureId = image->getTextureId();
-        for (int i = 0; i < 4; i++)
-        {
-            printf("the image pxiels is %d \n", image->getPixels()[i]);
-        }
-        // printf("drawImage with image, textureId
     }
 }
 
