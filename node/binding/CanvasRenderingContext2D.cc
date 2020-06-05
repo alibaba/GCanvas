@@ -17,67 +17,65 @@
 
 // #define DUMP_COSTTIME 1
 
-
 #ifdef DUMP_COSTTIME
-#define RECORD_TIME_START         \
+#define RECORD_TIME_START  \
     clock_t start, finish; \
     start = clock();
 
-#define RECORD_TIME_END                                                                      \
-    finish = clock();                                                                 \
-    printf("cost time %f ms\n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC); 
+#define RECORD_TIME_END \
+    finish = clock();   \
+    printf("cost time %f ms\n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
 #else
 #define RECORD_TIME_START
 #define RECORD_TIME_END
 #endif
 
-
-#define DEFINE_VOID_METHOD_BEGIN(methodName)                                                \
+#define DEFINE_VOID_METHOD_BEGIN(methodName)              \
     \ 
-     void                                                                                   \
-    Context2D::methodName(const Napi::CallbackInfo &info)                                   \
-    {                                                                                       \
-        RECORD_TIME_START                                                                          \
-        mRenderContext->makeCurrent();                                                      \
+     void                                                 \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_START                                 \
+        mRenderContext->makeCurrent();                    \
         // printf("the function :  " #methodName " is  called \n");                            \
         \ 
 
 
 #define DEFINE_RETURN_VALUE_METHOD(methodName)            \
     \ 
-     Napi::Value                                                                            \
-        Context2D::methodName(const Napi::CallbackInfo &info)                               \
-        {                                                                                   \
-            RECORD_TIME_START                                                                      \
-            mRenderContext->makeCurrent();                                                  \
-            // printf("the function : " #methodName " is  called \n");                         \
+     Napi::Value                                          \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_START                                 \
+        mRenderContext->makeCurrent();                    \
+        // printf("the function : " #methodName " is  called \n");                         \
             \  
 
 
 #define DEFINE_SETTER_METHOD(methodName)                                            \
     \ 
-     void                                                                                   \
-            Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) \
-            {                                                                               \
-                \ 
-          RECORD_TIME_START                                                                        \
-                    NodeBinding::checkArgs(info, 1);                                        \
-                mRenderContext->makeCurrent();                                              \
-                if (info[0].As<Napi::Value>().IsUndefined())                                \
-                {                                                                           \
-                    return;                                                                 \
-                }                                                                           \
-                // printf("the function : " #methodName " is  called \n");                     \
+     void                                                                           \
+    Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) \
+    {                                                                               \
+        \ 
+          RECORD_TIME_START                                                         \
+            NodeBinding::checkArgs(info, 1);                                        \
+        mRenderContext->makeCurrent();                                              \
+        if (info[0].As<Napi::Value>().IsUndefined())                                \
+        {                                                                           \
+            return;                                                                 \
+        }                                                                           \
+        // printf("the function : " #methodName " is  called \n");                     \
                 \ 
 
 #define DEFINE_GETTER_METHOD(methodName)                  \
     \ 
-     Napi::Value                                                                            \
-                Context2D::methodName(const Napi::CallbackInfo &info)                       \
-                {                                                                           \
-                    RECORD_TIME_START                                                              \
-                    mRenderContext->makeCurrent();                                          \
-                    // printf("the function : " #methodName " is  called \n");                 \
+     Napi::Value                                          \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_START                                 \
+        mRenderContext->makeCurrent();                    \
+        // printf("the function : " #methodName " is  called \n");                 \
                     \ 
 
 namespace NodeBinding
@@ -491,6 +489,8 @@ if (info.Length() == 3)
 {
     desX = info[1].As<Napi::Number>().FloatValue();
     desY = info[2].As<Napi::Number>().FloatValue();
+    desWidth = textureWidth;
+    desHeight = textureHeight;
 }
 else if (info.Length() == 5)
 {

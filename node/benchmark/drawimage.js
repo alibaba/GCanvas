@@ -93,8 +93,21 @@ particlemotion = function () {
     }
 };
 
+let render=null;
+function imageLoad(){
+    render =setInterval(() => {
+        if (!time2Quit) {
+            particlemotion();
+            drawFps();
+        }else{
+            outputRender2Png(c);
+            clearInterval(render);
+        }
+    }, 16);
+}
+
 var image = new Image();
-image.onload = particlemotion;
+image.onload = imageLoad;
 image.src = 'https://gw.alicdn.com/tfs/TB1iQoakAvoK1RjSZFwXXciCFXa-37-40.png';
 
 //FPS
@@ -238,19 +251,6 @@ function outputRender2Png(canvas){
     });
     console.log(`the avg fps is ${sum/fpsArr.length}`)
 }
-
-
-
-let render =setInterval(() => {
-    if (!time2Quit) {
-        particlemotion();
-        drawFps();
-    }else{
-        outputRender2Png(c);
-        clearInterval(render);
-    }
-}, 16);
-
 
 
 
