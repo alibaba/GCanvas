@@ -18,7 +18,7 @@ namespace gcanvas {
 
 
     GColorRGBA StrValueToColorRGBA(const char *value) {
-        static std::map<std::string, GColorRGBA> colorMap;
+        static std::unordered_map<std::string, GColorRGBA> colorMap;
         if (colorMap.empty()) {
             colorMap.insert(std::pair<std::string, GColorRGBA>(
                     "black", {{0.0f / 255, 0.0f / 255, 0.0f / 255, 1.0f}}));
