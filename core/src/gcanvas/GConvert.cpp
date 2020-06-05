@@ -409,11 +409,11 @@ namespace gcanvas {
             }
         } else {
             // 按名称query
-            std::string colorVal = value;
-            colorVal.erase(std::remove(colorVal.begin(), colorVal.end(), ' '), colorVal.end());
-            std::transform(colorVal.begin(), colorVal.end(), colorVal.begin(),
-                           ::tolower);
-            value = colorVal.c_str();
+        //     std::string colorVal = value;
+        //     colorVal.erase(std::remove(colorVal.begin(), colorVal.end(), ' '), colorVal.end());
+        //     std::transform(colorVal.begin(), colorVal.end(), colorVal.begin(),
+        //                    ::tolower);
+        //     value = colorVal.c_str();
 
             auto iter = colorMap.find(value);
             if (iter != colorMap.end()) {
