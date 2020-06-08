@@ -16,7 +16,7 @@ namespace NodeBinding
 Napi::FunctionReference Image::constructor;
 Image::Image(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Image>(info)
 {
-   this->mCallbackSet= new ImageCallbackTuple();
+   this->mCallbackSet= new ImageCallbackSet();
 }
 
 Image::~Image(){

@@ -182,12 +182,13 @@ namespace NodeBinding
             this->mRenderContext->makeCurrent();
             this->mRenderContext->drawFrame();
         }
-        std::vector<unsigned char> in;
-        int ret = this->mRenderContext->getImagePixelPNG(in);
+        std::vector<unsigned char> dataPNGFormat;
+        int ret = this->mRenderContext->getImagePixelPNG(dataPNGFormat);
         if (ret == 0)
         {
-            size = in.size();
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
+            size = dataPNGFormat.size();
+            //todo fix  是否会有vector的析构函数导致 js的buffer无效？
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), &dataPNGFormat[0], dataPNGFormat.size());
         }
         else
         {
@@ -201,11 +202,11 @@ namespace NodeBinding
             this->mRenderContext->makeCurrent();
             this->mRenderContext->drawFrame();
         }
-        unsigned char *data = nullptr;
-        int ret = this->mRenderContext->getImagePixelJPG(&data, size);
+        unsigned char *dataJPGFormat = nullptr;
+        int ret = this->mRenderContext->getImagePixelJPG(&dataJPGFormat, size);
         if (ret == 0)
         {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), dataJPGFormat, size);
         }
         else
         {
@@ -215,11 +216,11 @@ namespace NodeBinding
     }
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
-        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(data);
+        unsigned char *dataRaw = new unsigned char[4 * mWidth * mHeight];
+        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(dataRaw);
         if (ret == 0)
         {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, 4 * mWidth * mHeight);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), dataRaw, 4 * mWidth * mHeight);
         }
         else
         {

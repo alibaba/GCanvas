@@ -18,7 +18,7 @@
 
 namespace NodeBinding
 {
-struct ImageCallbackTuple{
+struct ImageCallbackSet{
     Napi::FunctionReference mOnErrorCallback;
     Napi::FunctionReference mOnLoadCallback;
 };
@@ -41,7 +41,7 @@ public:
 private:
     static Napi::FunctionReference constructor;
     std::string src;
-    ImageCallbackTuple *mCallbackSet;
+    ImageCallbackSet *mCallbackSet;
     ImageWorker *mDownloadImageWorker = nullptr;
     std::vector<unsigned char> emptyPixels;
     std::shared_ptr<ImageCached> mImageMemCached;

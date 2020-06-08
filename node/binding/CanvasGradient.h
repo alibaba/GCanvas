@@ -57,13 +57,13 @@ struct less_than_key
         static Napi::Object NewInstance(Napi::Env env, const Napi::CallbackInfo &info);
         std::shared_ptr<LinearGradientInfo> mLinearGradientInfo = nullptr;
         std::shared_ptr<RadialGradientInfo> mRadialGradientInfo = nullptr;
-        int getCount() { return this->offsets.size(); }
+        int getCount() { return this->mColorStopSet.size(); }
         const std::vector<ColorStop> &getColorStops();
 
     private:
         static Napi::FunctionReference constructor;
         void addColorStop(const Napi::CallbackInfo &info);
-        std::vector<ColorStop> offsets;
+        std::vector<ColorStop> mColorStopSet;
 
         bool compareInterval(ColorStop colorStop1, ColorStop colorStop2)
         {
