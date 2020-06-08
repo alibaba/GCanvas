@@ -34,7 +34,7 @@ struct GPathCmd {
 
     ~GPathCmd() {
         if (data != nullptr) {
-            delete[] data;
+            free (data);
         }
     }
 

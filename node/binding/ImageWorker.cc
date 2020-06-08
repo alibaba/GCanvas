@@ -31,7 +31,9 @@ namespace NodeBinding
 
     void ImageWorker::Execute()
     {
-        if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
+        bool isHttpProtocol=url.rfind("http", 0) == 0;
+        bool isHttpsProtocol=url.rfind("https", 0) == 0;
+        if ( isHttpProtocol|| isHttpsProtocol)
         {
             content.size = downloadImage(url, &content);
             if ((int)content.size <= 0)
@@ -44,7 +46,7 @@ namespace NodeBinding
         }
         else
         { //本地文件
-            content.size = readLocalImage(url, &content);
+            content.size = readImageFromLocalFile(url, &content);
             if ((int)content.size <= 0)
             {
                 free(content.memory);
@@ -54,14 +56,14 @@ namespace NodeBinding
             }
         }
 
-        PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
+        PIC_FORMAT format = parseFormat(content.memory, content.size);
         if (format == PNG_FORAMT)
         {
-            decodeFromPNGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, content.size);
+            decodeImagePNG(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, content.size);
         }
         else if (format == JPEG_FORMAT)
         {
-            decodeFromJEPGImage(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+            decodeImageJPEG(this->mImage->getPixels(), _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
         }
         else if (format == UNKOWN_PIC_FORMAT)
         {
