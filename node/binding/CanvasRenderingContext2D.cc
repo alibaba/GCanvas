@@ -18,7 +18,7 @@
 // #define DUMP_COSTTIME 1
 
 #ifdef DUMP_COSTTIME
-#define RECORD_TIME_START  \
+#define RECORD_TIME_BEGIN  \
     clock_t start, finish; \
     start = clock();
 
@@ -26,7 +26,7 @@
     finish = clock();   \
     printf("cost time %f ms\n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
 #else
-#define RECORD_TIME_START
+#define RECORD_TIME_BEGIN
 #define RECORD_TIME_END
 #endif
 
@@ -35,7 +35,7 @@
      void                                                 \
     Context2D::methodName(const Napi::CallbackInfo &info) \
     {                                                     \
-        RECORD_TIME_START                                 \
+        RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
         // printf("the function :  " #methodName " is  called \n");                            \
         \ 
@@ -46,7 +46,7 @@
      Napi::Value                                          \
     Context2D::methodName(const Napi::CallbackInfo &info) \
     {                                                     \
-        RECORD_TIME_START                                 \
+        RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
         // printf("the function : " #methodName " is  called \n");                         \
             \  
@@ -58,7 +58,7 @@
     Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) \
     {                                                                               \
         \ 
-          RECORD_TIME_START                                                         \
+          RECORD_TIME_BEGIN                                                         \
             NodeBinding::checkArgs(info, 1);                                        \
         mRenderContext->makeCurrent();                                              \
         if (info[0].As<Napi::Value>().IsUndefined())                                \
@@ -73,7 +73,7 @@
      Napi::Value                                          \
     Context2D::methodName(const Napi::CallbackInfo &info) \
     {                                                     \
-        RECORD_TIME_START                                 \
+        RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
         // printf("the function : " #methodName " is  called \n");                 \
                     \ 
