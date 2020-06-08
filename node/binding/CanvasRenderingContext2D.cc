@@ -1009,7 +1009,8 @@ DEFINE_SETTER_METHOD(setlineWidth)
 float lineWidth = info[0].As<Napi::Number>().FloatValue();
 if (mRenderContext)
 {
-    mRenderContext->getCtx()->SetLineWidth(lineWidth);
+     mRenderContext->getCtx()->SetLineWidth(10.0f);
+    // mRenderContext->getCtx()->SetLineWidth(lineWidth);
 }
 RECORD_TIME_END
 }

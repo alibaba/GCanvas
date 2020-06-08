@@ -480,7 +480,6 @@ bool GFont::LoadStroke(const char *filename, FT_Stroker *stroker, float sx, floa
     {
         return false;
     }
-
     FT_Error error;
     error = FT_Stroker_New(mLibrary, stroker);
     if (error)
@@ -489,7 +488,7 @@ bool GFont::LoadStroke(const char *filename, FT_Stroker *stroker, float sx, floa
         return false;
     }
 
-    float magicThick = 12 * sx;
+    float magicThick = 120* sx;
     FT_Stroker_Set(*stroker, (int)(mOutlineThickness * magicThick),
                    FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
     return true;

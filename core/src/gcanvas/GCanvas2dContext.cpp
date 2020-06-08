@@ -11,7 +11,7 @@
 #include "GShaderManager.h"
 #include "../GCanvas.hpp"
 #include "GL/GLUtil.h"
-
+#include<stdio.h>
 #include <assert.h>
 
 #define SIZE_EPSILON 1.f
