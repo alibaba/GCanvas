@@ -70,8 +70,8 @@ float GFontManagerImplementLinux::MeasureText(const char *text,
     int deltaX = 0;
     for (unsigned int i = 0; i < textLength; ++i)
     {
-        //fixme
-        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, 1, 1);
+        //todo 
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, 1, 1,1.0);
 
         if (glyph != nullptr)
         {
@@ -97,7 +97,8 @@ void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context, std
         auto delta_x = 0.0f;
         for (unsigned int textIndex = 0; textIndex < textLength; ++textIndex)
         {
-            auto glyph = font[textIndex]->GetOrLoadGlyph(fontStyle, text[textIndex], isStroke, sx, sy);
+            auto glyph = font[textIndex]->GetOrLoadGlyph(fontStyle, text[textIndex], isStroke, sx, sy,
+            context->mCurrentState->mLineWidth*context->GetDevicePixelRatio());
 
             if (glyph != nullptr)
             {
@@ -116,7 +117,8 @@ void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context, std
     }
 
     GFont *font0 = font[0];
-    const GGlyph *glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy);
+    const GGlyph *glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy,
+    context->mCurrentState->mLineWidth*context->GetDevicePixelRatio());
 
     if (glyph == nullptr)
     { // fail
