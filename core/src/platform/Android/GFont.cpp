@@ -97,7 +97,8 @@ void GFont::SetFtLibrary(FT_Library library) {
 
 void GFont::DrawText(GCanvasContext *context, wchar_t text, float &x, float y,
                      GColorRGBA color, float sx, float sy, bool isStroke) {
-    const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text, isStroke, sx, sy);
+    const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text, isStroke, sx, sy,
+    context->mCurrentState->mLineWidth,context->GetDevicePixelRatio());
     if (glyph != nullptr) {
         DrawGlyph(context, glyph, x, y, sx, sy, color);
         x += glyph->advanceX / sx;
@@ -114,7 +115,8 @@ void GFont::DrawText(GCanvasContext *context, const wchar_t *text, float &x,
     }
 
     for (size_t i = 0; i < wcslen(text); ++i) {
-        const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text[i], isStroke, sx, sy);
+        const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text[i], isStroke, sx, sy,
+        context->mCurrentState->mLineWidth,context->GetDevicePixelRatio());
         if (glyph != nullptr) {
             DrawGlyph(context, glyph, x, y, sx, sy, color);
             x += glyph->advanceX / sx;
@@ -154,7 +156,7 @@ void GFont::SetFontCallback(
 
 
 const GGlyph *GFont::GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_t charCode, bool isStroke,
-                              float sx, float sy) {
+                              float sx, float sy,float lineWidth,float deviceRatio) {
     std::string fontKey = GetGlyphKey(mFontFileName, fontStyle, sx, sy);
     const GGlyph *glyph = mFontManager.mGlyphCache.GetGlyph(mFontFileName, charCode, fontKey, isStroke, false);
     if (glyph != nullptr) {
@@ -166,7 +168,7 @@ const GGlyph *GFont::GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_
     wchar_t buffer[2] = {0, 0};
     buffer[0] = charCode;
 
-    LoadGlyphs(fontStyle, buffer, isStroke, sx, sy);
+    LoadGlyphs(fontStyle, buffer, isStroke, sx, sy,lineWidth,deviceRatio);
     UpdateCurrentTextMetrics();
 
     glyph = mFontManager.mGlyphCache.GetGlyph(mFontFileName, charCode, fontKey, isStroke, false);
@@ -206,7 +208,7 @@ const GGlyph *GFont::GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_
 
 
 void GFont::LoadGlyphs(gcanvas::GFontStyle* fontStyle, const wchar_t *charcodes, bool isStroke,
-        float sx, float sy) {
+        float sx, float sy,float lineWidth,float deviceRatio) {
     FT_Glyph ft_glyph = nullptr;
     FT_GlyphSlot slot;
     FT_Bitmap ft_bitmap;
@@ -283,7 +285,7 @@ void GFont::LoadGlyphs(gcanvas::GFontStyle* fontStyle, const wchar_t *charcodes,
 
         if (isStroke) {
             if (ftStroker == nullptr) {
-                if (!LoadStroke(mFontFileName.data(), &ftStroker, sx, sy)) {
+                if (!LoadStroke(mFontFileName.data(), &ftStroker, sx, sy,lineWidth,deviceRatio)) {
                     return;
                 }
             }
@@ -430,7 +432,7 @@ bool GFont::PrepareLoadGlyph(float fontSize, float scaleX, float scaleY) {
 }
 
 
-bool GFont::LoadStroke(const char *filename, FT_Stroker *stroker, float sx, float sy) {
+bool GFont::LoadStroke(const char *filename, FT_Stroker *stroker, float sx, float sy,float lineWidth,float deviceRatio) {
     assert(filename);
     if (mLibrary == nullptr) {
         return false;

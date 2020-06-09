@@ -81,7 +81,7 @@ public:
 
 
     const GGlyph *GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_t charcode, bool isStroke,
-                           float scaleX, float scaleY,float lineWidth);
+                           float scaleX, float scaleY,float lineWidth,float deviceRatio);
 
 
     // deprecated
@@ -124,11 +124,11 @@ private:
 #ifdef GFONT_LOAD_BY_FREETYPE
 
     void LoadGlyphs(gcanvas::GFontStyle* style, const wchar_t *charCodes, bool isStroke,
-                    float scaleX, float scaleY,float lineWidth);
+                    float scaleX, float scaleY,float lineWidth,float deviceRatio);
 
 #endif
 
-    bool LoadStroke(const char *filename, FT_Stroker *stroker, float scaleX, float scaleY,float lineWidth);
+    bool LoadStroke(const char *filename, FT_Stroker *stroker, float scaleX, float scaleY,float lineWidth,float deviceRatio);
 
 
     bool LoadFaceIfNot();
