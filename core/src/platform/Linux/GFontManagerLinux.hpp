@@ -39,7 +39,7 @@ public:
     GTexture *GetOrCreateFontTexture() override;
 
 private:
-    void AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont *> font,
+    void AdjustTextPenPoint(GCanvasContext *context, const std::vector<GFont *> &font,
                             const unsigned short *text,
                             unsigned int textLength,
                             bool isStroke,

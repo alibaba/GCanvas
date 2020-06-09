@@ -58,7 +58,7 @@ private:
                             gcanvas::GFontStyle *fontStyle);
 
 
-    void AdjustTextPenPoint(GCanvasContext* context, std::vector<GFont *> font,
+    void AdjustTextPenPoint(GCanvasContext* context, std::vector<GFont *>& font,
                             const unsigned short *text,
                             unsigned int textLength,
                             bool isStroke,

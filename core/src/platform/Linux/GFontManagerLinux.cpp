@@ -83,7 +83,7 @@ float GFontManagerImplementLinux::MeasureText(const char *text,
     return deltaX;
 }
 
-void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont *>font,
+void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context,const std::vector<GFont *>&font,
                                                const unsigned short *text,
                                                unsigned int textLength,
                                                bool isStroke,

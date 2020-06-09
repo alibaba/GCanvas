@@ -193,7 +193,7 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text, unsigned int 
 }
 
 
-void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont*> font,
+void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont*>& font,
                                              const unsigned short *text, unsigned int textLength,
                                              bool isStroke, float &x, float &y, float sx, float sy) {
     gcanvas::GFontStyle *fontStyle = context->mCurrentState->mFont;
