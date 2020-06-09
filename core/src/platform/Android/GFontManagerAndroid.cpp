@@ -99,8 +99,7 @@ float *GFontManagerAndroid::MeasureTextWidthHeight(const char *text, unsigned in
     float fontSize = fontStyle->GetSize();
 
     for (unsigned int i = 0; i < textLength; ++i) {
-        //todo 
-        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy,1,1);
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy);
 
         if (glyph != nullptr) {
             deltaX += glyph->advanceX / sx;
@@ -174,7 +173,7 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text, unsigned int 
 
     for (unsigned int i = 0; i < text_length; ++i) {
         //todo fixme
-        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy,1,1);
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy);
         if (glyph != nullptr) {
             top = glyph->offsetY / sy;
             height = glyph->height / sy;

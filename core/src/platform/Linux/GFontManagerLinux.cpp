@@ -71,7 +71,7 @@ float GFontManagerImplementLinux::MeasureText(const char *text,
     for (unsigned int i = 0; i < textLength; ++i)
     {
         //todo fixme
-        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, 1, 1,1.0,2.0);
+        auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, 1, 1);
 
         if (glyph != nullptr)
         {
@@ -83,7 +83,7 @@ float GFontManagerImplementLinux::MeasureText(const char *text,
     return deltaX;
 }
 
-void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont *> font,
+void GFontManagerImplementLinux::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont *>font,
                                                const unsigned short *text,
                                                unsigned int textLength,
                                                bool isStroke,

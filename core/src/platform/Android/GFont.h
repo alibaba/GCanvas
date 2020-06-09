@@ -81,7 +81,7 @@ public:
 
 
     const GGlyph *GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_t charcode, bool isStroke,
-                           float scaleX, float scaleY,float lineWidth,float deviceRatio);
+                           float scaleX, float scaleY,float lineWidth=1.0,float deviceRatio=1.0);
 
 
     // deprecated
