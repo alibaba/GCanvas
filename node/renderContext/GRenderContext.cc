@@ -5,6 +5,7 @@
 #include "GLUtil.h"
 #include "Util.h"
 #include <EGL/egl.h>
+#include <GL/gl.h>
 #include <vector>
 
 namespace NodeBinding
@@ -113,7 +114,8 @@ namespace NodeBinding
 
         glGenRenderbuffers(1, &mRenderBuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, mCanvasWidth, mCanvasHeight);
+        
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, mCanvasWidth, mCanvasHeight);
 
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, mRenderBuffer);
         glGenRenderbuffers(1, &mDepthRenderbuffer);
@@ -167,7 +169,7 @@ namespace NodeBinding
     void GRenderContext::initCanvas()
     {
         mCanvas->CreateContext();
-        mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("white"));
+        mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
         mCanvas->GetGCanvasContext()->ClearScreen();
         mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
         mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
@@ -227,7 +229,6 @@ namespace NodeBinding
             return -1;
         }
         glReadPixels(0, 0, mCanvasWidth, mCanvasHeight, GL_RGBA, GL_UNSIGNED_BYTE, canvasData);
-
         if (!data)
         {
             printf("Error: allocate data memeroy faied! \n");

@@ -19,7 +19,7 @@
 
 namespace NodeBinding
 {
-struct ImageCallbackTuple{
+struct ImageCallbackSet{
     Napi::FunctionReference mOnErrorCallback;
     Napi::FunctionReference mOnLoadCallback;
 };
@@ -42,16 +42,16 @@ public:
 private:
     static Napi::FunctionReference constructor;
     std::string src;
-    ImageCallbackTuple *mCallbackSet;
-    ImageWorker *mWorker = nullptr;
+    ImageCallbackSet *mCallbackSet;
+    ImageWorker *mDownloadImageWorker = nullptr;
     std::vector<unsigned char> emptyPixels;
-    std::shared_ptr<ImageCached> mImageCached;
+    std::shared_ptr<ImageCached> mImageMemCached;
     Napi::Value getSrc(const Napi::CallbackInfo &info);
     void setSrc(const Napi::CallbackInfo &info, const Napi::Value &value);
-    Napi::Value getOnLoad(const Napi::CallbackInfo &info);
-    void setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value);
-    Napi::Value getOnError(const Napi::CallbackInfo &info);
-    void setOnError(const Napi::CallbackInfo &info, const Napi::Value &value);
+    Napi::Value getOnLoadCallback(const Napi::CallbackInfo &info);
+    void setOnLoadCallback(const Napi::CallbackInfo &info, const Napi::Value &value);
+    Napi::Value getOnErrorCallback(const Napi::CallbackInfo &info);
+    void setOnErrorCallback(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
     int textureId=-1;

@@ -11,6 +11,7 @@
 #include "GFont.h"
 #include "GCanvas2dContext.h"
 #include "support/Log.h"
+#include "GFreeTypeWrap.h"
 
 namespace gcanvas {
     SystemFontInformation SystemFontInformation::sSystemFontInformation;
@@ -114,7 +115,7 @@ namespace gcanvas {
             return false;
         }
 
-        //字体名转为小写，防止用户传入大小写混合字符串
+        // convert font name to lower
         int length = strlen(fontName);
         char *newFontName = new char[length + 1];
         strcpy(newFontName, fontName);
@@ -122,8 +123,11 @@ namespace gcanvas {
             newFontName[i] = tolower(newFontName[i]);
         }
 
+        // avoid duplicate
         auto fontListPtr = FindFontFamily(newFontName);
         if (fontListPtr != nullptr) {
+            // free fontName str
+            delete[] newFontName;
             return false;
         }
 
@@ -146,7 +150,6 @@ namespace gcanvas {
         }
 
         GFontFamily fontFamily(newFontFileList);
-
         mFontFamilies.insert(
                 std::pair<const char *, GFontFamily>(newFontName, fontFamily));
 
@@ -180,23 +183,21 @@ namespace gcanvas {
 
 
     char *SystemFontInformation::GetClosestFontFamily(
-            GCanvasContext *context, const char *currentFontLocation,
-            const wchar_t charCode, const float size, GFontStyle &fontStyle) {
+            void* ftLibrary, const char *currentFontLocation,
+            const wchar_t charCode, const float width, const float height, GFontStyle &fontStyle) {
         const char *currentFontFile = nullptr;
         std::string fontFileFullPath = currentFontLocation;
-        std::string fontFileName = fontFileFullPath;
+        std::string fontFileName;
         GFontFamily *family;
 
-        GCanvasState* state = context->GetCurrentState();
-
-
-        for (auto it = this->mFontFamilies.begin();
-             it != this->mFontFamilies.end(); ++it) {
+        for (auto it = this->mFontFamilies.begin(); it != this->mFontFamilies.end(); ++it) {
             family = &((*it).second);
             currentFontFile = family->MatchFamilyStyle(fontStyle);
             if (currentFontFile != nullptr) {
                 fontFileName = fontFileFullPath + currentFontFile;
-                if (IsGlyphExistedInFont(charCode, size, fontFileName, state->mscaleFontX, state->mscaleFontY)) {
+
+                if (GFT_IsCharInFontFile((FT_Library)ftLibrary, charCode, fontFileName.data(),
+                                 width, height)) {
                     break;
                 } else {
                     currentFontFile = nullptr;
@@ -210,7 +211,8 @@ namespace gcanvas {
                 currentFontFile = *it;
                 if (currentFontFile != nullptr) {
                     fontFileName = fontFileFullPath + currentFontFile;
-                    if (IsGlyphExistedInFont(charCode, size, fontFileName, state->mscaleFontX, state->mscaleFontY)) {
+                    if (GFT_IsCharInFontFile((FT_Library)ftLibrary, charCode, fontFileName.data(),
+                                             width, height)) {
                         break;
                     } else {
                         currentFontFile = nullptr;

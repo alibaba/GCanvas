@@ -62,15 +62,15 @@ struct GRect
 class GTreemap
 {
 public:
-    GTreemap(int w, int h);
+    GTreemap(unsigned int w, unsigned int h);
 
     ~GTreemap()
     {};
 
-    int GetWidth()
+    inline unsigned int GetWidth()
     { return mWidth; };
 
-    int GetHeight()
+    inline unsigned int GetHeight()
     { return mHeight; };
 
     bool Add(const GSize &size, GRect &rect);

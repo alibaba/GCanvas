@@ -12,9 +12,9 @@
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
-#include <iostream>
 #include <vector>
-
+#include <stdarg.h>  
+#include <string>
 #include "export.h"
 
 
@@ -23,12 +23,12 @@
 //namespace gcanvas
 //{
 
-    typedef void (*GCanvasSystemLog)(const char *tag, const char *log);
+    typedef void (*GCanvasSystemLog)(int level, const char *tag, const char *log);
 
-API_EXPORT extern GCanvasSystemLog gcanvasSystemLog;
+    API_EXPORT extern GCanvasSystemLog gcanvasSystemLog;
 
 
-typedef enum {
+    typedef enum {
         LOG_LEVEL_DEBUG = 0,
         LOG_LEVEL_INFO,
         LOG_LEVEL_WARN,
@@ -37,10 +37,16 @@ typedef enum {
     } LogLevel;
 
 
+    struct GCanvasHooks;
+
+    typedef void (*GCanvasExceptionHandler)(const char *canvasId, const char *tag, const char *detail, GCanvasHooks* selfHooks);
+
+
     struct GCanvasHooks
     {
-        void (*GCanvasException)(const char *canvasId, const char *tag, const char *detail);
+        GCanvasExceptionHandler GCanvasException;
     };
+
 
 
     struct GCanvasLog
@@ -51,13 +57,17 @@ typedef enum {
     };
 
 
+
     void fillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...);
+
+
+    void FillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...);
 
 
     void AppendErrorLogInfo(std::vector<GCanvasLog> *errVec, const char *tag, const char *format, ...);
 
 
-#if defined(__ANDROID__)
+    #if defined(__ANDROID__)
     int TransLogLevel(LogLevel logLevel);
     #endif
 
@@ -71,21 +81,20 @@ typedef enum {
 
     API_EXPORT void LogExceptionVector(GCanvasHooks *hooks, std::string contextId, std::vector<GCanvasLog> &vec);
 
-    //#ifdef IOS
-    //#define DISABLE_LOG
-    //#endif
 
+    #ifndef DEBUG
+    #define DISABLE_LOG
+    #endif
+    #define DISABLE_LOG
     #ifdef DISABLE_LOG
     #define LOG_D(...) ;
     #define LOG_I(...) ;
     #define LOG_W(...) ;
     #define LOG_E(...) ;
     #define LOG_F(...) ;
-    #define LOG_EXT(...) ;
     #define LOG_EXCEPTION(hooks, contextId, tag, ...);
-    #define LOG_EXCEPTION_VECTOR(hooks, contextId, std::vector<GCanvasLog> *vec);
+    #define LOG_EXCEPTION_VECTOR(hooks, contextId, vec);
     #else
-    #define LOG_TAG_NAME "gcanvasCore"
     #define LOG_D(...) LogExt(LOG_LEVEL_DEBUG, LOG_TAG_NAME, __VA_ARGS__)
     #define LOG_I(...) LogExt(LOG_LEVEL_INFO, LOG_TAG_NAME, __VA_ARGS__)
     #define LOG_W(...) LogExt(LOG_LEVEL_WARN, LOG_TAG_NAME, __VA_ARGS__)

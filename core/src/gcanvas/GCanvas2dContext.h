@@ -17,10 +17,10 @@
 #include "GTreemap.h"
 #include "GFontManager.h"
 #include "../support/Log.h"
+#include "GShaderManager.h"
+#include "GPath2D.h"
 
 #include <iostream>
-#include <limits.h>
-#include <functional>
 
 extern GColorRGBA BlendColor(GCanvasContext *context, GColorRGBA color);
 extern GColorRGBA BlendWhiteColor(GCanvasContext *context);
@@ -41,29 +41,70 @@ class GCanvas;
 struct GCanvasConfig {
     bool flip;              //deafult is false,
     bool useFbo;            //default is true
+    bool sharedFont;
+    bool sharedShader;
 };
+
+
+enum ShaderType {
+
+    TEXTURE,
+
+};
+
+
+/**
+ * texture id to vertex range map
+ */
+struct GCanvasVertexShaderProperty {
+
+    std::string shaderType;
+
+    int vertexStartIndex = 0;
+
+    int vertexCount = 0;
+
+    // shader property
+    int textureId = -1;
+
+};
+
+
+
 
 class GCanvasContext {
 public:
+
     static const int GCANVAS_STATE_STACK_SIZE = 16;
+
+
     static const int GCANVAS_VERTEX_BUFFER_SIZE = 2048;
 
+
+    static const int MAX_BLUE_RADIUS = 127;
+
+
     GCanvasContext(short w, short h, const GCanvasConfig &config, GCanvasHooks *hooks = nullptr);
+
+
     virtual ~GCanvasContext();
 
     //------------------GL----------------------
-    bool InitializeGLEnvironment();
-    virtual bool InitializeGLShader();
+    API_EXPORT bool InitializeGLEnvironment();
+    bool InitializeGLShader();
     void ResetStateStack();
     
     void BindVertexBuffer();
     void ClearGeometryDataBuffers();
     API_EXPORT void SendVertexBufferToGPU(const GLenum geometry_type = GL_TRIANGLES);
+
+    void SendVertexBufferToGPUOptim(const GLenum geometry_type = GL_TRIANGLES);
+
     void BindPositionVertexBuffer();
     GLuint PositionSlot();
     
     void UpdateProjectTransform();
-    GTransform CalculateProjectTransform(int width, int height);
+    GTransform CalculateProjectTransform(int width, int height, bool needFlipY = false);
 
 
     //------------------Pipeline----------------------
@@ -73,31 +114,39 @@ public:
     API_EXPORT void UseDefaultRenderPipeline();
     void UseTextureRenderPipeline();
     void UseShadowRenderPipeline();
-    void UseShadowRenderPipeline(double radius);
+    void UseBlurRenderPipeline();
+    void UseBlurRenderPipeline(double radius);
     void UsePatternRenderPipeline(bool isStroke = false);
     void UseLinearGradientPipeline(bool isStroke = false);
     void UseRadialGradientPipeline(bool isStroke = false);
     void ApplyFillStylePipeline(bool isStroke = false);
+    float GetCurrentAlphaOfStyle(bool isStroke = false);
 
     void SetTexture(int textureId);
 
     
     //----------------Push Vertex------------------------
     void PushTriangle(GPoint v1, GPoint v2, GPoint v3, GColorRGBA color,
-                      std::vector<GVertex> *vec = NULL);
-    void PushQuad(GPoint v1, GPoint v2, GPoint v3, GPoint v4,
-                  GColorRGBA color, std::vector<GVertex> *vec = NULL);
+                     GTransform transform, std::vector<GVertex> *vec = NULL);
+    void PushQuad(GPoint v1, GPoint v2, GPoint v3, GPoint v4, GColorRGBA color, GTransform transform, std::vector<GVertex> *vec = NULL);
     //fbo size same with texutre
-    void PushRectangle(float x, float y, float w, float h, float tx, float ty,
-                       float tw, float th, GColorRGBA color, bool flipY = false);
+    void PushRectangle(float x, float y, float w, float h, float tx, float ty, float tw, float th,
+                       GColorRGBA color, GTransform transform = GTransformIdentity, bool flipY = false, std::vector<GVertex> *vec = NULL);
+
+    void PushRectangleFormat(float x, float y, float w, float h, float tx, float ty, float tw, float th,
+                       GColorRGBA color, GTransform transform = GTransformIdentity, bool flipY = false,
+                       std::vector<GVertex> *vec = NULL, bool formatIntVertex = false);
     //fbo size isn't with texutre, tw,th vaule is tw=fbo.w/texture.w, th=fbo.h/texture.h
-    void PushRectangle4TextureArea(float x, float y, float w, float h, float tx, float ty,
-                                   float tw, float th, GColorRGBA color, bool flipY = false);
+    void PushRectangle4TextureArea(float x, float y, float w, float h,
+                                   float tx, float ty, float tw, float th,GColorRGBA color,
+                                   GTransform transform = GTransformIdentity, bool flipY = false);
     void PushReverseRectangle(float x, float y, float w, float h, float tx, float ty,
                               float tw, float th, GColorRGBA color);
     void PushPoints(const std::vector<GPoint> &points, GColorRGBA color);
     void PushVertexs(const std::vector<GVertex> &vertexs);
     void PushTriangleFanPoints(const std::vector<GPoint> &points, GColorRGBA color);
+
+    void SaveVertexShaderProperty(int offset, int count);
 
     //----------------Getter & Setter------------------------
     API_EXPORT bool IsUseFbo();
@@ -138,9 +187,7 @@ public:
     GCanvasState *GetCurrentState() { return mCurrentState; }
     
     GTexture *GetFboTexture();
-    GTexture *GetFontTexture();
 
-    
     //non-w3c API
     API_EXPORT void ClearScreen();
     API_EXPORT void Resize(int w, int h); //Android only
@@ -150,13 +197,13 @@ public:
     ///   Context2D Property
     //////////////////////////////////////////////////////////////////////////////
     //global
-    API_EXPORT float GlobalAlpha() const { return mCurrentState->mGlobalAlpha; }
+    API_EXPORT float GlobalAlpha();
     API_EXPORT void SetGlobalAlpha(float a);
 
     API_EXPORT GCompositeOperation GlobalCompositeOperation();
     API_EXPORT void SetGlobalCompositeOperation(int op);
     API_EXPORT void DoSetGlobalCompositeOperation(GCompositeOperation op,
-                                                  GCompositeOperation alphaOp = COMPOSITE_OP_ADD);
+                                                  GCompositeOperation alphaOp = COMPOSITE_OP_LIGHTER);
 
     //font
     API_EXPORT GTextAlign TextAlign() const { return mCurrentState->mTextAlign; }
@@ -178,6 +225,7 @@ public:
     API_EXPORT void SetFillStyle(GColorRGBA c);
     API_EXPORT void SetFillStyle(const char *str);
 
+
     GColorRGBA StrokeStyle() const { return mCurrentState->mStrokeColor; }
     API_EXPORT void SetStrokeStyle(const GColorRGBA &c);
     API_EXPORT void SetStrokeStyle(const char *str);
@@ -185,7 +233,7 @@ public:
     API_EXPORT void SetFillStylePattern(int textureId, int width, int height,
                                         const char *repeatMode, bool isStroke = false);
 
-  API_EXPORT void SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
+    API_EXPORT void SetFillStyleLinearGradient(float startArr[], float endArr[], int stop_count,
                                                const float posArray[],
                                                const std::string colorArray[],
                                                bool isStroke = false);
@@ -194,7 +242,6 @@ public:
                                                const float posArray[],
                                                const std::string colorArray[],
                                                bool isStroke = false);
-
 
     //path
     API_EXPORT float LineWidth() const { return mCurrentState->mLineWidth; }
@@ -258,13 +305,21 @@ public:
     API_EXPORT void DoFillRect(float x, float y, float w, float h);
     API_EXPORT void StrokeRect(float x, float y, float w, float h);
     API_EXPORT void DoStrokeRect(float x, float y, float w, float h);
+    API_EXPORT void GenStrokeRectPath(GPath &path, float x, float y, float w, float h);
     API_EXPORT void ClearRect(float x, float y, float w, float h);
     
-    //clip strok fill
+    //clip / stroke / fill
     API_EXPORT void Clip(GFillRule rule = FILL_RULE_NONZERO);
+    API_EXPORT void Clip(GPath2D& path2d, GFillRule rule = FILL_RULE_NONZERO);
+
     API_EXPORT void ResetClip();
+
     API_EXPORT void Fill(GFillRule rule = FILL_RULE_NONZERO);
+    API_EXPORT void Fill(GPath2D& path2d, GFillRule rule = FILL_RULE_NONZERO);
+
     API_EXPORT void Stroke();
+    API_EXPORT void Stroke(GPath2D& path2d);
+
 
     //text
     API_EXPORT float MeasureTextWidth(const char *text, int strLength = 0);
@@ -276,11 +331,8 @@ public:
                                   float sx, float sy, float sw, float sh,
                                   float dx, float dy, float dw, float dh,
                                   bool flipY = false);
-    
-    API_EXPORT void DoDrawImage(float w, float h, int TextureId,
-                                float sx, float sy, float sw, float sh,
-                                float dx, float dy, float dw, float dh,
-                                bool flipY = false);
+
+    API_EXPORT void DoDrawImage(float w, float h, int TextureId, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, bool flipY = false);
     
     API_EXPORT void PutImageData(const unsigned char *rgbaData,
                                  int tw, int th, int x, int y,
@@ -288,20 +340,29 @@ public:
                                  bool is_src_flip_y = false);
 
     API_EXPORT void GetImageData(int x, int y, int width, int height, uint8_t *pixels);
-
+    
     //Android only
     API_EXPORT int BindImage(const unsigned char *rgbaData, GLint format, unsigned int width,
                              unsigned int height);
 
-  
+
+    API_EXPORT void DrawTexture(int textureId, float* vertexList);
+
+    API_EXPORT void DrawTextureArray(int textureId, int count, float* vertexList, float* texList);
+
+
     //----------------Other------------------------
     API_EXPORT void SetTransformOfShader(const GTransform &trans);
 
     void ClipRegion();
-    void ClipRegionNew(GFillRule rule = FILL_RULE_NONZERO);
-
     void BeforeClip();
     void AfterClip();
+
+//    void ClipRegionNew(GFillRule rule = FILL_RULE_NONZERO);
+
+    void DrawClip();
+    void DrawClipPath(GPath* path);
+
 
     API_EXPORT void FillText(const unsigned short *text, unsigned int text_length,
                              float x, float y, bool isStroke, float scaleWidth = 1.0);
@@ -312,8 +373,8 @@ public:
     API_EXPORT void UnbindFBO();
 
     //Dump
-    long DrawCallCount();
-    void ClearDrawCallCount();
+    API_EXPORT long DrawCallCount();
+    API_EXPORT void ClearDrawCallCount();
 
     //----------------Weex API------------------------
 #ifdef GCANVAS_WEEX
@@ -334,30 +395,48 @@ public:
 
 #endif
 
+    /**
+     * set fontManager api, for shared font
+     * @param fontManager GFontManager
+     */
+    API_EXPORT void SetFontManager(GFontManager* fontManager);
+
+
 protected:
-    void
-    DrawTextWithLength(const char *text, int strLength, float x, float y, bool isStroke = false, float maxWidth = SHRT_MAX);
+
+
+    void CheckContextStatus();
+    
+    void DrawTextWithLength(const char *text, int strLength, float x, float y, bool isStroke = false, float maxWidth = SHRT_MAX);
+
+    virtual GShaderManager *GetShaderManager();
 
     virtual GShader *FindShader(const char *name);
     
-    void FillRectBlur(float x, float y, float w, float h);
-    void StrokeRectBlur(float x, float y, float w, float h);
-    void FillBlur();
-    void StrokeBlur();
-    
-    void Blur(const GRectf &rect, float blur, std::function<void()> draw,
-              GFrameBufferObjectPtr &outputFbo, bool isOnScreen, float scale);
-    void DrawBlur(const GRectf &rect, float blur, std::function<void()> draw);
-    void DrawShadow(const GRectf &rect, std::function<void()> drawFun);
-    void ImageBlur(float w, float h, int TextureId, float sx,
-                   float sy, float sw, float sh, float dx,
-                   float dy, float dw, float dh);
+    bool NeedDrawShadow();
+    void DrawShadow(const GRectf &rect, std::function<void()> drawFun, bool isStroke = false);
+    void DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float dpr, const GRectf &rect, std::function<void()> draw);
+    void DoDrawShadowFBOToScreen(GFrameBufferObjectPtr &shadowFbo, const GRectf &rect, std::vector<GPath*>* recoveryClipPath);
+    void DrawBlur(const GRectf &rect, float blur, std::function<void()> draw, std::vector<GPath*>* recoveryClipPath);
+    void DoDrawBlur(const GRectf &rect, float blur, std::function<void()> draw,
+    GFrameBufferObjectPtr &inputFbo, GFrameBufferObjectPtr &outputFbo, float scale);
     
     //FBO
-    void PrepareDrawElemetToFBO(GFrameBufferObject &fbo);
+    void PrepareDrawElemetToFBO(GFrameBufferObject &fbo, float offsetX = 0, float offsetY = 0);
     void DrawFBOToFBO(GFrameBufferObject &src, GFrameBufferObject &dest);
     void DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, float w, float h,
                          GColorRGBA color);
+    
+    //Vertex
+    bool NeedSendVertexBufferToGPUWithSize(size_t size);
+
+
+    void DoFillWithPath(GPath& path, GFillRule rule);
+
+    void DoStrokeWithPath(GPath& path);
+
+    void DoClipPath(GPath* path, GFillRule rule);
+
 
 public:
     GCanvasConfig mConfig;
@@ -376,6 +455,8 @@ public:
     int mCanvasWidth = 0;
     int mCanvasHeight = 0;
 
+    bool mIsContextReady;
+    
     std::map<std::string, GFrameBufferObject> mFboMap;
     static constexpr const char *DefaultFboName = "default";
 
@@ -396,18 +477,24 @@ public:
     std::string mContextId;
 
 protected:
+    // Path is not affect by save/restore, so we keep persistent object
     GPath mPath;
-    std::vector<GCanvasState> mStateStack;
+
+    std::vector<GCanvasState*> mStateStack;
     bool mHasClipRegion;
 
     GShader *mSaveShader;
     bool mSaveIsStroke;
 
+    // gl vertex
     GVertex CanvasVertexBuffer[GCanvasContext::GCANVAS_VERTEX_BUFFER_SIZE];
+
+    // save vertex shader map
+    std::vector<GCanvasVertexShaderProperty> mVertexShaderProperties;
     
     bool mIsGLInited = false;
+
     GFrameBufferObjectPool mFrameBufferPool;
-    GTexture *mFontTexture = nullptr;
 
     bool mHiQuality;
 

@@ -19,7 +19,16 @@
 namespace gcanvas{
     API_EXPORT GColorRGBA StrValueToColorRGBA(const char *value);
 
+
+    API_EXPORT GColorRGBA StrValueToColorRGBALegacy(const char *value);
+
+
+
+    API_EXPORT GColorRGBA IntValueToColorRGBA(int value);
+
+
     API_EXPORT std::string ColorToString(const GColorRGBA &color);
 }
+
 
 #endif /* GCANVAS_GCONVERT_H */

@@ -24,6 +24,12 @@ Napi::Object createCanvas(const Napi::CallbackInfo &info)
   return NodeBinding::Canvas::NewInstance(env, info[0], info[1]);
 }
 
+Napi::Object createImage(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+  return NodeBinding::Image::NewInstance(env);
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
   //所有binding对象的初始化入口
@@ -36,6 +42,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   NodeBinding::Pattern::Init(env);
   exports.Set(Napi::String::New(env, "createCanvas"),
               Napi::Function::New(env, createCanvas));
+  exports.Set(Napi::String::New(env, "createImage"),
+              Napi::Function::New(env, createImage));
   return exports;
 }
 

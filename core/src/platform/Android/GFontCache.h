@@ -25,64 +25,74 @@ namespace gcanvas
     class GFontStyle;
 }
 
-struct GFontSet
-{
-    GFont *font = nullptr;
-    GFont *fallbackFont = nullptr;
+
+struct GFontKeySet {
+    std::string fontFileName;
+
+    std::string fallbackFontFileName;
 };
+
+
 
 class GFontManager;
 
 class GFontCache
 {
 public:
-    GFontCache(GFontManager& fontManager);
+
+    GFontCache(GFontManager* fontManager);
 
 
     ~GFontCache();
 
+
 #ifdef GFONT_LOAD_BY_FREETYPE
 
-    GFont *GetOrCreateFont(GCanvasContext *context, const std::string contextId,
-                           gcanvas::GFontStyle *fontStyle, wchar_t charCode, const float size);
+    GFont *GetOrCreateFont(gcanvas::GFontStyle *fontStyle, wchar_t charCode);
 
 #else
     GFont *GetOrCreateFont(const std::string &key);
 #endif
 
-    void ReadyToRemoveCacheForFonts(
-            const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke);
-
-    void RemoveCacheForFonts(
-            const std::map<GFont *, std::vector<wchar_t> > &fontsToBeDeleted, bool isStroke);
 
 private:
 
-    void clear();
+    void Clear();
 
-    bool LoadFace(FT_Library *library, const char *filename, const float size,
-                  FT_Face *face);
 
-    char *TryDefaultFont(const wchar_t charCode, const float size,
+    bool LazyInitFontLibrary();
+
+
+    char *TryDefaultFont(const wchar_t charCode,
                          const char *currentFontLocation);
 
-    char *TryDefaultFallbackFont(const wchar_t charCode, const float size,
+
+    char *TryDefaultFallbackFont(const wchar_t charCode,
                                  const char *currentFontLocation);
 
-    char *TryOtherFallbackFont(GCanvasContext *context, const wchar_t charCode, const float size,
-                               const char *currentFontLocation, gcanvas::GFontStyle *fontStyle);
 
-    char *TrySpecFont(const wchar_t charCode, const float size,
+    char *TrySpecFont(const wchar_t charCode,
                       const char *currentFontLocation,
                       const char *specFontFile);
 
-    bool IsGlyphExistedInFont(const wchar_t charCode, const float size,
-                              const std::string &filename);
+
+    char *TryFontFile(const wchar_t charCode, const char *fileFullPath, const char* fileName);
+
+
+    GFont* LoadAndSaveFont(const char* fontFileName);
+
 
 private:
-    GFontManager& mFontManager;
-    std::map<std::string, GFontSet> mFontCache;
-    std::queue<std::map<GFont *, std::vector<wchar_t> > > mCachedPages;
+
+    GFontManager* mFontManager;
+
+    FT_Library mFtLibrary = nullptr;
+
+    std::unordered_map<std::string, GFontKeySet> mFontRefMap;
+
+    std::unordered_map<std::string, GFont*> mFontMap;
+
 };
+
 
 #endif

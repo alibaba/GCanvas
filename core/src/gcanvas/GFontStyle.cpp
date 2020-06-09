@@ -12,11 +12,11 @@
 #include "../support/Log.h"
 
 #include <cstdlib>
-#include <string.h>
 #include <algorithm>
 #include <sstream>
 
 namespace gcanvas {
+
     GFontStyle::GFontStyle(const char *font, float ratio) : mFontName(font ? font : "") {
         if (font != nullptr) {
             mFullFontStyle = font;

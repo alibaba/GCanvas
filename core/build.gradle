@@ -2,7 +2,12 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion rootProject.extensions.sdks.CompileSDK
+    buildToolsVersion rootProject.extensions.sdks.BuildTool
 
+    defaultConfig {
+        minSdkVersion rootProject.extensions.sdks.MinSDK
+        targetSdkVersion rootProject.extensions.sdks.TargetSDK
+    }
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'

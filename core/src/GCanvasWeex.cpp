@@ -8,7 +8,7 @@
  */
 #ifdef GCANVAS_WEEX
 
-#include "gcanvas/GShaderManager.h"
+#include "gcanvas/GL/GShaderManager.h"
 #include "GCanvasManager.h"
 #include "GCanvasWeex.hpp"
 #include "GCanvas2dContext.h"
@@ -27,8 +27,7 @@ namespace gcanvas {
 
 GCanvasWeex::GCanvasWeex(std::string contextId, const GCanvasConfig &config) :
         GCanvas(contextId, config) {
-    mCurrentTransform = GTransformIdentity,
-            mFrames = 0;
+    mFrames = 0;
     mFps = 0.0f;
     mContextLost = false;
     mResult = "";
@@ -382,39 +381,6 @@ void GCanvasWeex::UsePatternRenderPipeline(int textureListId,
     }
 }
 
-void GCanvasWeex::parseSetTransForTextform(
-        float v1, float v2,
-        int parseMode,       // what to read: IDENTITY, FULL_XFORM, etc.
-        bool concat,         // if true, concatenate, else replace.
-        GTransform transIn, // the current xform
-        GTransform *transOut) {
-    GTransform t;
-    switch (parseMode) {
-        case SCALE:
-            t.a = v1;
-            t.d = v2;
-            break;
-        case TRANSLATE:
-            t.tx = v1;
-            t.ty = v2;
-            break;
-        default: ASSERT(0);
-            break;
-    }
-
-    if (concat) {
-        transOut->a = transIn.a * t.a + transIn.c * t.b;
-        transOut->b = transIn.b * t.a + transIn.d * t.b;
-        transOut->c = transIn.a * t.c + transIn.c * t.d;
-        transOut->d = transIn.b * t.c + transIn.d * t.d;
-        transOut->tx = transIn.a * t.tx + transIn.c * t.ty + transIn.tx;
-        transOut->ty = transIn.b * t.tx + transIn.d * t.ty + transIn.ty;
-    } else {
-        *transOut = t;
-    }
-}
-
-
 void
 GCanvasWeex::PutImageData(
         const char *imageData,
@@ -548,158 +514,7 @@ void GCanvasWeex::parseTokesOpt(float *tokens, const char **pp) {
     return;
 }
 
-// From the current position, past semicolon or to end
-// set the GL matrix if we have all the right data
-
-const char *GCanvasWeex::parseSetTransformT(
-        const char *p,
-        int parseMode,       // what to read: IDENTITY, FULL_XFORM, etc.
-        bool concat,         // if true, concatenate, else replace.
-        GTransform transIn, // the current xform
-        GTransform *transOut) {
-    if (concat) {
-        GTransform t;
-        parseTokesOpt(reinterpret_cast<float *>(&t), &p);
-
-        transOut->a = transIn.a * t.a + transIn.c * t.b;
-        transOut->b = transIn.b * t.a + transIn.d * t.b;
-        transOut->c = transIn.a * t.c + transIn.c * t.d;
-        transOut->d = transIn.b * t.c + transIn.d * t.d;
-        transOut->tx = transIn.a * t.tx + transIn.c * t.ty + transIn.tx;
-        transOut->ty = transIn.b * t.tx + transIn.d * t.ty + transIn.ty;
-    } else {
-        parseTokesOpt(reinterpret_cast<float *>(transOut), &p);
-    }
-
-    if (*p == ';') ++p;
-
-    return p;
-}
-
-const char *GCanvasWeex::parseSetTransform(
-        const char *p,
-        int parseMode,       // what to read: IDENTITY, FULL_XFORM, etc.
-        bool concat,         // if true, concatenate, else replace.
-        GTransform transIn, // the current xform
-        GTransform *transOut) {
-    float tokens[6] = {0, 0, 0, 0, 0, 0};
-
-    // #define debug_Parsetokes 1
-#ifdef debug_Parsetokes
-    const char *p0 = p;
-#endif
-
-#if origin_code_realization
-    int iToken = 0;
-    while (*p && *p != ';' && iToken < 6)
-    {
-        tokens[iToken++] = atof(p);
-        
-        while (*p && (*p != ',' && *p != ';'))
-        {
-            ++p;
-        }
-        if (*p == ',') ++p;
-    }
-    
-#ifdef debug_Parsetokes
-    
-    FILE *flog = fopen("/storage/sdcard0/ParseTokesOrigin1.txt", "a+");
-    fwrite((p0 - 1), 1, (p - p0 + 1 + 1), flog);
-    char buffer[256] = {0};
-    int len = snprintf(buffer, "\n %f,%f,%f,%f,%f,%f \n", tokens[0], tokens[1],
-                       tokens[2], tokens[3], tokens[4], tokens[5]);
-    fwrite(buffer, 1, len, flog);
-    fclose(flog);
-#endif
-#else
-    parseTokesOpt(tokens, &p);
-#endif
-
-    GTransform t;
-    switch (parseMode) {
-        case IDENTITY:
-            break;
-        case SET_XFORM:
-            t.a = tokens[0];
-            t.b = tokens[1];
-            t.c = tokens[2];
-            t.d = tokens[3];
-            t.tx = tokens[4];
-            t.ty = tokens[5];
-            break;
-        case SCALE:
-            t.a = tokens[0];
-            t.d = tokens[1];
-            break;
-        case ROTATE: {
-            double angle = tokens[0];
-
-            double ca = cos(angle);
-            double sa = sin(angle);
-
-            t.a = static_cast<float>(ca);
-            t.b = static_cast<float>(sa);
-            t.c = static_cast<float>(-sa);
-            t.d = static_cast<float>(ca);
-        }
-            break;
-        case TRANSLATE:
-            t.tx = tokens[0];
-            t.ty = tokens[1];
-            break;
-        default: ASSERT(0);
-            break;
-    }
-
-    if (concat) {
-        transOut->a = transIn.a * t.a + transIn.c * t.b;
-        transOut->b = transIn.b * t.a + transIn.d * t.b;
-        transOut->c = transIn.a * t.c + transIn.c * t.d;
-        transOut->d = transIn.b * t.c + transIn.d * t.d;
-        transOut->tx = transIn.a * t.tx + transIn.c * t.ty + transIn.tx;
-        transOut->ty = transIn.b * t.tx + transIn.d * t.ty + transIn.ty;
-    } else {
-        *transOut = t;
-    }
-
-    if (*p == ';') ++p;
-    return p;
-}
-
 const char *GCanvasWeex::parseDrawImage(const char *p, ClipStruct *clipOut) {
-#if origin_code_realization
-    float tokens[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    int iToken = 0;
-    
-    while (*p && *p != ';' && iToken < 9)
-    {
-        if (iToken == 0)
-        {
-            // First token is the texture ID
-            clipOut->textureID = FastInt(p);
-        }
-        else
-        {
-            tokens[iToken - 1] = FastFloat(p);
-        }
-        iToken++;
-        while (*p && (*p != ',' && *p != ';'))
-        {
-            ++p;
-        }
-        if (*p == ',') ++p;
-    }
-    
-    clipOut->cx = tokens[0]; // cx
-    clipOut->cy = tokens[1]; // cy
-    clipOut->cw = tokens[2]; // cw
-    clipOut->ch = tokens[3]; // ch
-    clipOut->px = tokens[4]; // px
-    clipOut->py = tokens[5]; // py
-    clipOut->pw = tokens[6]; // pw
-    clipOut->ph = tokens[7]; // ph
-#else
     clipOut->textureID = atoi(p);
 
     for (; *p != ','; p++); // skip image.id
@@ -709,71 +524,7 @@ const char *GCanvasWeex::parseDrawImage(const char *p, ClipStruct *clipOut) {
     //    p++;
 
     parseTokesOpt(&clipOut->cx, &p);
-#endif
-
-    if (*p == ';') ++p;
-    return p;
-}
-
-const char *GCanvasWeex::parseName(const char *p, std::string &name) {
-    const char *old = p;
-    while (*p && *p != ';') {
-        ++p;
-    }
-    name.assign(old, p - old);
-    if (*p == ';') ++p;
-    return p;
-}
-
-const char *
-GCanvasWeex::parseBindingPara(const char *p, std::string &name, float &width, float &height) {
-    const char *old = p;
-    while (*p && *p != ',') {
-        ++p;
-    }
-    name.assign(old, p - old);
-
-    if (*p == ',') ++p;
-
-
-    width = fastFloat(p);
-    while (*p && *p != ',') {
-        ++p;
-    }
-    if (*p == ',') ++p;
-    height = fastFloat(p);
-    while (*p && *p != ';') {
-        ++p;
-    }
-    if (*p == ';') ++p;
-    return p;
-}
-
-const char *
-GCanvasWeex::parseBindingPara(const char *p, std::string &name, float &sx, float &sy, float &sw,
-                              float &sh,
-                              float &dx, float &dy, float &dw, float &dh) {
-    const char *old = p;
-    while (*p && *p != ',') {
-        ++p;
-    }
-    name.assign(old, p - old);
-
-    if (*p == ',') ++p;
-
-    float tokens[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    parseTokesOpt(tokens, &p);
-
-    sx = tokens[0];
-    sy = tokens[1];
-    sw = tokens[2];
-    sh = tokens[3];
-
-    dx = tokens[4];
-    dy = tokens[5];
-    dw = tokens[6];
-    dh = tokens[7];
-
+    
     if (*p == ';') ++p;
     return p;
 }
@@ -812,7 +563,6 @@ const char *GCanvasWeex::extractOneParameterFromCommand(char *outParameter,
     return p;
 }
 
-
 void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
     if (mContextLost) return;
 
@@ -825,12 +575,10 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
 
     char tmpFont[256];
     char tmpText[1024];
-    GTransform &action = mCurrentTransform;
 
     mCanvasContext->ClearGeometryDataBuffers();
-    
-    mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d, action.tx, action.ty);
     ClipStruct clip;
+    
     const char *p = renderCommands;
     const char *end = renderCommands + length;
     while (p < end) {
@@ -838,18 +586,15 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             case 't': {
                 // setTransform
                 p++;
-                p = parseSetTransformT(p, SET_XFORM, false, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                float t[6] = {1,0,1,0,0,0};
+                parseTokesOpt(t, &p);
+                mCanvasContext->SetTransform(t[0], t[1], t[2],t[3], t[4], t[5]);
                 break;
             }
             case 'd': {
                 p++;
                 // Load the clip
                 p = parseDrawImage(p, &clip);
-
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
                 mCanvasContext->UseDefaultRenderPipeline();
                 this->DrawImage(clip.textureID, clip.cx, clip.cy, clip.cw, clip.ch,
                           clip.px, clip.py, clip.pw, clip.ph);
@@ -858,64 +603,54 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             case 'f': {
                 // transform
                 p++;
-                p = parseSetTransform(p, SET_XFORM, true, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                float t[6] = {1,0,1,0,0,0};
+                parseTokesOpt(t, &p);
+                mCanvasContext->Transfrom(t[0], t[1], t[2],t[3], t[4], t[5]);
                 break;
             }
             case 'm': {
                 // resetTransform
                 p++;
-                p = parseSetTransform(p, IDENTITY, false, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                mCanvasContext->ResetTransform();
+                if (*p == ';') ++p;
                 break;
             }
             case 'k': {
                 // scale
                 p++;
-                p = parseSetTransform(p, SCALE, true, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                float t[2] = {1, 1};
+                parseTokesOpt(t, &p);
+                mCanvasContext->Scale(t[0], t[1]);
                 break;
             }
             case 'r': {
                 // rotate
                 p++;
-                p = parseSetTransform(p, ROTATE, true, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                float t[1] = {0};
+                parseTokesOpt(t, &p);
+                mCanvasContext->Rotate(t[0]);
                 break;
             }
             case 'l': {
                 // translate
                 p++;
-                p = parseSetTransform(p, TRANSLATE, true, action, &action);
-                mCanvasContext->ApplyTransform(action.a, action.b, action.c, action.d,
-                                               action.tx, action.ty);
+                float tokens[2] = {0, 0};
+                parseTokesOpt(tokens, &p);
+                mCanvasContext->Translate(tokens[0], tokens[1]);
                 break;
             }
             case 'v': {
                 // save
                 p++;
-                mActionStack.Append(&action, 1);
                 mCanvasContext->Save();
-                if (*p == ';') {
-                    ++p;
-                }
+                if (*p == ';') ++p;
                 break;
             }
             case 'e': {
                 // restore
                 p++;
-                if (mActionStack.GetSize() > 0) {
-                    mCanvasContext->Restore();
-                    action = mActionStack[mActionStack.GetSize() - 1];
-                    mActionStack.SetSize(mActionStack.GetSize() - 1);
-                }
-                if (*p == ';') {
-                    ++p;
-                }
+                mCanvasContext->Restore();
+                if (*p == ';') ++p;
                 break;
             }
             case 'a': {
@@ -943,7 +678,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 break;
             }
             case 'S': {
-                // strokeStyle
+                // lineStyle
                 p++;
                 char str[64] = "";
                 char *tmp = str;
@@ -955,74 +690,6 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 if (*p == ';') ++p;
                 GColorRGBA color = StrValueToColorRGBA(str);
                 mCanvasContext->SetStrokeStyle(color);
-                break;
-            }
-            case 'K': {
-                //shadowColor
-                p++;
-                char str[64] = "";
-                char *tmp = str;
-                while (*p && *p != ';') {
-                    *tmp = *p;
-                    ++tmp;
-                    ++p;
-                }
-                if (*p == ';') ++p;
-                mCanvasContext->SetShadowColor(str);
-                break;
-            }
-            case 'Z': {
-                //shadowBlur
-                p++;
-                float blur = fastFloat(p);
-                mCanvasContext->SetShadowBlur(blur);
-                while (*p && *p != ';') ++p;
-                if (*p == ';') ++p;
-                break;
-            }
-            case 'X': {
-                //shadowOffsetX
-                p++;
-                float offsetX = fastFloat(p);
-                mCanvasContext->SetShadowOffsetX(offsetX);
-                while (*p && *p != ';') ++p;
-                if (*p == ';') ++p;
-                break;
-            }
-            case 'Y': {
-                //shadowOffsetY'
-                p++;
-                float offsetY = fastFloat(p);
-                mCanvasContext->SetShadowOffsetY(offsetY);
-                while (*p && *p != ';') ++p;
-                if (*p == ';') ++p;
-                break;
-            }
-            case 'N': {
-                //lineDashOffset
-                p++;
-                float offset = fastFloat(p);
-                mCanvasContext->SetLineDashOffset(offset);
-                while (*p && *p != ';') ++p;
-                if (*p == ';') ++p;
-                break;
-            }
-            case 'I': {
-                //SetLineDash
-                p++;
-                char str[256];
-                p = extractOneParameterFromCommand(str, p);
-                p++;
-                
-                int count = atoi(str);
-                std::vector<float> params;
-                params.reserve(count);
-                for (int i = 0; i < count; ++i) {
-                    p = extractOneParameterFromCommand(str, p);
-                    p++;
-                    params.push_back(atof(str));
-                }
-                mCanvasContext->SetLineDash(params);
                 break;
             }
             case 'W': {
@@ -1080,7 +747,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 // strokeRect
                 float tokens[4] = {0, 0, 0, 0};
                 p = parseTokens(p, tokens);
-                mCanvasContext->StrokeRect(tokens[0], tokens[1], tokens[2], tokens[3]);
+                mCanvasContext->DoStrokeRect(tokens[0], tokens[1], tokens[2], tokens[3]);
                 break;
             }
             case 'c': {
@@ -1122,6 +789,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'G': {
                 p++;
+                //Pattern Style
                 char id[128];
                 p = extractOneParameterFromCommand(id, p);
                 const int texture_id = atoi(id);
@@ -1173,8 +841,8 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                     p = extractOneParameterFromCommand(str, p);
                     p++;
                     std::string color = str;
-                    (FillStyleRadialGradient *) (mCanvasContext->mCurrentState->mFillStyle)->AddColorStop(
-                            pos, color);
+                    
+                    ((FillStyleRadialGradient *)mCanvasContext->mCurrentState->mFillStyle)->AddColorStop(pos, color);
                 }
                 mCanvasContext->UseRadialGradientPipeline();
 
@@ -1214,8 +882,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                     p = extractOneParameterFromCommand(str, p);
                     p++;
                     std::string color = str;
-                    (FillStyleLinearGradient *) (mCanvasContext->mCurrentState->mFillStyle)->AddColorStop(
-                            pos, color);
+                    ((FillStyleLinearGradient *) (mCanvasContext->mCurrentState->mFillStyle))->AddColorStop(pos, color);
                 }
                 mCanvasContext->UseLinearGradientPipeline();
 
@@ -1256,12 +923,14 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'b': {
                 p++;
+                //beginPath
                 mCanvasContext->BeginPath();
                 if (*p == ';') ++p;
                 break;
             }
             case 'n': {
                 p++;
+                //fillRect
                 float tokens[4] = {0, 0, 0, 0};
                 p = parseTokens(p, tokens);
                 mCanvasContext->FillRect(tokens[0], tokens[1], tokens[2], tokens[3]);
@@ -1269,6 +938,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'w': {
                 p++;
+                //rect
                 float tokens[4] = {0, 0, 0, 0};
                 p = parseTokens(p, tokens);
                 mCanvasContext->Rect(tokens[0], tokens[1], tokens[2], tokens[3]);
@@ -1276,18 +946,21 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'L': {
                 p++;
+                //fill
                 mCanvasContext->Fill();
                 if (*p == ';') ++p;
                 break;
             }
             case 'x': {
                 p++;
+                //stroke
                 mCanvasContext->Stroke();
                 if (*p == ';') ++p;
                 break;
             }
             case 'y': {
                 p++;
+                //arc
                 float tokens[6] = {0, 0, 0, 0, 0, 0};
                 p = parseTokens(p, tokens);
                 mCanvasContext->Arc(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4],
@@ -1296,29 +969,32 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'B': {
                 p++;
+                //globalCompositeOperation
                 float tokens[1] = {0};
                 p = parseTokens(p, tokens);
-
                 mCanvasContext->DoSetGlobalCompositeOperation(GCompositeOperation(tokens[0]));
                 break;
             }
             case 'A': {
                 p++;
+                //textAlign
                 float tokens[1] = {0};
                 p = parseTokens(p, tokens);
-                mCanvasContext->mCurrentState->mTextAlign = GTextAlign(tokens[0]);
+                mCanvasContext->SetTextAlign(GTextAlign(tokens[0]));
                 break;
             }
             case 'E': {
                 p++;
+                //textBaseLine
                 float tokens[1] = {0};
                 p = parseTokens(p, tokens);
                 mCanvasContext->mCurrentState->mTextBaseline = GTextBaseline(tokens[0]);
                 break;
             }
-            case 'T': { // fillText
+            case 'T': {
                 p++;
-
+                
+                // fillText
                 int textLen = 0;
                 float tokens[3] = {0, 0, 0};
                 const char *pStart = p;
@@ -1340,9 +1016,9 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
 
                 break;
             }
-            case 'U': { // strokeText
+            case 'U': {
                 p++;
-
+                // strokeText
                 int textLen = 0;
                 float tokens[3] = {0, 0, 0};
                 const char *pStart = p;
@@ -1366,6 +1042,7 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
             }
             case 'j': {
                 p++;
+                //font
                 int textLen = 0;
                 const char *pStart = p;
                 while (*p && (*p != ',' && *p != ';')) {
@@ -1375,13 +1052,9 @@ void GCanvasWeex::execute2dCommands(const char *renderCommands, int length) {
                 if (textLen > 0) {
                     strncpy(tmpFont, pStart, textLen);
                     tmpFont[textLen] = 0;
-                    if (mCanvasContext->mCurrentState->mFont != nullptr) {
-                        delete mCanvasContext->mCurrentState->mFont;
-                    }
-                    mCanvasContext->mCurrentState->mFont = new GFontStyle(tmpFont);
+                    mCanvasContext->SetFont(tmpFont);
                 }
                 if (*p == ';') ++p;
-
                 break;
             }
             case 'P': // PutImageData

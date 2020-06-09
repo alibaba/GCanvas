@@ -44,9 +44,9 @@ namespace gcanvas {
         API_EXPORT GFontFamily *FindFontFamily(const char *fontName);
 
 
-        char *GetClosestFontFamily(GCanvasContext *context,
+        char *GetClosestFontFamily(void* ftLibrary,
                                    const char *currentFontLocation,
-                                   const wchar_t charCode, const float size,
+                                   const wchar_t charCode, const float width, const float height,
                                    GFontStyle &fontStyle);
 
         static SystemFontInformation *GetSystemFontInformation() {

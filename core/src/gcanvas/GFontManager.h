@@ -28,37 +28,45 @@ namespace gcanvas
     class GFontStyle;
 }
 
-
 class GFontManager
 {
 public:
 
-    static GFontManager *NewInstance(GCanvasContext *context);
+    static GFontManager *NewInstance();
+    virtual  ~GFontManager();
 
-    virtual  ~GFontManager() = default;
+    bool PrepareGlyphTexture(int w, int h, GRect& rect);
 
+    bool AddGlyph(std::string& fontFileName, std::string& glyphKey, GGlyph& glyph, bool isStroke);
 
-    virtual void DrawText(const unsigned short *text,
-                          unsigned int text_length, float x, float y,
-                          bool isStroke, gcanvas::GFontStyle *fontStyle)=0;
+    bool LoadGlyphToTexture(GGlyph& glyph);
 
-    virtual float MeasureText(const char *text,
-                              unsigned int text_length, gcanvas::GFontStyle *fontStyle)=0;
-    //measure ext
-    virtual float* MeasureTextExt(const char *text,
-                                  unsigned int text_length, gcanvas::GFontStyle *fontStyle)=0;
+    
+    virtual GTexture* GetOrCreateFontTexture();
+        
+    virtual void DrawText(const unsigned short *text, unsigned int text_length, float x, float y,
+                          bool isStroke, GCanvasContext* context, float scaleX=1, float scaleY=1)=0;
+
+    virtual float MeasureText(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle)=0;
+    
+    // deprecated, use MeasureTextMetrics
+    virtual float* MeasureTextExt(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle)=0;
+
     //return float[4]，0：top，1：height，2：ascender，3：descender
-    virtual float* PreMeasureTextHeight(const char *text,
-                                  unsigned int text_length, gcanvas::GFontStyle *fontStyle) {
-        float *ret = new float[4];
-        return ret;
-    }
+    float* MeasureTextMetrics(const char *text, unsigned int text_length, gcanvas::GFontStyle *fontStyle);
+
+    virtual float* PreMeasureTextHeight(const char *text, unsigned int text_length, GCanvasContext* context);
 
 protected:
-    GFontManager(GCanvasContext *context) : mContext(context), mGlyphCache(context, *this),
-                                            mTreemap(FontTextureWidth, FontTextureHeight) {};
+
+    GFontManager(unsigned w = FontTextureWidth, unsigned h = FontTextureHeight);
+
+    void ClearFontBuffer();
+
 public:
-    GCanvasContext *mContext;
+
+    GTexture* mFontTexture;
+
     GGlyphCache mGlyphCache;
     GTreemap mTreemap;
 };

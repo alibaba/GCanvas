@@ -147,7 +147,7 @@ PIC_FORMAT getImageTypeByMagic(const unsigned char *data, unsigned int len)
     }
 }
 
-PIC_FORMAT getPicFormatFromContent(char *content, int len)
+PIC_FORMAT parseFormat(char *content, int len)
 {
     if (content == nullptr || len <= 0)
     {
@@ -156,7 +156,7 @@ PIC_FORMAT getPicFormatFromContent(char *content, int len)
     return getImageTypeByMagic((unsigned char *)content, (unsigned int)len);
 }
 
-int readLocalImage(const std::string &path, ImageContent *content)
+int readImageFromLocalFile(const std::string &path, ImageContent *content)
 {
     FILE *pFile;
     size_t result; // 返回值是读取的内容数量
@@ -222,7 +222,7 @@ void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, in
     fclose(outfile);
 }
 
-void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void decodeImageJPEG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -280,7 +280,7 @@ void encodeJPEGInBuffer(unsigned char **out,unsigned long &size ,unsigned char *
     jpeg_destroy_compress(&cinfo);
 }
 
-void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void decodeImagePNG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     lodepng::decode(pixels, width, height, content, len);
 }

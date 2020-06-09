@@ -7,18 +7,18 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
-#include "GFrameBufferObject.h"
+#include <EGL/egl.h>
+
 #include "GCanvas2dContext.h"
 
 #include "support/Log.h"
-#include "gcanvas/GConvert.h"
-#include "gcanvas/GFrameBufferObject.h"
+#include "GConvert.h"
+#include "GFrameBufferObject.h"
 
-#include <EGL/egl.h>
 
 /* OpenGL ES extension functions. */
-PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC glFramebufferTexture2DMultisampleEXT = NULL;
-PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC glRenderbufferStorageMultisampleEXT = NULL;
+PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC glFramebufferTexture2DMultisampleEXTFunc = NULL;
+PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC glRenderbufferStorageMultisampleEXTFunc = NULL;
 
 
 #define OES_PACKED_DEPTH_STENCIL "GL_OES_packed_depth_stencil"
@@ -26,10 +26,17 @@ PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC glRenderbufferStorageMultisampleEXT =
 
 bool extension_available(const char* extName)
 {
-    std::string extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+    const GLubyte* ext = glGetString(GL_EXTENSIONS);
+    if (ext == nullptr) {
+        return false;
+    }
+
+    std::string extensions = reinterpret_cast<const char*>(ext);
+    if (extensions.empty()) {
+        return false;
+    }
     return extensions.find(extName) != std::string::npos;
 }
-
 
 
 
@@ -54,17 +61,17 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color, bool e
         }
         // 默认samples为4，是否需要处理？
         support_render_texture_msaa = extension_available("GL_EXT_multisampled_render_to_texture");
-        glFramebufferTexture2DMultisampleEXT = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC) eglGetProcAddress(
+        glFramebufferTexture2DMultisampleEXTFunc = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC) eglGetProcAddress(
                 "glFramebufferTexture2DMultisampleEXT");
-        if (!glFramebufferTexture2DMultisampleEXT) {
-            LOG_E("Couldn't get function pointer to glFramebufferTexture2DMultisampleEXT()");
+        if (!glFramebufferTexture2DMultisampleEXTFunc) {
+            LOG_E("Couldn't get function pointer to glFramebufferTexture2DMultisampleEXTfunc()");
             support_render_texture_msaa = false;
         }
 
-        glRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC) eglGetProcAddress(
+        glRenderbufferStorageMultisampleEXTFunc = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC) eglGetProcAddress(
                 "glRenderbufferStorageMultisampleEXT");
-        if (!glRenderbufferStorageMultisampleEXT) {
-            LOG_E("Couldn't get function pointer to glRenderbufferStorageMultisampleEXT()");
+        if (!glRenderbufferStorageMultisampleEXTFunc) {
+            LOG_E("Couldn't get function pointer to glRenderbufferStorageMultisampleEXTfunc()");
             support_render_texture_msaa = false;
         }
 
@@ -93,7 +100,7 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color, bool e
 
     if (useMsaa)
     {
-        glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mFboTexture.GetTextureID(), 0, samples);
+        glFramebufferTexture2DMultisampleEXTFunc(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mFboTexture.GetTextureID(), 0, samples);
         GLenum  err = glGetError();
         if (err)
         {
@@ -135,7 +142,7 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color, bool e
     glBindRenderbuffer(GL_RENDERBUFFER, mFboStencil);
     if (useMsaa && openMsaaOk)
     {
-        glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, samples, depthFormat, mFboTexture.GetWidth(), mFboTexture.GetHeight());
+        glRenderbufferStorageMultisampleEXTFunc(GL_RENDERBUFFER, samples, depthFormat, mFboTexture.GetWidth(), mFboTexture.GetHeight());
     }
     else
     {

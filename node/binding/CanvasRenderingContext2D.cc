@@ -10,41 +10,73 @@
 #include <iostream>
 #include "CanvasGradient.h"
 #include "Image.h"
+#include <GL/gl.h>
 #include "Canvas.h"
 #include "TextMetrics.h"
 #include <time.h>
 
-#define DEFINE_VOID_METHOD(methodName) \ 
-     void Context2D::methodName(const Napi::CallbackInfo &info){   \
-     clock_t startTime,endTime;  \ 
-    startTime = clock();                  \
-     mRenderContext->makeCurrent(); \ 
-    //   printf("the function :  " #methodName " is  called \n");   \ 
+// #define DUMP_COSTTIME 1
+
+#ifdef DUMP_COSTTIME
+#define RECORD_TIME_BEGIN  \
+    clock_t start, finish; \
+    start = clock();
+
+#define RECORD_TIME_END \
+    finish = clock();   \
+    printf("cost time %f ms\n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
+#else
+#define RECORD_TIME_BEGIN
+#define RECORD_TIME_END
+#endif
+
+#define DEFINE_VOID_METHOD_BEGIN(methodName)              \
+    \ 
+     void                                                 \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_BEGIN                                 \
+        mRenderContext->makeCurrent();                    \
+        printf("the function :  " #methodName " is  called \n");                            \
+        \ 
 
 
-#define DEFINE_RETURN_VALUE_METHOD(methodName) \ 
-     Napi::Value  Context2D::methodName(const Napi::CallbackInfo &info){   \
-        clock_t startTime,endTime;  \
-     mRenderContext->makeCurrent(); \
-    // printf("the function : " #methodName " is  called \n");   \  
-    
+#define DEFINE_RETURN_VALUE_METHOD(methodName)            \
+    \ 
+     Napi::Value                                          \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_BEGIN                                 \
+        mRenderContext->makeCurrent();                    \
+        printf("the function : " #methodName " is  called \n");                         \
+            \  
 
 
-#define DEFINE_SETTER_METHOD(methodName) \ 
-     void Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) {  \ 
-        clock_t startTime,endTime;  \
-      NodeBinding::checkArgs(info, 1); \
-      mRenderContext->makeCurrent(); \
-    if(info[0].As<Napi::Value>().IsUndefined()){ \
-          return ;  \
-    }  \
-    // printf("the function : " #methodName " is  called \n");   \ 
+#define DEFINE_SETTER_METHOD(methodName)                                            \
+    \ 
+     void                                                                           \
+    Context2D::methodName(const Napi::CallbackInfo &info, const Napi::Value &value) \
+    {                                                                               \
+        \ 
+          RECORD_TIME_BEGIN                                                         \
+            NodeBinding::checkArgs(info, 1);                                        \
+        mRenderContext->makeCurrent();                                              \
+        if (info[0].As<Napi::Value>().IsUndefined())                                \
+        {                                                                           \
+            return;                                                                 \
+        }                                                                           \
+        printf("the function : " #methodName " is  called \n");                     \
+                \ 
 
-#define DEFINE_GETTER_METHOD(methodName) \ 
-     Napi::Value Context2D::methodName(const Napi::CallbackInfo &info) {  \
-        clock_t startTime,endTime;  \
-      mRenderContext->makeCurrent(); \
-    // printf("the function : " #methodName " is  called \n");   \ 
+#define DEFINE_GETTER_METHOD(methodName)                  \
+    \ 
+     Napi::Value                                          \
+    Context2D::methodName(const Napi::CallbackInfo &info) \
+    {                                                     \
+        RECORD_TIME_BEGIN                                 \
+        mRenderContext->makeCurrent();                    \
+        printf("the function : " #methodName " is  called \n");                 \
+                    \ 
 
 namespace NodeBinding
 {
@@ -127,9 +159,10 @@ namespace NodeBinding
         obj.Set("name", Napi::String::New(env, "context2d"));
         return obj;
     }
-    DEFINE_VOID_METHOD(fillRect)
+    DEFINE_VOID_METHOD_BEGIN(fillRect)
     Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
+
     float x = info[0].As<Napi::Number>().FloatValue();
     float y = info[1].As<Napi::Number>().FloatValue();
     float width = info[2].As<Napi::Number>().FloatValue();
@@ -138,8 +171,8 @@ namespace NodeBinding
     if (mRenderContext)
     {
         mRenderContext->getCtx()->FillRect(x, y, width, height);
-        // mRenderContext->drawFrame();
     }
+    RECORD_TIME_END
     return;
 } // namespace NodeBinding
 
@@ -210,6 +243,7 @@ if (mRenderContext)
         }
     }
 }
+RECORD_TIME_END
 return;
 }
 
@@ -219,10 +253,11 @@ if (mRenderContext)
 {
     return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->FillStyle()));
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
-DEFINE_VOID_METHOD(clearRect)
+DEFINE_VOID_METHOD_BEGIN(clearRect)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -233,9 +268,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->ClearRect(x, y, width, height);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(arc)
+DEFINE_VOID_METHOD_BEGIN(arc)
 Napi::Env env = info.Env();
 if (info.Length() < 5)
 {
@@ -257,9 +293,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Arc(x, y, r, startAngle, endAngle, clockwise);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(arcTo)
+DEFINE_VOID_METHOD_BEGIN(arcTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 5);
@@ -272,9 +309,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->ArcTo(x1, y1, x2, y2, r);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(beginPath)
+DEFINE_VOID_METHOD_BEGIN(beginPath)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -282,9 +320,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->BeginPath();
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(bezierCurveTo)
+DEFINE_VOID_METHOD_BEGIN(bezierCurveTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -298,8 +337,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->BezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(clip)
+
+DEFINE_VOID_METHOD_BEGIN(clip)
 Napi::Env env = info.Env();
 
 GFillRule rule = FILL_RULE_NONZERO;
@@ -324,9 +365,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Clip(rule);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(closePath)
+DEFINE_VOID_METHOD_BEGIN(closePath)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -334,7 +376,9 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->ClosePath();
 }
+RECORD_TIME_END
 }
+
 DEFINE_GETTER_METHOD(createImageData)
 Napi::Env env = info.Env();
 
@@ -366,7 +410,7 @@ NodeBinding::checkArgs(info, 6);
 return Gradient::NewInstance(env, info);
 }
 
-DEFINE_VOID_METHOD(drawImage)
+DEFINE_VOID_METHOD_BEGIN(drawImage)
 Napi::Env env = info.Env();
 if (info.Length() < 3 || (info.Length() != 3 && info.Length() != 5 && info.Length() != 9))
 {
@@ -389,6 +433,8 @@ int textureWidth = 0, textureHeight = 0;
 
 Napi::Object object = info[0].As<Napi::Object>();
 Napi::Value name = object.Get("name");
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 if (name.IsString())
 {
     std::string namePropetry = name.As<Napi::String>().Utf8Value();
@@ -417,33 +463,37 @@ if (name.IsString())
         delete[] pixels;
         pixels = nullptr;
     }
-}
-else
-{
-    Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
-    srcWidth = image->getWidth();
-    srcHeight = image->getHeight();
-    textureWidth = srcWidth;
-    textureHeight = srcHeight;
-    if (image->getTextureId() == -1)
+    else if (namePropetry == "image")
     {
-        int id = mRenderContext->getTextureIdByUrl(image->getUrl());
-        if (id == -1)
+        Image *image = Napi::ObjectWrap<Image>::Unwrap(info[0].As<Napi::Object>());
+        srcWidth = image->getWidth();
+        srcHeight = image->getHeight();
+        textureWidth = srcWidth;
+        textureHeight = srcHeight;
+        if (image->getTextureId() == -1)
         {
-            id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
-            //缓存下url和纹理id的关系,避免重复bind
-             mRenderContext->recordImageTexture(image->getUrl(), id);
+            int id = mRenderContext->getTextureIdByUrl(image->getUrl());
+            if (id == -1)
+            {
+                printf("the id is -1 \n");
+                printf("the image->getPixels() size %d \n",image->getPixels().size());
+                id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
+                //缓存下url和纹理id的关系,避免重复bind
+                mRenderContext->recordImageTexture(image->getUrl(), id);
+                printf("the bind image id  %d \n",id);
+            }
+            image->setTextureId(id);
         }
-        image->setTextureId(id);
+        textureId=image->getTextureId();
     }
-    textureId = image->getTextureId();
-    // printf("drawImage with image, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
 }
 
 if (info.Length() == 3)
 {
     desX = info[1].As<Napi::Number>().FloatValue();
     desY = info[2].As<Napi::Number>().FloatValue();
+    desWidth = textureWidth;
+    desHeight = textureHeight;
 }
 else if (info.Length() == 5)
 {
@@ -459,30 +509,29 @@ else if (info.Length() == 9)
     srcWidth = info[3].As<Napi::Number>().FloatValue();
     srcHeight = info[4].As<Napi::Number>().FloatValue();
 
-        desX = info[5].As<Napi::Number>().FloatValue();
-        desY = info[6].As<Napi::Number>().FloatValue();
-        desWidth = info[7].As<Napi::Number>().FloatValue();
-        desHeight = info[8].As<Napi::Number>().FloatValue();
-    }
-    if (mRenderContext)
-    {
-        mRenderContext->getCtx()->DrawImage(textureId,
-                                            textureWidth,
-                                            textureHeight, // image width & height
-                                            srcX,          // srcX
-                                            srcY,          // srcY
-                                            srcWidth,      // srcWidth
-                                            srcHeight,     //srcHeight
-                                            desX,          //desStartX
-                                            desY,          //desStartY
-                                            desWidth,      //desWidth
-                                            desHeight);    //desHeight
-        mRenderContext->recordTextures(textureId);
-        // mRenderContext->drawFrame();
-    }
+    desX = info[5].As<Napi::Number>().FloatValue();
+    desY = info[6].As<Napi::Number>().FloatValue();
+    desWidth = info[7].As<Napi::Number>().FloatValue();
+    desHeight = info[8].As<Napi::Number>().FloatValue();
+}
+if (mRenderContext)
+{
+    mRenderContext->getCtx()->DrawImage(textureId,
+                                        textureWidth,
+                                        textureHeight, // image width & height
+                                        srcX,          // srcX
+                                        srcY,          // srcY
+                                        srcWidth,      // srcWidth
+                                        srcHeight,     //srcHeight
+                                        desX,          //desStartX
+                                        desY,          //desStartY
+                                        desWidth,      //desWidth
+                                        desHeight);    //desHeight
+    mRenderContext->recordTextures(textureId);
+}
 }
 
-DEFINE_VOID_METHOD(fill)
+DEFINE_VOID_METHOD_BEGIN(fill)
 Napi::Env env = info.Env();
 
 GFillRule rule = FILL_RULE_NONZERO;
@@ -505,10 +554,11 @@ if (info.Length() == 1)
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Fill(rule);
-    // mRenderContext->drawFrame();
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(fillText)
+
+DEFINE_VOID_METHOD_BEGIN(fillText)
 Napi::Env env = info.Env();
 
 if (info.Length() < 3)
@@ -530,9 +580,10 @@ if (mRenderContext)
     {
         mRenderContext->getCtx()->DrawText(content.c_str(), x, y);
     }
-    // mRenderContext->drawFrame();
 }
+RECORD_TIME_END
 }
+
 DEFINE_RETURN_VALUE_METHOD(getImageData)
 Napi::Env env = info.Env();
 
@@ -556,6 +607,7 @@ if (mRenderContext)
 
     return imageDataObj;
 }
+RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getLineDash)
@@ -571,9 +623,11 @@ if (mRenderContext)
         ret.Set(i, Napi::Number::New(env, dash[i]));
     }
 }
+RECORD_TIME_END
 return ret;
 }
-DEFINE_VOID_METHOD(lineTo)
+
+DEFINE_VOID_METHOD_BEGIN(lineTo)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 2);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -582,6 +636,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->LineTo(x, y);
 }
+RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(measureText)
@@ -598,8 +653,10 @@ else
 {
     return env.Undefined();
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(moveTo)
+
+DEFINE_VOID_METHOD_BEGIN(moveTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 2);
@@ -609,9 +666,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->MoveTo(x, y);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(putImageData)
+DEFINE_VOID_METHOD_BEGIN(putImageData)
 Napi::Env env = info.Env();
 if (info.Length() < 3)
 {
@@ -652,9 +710,10 @@ if (mRenderContext)
         dirtyHeight               //dirtyHeight
     );
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(quadraticCurveTo)
+DEFINE_VOID_METHOD_BEGIN(quadraticCurveTo)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float cpx = info[0].As<Napi::Number>().FloatValue();
@@ -665,9 +724,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->QuadraticCurveTo(cpx, cpy, x, y);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(rect)
+DEFINE_VOID_METHOD_BEGIN(rect)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 4);
@@ -679,9 +739,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Rect(x, y, width, height);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(resetTransform)
+DEFINE_VOID_METHOD_BEGIN(resetTransform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -689,18 +750,20 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->ResetTransform();
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(restore)
+DEFINE_VOID_METHOD_BEGIN(restore)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Restore();
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(rotate)
+DEFINE_VOID_METHOD_BEGIN(rotate)
 Napi::Env env = info.Env();
 float angle = info[0].As<Napi::Number>().FloatValue();
 NodeBinding::checkArgs(info, 1);
@@ -708,17 +771,20 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Rotate(angle);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(save)
+DEFINE_VOID_METHOD_BEGIN(save)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Save();
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(scale)
+
+DEFINE_VOID_METHOD_BEGIN(scale)
 Napi::Env env = info.Env();
 float x = info[0].As<Napi::Number>().FloatValue();
 float y = info[1].As<Napi::Number>().FloatValue();
@@ -727,9 +793,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Scale(x, y);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(setLineDash)
+DEFINE_VOID_METHOD_BEGIN(setLineDash)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 1);
 Napi::Array array = info[0].As<Napi::Array>();
@@ -743,12 +810,14 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetLineDash(std::move(dash));
 }
+RECORD_TIME_END
 }
+
 void Context2D::setCanvasRef(NodeBinding::Canvas *canvas)
 {
     this->mCanvas = canvas;
 }
-DEFINE_VOID_METHOD(setTransform)
+DEFINE_VOID_METHOD_BEGIN(setTransform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -763,19 +832,21 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetTransform(scaleX, scaleY, rotateX, rototaY, translateX, translateY);
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(stroke)
+DEFINE_VOID_METHOD_BEGIN(stroke)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
 {
     mRenderContext->getCtx()->Stroke();
-    // mRenderContext->drawFrame();
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(strokeRect)
+
+DEFINE_VOID_METHOD_BEGIN(strokeRect)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -785,11 +856,11 @@ float height = info[3].As<Napi::Number>().FloatValue();
 if (mRenderContext)
 {
     mRenderContext->getCtx()->StrokeRect(x, y, width, height);
-    // mRenderContext->drawFrame();
 }
+RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD(strokeText)
+DEFINE_VOID_METHOD_BEGIN(strokeText)
 Napi::Env env = info.Env();
 if (info.Length() < 3)
 {
@@ -810,10 +881,11 @@ if (mRenderContext)
     {
         mRenderContext->getCtx()->StrokeText(content.c_str(), x, y);
     }
-    // mRenderContext->drawFrame();
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(transform)
+
+DEFINE_VOID_METHOD_BEGIN(transform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -828,8 +900,10 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Transfrom(scaleX, rotateX, rotateY, scaleY, translateX, translateY);
 }
+RECORD_TIME_END
 }
-DEFINE_VOID_METHOD(translate)
+
+DEFINE_VOID_METHOD_BEGIN(translate)
 Napi::Env env = info.Env();
 float tx = info[0].As<Napi::Number>().FloatValue();
 float ty = info[1].As<Napi::Number>().FloatValue();
@@ -838,6 +912,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->Translate(tx, ty);
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setfont)
@@ -847,6 +922,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetFont(font.c_str());
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setglobalAlpha)
@@ -855,6 +931,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetGlobalAlpha(colorValue);
 }
+RECORD_TIME_END
 }
 
 //TODO
@@ -899,6 +976,7 @@ if (mRenderContext)
         throwError(info, "compite value invaild or not support");
     }
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setlineCap)
@@ -907,6 +985,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetLineCap(lineCap.c_str());
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setlineDashOffset)
@@ -915,20 +994,25 @@ if (mRenderContext)
     float offset = info[0].As<Napi::Number>().FloatValue();
     mRenderContext->getCtx()->SetLineDashOffset(offset);
 }
+RECORD_TIME_END
 }
+
 DEFINE_SETTER_METHOD(setlineJoin)
 std::string lineJoin = info[0].As<Napi::String>().Utf8Value();
 if (mRenderContext)
 {
     mRenderContext->getCtx()->SetLineJoin(lineJoin.c_str());
 }
+RECORD_TIME_END
 }
+
 DEFINE_SETTER_METHOD(setlineWidth)
 float lineWidth = info[0].As<Napi::Number>().FloatValue();
 if (mRenderContext)
 {
     mRenderContext->getCtx()->SetLineWidth(lineWidth);
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setmiterLimit)
@@ -937,6 +1021,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetMiterLimit(miterLimit);
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setshadowBlur)
@@ -945,13 +1030,16 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetShadowBlur(shadowBlur);
 }
+RECORD_TIME_END
 }
+
 DEFINE_SETTER_METHOD(setshadowColor)
 std::string color = info[0].As<Napi::String>().Utf8Value();
 if (mRenderContext)
 {
     mRenderContext->getCtx()->SetShadowColor(color.c_str());
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setshadowOffsetX)
@@ -960,6 +1048,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetShadowOffsetX(offsetX);
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setshadowOffsetY)
@@ -968,6 +1057,7 @@ if (mRenderContext)
 {
     mRenderContext->getCtx()->SetShadowOffsetY(offsetY);
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(setstrokeStyle)
@@ -1038,6 +1128,7 @@ if (mRenderContext)
         }
     }
 }
+RECORD_TIME_END
 return;
 }
 
@@ -1070,6 +1161,7 @@ if (mRenderContext)
         throwError(info, "wrong text align value");
     }
 }
+RECORD_TIME_END
 }
 
 DEFINE_SETTER_METHOD(settextBaseline)
@@ -1101,6 +1193,7 @@ if (mRenderContext)
         throwError(info, "wrong text align value");
     }
 }
+RECORD_TIME_END
 }
 
 DEFINE_GETTER_METHOD(getfont)
@@ -1110,6 +1203,7 @@ if (mRenderContext)
     std::string value = mRenderContext->getCtx()->mCurrentState->mFont->GetOriginFontName();
     return Napi::String::New(env, value);
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1120,6 +1214,7 @@ if (mRenderContext)
     float value = mRenderContext->getCtx()->GlobalAlpha();
     return Napi::Number::New(env, value);
 }
+RECORD_TIME_END
 return Napi::Number::New(env, -1.0f);
 }
 
@@ -1161,6 +1256,7 @@ if (mRenderContext)
         return Napi::String::New(env, "lighter");
     }
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1182,6 +1278,7 @@ if (mRenderContext)
         return Napi::String::New(env, "square");
     }
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1192,6 +1289,7 @@ if (mRenderContext)
     float value = mRenderContext->getCtx()->LineDashOffset();
     return Napi::Number::New(env, value);
 }
+RECORD_TIME_END
 return Napi::Number::New(env, -1);
 }
 
@@ -1213,6 +1311,7 @@ if (mRenderContext)
         return Napi::String::New(env, "miter");
     }
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1222,8 +1321,10 @@ if (mRenderContext)
 {
     return Napi::Number::New(env, mRenderContext->getCtx()->LineWidth());
 }
+RECORD_TIME_END
 return Napi::Number::New(env, -1);
 }
+
 DEFINE_GETTER_METHOD(getmiterLimit)
 Napi::Env env = info.Env();
 if (mRenderContext)
@@ -1231,14 +1332,17 @@ if (mRenderContext)
     float value = mRenderContext->getCtx()->MiterLimit();
     return Napi::Number::New(env, value);
 }
+RECORD_TIME_END
 return Napi::Number::New(env, -1);
 }
+
 DEFINE_GETTER_METHOD(getshadowBlur)
 Napi::Env env = info.Env();
 if (mRenderContext)
 {
     return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowBlur);
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1248,6 +1352,7 @@ if (mRenderContext)
 {
     return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->mCurrentState->mShadowColor));
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1257,6 +1362,7 @@ if (mRenderContext)
 {
     return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowOffsetX);
 }
+RECORD_TIME_END
 return Napi::Number::New(env, -1);
 }
 
@@ -1266,6 +1372,7 @@ if (mRenderContext)
 {
     return Napi::Number::New(env, mRenderContext->getCtx()->mCurrentState->mShadowOffsetY);
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1275,8 +1382,10 @@ if (mRenderContext)
 {
     return Napi::String::New(env, gcanvas::ColorToString(mRenderContext->getCtx()->StrokeStyle()));
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
+
 DEFINE_GETTER_METHOD(gettextAlign)
 Napi::Env env = info.Env();
 if (mRenderContext)
@@ -1303,6 +1412,7 @@ if (mRenderContext)
         return Napi::String::New(env, "end");
     }
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
@@ -1332,9 +1442,12 @@ if (mRenderContext)
         return Napi::String::New(env, "ideographic");
     }
 }
+RECORD_TIME_END
 return Napi::String::New(env, "");
 }
+
 DEFINE_GETTER_METHOD(getCanvas)
+RECORD_TIME_END
 return mCanvas->mRef.Value();
 }
 

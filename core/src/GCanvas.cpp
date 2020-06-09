@@ -25,7 +25,7 @@ namespace gcanvas {
 
 GCanvas::GCanvas(std::string canvasId, const GCanvasConfig &config, GCanvasHooks *hooks) :
         mContextId(canvasId),
-        mConfig(config),mCanvasContext(nullptr)
+        mConfig(config)
 {
     mHooks = hooks;
     LOG_D("Create Canvas");
@@ -42,13 +42,14 @@ void GCanvas::Clear() {
     LOG_D("Canvas::DoContextLost end.");
 }
 
+
 GCanvas::~GCanvas() {
-    LOG_D("Canvas clear");
+    // LOG_D("Canvas clear");
     if (mCanvasContext != NULL) {
         delete mCanvasContext;
         mCanvasContext = NULL;
     }
-    Clear();
+    // Clear();
 }
 
 
@@ -58,18 +59,18 @@ GCanvas::~GCanvas() {
 void GCanvas::OnSurfaceChanged(int x, int y, int width, int height) {
     GLint maxRenderbufferSize;
     glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &maxRenderbufferSize);
-
-    if ((maxRenderbufferSize <= width) || (maxRenderbufferSize <= height)) {
-        
-        LOG_EXCEPTION(mHooks, mContextId, "surfacesize_exceed_max",
-                          "<function:%s, maxSize:%d, width:%d, height:%d>", __FUNCTION__,
-                          maxRenderbufferSize, width, height);
-        return;
-    }
+    // if ((maxRenderbufferSize <= width) || (maxRenderbufferSize <= height)) {
+    //     LOG_E("GL_MAX_RENDERBUFFER_SIZE error maxRenderbufferSize is %d width is %d height is %d ",maxRenderbufferSize,width,height);
+    //     LOG_EXCEPTION(mHooks, mContextId, "surfacesize_exceed_max",
+    //                       "<function:%s, maxSize:%d, width:%d, height:%d>", __FUNCTION__,
+    //                       maxRenderbufferSize, width, height);
+    //     return;
+    // }
 
     if (width == 0 || height == 0) {
         return;
     }
+
     if (mCanvasContext->mWidth != width || mCanvasContext->mHeight != height) {
         mCanvasContext->mX = x;
         mCanvasContext->mY = y;
@@ -77,10 +78,13 @@ void GCanvas::OnSurfaceChanged(int x, int y, int width, int height) {
         mCanvasContext->mHeight = height;
         mCanvasContext->InitializeGLEnvironment();
     }
-
     mCanvasContext->SetContextLost(false);
 }
 
+bool GCanvas::IsGCanvasReady()
+{
+    return mCanvasContext->mIsContextReady;
+}
 
 void GCanvas::drawFrame() {
     mCanvasContext->SendVertexBufferToGPU();

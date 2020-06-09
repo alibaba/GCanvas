@@ -10,8 +10,7 @@
 #include "GTreemap.h"
 
 
-GTreemap::GTreemap(int w, int h) : mWidth(w), mHeight(h), mLineLast(w), mVerticalLast(h),
-                                   mCurrentLineHeight(0) {
+GTreemap::GTreemap(unsigned int w, unsigned int h) : mWidth(w), mHeight(h), mLineLast(w), mVerticalLast(h), mCurrentLineHeight(0) {
 
 }
 
@@ -21,7 +20,6 @@ bool GTreemap::Add(const GSize &size, GRect &rect) {
         if (size.width > mWidth) {
             return false;
         } else {
-
             mVerticalLast -= mCurrentLineHeight;
             if (mVerticalLast < size.height) {
                 mVerticalLast += mCurrentLineHeight;
@@ -31,9 +29,7 @@ bool GTreemap::Add(const GSize &size, GRect &rect) {
                 rect.SetPosition(0, mHeight - mVerticalLast);
                 mCurrentLineHeight = size.height;
                 mLineLast = mWidth - size.width;
-
             }
-
         }
     } else {
         rect.SetPosition(mWidth - mLineLast, mHeight - mVerticalLast);
@@ -42,12 +38,10 @@ bool GTreemap::Add(const GSize &size, GRect &rect) {
             if (mVerticalLast < size.height) {
                 return false;
             } else {
-
                 mCurrentLineHeight = size.height;
                 mLineLast -= size.width;
             }
         } else {
-
             mLineLast -= size.width;
         }
     }
