@@ -37,7 +37,7 @@
     {                                                     \
         RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
-        printf("the function :  " #methodName " is  called \n");                            \
+        // printf("the function :  " #methodName " is  called \n");                            \
         \ 
 
 
@@ -48,7 +48,7 @@
     {                                                     \
         RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
-        printf("the function : " #methodName " is  called \n");                         \
+        // printf("the function : " #methodName " is  called \n");                         \
             \  
 
 
@@ -65,7 +65,7 @@
         {                                                                           \
             return;                                                                 \
         }                                                                           \
-        printf("the function : " #methodName " is  called \n");                     \
+        // printf("the function : " #methodName " is  called \n");                     \
                 \ 
 
 #define DEFINE_GETTER_METHOD(methodName)                  \
@@ -75,7 +75,7 @@
     {                                                     \
         RECORD_TIME_BEGIN                                 \
         mRenderContext->makeCurrent();                    \
-        printf("the function : " #methodName " is  called \n");                 \
+        // printf("the function : " #methodName " is  called \n");                 \
                     \ 
 
 namespace NodeBinding
@@ -475,12 +475,14 @@ if (name.IsString())
             int id = mRenderContext->getTextureIdByUrl(image->getUrl());
             if (id == -1)
             {
-                printf("the id is -1 \n");
-                printf("the image->getPixels() size %d \n",image->getPixels().size());
+                // printf("the id is -1 \n");
+                // printf("the image->getPixels() size %d \n",image->getPixels().size());
                 id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
                 //缓存下url和纹理id的关系,避免重复bind
                 mRenderContext->recordImageTexture(image->getUrl(), id);
-                printf("the bind image id  %d \n",id);
+                // printf("the bind image id  %d \n",id);
+            }else{
+                    // printf("the cached image id is %d \n",id);
             }
             image->setTextureId(id);
         }

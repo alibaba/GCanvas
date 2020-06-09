@@ -31,6 +31,13 @@ namespace NodeBinding
 
     void ImageWorker::Execute()
     {
+
+        std::shared_ptr<ImageCached> cacheRet= findCacheByUrl(url);
+        // 命中缓存,直接返回
+        if(cacheRet){
+            this->mImageMemCached=cacheRet;
+            return;
+        }
         bool isHttpProtocol=url.rfind("http", 0) == 0;
         bool isHttpsProtocol=url.rfind("https", 0) == 0;
         if ( isHttpProtocol|| isHttpsProtocol)
