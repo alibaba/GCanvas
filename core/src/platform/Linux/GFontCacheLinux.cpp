@@ -35,6 +35,9 @@ void GFontCache::Clear()
         //delete iter->second.fallbackFont;
     }
 
+     gcanvas::GFT_DisposeLibrarySafe(mFtLibrary);
+    mFtLibrary = nullptr;
+
     mFontCache.clear();
 }
 
@@ -56,7 +59,6 @@ GFontCache::GetOrCreateFont(GFontStyle *fontStyle,
     {
         return iter->second.font;
     }
-
     TypefaceProvider *tp = TypefaceProvider::getInstance();
     ASSERT(tp);
     TypefaceProvider::Typeface *face;

@@ -72,7 +72,6 @@ bool GFontManager::LoadGlyphToTexture(GGlyph &glyph) {
     } else {
         unsigned int texWidth = texture->GetWidth();
         unsigned int texHeight = texture->GetHeight();
-
         if (glyph.bitmapBuffer != nullptr) {
             texture->UpdateTexture(glyph.bitmapBuffer, rect.x, rect.y, rect.width, rect.height);
             glyph.texture = texture;

@@ -20,7 +20,7 @@ namespace NodeBinding
         checkArgs(info, 2);
         mWidth = info[0].As<Napi::Number>().Int32Value();
         mHeight = info[1].As<Napi::Number>().Int32Value();
-        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
+        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight,1.0);
         mRenderContext->initRenderEnviroment();
     }
 
@@ -217,16 +217,17 @@ namespace NodeBinding
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
         unsigned char *dataRaw = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(dataRaw);
-        if (ret == 0)
-        {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), dataRaw, 4 * mWidth * mHeight);
-        }
-        else
-        {
-            size = -1;
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
-        }
+        glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, dataRaw);
+        // int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(dataRaw);
+        // if (ret == 0)
+        // {
+        return Napi::Buffer<unsigned char>::Copy(info.Env(), dataRaw, 4 * mWidth * mHeight);
+        // }
+        // else
+        // {
+        //     size = -1;
+        //     return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
+        // }
     }
     Napi::Value Canvas::ToBuffer(const Napi::CallbackInfo &info)
     {

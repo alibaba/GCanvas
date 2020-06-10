@@ -20,6 +20,8 @@ ctx.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 
 ctx.restore() // Restore original state
 ctx.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
+ctx.fillStyle="#ff0000"
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
 fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.png`, canvas.toBuffer("image/png"), err => {
     if (err) {
@@ -32,3 +34,6 @@ fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.jpg`, canvas.toBuffer("imag
         throw err;
     }
 });
+
+var buffer=canvas.toBuffer("raw")
+console.log(buffer)

@@ -489,8 +489,8 @@ bool GFont::LoadStroke(const char *filename, FT_Stroker *stroker, float sx, floa
         return false;
     }
 
-    //  freetype的点数=px*50/dpi
-    float strokeRaduis = lineWidth * 72 / deviceRatio;
+    //  freetype的点数=px*64/dpi
+    float strokeRaduis = lineWidth * 64 / deviceRatio;
     FT_Stroker_Set(*stroker, (int)(mOutlineThickness * strokeRaduis),
                    FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
     return true;

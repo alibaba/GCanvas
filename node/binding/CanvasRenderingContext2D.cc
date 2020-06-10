@@ -15,9 +15,9 @@
 #include "TextMetrics.h"
 #include <time.h>
 
-// #define DUMP_COSTTIME 1
+// #define DUMP_RUNNING_TIME 1
 
-#ifdef DUMP_COSTTIME
+#ifdef DUMP_RUNNING_TIME
 #define RECORD_TIME_BEGIN  \
     clock_t start, finish; \
     start = clock();
