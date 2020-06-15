@@ -64,12 +64,16 @@ private:
     EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
     EGLContext mEglContext;
-    GLuint mFboId = 0;
-    GLuint mRenderBuffer = 0;
-    GLuint mDepthRenderbuffer = 0;
+    GLuint mFboIdSrc = 0;
+    GLuint mRenderBufferIdSrc = 0;
+    GLuint mDepthRenderbufferIdSrc = 0;
     std::vector<int> textures;
     std::unordered_map<std::string,int> imageTextureMap;
     static void InitSharedContextIfNot();
+    GLuint createFBO(int fboWidth,int fboHeigh,GLuint *renderBufferId,GLuint *depthBufferId);
+    GLuint mFboIdDes=0;
+    GLuint mRenderBufferIdDes=0;
+    GLuint mDepthRenderbufferIdDes=0;
    
 };
 } // namespace NodeBinding

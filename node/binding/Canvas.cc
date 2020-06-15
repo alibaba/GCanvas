@@ -220,7 +220,6 @@ namespace NodeBinding
         {
             this->mDataRaw = new unsigned char[4 * mWidth * mHeight];
         }
-        // glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, this->mDataRaw);
         int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(mDataRaw);
         if (ret == 0)
         {
