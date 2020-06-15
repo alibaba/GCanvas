@@ -237,8 +237,16 @@ namespace NodeBinding
             return -1;
         }
         //使用gcanvas进行采样，提高导出图片的清晰度
-        gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)canvasData, mWidth, mHeight, (int *)data);
-        gcanvas::FlipPixel(data, mWidth, mHeight);
+        // gcanvas::PixelsSampler(mCanvasWidth, mCanvasHeight, (int *)canvasData, mWidth, mHeight, (int *)data); 
+        int id=this->mCanvas->GetGCanvasContext()->BindImage(canvasData,GL_RGBA,mCanvasWidth,mCanvasHeight);
+        mCanvas->GetGCanvasContext()->ClearRect(0,0,mCanvasWidth,mCanvasHeight);  
+        mCanvas->GetGCanvasContext()->DrawImage(id,mCanvasWidth,mCanvasHeight,
+                                                                                                        0,0,mCanvasWidth,mCanvasHeight,
+                                                                                                        0,0,mWidth/mCanvas->GetDevicePixelRatio(),mHeight/mCanvas->GetDevicePixelRatio());
+        this->drawFrame();
+        glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);         
+                                                                                   
+        // gcanvas::FlipPixel(data, mWidth, mHeight);
         delete canvasData;
         canvasData = nullptr;
         return 0;
@@ -251,7 +259,9 @@ namespace NodeBinding
         {
             if (format == PNG_FORAMT)
             {
-                encodePixelsToPNGFile(fileName + ".png", data, mWidth, mHeight);
+                int width=mWidth;
+                int height=mHeight;
+                encodePixelsToPNGFile(fileName + ".png", data, width, height);
             }
             else if (format == JPEG_FORMAT)
             {

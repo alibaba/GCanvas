@@ -12,7 +12,7 @@ namespace NodeBinding
 {
     Napi::FunctionReference Canvas::constructor;
 
-    Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
+    Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info), mDataRaw(nullptr)
     {
         Napi::Env env = info.Env();
         Napi::HandleScope scope(env);
@@ -20,7 +20,7 @@ namespace NodeBinding
         checkArgs(info, 2);
         mWidth = info[0].As<Napi::Number>().Int32Value();
         mHeight = info[1].As<Napi::Number>().Int32Value();
-        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight,1.0);
+        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight,2.0);
         mRenderContext->initRenderEnviroment();
     }
 
@@ -187,7 +187,6 @@ namespace NodeBinding
         if (ret == 0)
         {
             size = dataPNGFormat.size();
-            //todo fix  是否会有vector的析构函数导致 js的buffer无效？
             return Napi::Buffer<unsigned char>::Copy(info.Env(), &dataPNGFormat[0], dataPNGFormat.size());
         }
         else
@@ -216,18 +215,22 @@ namespace NodeBinding
     }
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
-        unsigned char *dataRaw = new unsigned char[4 * mWidth * mHeight];
-        glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, dataRaw);
-        // int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(dataRaw);
-        // if (ret == 0)
-        // {
-        return Napi::Buffer<unsigned char>::Copy(info.Env(), dataRaw, 4 * mWidth * mHeight);
-        // }
-        // else
-        // {
-        //     size = -1;
-        //     return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
-        // }
+
+        if (this->mDataRaw == nullptr)
+        {
+            this->mDataRaw = new unsigned char[4 * mWidth * mHeight];
+        }
+        // glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, this->mDataRaw);
+        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(mDataRaw);
+        if (ret == 0)
+        {
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), this->mDataRaw, 4 * mWidth * mHeight);
+        }
+        else
+        {
+            size = -1;
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), nullptr, 0);
+        }
     }
     Napi::Value Canvas::ToBuffer(const Napi::CallbackInfo &info)
     {
@@ -269,6 +272,11 @@ namespace NodeBinding
     Canvas::~Canvas()
     {
         this->mRenderContext = nullptr;
+        if (this->mDataRaw != nullptr)
+        {
+            free(this->mDataRaw);
+            this->mDataRaw = nullptr;
+        }
         printf("canvas destroy called \n");
     }
 } // namespace NodeBinding

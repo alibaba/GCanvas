@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d')
 const fs = require('fs')
 const path = require('path');
 const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.png');
-
+ctx.fillStyle="#ff0000"
 ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 ctx.save() // Save the default state
 

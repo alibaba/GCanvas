@@ -50,6 +50,7 @@ namespace NodeBinding
 
         int mWidth = 0;
         int mHeight = 0;
+        unsigned char *mDataRaw;
     };
 } // namespace NodeBinding
 #endif
