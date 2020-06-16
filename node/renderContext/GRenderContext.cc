@@ -283,13 +283,25 @@ namespace NodeBinding
         {
             glDeleteFramebuffers(1, &this->mFboIdSrc);
         }
+        if (this->mFboIdDes != 0)
+        {
+            glDeleteFramebuffers(1, &this->mFboIdDes);
+        }
         if (this->mRenderBufferIdSrc != 0)
         {
             glDeleteRenderbuffers(1, &this->mRenderBufferIdSrc);
         }
+        if (this->mRenderBufferIdDes != 0)
+        {
+            glDeleteRenderbuffers(1, &this->mRenderBufferIdDes);
+        }
         if (this->mDepthRenderbufferIdSrc != 0)
         {
             glDeleteRenderbuffers(1, &this->mDepthRenderbufferIdSrc);
+        }
+        if (this->mDepthRenderbufferIdDes != 0)
+        {
+            glDeleteRenderbuffers(1, &this->mDepthRenderbufferIdDes);
         }
         if (this->textures.size() > 0)
         {
