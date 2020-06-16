@@ -98,12 +98,13 @@ void GFont::SetFtLibrary(FT_Library library)
 void GFont::DrawText(GCanvasContext *context, wchar_t text, float &x, float y,
                      GColorRGBA color, float sx, float sy, bool isStroke)
 {
+    bool needDrawShadow = context->NeedDrawShadow();
     const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text, isStroke, sx, sy,
                                          context->mCurrentState->mLineWidth, context->GetDevicePixelRatio());
     if (glyph != nullptr)
     {
 
-        DrawGlyph(context, glyph, x, y, sx, sy, color);
+        DrawGlyph(context, glyph, x, y, sx, sy, color,needDrawShadow);
         x += glyph->advanceX / sx;
     }
 }
@@ -118,21 +119,21 @@ void GFont::DrawText(GCanvasContext *context, const wchar_t *text, float &x,
     {
         return;
     }
-
+    bool needDrawShadow = context->NeedDrawShadow();
     for (size_t i = 0; i < wcslen(text); ++i)
     {
         const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text[i], isStroke, sx, sy,
                                              context->mCurrentState->mLineWidth, context->GetDevicePixelRatio());
         if (glyph != nullptr)
         {
-            DrawGlyph(context, glyph, x, y, sx, sy, color);
+            DrawGlyph(context, glyph, x, y, sx, sy, color,needDrawShadow);
             x += glyph->advanceX / sx;
         }
     }
 }
 
 void GFont::DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x,
-                      float y, float sx, float sy, GColorRGBA color)
+                      float y, float sx, float sy, GColorRGBA color,bool needDrawShadow)
 {
     context->SetTexture(glyph->texture->GetTextureID());
     float x0 = x + (glyph->offsetX / sx);
@@ -145,9 +146,27 @@ void GFont::DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x,
     float t1 = glyph->t1;
 
     // LOG_E("DrawGlyph post: x0=%f, y0=%f, x=%f, y=%f", x0, y0, x, y);
-    context->PushRectangleFormat(x0,
-                                 y0, w, h, s0, t0, s1 - s0, t1 - t0, color,
-                                 context->mCurrentState->mTransform, false, nullptr, true);
+    // context->PushRectangleFormat(x0,
+    //                              y0, w, h, s0, t0, s1 - s0, t1 - t0, color,
+    //                              context->mCurrentState->mTransform, false, nullptr, true);
+     if (needDrawShadow)
+    {
+        std::vector<GVertex> vec;
+        context->PushRectangleFormat(x0, y0, w, h, s0, t0, s1 - s0, t1 - t0,
+                                     color, context->mCurrentState->mTransform,
+                                     false, &vec, true);
+
+        GRectf rect;
+        GPath::GetRectCoverVertex(rect, vec);
+        context->DrawShadow(rect, [&] { context->PushVertexs(vec); });
+        context->PushVertexs(vec);
+    }
+    else
+    {
+        context->PushRectangleFormat(x0, y0, w, h, s0, t0, s1 - s0, t1 - t0,
+                                     color, context->mCurrentState->mTransform,
+                                     false, nullptr, true);
+    }
 }
 
 void GFont::SetFontCallback(

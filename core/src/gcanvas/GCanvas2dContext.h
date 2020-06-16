@@ -400,7 +400,8 @@ public:
      * @param fontManager GFontManager
      */
     API_EXPORT void SetFontManager(GFontManager* fontManager);
-
+    bool NeedDrawShadow();
+    void DrawShadow(const GRectf &rect, std::function<void()> drawFun, bool isStroke = false);
 
 protected:
 
@@ -413,8 +414,7 @@ protected:
 
     virtual GShader *FindShader(const char *name);
     
-    bool NeedDrawShadow();
-    void DrawShadow(const GRectf &rect, std::function<void()> drawFun, bool isStroke = false);
+
     void DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float dpr, const GRectf &rect, std::function<void()> draw);
     void DoDrawShadowFBOToScreen(GFrameBufferObjectPtr &shadowFbo, const GRectf &rect, std::vector<GPath*>* recoveryClipPath);
     void DrawBlur(const GRectf &rect, float blur, std::function<void()> draw, std::vector<GPath*>* recoveryClipPath);

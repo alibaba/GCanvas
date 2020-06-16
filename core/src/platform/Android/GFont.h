@@ -108,8 +108,8 @@ public:
 
 private:
 
-    void DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x,
-                   float y, float scaleX, float scaleY, GColorRGBA color);
+  void DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x, float y,
+                float scaleX, float scaleY, GColorRGBA color, bool needDrawShadow);
 
 
     static void *(*getFontCallback)(const char *fontDefinition);

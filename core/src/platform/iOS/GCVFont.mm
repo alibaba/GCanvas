@@ -250,6 +250,7 @@ static NSMutableDictionary *staticFontInstaceDict;
        withPosition:(CGPoint)destPoint
             context:(GCanvasContext *)context
 {
+    bool needDrawShadow = context->NeedDrawShadow();
     int offsetX = 0;
     GColorRGBA color = self.isStroke ? BlendStrokeColor(context) : BlendFillColor(context);
 
@@ -289,16 +290,41 @@ static NSMutableDictionary *staticFontInstaceDict;
             GGlyph &glyphInfo = gl.info;
             float gx = destPoint.x + gl.xpos + glyphInfo.offsetX / scale;
             float gy = destPoint.y - (glyphInfo.height / scale + glyphInfo.offsetY / scale);
-            context->PushRectangle(gx,
-                                   gy,
-                                   glyphInfo.width / scale,
-                                   glyphInfo.height / scale,
-                                   glyphInfo.s0,
-                                   glyphInfo.t1,
-                                   (glyphInfo.s1-glyphInfo.s0),
-                                   (glyphInfo.t0-glyphInfo.t1),
-                                   color,
-                                   context->mCurrentState->mTransform);
+            
+            
+            if( needDrawShadow ){
+                std::vector<GVertex> vec;
+                context->PushRectangle(gx,
+                    gy,
+                    glyphInfo.width / scale,
+                    glyphInfo.height / scale,
+                    glyphInfo.s0,
+                    glyphInfo.t1,
+                    (glyphInfo.s1-glyphInfo.s0),
+                    (glyphInfo.t0-glyphInfo.t1),
+                    color,
+                    context->mCurrentState->mTransform,
+                                       false, &vec);
+
+                GRectf rect;
+                GPath::GetRectCoverVertex(rect, vec);
+                context->DrawShadow(rect, [&] {
+                   context->PushVertexs(vec);
+                });
+                context->PushVertexs(vec);
+            } else {
+                context->PushRectangle(gx,
+                                       gy,
+                                       glyphInfo.width / scale,
+                                       glyphInfo.height / scale,
+                                       glyphInfo.s0,
+                                       glyphInfo.t1,
+                                       (glyphInfo.s1-glyphInfo.s0),
+                                       (glyphInfo.t0-glyphInfo.t1),
+                                       color,
+                                       context->mCurrentState->mTransform);
+            }
+            
             #if 0 //test font outline
             context->SendVertexBufferToGPU();
             context->Save();

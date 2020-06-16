@@ -2230,7 +2230,7 @@ void GCanvasContext::FillRect(float x, float y, float w, float h)
         PushRectangle(x, y, w, h, 0, 0, 0, 0, color, mCurrentState->mTransform, false, &vec);
 
         GRectf rect;
-        mPath.GetRectCoverVertex(rect, vec);
+        GPath::GetRectCoverVertex(rect, vec);
         DrawShadow(rect, [&] {
             PushVertexs(vec);
         });
@@ -2262,7 +2262,7 @@ void GCanvasContext::StrokeRect(float x, float y, float w, float h)
         tempPath.Stroke(this, color, &vertexVec);
 
         GRectf rect;
-        tempPath.GetRectCoverVertex(rect, vertexVec);
+        GPath::GetRectCoverVertex(rect, vertexVec);
         DrawShadow(rect, [&] {
             mPath.DrawVertexToContext(this, vertexVec);
         });
@@ -2476,7 +2476,7 @@ void GCanvasContext::DoStrokeWithPath(GPath &path)
         path.Stroke(this, color, &vertexVec);
 
         GRectf rect;
-        path.GetRectCoverVertex(rect, vertexVec);
+        GPath::GetRectCoverVertex(rect, vertexVec);
         DrawShadow(rect, [&] {
             path.DrawVertexToContext(this, vertexVec);
         });
@@ -2551,7 +2551,7 @@ void GCanvasContext::DrawImage(int textureId, int textureWidth, int textureHeigh
                       sh / textureHeight, color, mCurrentState->mTransform, flipY, &vec);
 
         GRectf rect;
-        mPath.GetRectCoverVertex(rect, vec);
+        GPath::GetRectCoverVertex(rect, vec);
         DrawShadow(rect, [&] {
             PushVertexs(vec);
         });

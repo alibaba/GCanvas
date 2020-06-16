@@ -79,7 +79,7 @@ public:
 
     void GetRect(GRectf &rect);
 
-    void GetRectCoverVertex(GRectf &rect, std::vector<GVertex> &vertexVec);
+    static void GetRectCoverVertex(GRectf &rect, std::vector<GVertex> &vertexVec);
 
     static void SubdivideCubicTo(GPath *path, GPoint points[4], int level = 4);
 
