@@ -36,5 +36,6 @@ Pod::Spec.new do |s|
   s.dependency "WeexPluginLoader"
   s.dependency "WeexSDK"
   s.dependency "GCanvas"
-  s.dependency "SDWebImage"
+ #  s.dependency "SDWebImage"
+  s.dependency "UME_SDWebImage"
 end
