@@ -479,12 +479,14 @@ if (name.IsString())
                 id = mRenderContext->getCtx()->BindImage(&image->getPixels()[0], GL_RGBA, srcWidth, srcHeight);
                 //缓存下url和纹理id的关系,避免重复bind
                 mRenderContext->recordImageTexture(image->getUrl(), id);
-            }else{
-                    // printf("the cached image id is %d \n",id);
+            }
+            else
+            {
+                // printf("the cached image id is %d \n",id);
             }
             image->setTextureId(id);
         }
-        textureId=image->getTextureId();
+        textureId = image->getTextureId();
     }
 }
 
@@ -516,7 +518,7 @@ else if (info.Length() == 9)
 }
 if (mRenderContext)
 {
-    printf("the drawcanvas textureid is %d \n",textureId);
+    printf("the drawcanvas textureid is %d \n", textureId);
     mRenderContext->getCtx()->DrawImage(textureId,
                                         textureWidth,
                                         textureHeight, // image width & height
