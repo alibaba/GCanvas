@@ -150,7 +150,7 @@ namespace NodeBinding
         }
         else
         {
-            printf("FBO Create success %p, FboId=%d, RenderbufferId=%d DepthbufferId=%d\n", this, mFboIdSrc, *renderBufferId, *depthBufferId);
+            printf("FBO Create success %p, FboId=%d, RenderbufferId=%d DepthbufferId=%d\n", this, fboId2Ret, *renderBufferId, *depthBufferId);
         }
         return fboId2Ret;
     }
@@ -347,7 +347,7 @@ namespace NodeBinding
         if (curFBOId != mFboIdSrc)
         {
             glBindFramebuffer(GL_FRAMEBUFFER, mFboIdSrc);
-            // printf("bindfbo value is %d\n", mFboIdSrc);
+            // printf("checkout  fbo value is %d\n", mFboIdSrc);
         }
         else
         {

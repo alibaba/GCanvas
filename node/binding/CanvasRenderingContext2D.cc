@@ -433,6 +433,7 @@ int textureWidth = 0, textureHeight = 0;
 
 Napi::Object object = info[0].As<Napi::Object>();
 Napi::Value name = object.Get("name");
+//todo fixme refactor
 glEnable(GL_BLEND);
 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 if (name.IsString())
@@ -457,7 +458,7 @@ if (name.IsString())
         //fixme later
         canvas->mRenderContext->BindFBO();
         canvas->mRenderContext->getCtx()->GetImageData(0, 0, textureWidth, textureHeight, pixels);
-        int textureId = canvas->mRenderContext->getCtx()->BindImage(pixels, GL_RGBA, textureWidth, textureHeight);
+        textureId = canvas->mRenderContext->getCtx()->BindImage(pixels, GL_RGBA, textureWidth, textureHeight);
         printf("drawImage with canvas, textureId=%d, textureWidth=%d, textureHeight=%d\n", textureId, textureWidth, textureHeight);
 
         delete[] pixels;
@@ -515,6 +516,7 @@ else if (info.Length() == 9)
 }
 if (mRenderContext)
 {
+    printf("the drawcanvas textureid is %d \n",textureId);
     mRenderContext->getCtx()->DrawImage(textureId,
                                         textureWidth,
                                         textureHeight, // image width & height
