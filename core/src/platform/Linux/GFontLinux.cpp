@@ -99,6 +99,7 @@ void GFont::DrawText(GCanvasContext *context, wchar_t text, float &x, float y,
                      GColorRGBA color, float sx, float sy, bool isStroke)
 {
     bool needDrawShadow = context->NeedDrawShadow();
+    printf("the needDrawShadow value is %d \n",needDrawShadow);
     const GGlyph *glyph = GetOrLoadGlyph(context->mCurrentState->mFont, text, isStroke, sx, sy,
                                          context->mCurrentState->mLineWidth, context->GetDevicePixelRatio());
     if (glyph != nullptr)

@@ -11,7 +11,7 @@
 #include "GShaderManager.h"
 #include "../GCanvas.hpp"
 #include "GL/GLUtil.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <assert.h>
 
 #define SIZE_EPSILON 1.f
@@ -562,7 +562,17 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
         if (mCurrentState->mShader)
         {
             mCurrentState->mShader->SetTransform(mProjectTransform);
-            mCurrentState->mShader->SetHasTexture(mCurrentState->mTextureId != InvalidateTextureId);
+            // printf("the shader name is %s \n",mCurrentState->mShader->GetName().data());
+            glActiveTexture(GL_TEXTURE0);
+            mCurrentState->mShader->SetTextSampler(0);
+            if (mCurrentState->mTextureId != InvalidateTextureId)
+            {
+                mCurrentState->mShader->SetHasTexture(true);
+            }
+            else
+            {
+                mCurrentState->mShader->SetHasTexture(false);
+            }
         }
         if (mCurrentState->mTextureId != InvalidateTextureId)
         {
@@ -571,6 +581,17 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
         //draw call
         mDrawCallCount++;
         glDrawArrays(geometry_type, 0, mVertexBufferIndex);
+        // if (mCurrentState->mTextureId != InvalidateTextureId)
+        // {
+        //     int size = mWidth*mHeight;
+        //     unsigned char *data = new unsigned char[size];
+        //     glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        //     for (int i = 100; i < 100 + 4; i++)
+        //     {
+        //         printf("the data is %d \n", *(data + i));
+        //     }
+        //     printf("gl bind texture callled \n");
+        // }
     }
 
     mVertexBufferIndex = 0;
@@ -1219,6 +1240,11 @@ void GCanvasContext::DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, 
                                      GColorRGBA color)
 {
     SetTexture(fbo.mFboTexture.GetTextureID());
+    printf("fbo.mFboTexture.GetTextureID() is %d \n", fbo.mFboTexture.GetTextureID());
+    printf("draw fbo to screen  the x y w h is %f, %f, %f, %f \n", x, y, w, h);
+    // printf("the texture id %d \n", fbo.mFboTexture.GetTextureID());
+    // printf("the width  %f \n", static_cast<float>(fbo.ExpectedWidth()) / fbo.Width());
+    // printf("the height  %f \n", static_cast<float>(fbo.ExpectedHeight()) / fbo.Height());
     PushRectangle4TextureArea(x, y, w, h, 0, 0,
                               static_cast<float>(fbo.ExpectedWidth()) / fbo.Width(),
                               static_cast<float>(fbo.ExpectedHeight()) / fbo.Height(),
@@ -1298,6 +1324,8 @@ void GCanvasContext::DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float d
     // LOG_E("DoDrawShadowToFBO %f, %f", rect.Width() * dpr, rect.Height() * dpr);
     shadowFbo = mFrameBufferPool.GetFrameBuffer(rect.Width() * dpr, rect.Height() * dpr);
     shadowFbo->BindFBO();
+
+    printf("the shadow fbo value is %d  texture value is %d \n", shadowFbo->mFboFrame, shadowFbo->mFboTexture.GetTextureID());
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -1305,10 +1333,21 @@ void GCanvasContext::DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float d
     SetDevicePixelRatio(dpr);
 
     Save();
+
     PrepareDrawElemetToFBO(*shadowFbo, -rect.leftTop.x, -rect.leftTop.y);
     draw();
-    Restore();
+    // SendVertexBufferToGPU();
+    // glFlush();
 
+    // delete data;
+    Restore();
+    int size = 4 * rect.Width() * dpr * rect.Height() * dpr;
+    unsigned char *data = new unsigned char[size];
+    glReadPixels(0, 0, rect.Width() * dpr, rect.Height() * dpr, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    for (int i = 100; i < 100 + 4; i++)
+    {
+        printf("the data in shadow fbo  is %d \n", *(data + i));
+    }
     SetDevicePixelRatio(origin_dpr);
     shadowFbo->UnbindFBO();
 }
@@ -1331,10 +1370,13 @@ void GCanvasContext::DoDrawShadowFBOToScreen(GFrameBufferObjectPtr &shadowFbo, c
     {
         DrawClip();
     }
-
+    // printf("mCurrentState->mShadowOffsetX %f  \n", mCurrentState->mShadowOffsetX);
+    // printf("mCurrentState->mShadowOffsetY %f  \n", mCurrentState->mShadowOffsetY);
+    // printf("CurrentState->mShadowColor %s \n", gcanvas::ColorToString(mCurrentState->mShadowColor).data());
     DrawFBOToScreen(*shadowFbo, rect.leftTop.x + mCurrentState->mShadowOffsetX,
                     rect.leftTop.y + mCurrentState->mShadowOffsetY,
                     rect.Width(), rect.Height(), mCurrentState->mShadowColor);
+    // printf("called Restore in DoDrawShadowFBOToScreen \n ");
     Restore();
 }
 
@@ -2223,7 +2265,6 @@ void GCanvasContext::FillRect(float x, float y, float w, float h)
 {
     ApplyFillStylePipeline();
     GColorRGBA color = BlendFillColor(this);
-
     if (NeedDrawShadow())
     {
         std::vector<GVertex> vec;

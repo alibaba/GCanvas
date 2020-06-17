@@ -118,10 +118,11 @@ public:
 
     void SetHasTexture(bool value)
     {
-
+        // printf("SetHasTexture called mHasTextureFlag value is %d  param value is %d \n",mHasTextureFlag,value);
         if (mHasTextureFlag != value)
         {
             mHasTextureFlag = value;
+            // printf("SetHasTexture the value is %d \n",value);
             glUniform1i(mHasTextureSlot, value);
 
         }

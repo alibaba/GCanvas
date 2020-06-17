@@ -20,5 +20,9 @@ void main()                         \n\
 {                                   \n\
     vec4 texColor = texture2D( u_texture, v_texCoord);    \n\
     float alpha = u_shadowColor.a * texColor.a;            \n\
-    gl_FragColor = vec4(u_shadowColor.rgb * texColor.a, alpha); \n\
+    if(texColor.a==0.0){         \n\
+           gl_FragColor= vec4(1.0, 0.0,0.0,1.0);                                     \n\ 
+    }else{                                                  \n\
+           gl_FragColor = vec4(1.0,0.0,1.0,1.0); \n\
+    }                  \n\
 }"
