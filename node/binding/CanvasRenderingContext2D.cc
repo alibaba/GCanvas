@@ -518,7 +518,6 @@ else if (info.Length() == 9)
 }
 if (mRenderContext)
 {
-    printf("the drawcanvas textureid is %d \n", textureId);
     mRenderContext->getCtx()->DrawImage(textureId,
                                         textureWidth,
                                         textureHeight, // image width & height

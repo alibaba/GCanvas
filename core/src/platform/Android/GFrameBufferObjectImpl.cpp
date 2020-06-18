@@ -97,7 +97,7 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color, bool e
     mFboTexture.SetFormat(GL_RGBA);
     mFboTexture.CreateTexture(nullptr,errVec);
     mFboTexture.Bind();
-    printf("init fbo called and useMsaa is %d \n",useMsaa);
+    // printf("init fbo called and useMsaa is %d \n",useMsaa);
     if (useMsaa)
     {
         glFramebufferTexture2DMultisampleEXTFunc(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mFboTexture.GetTextureID(), 0, samples);
@@ -152,10 +152,10 @@ bool GFrameBufferObject::InitFBO(int width, int height, GColorRGBA color, bool e
 
     if (depthFormat == GL_DEPTH24_STENCIL8_OES)
     {
-        printf("the init fbo depthFormat is GL_DEPTH24_STENCIL8_OES \n");
+        // printf("the init fbo depthFormat is GL_DEPTH24_STENCIL8_OES \n");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mFboStencil);
     }else{
-        printf("the init fbo depthFormat is not GL_DEPTH24_STENCIL8_OES \n"); 
+        // printf("the init fbo depthFormat is not GL_DEPTH24_STENCIL8_OES \n"); 
     }
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mFboStencil);
 

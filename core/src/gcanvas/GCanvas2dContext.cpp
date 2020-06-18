@@ -561,10 +561,9 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
     {
         if (mCurrentState->mShader)
         {
+            printf("the shader name is %s \n",mCurrentState->mShader->GetName().data());
             mCurrentState->mShader->SetTransform(mProjectTransform);
-            // printf("the shader name is %s \n",mCurrentState->mShader->GetName().data());
-            glActiveTexture(GL_TEXTURE0);
-            mCurrentState->mShader->SetTextSampler(0);
+
             if (mCurrentState->mTextureId != InvalidateTextureId)
             {
                 mCurrentState->mShader->SetHasTexture(true);
@@ -576,22 +575,12 @@ void GCanvasContext::SendVertexBufferToGPU(const GLenum geometry_type)
         }
         if (mCurrentState->mTextureId != InvalidateTextureId)
         {
+            printf("the glbindtexture is %d \n",mCurrentState->mTextureId);
             glBindTexture(GL_TEXTURE_2D, mCurrentState->mTextureId);
         }
         //draw call
         mDrawCallCount++;
         glDrawArrays(geometry_type, 0, mVertexBufferIndex);
-        // if (mCurrentState->mTextureId != InvalidateTextureId)
-        // {
-        //     int size = mWidth*mHeight;
-        //     unsigned char *data = new unsigned char[size];
-        //     glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        //     for (int i = 100; i < 100 + 4; i++)
-        //     {
-        //         printf("the data is %d \n", *(data + i));
-        //     }
-        //     printf("gl bind texture callled \n");
-        // }
     }
 
     mVertexBufferIndex = 0;
@@ -910,7 +899,11 @@ void GCanvasContext::PushRectangleFormat(float x, float y, float w, float h,
     GPoint t21 = PointMake(tx + tw, ty);
     GPoint t12 = PointMake(tx, ty + th);
     GPoint t22 = PointMake(tx + tw, ty + th);
-
+    printf("the  tx ty tw th is %f ,%f,%f,%f \n",tx,ty,tw,th);
+    printf("the t11 tx,ty %f,%f \n",t11.x,t11.y);
+    printf("the t21 tx,ty %f,%f \n",t21.x,t21.y);
+    printf("the t12 tx,ty %f,%f \n",t12.x,t12.y);
+    printf("the t22 tx,ty %f,%f \n",t22.x,t22.y);
     vb[0].pos = p11;
     vb[0].uv = t11;
     vb[1].pos = p21;
@@ -967,12 +960,15 @@ void GCanvasContext::PushRectangle4TextureArea(float x, float y, float w, float 
         GPointApplyGTransformInPlace(p12, transform);
         GPointApplyGTransformInPlace(p22, transform);
     }
-
+    printf("the  tx ty tw th is %f ,%f,%f,%f \n",tx,ty,tw,th);
     GPoint t11 = PointMake(tx, ty);
     GPoint t21 = PointMake(tx + tw, ty);
     GPoint t12 = PointMake(tx, ty + th);
     GPoint t22 = PointMake(tx + tw, ty + th);
-
+    printf("the t11 tx,ty %f,%f \n",t11.x,t11.y);
+    printf("the t21 tx,ty %f,%f \n",t21.x,t21.y);
+    printf("the t12 tx,ty %f,%f \n",t12.x,t12.y);
+    printf("the t22 tx,ty %f,%f \n",t22.x,t22.y);
     GVertex *vb = &CanvasVertexBuffer[mVertexBufferIndex];
     vb[0].pos = p11;
     vb[0].uv = t11;
@@ -1241,14 +1237,18 @@ void GCanvasContext::DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, 
 {
     SetTexture(fbo.mFboTexture.GetTextureID());
     printf("fbo.mFboTexture.GetTextureID() is %d \n", fbo.mFboTexture.GetTextureID());
-    printf("draw fbo to screen  the x y w h is %f, %f, %f, %f \n", x, y, w, h);
+    // printf("draw fbo to screen  the x y w h is %f, %f, %f, %f \n", x, y, w, h);
     // printf("the texture id %d \n", fbo.mFboTexture.GetTextureID());
+    // printf("fbo.ExpectedWidth() is %d \n",fbo.ExpectedWidth());
+    // printf("fbo.ExpectedHeight() is %d \n",fbo.ExpectedHeight());
+    // printf("fbo.Width() is %d \n",fbo.Width());
+    // printf("fbo.Height() is %d \n",fbo.Height());
     // printf("the width  %f \n", static_cast<float>(fbo.ExpectedWidth()) / fbo.Width());
     // printf("the height  %f \n", static_cast<float>(fbo.ExpectedHeight()) / fbo.Height());
     PushRectangle4TextureArea(x, y, w, h, 0, 0,
                               static_cast<float>(fbo.ExpectedWidth()) / fbo.Width(),
                               static_cast<float>(fbo.ExpectedHeight()) / fbo.Height(),
-                              color, GTransformIdentity, true);
+                              color, GTransformIdentity, false);
 }
 
 void GCanvasContext::DoDrawBlur(const GRectf &rect, float blur, std::function<void()> draw,
@@ -1322,10 +1322,11 @@ void GCanvasContext::DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float d
 {
     // draw to fbo
     // LOG_E("DoDrawShadowToFBO %f, %f", rect.Width() * dpr, rect.Height() * dpr);
+    // printf("the rect width() %f rect.Height() %f \n ", rect.Width(), rect.Height());
     shadowFbo = mFrameBufferPool.GetFrameBuffer(rect.Width() * dpr, rect.Height() * dpr);
     shadowFbo->BindFBO();
 
-    printf("the shadow fbo value is %d  texture value is %d \n", shadowFbo->mFboFrame, shadowFbo->mFboTexture.GetTextureID());
+    // printf("the shadow fbo value is %d  texture value is %d \n", shadowFbo->mFboFrame, shadowFbo->mFboTexture.GetTextureID());
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -1336,18 +1337,14 @@ void GCanvasContext::DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float d
 
     PrepareDrawElemetToFBO(*shadowFbo, -rect.leftTop.x, -rect.leftTop.y);
     draw();
-    // SendVertexBufferToGPU();
-    // glFlush();
-
-    // delete data;
     Restore();
-    int size = 4 * rect.Width() * dpr * rect.Height() * dpr;
-    unsigned char *data = new unsigned char[size];
-    glReadPixels(0, 0, rect.Width() * dpr, rect.Height() * dpr, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    for (int i = 100; i < 100 + 4; i++)
-    {
-        printf("the data in shadow fbo  is %d \n", *(data + i));
-    }
+    // int size = 4 * rect.Width() * dpr * rect.Height() * dpr;
+    // unsigned char *data = new unsigned char[size];
+    // glReadPixels(0, 0, rect.Width() * dpr, rect.Height() * dpr, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    // for (int i = 100; i < 100 + 4; i++)
+    // {
+    //     printf("the data in shadow fbo  is %d \n", *(data + i));
+    // }
     SetDevicePixelRatio(origin_dpr);
     shadowFbo->UnbindFBO();
 }
@@ -1370,13 +1367,15 @@ void GCanvasContext::DoDrawShadowFBOToScreen(GFrameBufferObjectPtr &shadowFbo, c
     {
         DrawClip();
     }
-    // printf("mCurrentState->mShadowOffsetX %f  \n", mCurrentState->mShadowOffsetX);
-    // printf("mCurrentState->mShadowOffsetY %f  \n", mCurrentState->mShadowOffsetY);
-    // printf("CurrentState->mShadowColor %s \n", gcanvas::ColorToString(mCurrentState->mShadowColor).data());
+    printf("drawImage  mock (shadowFbo->mFboTexture.GetTextureID()  %d\n",shadowFbo->mFboTexture.GetTextureID());
+    this->DrawImage(shadowFbo->mFboTexture.GetTextureID(), 200, 200, 0, 0, 200, 200, 100, 100, 200, 200);
+    this->SendVertexBufferToGPU();
+
+    UseShadowRenderPipeline();
     DrawFBOToScreen(*shadowFbo, rect.leftTop.x + mCurrentState->mShadowOffsetX,
                     rect.leftTop.y + mCurrentState->mShadowOffsetY,
                     rect.Width(), rect.Height(), mCurrentState->mShadowColor);
-    // printf("called Restore in DoDrawShadowFBOToScreen \n ");
+    printf("called Restore in DoDrawShadowFBOToScreen \n ");
     Restore();
 }
 
@@ -2573,6 +2572,7 @@ void GCanvasContext::DrawImage(int textureId, int textureWidth, int textureHeigh
                                float dx, float dy, float dw, float dh,
                                bool flipY)
 {
+    printf("drawimage called \n");
     if (textureId <= 0)
     {
         LOG_EXCEPTION(mHooks, mContextId, "texture invalid", "<function:%s> textureId=%i",
@@ -2585,24 +2585,24 @@ void GCanvasContext::DrawImage(int textureId, int textureWidth, int textureHeigh
     GColorRGBA color = BlendWhiteColor(this);
     SetTexture(textureId);
 
-    if (NeedDrawShadow())
-    {
-        std::vector<GVertex> vec;
-        PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
-                      sh / textureHeight, color, mCurrentState->mTransform, flipY, &vec);
+    // if (NeedDrawShadow())
+    // {
+    //     std::vector<GVertex> vec;
+    //     PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
+    //                   sh / textureHeight, color, mCurrentState->mTransform, flipY, &vec);
 
-        GRectf rect;
-        GPath::GetRectCoverVertex(rect, vec);
-        DrawShadow(rect, [&] {
-            PushVertexs(vec);
-        });
-        PushVertexs(vec);
-    }
-    else
-    {
-        PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
-                      sh / textureHeight, color, mCurrentState->mTransform, flipY);
-    }
+    //     GRectf rect;
+    //     GPath::GetRectCoverVertex(rect, vec);
+    //     DrawShadow(rect, [&] {
+    //         PushVertexs(vec);
+    //     });
+    //     PushVertexs(vec);
+    // }
+    // else
+    // {
+    PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
+                  sh / textureHeight, color, mCurrentState->mTransform, flipY);
+    // }
 }
 
 void GCanvasContext::DoDrawImage(float w, float h, int TextureId, float sx,

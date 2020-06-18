@@ -111,8 +111,10 @@ namespace NodeBinding
         // end of standard gl context setup
 
         // Step 9 - create framebuffer object
-        this->mFboIdSrc = this->createFBO(mCanvasWidth, mCanvasHeight, &this->mRenderBufferIdSrc, &this->mDepthRenderbufferIdSrc);
-        this->mFboIdDes = this->createFBO(mWidth, mHeight, &this->mRenderBufferIdDes, &this->mDepthRenderbufferIdDes);
+        // this->mFboIdSrc = this->createFBO(mCanvasWidth, mCanvasHeight, &this->mRenderBufferIdSrc, &this->mDepthRenderbufferIdSrc);
+        this->mFboIdSrc = this->createFBO(mCanvasWidth, mCanvasHeight, &this->mDepthRenderbufferIdSrc);
+        // this->mFboIdDes = this->createFBO(mWidth, mHeight, &this->mRenderBufferIdDes, &this->mDepthRenderbufferIdDes);
+        this->mFboIdDes = this->createFBO(mWidth, mHeight, &this->mDepthRenderbufferIdDes);
         glBindFramebuffer(GL_FRAMEBUFFER, this->mFboIdSrc);
 
         GLint format = 0, type = 0;
@@ -151,6 +153,42 @@ namespace NodeBinding
         else
         {
             printf("FBO Create success %p, FboId=%d, RenderbufferId=%d DepthbufferId=%d\n", this, fboId2Ret, *renderBufferId, *depthBufferId);
+        }
+        return fboId2Ret;
+    }
+
+    GLuint GRenderContext::createFBO(int fboWidth, int fboHeight, GLuint *depthBufferId)
+    {
+        GLuint fboId2Ret = 0;
+        glGenFramebuffers(1, &fboId2Ret);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboId2Ret);
+
+        GLuint textureId = 0;
+        glGenTextures(1, &textureId);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fboWidth, fboHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+
+        glGenRenderbuffers(1, depthBufferId);
+        glBindRenderbuffer(GL_RENDERBUFFER, *depthBufferId);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, fboWidth, fboHeight);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *depthBufferId);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, *depthBufferId);
+        // check FBO status
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE)
+        {
+            EGLint error = eglGetError();
+            printf("Problem with OpenGL framebuffer after specifying color render buffer:  %x  the glError is %x \n", status, error);
+            exit(-1);
+        }
+        else
+        {
+            printf("FBO Create success %p, FboId=%d, RenderbufferId=%d DepthbufferId=%d\n", this, fboId2Ret, textureId, *depthBufferId);
         }
         return fboId2Ret;
     }

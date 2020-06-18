@@ -67,10 +67,12 @@ private:
     GLuint mFboIdSrc = 0;
     GLuint mRenderBufferIdSrc = 0;
     GLuint mDepthRenderbufferIdSrc = 0;
+    // GLuint mRenderBufferTextureIdSrc=0;
     std::vector<int> textures;
     std::unordered_map<std::string,int> imageTextureMap;
     static void InitSharedContextIfNot();
     GLuint createFBO(int fboWidth,int fboHeigh,GLuint *renderBufferId,GLuint *depthBufferId);
+    GLuint createFBO(int fboWidth, int fboHeight, GLuint *depthBufferId);
     GLuint mFboIdDes=0;
     GLuint mRenderBufferIdDes=0;
     GLuint mDepthRenderbufferIdDes=0;

@@ -123,7 +123,7 @@ public:
     float GetCurrentAlphaOfStyle(bool isStroke = false);
 
     void SetTexture(int textureId);
-
+    bool flagHack=true;
     
     //----------------Push Vertex------------------------
     void PushTriangle(GPoint v1, GPoint v2, GPoint v3, GColorRGBA color,

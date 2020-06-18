@@ -171,7 +171,7 @@ void GFrameBufferObject::BindFBO() {
 
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mSaveFboFrame);
     glBindFramebuffer(GL_FRAMEBUFFER, mFboFrame);
-
+    
     if (!mFboTexture.IsValidate()) {
         mFboTexture.CreateTexture(nullptr);
         mFboTexture.Bind();

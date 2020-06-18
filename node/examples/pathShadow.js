@@ -8,7 +8,7 @@ ctx.fillStyle="#ffffff"
 ctx.fillRect(0,0,c.width,c.height)
 ctx.shadowOffsetX = 6;
 ctx.shadowOffsetY = 6;
-ctx.fillStyle="#ff0000"
+ctx.fillStyle="#ff00ff"
 ctx.shadowColor = "#00ff00";
 ctx.fillRect(0, 0, 200, 200);
 const out = fs.createWriteStream(path.join(__dirname, "..")+ '/pathShadow.png');

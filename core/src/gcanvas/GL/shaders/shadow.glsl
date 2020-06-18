@@ -16,13 +16,19 @@ precision mediump float;            \n\
 uniform vec4 u_shadowColor;         \n\
 varying vec2 v_texCoord;            \n\
 uniform sampler2D u_texture;        \n\
+uniform bool b_premultipliedAlpha;  \n\
 void main()                         \n\
 {                                   \n\
-    vec4 texColor = texture2D( u_texture, v_texCoord);    \n\
-    float alpha = u_shadowColor.a * texColor.a;            \n\
+    vec4 texColor ;                \n\
+    if(v_texCoord.x < 0.0 || v_texCoord.x > 1.0 ||  \n\
+    v_texCoord.y < 0.0 || v_texCoord.y > 1.0) {     \n\
+        texColor = vec4(0.0,0.0,0.0,1.0);           \n\
+    }else{                                          \n\
+        texColor = texture2D(u_texture, v_texCoord);\n\
+    }                                               \n\
     if(texColor.a==0.0){         \n\
-           gl_FragColor= vec4(1.0, 0.0,0.0,1.0);                                     \n\ 
+           gl_FragColor= vec4(1.0,0.0,0.0,1.0);                      \n\ 
     }else{                                                  \n\
-           gl_FragColor = vec4(1.0,0.0,1.0,1.0); \n\
+           gl_FragColor = vec4(0.0,1.0,0.0,1.0); \n\
     }                  \n\
 }"
