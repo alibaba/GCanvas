@@ -36,7 +36,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   NodeBinding::Canvas::Init(env, exports);
   NodeBinding::Image::Init(env, exports);
   NodeBinding::Context2D::Init(env);
-  NodeBinding::Context3D::Init(env);
+  NodeBinding::ContextWebGL::Init(env);
   NodeBinding::Gradient::Init(env);
   NodeBinding::ImageData::Init(env);
   NodeBinding::TextMetrics::Init(env);

@@ -40,6 +40,7 @@ public:
     void initRenderEnviroment();
     void render2file(std::string caseName,PIC_FORMAT format);
     void drawFrame();
+    void setType(std::string type);
     GCanvasContext *getCtx() { return mCanvas->GetGCanvasContext(); }
     int inline getWdith() { return this->mWidth; }
     int inline getHeight() { return this->mHeight; }
@@ -54,7 +55,7 @@ public:
     int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
-    void initCanvas();
+    void initCanvas2d();
     int mHeight;
     int mWidth;
     int mCanvasHeight;

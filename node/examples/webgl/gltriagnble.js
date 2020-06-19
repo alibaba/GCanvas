@@ -107,13 +107,13 @@ const path = require('path');
 //  /*=========Drawing the triangle===========*/
 
 //  // Clear the canvas
-//  gl.clearColor(0.5, 0.5, 0.5, 0.9);
+ gl.clearColor(0.5, 0.5, 0.5, 0.9);
 
 //  // Enable the depth test
-//  gl.enable(gl.DEPTH_TEST);
+ gl.enable(gl.DEPTH_TEST);
 
 //  // Clear the color buffer bit
-//  gl.clear(gl.COLOR_BUFFER_BIT);
+ gl.clear(gl.COLOR_BUFFER_BIT);
 
 //  // Set the view port
 //  gl.viewport(0,0,canvas.width,canvas.height);

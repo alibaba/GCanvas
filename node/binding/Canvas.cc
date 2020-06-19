@@ -87,6 +87,7 @@ namespace NodeBinding
                 Napi::Object obj = Context2D::NewInstance(env);
                 this->context2dRef = Napi::ObjectReference::New(obj);
                 Context2D *ctx = Napi::ObjectWrap<Context2D>::Unwrap(obj);
+                this->mRenderContext->setType(type);
                 ctx->setRenderContext(this->mRenderContext);
                 ctx->setCanvasRef(this);
                 return obj;
@@ -98,13 +99,15 @@ namespace NodeBinding
         }
         else if (type == "3d")
         {
-            Napi::Object obj = Context3D::NewInstance(env);
-            Context3D *ctx = Napi::ObjectWrap<Context3D>::Unwrap(obj);
-            return Napi::Object::New(env);
+            Napi::Object obj = ContextWebGL::NewInstance(env);
+            ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);
+            ctx->setRenderContext(this->mRenderContext);
+            this->mRenderContext->setType(type);
+            return obj;
         }
         else
         {
-            throwError(info, "only support 2d now");
+            throwError(info, "type is invalid \n");
             return Napi::Object::New(env);
         }
     }

@@ -114,14 +114,19 @@ namespace NodeBinding
         this->mFboIdSrc = this->createFBO(mCanvasWidth, mCanvasHeight, &this->mRenderBufferIdSrc, &this->mDepthRenderbufferIdSrc);
         this->mFboIdDes = this->createFBO(mWidth, mHeight, &this->mRenderBufferIdDes, &this->mDepthRenderbufferIdDes);
         glBindFramebuffer(GL_FRAMEBUFFER, this->mFboIdSrc);
-
-        GLint format = 0, type = 0;
-        glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
-        glGetIntegerv(GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-        this->initCanvas();
-        g_RenderContextVC.push_back(this);
     }
 
+    void GRenderContext::setType(std::string type)
+    {
+        if (type == "2d")
+        {
+            this->initCanvas2d();
+        }
+        else if (type == "3d")
+        {
+        }
+        g_RenderContextVC.push_back(this);
+    }
     GLuint GRenderContext::createFBO(int fboWidth, int fboHeight, GLuint *renderBufferId, GLuint *depthBufferId)
     {
         GLuint fboId2Ret = 0;
@@ -155,7 +160,6 @@ namespace NodeBinding
         return fboId2Ret;
     }
 
-
     void GRenderContext::makeCurrent()
     {
         if (mEglContext != EGL_NO_CONTEXT && mEglDisplay != EGL_NO_DISPLAY)
@@ -181,7 +185,7 @@ namespace NodeBinding
         }
     }
 
-    void GRenderContext::initCanvas()
+    void GRenderContext::initCanvas2d()
     {
         mCanvas->CreateContext();
         mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
