@@ -20,7 +20,7 @@ namespace NodeBinding
         checkArgs(info, 2);
         mWidth = info[0].As<Napi::Number>().Int32Value();
         mHeight = info[1].As<Napi::Number>().Int32Value();
-        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight,2.0);
+        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight, 2.0);
         mRenderContext->initRenderEnviroment();
     }
 
@@ -95,6 +95,12 @@ namespace NodeBinding
             {
                 return this->context2dRef.Value();
             }
+        }
+        else if (type == "3d")
+        {
+            Napi::Object obj = Context3D::NewInstance(env);
+            Context3D *ctx = Napi::ObjectWrap<Context3D>::Unwrap(obj);
+            return Napi::Object::New(env);
         }
         else
         {

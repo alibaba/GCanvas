@@ -10,6 +10,7 @@
 #define CANVAS_H
 #include "GRenderContext.h"
 #include "CanvasRenderingContext2D.h"
+#include "CanvasRenderingContext3D.h"
 #include "CanvasGradient.h"
 #include "ImageData.h"
 #include "CanvasPattern.h"

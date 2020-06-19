@@ -35,6 +35,7 @@ set(SOURCE_FILES
         ./binding/Export.cc
         ./binding/Canvas.cc
         ./binding/CanvasRenderingContext2D.cc
+        ./binding/CanvasRenderingContext3D.cc
         ./binding/CanvasGradient.cc
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc

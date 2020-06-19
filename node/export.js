@@ -6,7 +6,7 @@
  * For the full copyright and license information, please view
  * the LICENSE file in the root directory of this source tree.
  */
-const { createCanvas ,Image, createImage} = require('bindings')('canvas');
+const { createCanvas , createImage} = require('bindings')('canvas');
 const { PNGStream } = require("./stream/pngstream");
 const { JPGStream } = require('./stream/jpgstream')
 module.exports = {
@@ -27,8 +27,6 @@ function createCanvasInner(width, height) {
     })
     return canvas;    
 }
-
-
 
 
 
