@@ -20,8 +20,6 @@ namespace NodeBinding
     GRenderContext::GRenderContext(int width, int height)
         : mWidth(width), mHeight(height), mRatio(2.0), mEglDisplay(EGL_NO_DISPLAY)
     {
-        GCanvasConfig config = {true, false};
-        this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
         mCanvasWidth = width * mRatio;
         mCanvasHeight = height * mRatio;
     }
@@ -29,8 +27,6 @@ namespace NodeBinding
     GRenderContext::GRenderContext(int width, int height, int ratio)
         : mWidth(width), mHeight(height), mRatio(ratio), mEglDisplay(EGL_NO_DISPLAY)
     {
-        GCanvasConfig config = {true, true};
-        this->mCanvas = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
         mCanvasWidth = width * mRatio;
         mCanvasHeight = height * mRatio;
     }
@@ -124,8 +120,14 @@ namespace NodeBinding
         }
         else if (type == "3d")
         {
+            this->initCanvasWebGL();
         }
         g_RenderContextVC.push_back(this);
+    }
+
+    void GRenderContext::initCanvasWebGL()
+    {
+        this->mCanvasWebGL = std::make_shared<gcanvas::WebGL::GWebGLRenderContext>("node-gcanvas");
     }
     GLuint GRenderContext::createFBO(int fboWidth, int fboHeight, GLuint *renderBufferId, GLuint *depthBufferId)
     {
@@ -187,15 +189,20 @@ namespace NodeBinding
 
     void GRenderContext::initCanvas2d()
     {
-        mCanvas->CreateContext();
-        mCanvas->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
-        mCanvas->GetGCanvasContext()->ClearScreen();
-        mCanvas->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
-        mCanvas->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
+        GCanvasConfig config = {true, false};
+        this->mCanvas2d = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+        mCanvas2d->CreateContext();
+        mCanvas2d->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
+        mCanvas2d->GetGCanvasContext()->ClearScreen();
+        mCanvas2d->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
+        mCanvas2d->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
     }
     void GRenderContext::drawFrame()
     {
-        mCanvas->drawFrame();
+        if (mCanvas2d)
+        {
+            mCanvas2d->drawFrame();
+        }
         this->drawCount++;
     }
 

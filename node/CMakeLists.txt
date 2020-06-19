@@ -24,7 +24,7 @@ include_directories("./image/")
 
 include_directories("${CORE_DIR}")
 include_directories("${CORE_DIR}src/")
-include_directories("${CORE_DIR}src")
+include_directories("${CORE_DIR}src/webgl/")
 include_directories("${CORE_DIR}src/gcanvas")
 include_directories("${CORE_DIR}src/gcanvas/GL")
 include_directories("${CORE_DIR}src/support")
