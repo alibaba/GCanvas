@@ -266,6 +266,7 @@ void ShadowShader::calculateAttributesLocations()
 {
     mPositionSlot = glGetAttribLocation(mHandle, "a_position");
     mTexcoordSlot = glGetAttribLocation(mHandle, "a_texCoord");
+    mColorSlot = glGetAttribLocation(mHandle, "a_srcColor");
     mTransfromSlot = glGetUniformLocation(mHandle, "u_modelView");
     mTextureSamplerSlot = glGetUniformLocation(mHandle, "u_texture");
     mShadowColorSlot = glGetUniformLocation(mHandle, "u_shadowColor");

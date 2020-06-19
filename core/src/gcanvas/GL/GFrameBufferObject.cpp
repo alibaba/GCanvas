@@ -183,7 +183,6 @@ void GFrameBufferObject::BindFBO() {
     }
 }
 
-
 void GFrameBufferObject::GLClearScreen(GColorRGBA color) {
     glClearColor(color.rgba.r, color.rgba.g, color.rgba.b, color.rgba.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
