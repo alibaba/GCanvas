@@ -118,7 +118,7 @@ namespace NodeBinding
         {
             this->initCanvas2d();
         }
-        else if (type == "3d")
+        else if (type == "webgl")
         {
             this->initCanvasWebGL();
         }

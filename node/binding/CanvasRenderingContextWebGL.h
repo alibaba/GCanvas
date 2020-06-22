@@ -53,6 +53,7 @@ namespace NodeBinding
         void scissor(const Napi::CallbackInfo &info);
         static Napi::FunctionReference constructor;
         DEFINE_CONST_PROPERY_GET_FUNCTION(COLOR_BUFFER_BIT)
+        DEFINE_CONST_PROPERY_GET_FUNCTION( DEPTH_BUFFER_BIT)
         DEFINE_CONST_PROPERY_GET_FUNCTION(TRIANGLES)
         DEFINE_CONST_PROPERY_GET_FUNCTION(POINTS)
         DEFINE_CONST_PROPERY_GET_FUNCTION(LINE_STRIP)

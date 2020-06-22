@@ -97,7 +97,7 @@ namespace NodeBinding
                 return this->context2dRef.Value();
             }
         }
-        else if (type == "3d")
+        else if (type == "webgl")
         {
             Napi::Object obj = ContextWebGL::NewInstance(env);
             ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);

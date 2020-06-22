@@ -79,6 +79,7 @@ namespace NodeBinding
                          BINDING_CONST_PROPERY(STATIC_DRAW),
                          BINDING_CONST_PROPERY(ARRAY_BUFFER),
                          BINDING_CONST_PROPERY(COLOR_BUFFER_BIT),
+                         BINDING_CONST_PROPERY(DEPTH_BUFFER_BIT),
                          BINDING_CONST_PROPERY(VERTEX_SHADER),
                          BINDING_CONST_PROPERY(FRAGMENT_SHADER),
                          BINDING_CONST_PROPERY(DEPTH_TEST),

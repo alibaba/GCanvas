@@ -5,7 +5,7 @@ var width;
 var height;
 const { createCanvas, Image } = require('../../export')
 const canvas = createCanvas(400, 400);
-var gl = canvas.getContext("3d");
+var gl = canvas.getContext("webgl");
 
 width = canvas.width;
 height =canvas.height;
