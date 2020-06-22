@@ -15,6 +15,7 @@
 #include "TextMetrics.h"
 #include <time.h>
 
+//测量耗时的调试开关
 // #define DUMP_RUNNING_TIME 1
 
 #ifdef DUMP_RUNNING_TIME
@@ -30,7 +31,7 @@
 #define RECORD_TIME_END
 #endif
 
-#define DEFINE_VOID_METHOD_BEGIN(methodName)              \
+#define DEFINE_VOID_METHOD(methodName)              \
     \ 
      void                                                 \
     Context2D::methodName(const Napi::CallbackInfo &info) \
@@ -159,7 +160,7 @@ namespace NodeBinding
         obj.Set("name", Napi::String::New(env, "context2d"));
         return obj;
     }
-    DEFINE_VOID_METHOD_BEGIN(fillRect)
+    DEFINE_VOID_METHOD(fillRect)
     Napi::Env env = info.Env();
     NodeBinding::checkArgs(info, 4);
 
@@ -257,7 +258,7 @@ RECORD_TIME_END
 return Napi::String::New(env, "");
 }
 
-DEFINE_VOID_METHOD_BEGIN(clearRect)
+DEFINE_VOID_METHOD(clearRect)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -271,7 +272,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(arc)
+DEFINE_VOID_METHOD(arc)
 Napi::Env env = info.Env();
 if (info.Length() < 5)
 {
@@ -296,7 +297,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(arcTo)
+DEFINE_VOID_METHOD(arcTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 5);
@@ -312,7 +313,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(beginPath)
+DEFINE_VOID_METHOD(beginPath)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -323,7 +324,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(bezierCurveTo)
+DEFINE_VOID_METHOD(bezierCurveTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -340,7 +341,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(clip)
+DEFINE_VOID_METHOD(clip)
 Napi::Env env = info.Env();
 
 GFillRule rule = FILL_RULE_NONZERO;
@@ -368,7 +369,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(closePath)
+DEFINE_VOID_METHOD(closePath)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -410,7 +411,7 @@ NodeBinding::checkArgs(info, 6);
 return Gradient::NewInstance(env, info);
 }
 
-DEFINE_VOID_METHOD_BEGIN(drawImage)
+DEFINE_VOID_METHOD(drawImage)
 Napi::Env env = info.Env();
 if (info.Length() < 3 || (info.Length() != 3 && info.Length() != 5 && info.Length() != 9))
 {
@@ -533,7 +534,7 @@ if (mRenderContext)
 }
 }
 
-DEFINE_VOID_METHOD_BEGIN(fill)
+DEFINE_VOID_METHOD(fill)
 Napi::Env env = info.Env();
 
 GFillRule rule = FILL_RULE_NONZERO;
@@ -560,7 +561,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(fillText)
+DEFINE_VOID_METHOD(fillText)
 Napi::Env env = info.Env();
 
 if (info.Length() < 3)
@@ -629,7 +630,7 @@ RECORD_TIME_END
 return ret;
 }
 
-DEFINE_VOID_METHOD_BEGIN(lineTo)
+DEFINE_VOID_METHOD(lineTo)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 2);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -658,7 +659,7 @@ else
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(moveTo)
+DEFINE_VOID_METHOD(moveTo)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 2);
@@ -671,7 +672,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(putImageData)
+DEFINE_VOID_METHOD(putImageData)
 Napi::Env env = info.Env();
 if (info.Length() < 3)
 {
@@ -715,7 +716,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(quadraticCurveTo)
+DEFINE_VOID_METHOD(quadraticCurveTo)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float cpx = info[0].As<Napi::Number>().FloatValue();
@@ -729,7 +730,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(rect)
+DEFINE_VOID_METHOD(rect)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 4);
@@ -744,7 +745,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(resetTransform)
+DEFINE_VOID_METHOD(resetTransform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -755,7 +756,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(restore)
+DEFINE_VOID_METHOD(restore)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
@@ -765,7 +766,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(rotate)
+DEFINE_VOID_METHOD(rotate)
 Napi::Env env = info.Env();
 float angle = info[0].As<Napi::Number>().FloatValue();
 NodeBinding::checkArgs(info, 1);
@@ -776,7 +777,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(save)
+DEFINE_VOID_METHOD(save)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 0);
 if (mRenderContext)
@@ -786,7 +787,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(scale)
+DEFINE_VOID_METHOD(scale)
 Napi::Env env = info.Env();
 float x = info[0].As<Napi::Number>().FloatValue();
 float y = info[1].As<Napi::Number>().FloatValue();
@@ -798,7 +799,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(setLineDash)
+DEFINE_VOID_METHOD(setLineDash)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 1);
 Napi::Array array = info[0].As<Napi::Array>();
@@ -819,7 +820,7 @@ void Context2D::setCanvasRef(NodeBinding::Canvas *canvas)
 {
     this->mCanvas = canvas;
 }
-DEFINE_VOID_METHOD_BEGIN(setTransform)
+DEFINE_VOID_METHOD(setTransform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -837,7 +838,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(stroke)
+DEFINE_VOID_METHOD(stroke)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 0);
@@ -848,7 +849,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(strokeRect)
+DEFINE_VOID_METHOD(strokeRect)
 Napi::Env env = info.Env();
 NodeBinding::checkArgs(info, 4);
 float x = info[0].As<Napi::Number>().FloatValue();
@@ -862,7 +863,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(strokeText)
+DEFINE_VOID_METHOD(strokeText)
 Napi::Env env = info.Env();
 if (info.Length() < 3)
 {
@@ -887,7 +888,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(transform)
+DEFINE_VOID_METHOD(transform)
 Napi::Env env = info.Env();
 
 NodeBinding::checkArgs(info, 6);
@@ -905,7 +906,7 @@ if (mRenderContext)
 RECORD_TIME_END
 }
 
-DEFINE_VOID_METHOD_BEGIN(translate)
+DEFINE_VOID_METHOD(translate)
 Napi::Env env = info.Env();
 float tx = info[0].As<Napi::Number>().FloatValue();
 float ty = info[1].As<Napi::Number>().FloatValue();

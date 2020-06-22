@@ -127,7 +127,7 @@ namespace NodeBinding
 
     void GRenderContext::initCanvasWebGL()
     {
-        this->mCanvasWebGL = std::make_shared<gcanvas::WebGL::GWebGLRenderContext>("node-gcanvas");
+        // this->mCanvasWebGL = std::make_shared<gcanvas::WebGL::GWebGLRenderContext>("node-gcanvas");
     }
     GLuint GRenderContext::createFBO(int fboWidth, int fboHeight, GLuint *renderBufferId, GLuint *depthBufferId)
     {

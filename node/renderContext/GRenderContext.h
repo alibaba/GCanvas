@@ -44,7 +44,7 @@ namespace NodeBinding
         GCanvasContext *getCtx2d() { return mCanvas2d->GetGCanvasContext(); }
         std::shared_ptr<gcanvas::WebGL::GWebGLRenderContext> getCtxWebGL()
         {
-            return NULL;
+            return this->mCanvasWebGL;
         }
         int inline getWdith() { return this->mWidth; }
         int inline getHeight() { return this->mHeight; }

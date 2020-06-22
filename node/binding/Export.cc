@@ -11,6 +11,9 @@
 #include "Canvas.h"
 #include "Image.h"
 #include "TextMetrics.h"
+#include "./webGLRes/WebGLShader.h"
+#include "./webGLRes/WebGLBuffer.h"
+#include "./webGLRes/WebGLProgram.h"
 
 Napi::Object createCanvas(const Napi::CallbackInfo &info)
 {
@@ -41,6 +44,10 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   NodeBinding::ImageData::Init(env);
   NodeBinding::TextMetrics::Init(env);
   NodeBinding::Pattern::Init(env);
+  //webl reousce binding
+  NodeBinding::WebGLShader::Init(env);
+  NodeBinding::WebGLProgram::Init(env);
+  NodeBinding::WebGLBuffer ::Init(env);
   exports.Set(Napi::String::New(env, "createCanvas"),
               Napi::Function::New(env, createCanvas));
   exports.Set(Napi::String::New(env, "createImage"),

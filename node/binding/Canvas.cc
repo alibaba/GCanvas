@@ -102,6 +102,7 @@ namespace NodeBinding
             Napi::Object obj = ContextWebGL::NewInstance(env);
             ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);
             ctx->setRenderContext(this->mRenderContext);
+            
             this->mRenderContext->setType(type);
             return obj;
         }

@@ -42,6 +42,9 @@ set(SOURCE_FILES
         ./binding/Image.cc
         ./binding/ImageWorker.cc
         ./binding/CanvasPattern.cc
+        ./binding/webGLRes/WebGLShader.cc
+        ./binding/webGLRes/WebGLBuffer.cc
+        ./binding/webGLRes/WebGLProgram.cc
         ./renderContext/GRenderContext.cc
         ./third_party/lodepng.cc
         ./util/NodeBindingUtil.cc
