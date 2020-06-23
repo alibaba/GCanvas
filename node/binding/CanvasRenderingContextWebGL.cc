@@ -154,6 +154,7 @@ else
     WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[1].As<Napi::Object>());
     bufferId = buffer->getId();
 }
+printf("glBindBuffer id is %d \n", bufferId);
 glBindBuffer(type, bufferId);
 RECORD_TIME_END
 }
@@ -201,10 +202,11 @@ return obj;
 DEFINE_VOID_METHOD(shaderSource)
 NodeBinding::checkArgs(info, 2);
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 const char *shaderContent = shaderStr.c_str();
-glShaderSource(shader->getId(), 1, &shaderContent, nullptr);
+GLint shaderContentLen=shaderStr.size();
+GLuint shaderId = shader->getId();
+glShaderSource(shaderId, 1, &shaderContent, &shaderContentLen);
 RECORD_TIME_END
 }
 
@@ -219,6 +221,7 @@ NodeBinding::checkArgs(info, 2);
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
 glAttachShader(program->getId(), shader->getId());
+RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createProgram)
