@@ -16,7 +16,16 @@ function draw() {
     var indices = [0,1,2];
 
     var vertex_buffer = gl.createBuffer();
+    console.log(`gl.ARRAY_BUFFER  is ${gl.ARRAY_BUFFER}`)
+    console.log(`gl.STATIC_DRAW is ${gl.STATIC_DRAW}`)
+    console.log(`gl.ELEMENT_ARRAY_BUFFER is ${gl.ELEMENT_ARRAY_BUFFER}`)
+    console.log(` gl.VERTEX_SHADER ${gl.VERTEX_SHADER}`)
+    console.log(`gl.FRAGMENT_SHADER ${gl.FRAGMENT_SHADER}`)
+    console.log(`gl.COLOR_BUFFER_BIT is ${gl.COLOR_BUFFER_BIT}`)
+    console.log(`gl.DEPTH_BUFFER_BIT is ${gl.DEPTH_BUFFER_BIT}`)
+    console.log(`gl.UNSIGNED_SHORT is ${gl.UNSIGNED_SHORT}`)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
+
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -74,10 +83,9 @@ function draw() {
     gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
 
     gl.enableVertexAttribArray(coord);
-    console.log(`canvas width is ${canvas.width} height is ${canvas.height}`)
+
     gl.viewport(0,0, canvas.width, canvas.height);
     gl.clearColor(1, 0.5, 0.4, 0.9);
-    
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
@@ -86,7 +94,7 @@ function draw() {
 
 draw();
  
-var stream = canvas.createPNGStream();
+ var stream = canvas.createPNGStream();
 stream.on('data', function (chunk) {
     out.write(chunk);
 });

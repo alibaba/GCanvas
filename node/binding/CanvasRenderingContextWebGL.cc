@@ -37,10 +37,123 @@
         RECORD_TIME_BEGIN                                    \
         mRenderContext->makeCurrent();                       \
         // printf("the function : " #methodName " is  called \n");                         \
-            \  
+            \     \
 
+GLuint simpleTriangleProgram = 0;
+GLuint vPosition = 0;
+static const char glVertexShader[] =
+    "attribute vec4 vPosition;\n"
+    "void main()\n"
+    "{\n"
+    "  gl_Position = vPosition;\n"
+    "}\n";
+
+static const char glFragmentShader[] =
+    "void main()\n"
+    "{\n"
+    "  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+    "}\n";
+
+GLuint loadShader(GLenum shaderType, const char *shaderSource)
+{
+    GLuint shader = glCreateShader(shaderType);
+    if (shader)
+    {
+        glShaderSource(shader, 1, &shaderSource, NULL);
+        glCompileShader(shader);
+        GLint compiled = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+        if (!compiled)
+        {
+            GLint infoLen = 0;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+            if (infoLen)
+            {
+                char *buf = (char *)malloc(infoLen);
+                if (buf)
+                {
+                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
+                    free(buf);
+                }
+                glDeleteShader(shader);
+                shader = 0;
+            }
+        }
+    }
+    return shader;
+}
+
+GLuint createProgram(const char *vertexSource, const char *fragmentSource)
+{
+    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
+    if (!vertexShader)
+    {
+        return 0;
+    }
+    GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
+    if (!fragmentShader)
+    {
+        printf("fragment shader not compiled \n");
+        return 0;
+    }
+    GLuint program = glCreateProgram();
+    if (program)
+    {
+        glAttachShader(program, vertexShader);
+        glAttachShader(program, fragmentShader);
+        glLinkProgram(program);
+        GLint linkStatus = GL_FALSE;
+        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
+        if (linkStatus != GL_TRUE)
+        {
+            GLint bufLength = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
+            if (bufLength)
+            {
+                char *buf = (char *)malloc(bufLength);
+                if (buf)
+                {
+                    glGetProgramInfoLog(program, bufLength, NULL, buf);
+                    free(buf);
+                }
+            }
+            glDeleteProgram(program);
+            program = 0;
+        }
+    }
+    return program;
+}
+
+bool setupGraphics(int w, int h)
+{
+    simpleTriangleProgram = createProgram(glVertexShader, glFragmentShader);
+    if (!simpleTriangleProgram)
+    {
+        return false;
+    }
+    vPosition = glGetAttribLocation(simpleTriangleProgram, "vPosition");
+    glViewport(0, 0, w, h);
+    return true;
+}
+
+const GLfloat triangleVertices[] = {
+    0.0f, 1.0f,
+    -1.0f, -1.0f,
+    1.0f, -1.0f};
+void renderFrame()
+{
+    printf("render frame called  \n");
+    setupGraphics(800, 800);
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glUseProgram(simpleTriangleProgram);
+    glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, triangleVertices);
+    glEnableVertexAttribArray(vPosition);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+}
 namespace NodeBinding
 {
+
     Napi::FunctionReference ContextWebGL::constructor;
     void ContextWebGL::Init(Napi::Env env)
     {
@@ -71,6 +184,7 @@ namespace NodeBinding
                          BINDING_OBJECT_METHOD(enableVertexAttribArray),
 
                          BINDING_OBJECT_METHOD(drawElements),
+                         BINDING_OBJECT_METHOD(drawArrays),
                          BINDING_OBJECT_METHOD(flush),
                          BINDING_OBJECT_METHOD(finish),
                          BINDING_OBJECT_METHOD(clear),
@@ -93,12 +207,15 @@ namespace NodeBinding
                          BINDING_CONST_PROPERY(TRIANGLE_FAN),
                          BINDING_CONST_PROPERY(TRIANGLE_STRIP),
 
+                         BINDING_CONST_PROPERY(FALSE),
+                         BINDING_CONST_PROPERY(TRUE),
                          BINDING_CONST_PROPERY(UNSIGNED_SHORT),
                          BINDING_CONST_PROPERY(FLOAT)});
         constructor = Napi::Persistent(func);
     }
     ContextWebGL::ContextWebGL(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ContextWebGL>(info)
     {
+        // renderFrame();
     }
 
     Napi::Object ContextWebGL::NewInstance(Napi::Env env)
@@ -126,7 +243,7 @@ RECORD_TIME_END
 
 DEFINE_VOID_METHOD(enable)
 NodeBinding::checkArgs(info, 1);
-GLenum cap = info[0].As<Napi::Number>().Int32Value();
+GLenum cap = info[0].As<Napi::Number>().Uint32Value();
 glEnable(cap);
 RECORD_TIME_END
 }
@@ -143,9 +260,9 @@ return obj;
 
 DEFINE_VOID_METHOD(bindBuffer)
 NodeBinding::checkArgs(info, 2);
-GLenum type = info[0].As<Napi::Number>().Int32Value();
-GLuint bufferId = 0;
-if (info[1].IsNull())
+GLenum type = info[0].As<Napi::Number>().Uint32Value();
+GLuint bufferId;
+if (info[1].IsNull() || info[1].IsUndefined())
 {
     bufferId = 0;
 }
@@ -154,7 +271,6 @@ else
     WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[1].As<Napi::Object>());
     bufferId = buffer->getId();
 }
-printf("glBindBuffer id is %d \n", bufferId);
 glBindBuffer(type, bufferId);
 RECORD_TIME_END
 }
@@ -167,12 +283,18 @@ RECORD_TIME_END
  **/
 DEFINE_VOID_METHOD(bufferData)
 NodeBinding::checkArgs(info, 3);
-GLenum target = info[0].As<Napi::Number>().Int32Value();
-GLenum usage = info[2].As<Napi::Number>().Int32Value();
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum usage = info[2].As<Napi::Number>().Uint32Value();
 if (info[1].IsTypedArray())
 {
     Napi::TypedArray array = info[1].As<Napi::TypedArray>();
     Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+    // printf("the index[1] is %d \n",buffer[1]);
+    // for (int i = 0; i < buffer.ByteLength(); i++)
+    // {
+    //     printf("the index[ %d] is %d \n", i, buffer[i]);
+    // }
+    // printf("the array bytelength is %d \n", array.ByteLength());
     glBufferData(target, array.ByteLength(), buffer, usage);
 }
 else if (info[1].IsArrayBuffer())
@@ -184,7 +306,7 @@ else if (info[1].IsArrayBuffer())
 else if (info[1].IsNumber())
 {
     GLuint size = info[1].As<Napi::Number>().Int32Value();
-    // glBufferData(target, size, usage);
+    glBufferData(target, size, NULL, usage);
 }
 RECORD_TIME_END
 }
@@ -192,7 +314,7 @@ RECORD_TIME_END
 DEFINE_RETURN_VALUE_METHOD(createShader)
 NodeBinding::checkArgs(info, 1);
 Napi::Env env = info.Env();
-GLuint shaderType = info[0].As<Napi::Number>().Int32Value();
+GLenum shaderType = info[0].As<Napi::Number>().Uint32Value();
 GLuint shaderId = glCreateShader(shaderType);
 Napi::Object obj = WebGLShader::NewInstance(info.Env(), Napi::Number::New(env, shaderId));
 RECORD_TIME_END
@@ -204,15 +326,18 @@ NodeBinding::checkArgs(info, 2);
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 const char *shaderContent = shaderStr.c_str();
-GLint shaderContentLen=shaderStr.size();
+GLint shaderContentLen = shaderStr.size();
 GLuint shaderId = shader->getId();
-glShaderSource(shaderId, 1, &shaderContent, &shaderContentLen);
+glShaderSource(shader->getId(),1,&shaderContent,&shaderContentLen);
+// glShaderSource(shaderId, 1, &shaderContent, NULL);
+
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(compileShader)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 glCompileShader(shader->getId());
+GLint compiled = 0;
 RECORD_TIME_END
 }
 
@@ -249,8 +374,8 @@ DEFINE_RETURN_VALUE_METHOD(getAttribLocation)
 NodeBinding::checkArgs(info, 2);
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 const char *name = info[1].As<Napi::String>().Utf8Value().data();
-GLuint handle = glGetAttribLocation(program->getId(), name);
-return Napi::Number::New(info.Env(), handle);
+GLuint pos = glGetAttribLocation(program->getId(), name);
+return Napi::Number::New(info.Env(), pos);
 }
 
 DEFINE_VOID_METHOD(viewport)
@@ -259,17 +384,17 @@ GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
 GLsizei height = info[3].As<Napi::Number>().Int32Value();
-// printf("the x y width height is %d %d %d %d \n",x,y,width,height);
-glViewport(x, y, width, height);
+printf("the x y width height is %d %d %d %d \n", x * 2, y * 2, width * 2, height * 2);
+glViewport(x * 2, y * 2, width * 2, height * 2);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(drawElements)
 NodeBinding::checkArgs(info, 4);
-GLenum mode = info[0].As<Napi::Number>().Int32Value();
+GLenum mode = info[0].As<Napi::Number>().Uint32Value();
 GLsizei count = info[1].As<Napi::Number>().Int32Value();
-GLenum type = info[2].As<Napi::Number>().Int32Value();
-GLuint offset = info[3].As<Napi::Number>().Int32Value();
-glDrawElements(mode, count, type, (char *)(NULL + offset));
+GLenum type = info[2].As<Napi::Number>().Uint32Value();
+GLuint offset = info[3].As<Napi::Number>().Uint32Value();
+glDrawElements(mode, count, type, (GLvoid *)(intptr_t)offset);
 RECORD_TIME_END
 }
 
@@ -287,12 +412,13 @@ DEFINE_VOID_METHOD(vertexAttribPointer)
 NodeBinding::checkArgs(info, 6);
 GLuint handle = info[0].As<Napi::Number>().Int32Value();
 GLint size = info[1].As<Napi::Number>().Int32Value();
-GLenum type = info[2].As<Napi::Number>().Int32Value();
+GLenum type = info[2].As<Napi::Number>().Uint32Value();
 GLboolean isNormalized = info[3].As<Napi::Boolean>().Value();
 GLuint stride = info[4].As<Napi::Number>().Int32Value();
 GLuint offset = info[5].As<Napi::Number>().Int32Value();
 printf("vertexAttribPointer is %d ,%d ,%d ,%d ,%d ,%d  \n", handle, size, type, isNormalized, stride, offset);
-glVertexAttribPointer(handle, size, type, isNormalized, stride, (char *)(NULL + offset));
+
+glVertexAttribPointer(handle, size, type, isNormalized, stride, (GLvoid *)(intptr_t)offset);
 RECORD_TIME_END
 }
 
@@ -309,7 +435,16 @@ GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
 GLsizei height = info[3].As<Napi::Number>().Int32Value();
-glScissor(x, y, width, height);
+glScissor(x * 2, y & 2, width * 2, height * 2);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(drawArrays)
+NodeBinding::checkArgs(info, 3);
+GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+GLint first = info[1].As<Napi::Number>().Int32Value();
+GLint count = info[2].As<Napi::Number>().Int32Value();
+glDrawArrays(mode, first, count);
 RECORD_TIME_END
 }
 

@@ -28,7 +28,7 @@ function drawAnimation() {
 //  stats.begin();
 
   gl.scissor(0, 0, width, height);
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.0, 1.0, 0.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.scissor(position[0], position[1], size[0], size[1]);
@@ -61,4 +61,4 @@ function drawAnimation() {
 gl.enable(gl.SCISSOR_TEST);
 position = [0, height];
 drawAnimation();
-canvas.createPNG("glsissor")
+canvas.createPNG("sissor")

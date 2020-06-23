@@ -46,6 +46,7 @@ namespace NodeBinding
         Napi::Value getAttribLocation(const Napi::CallbackInfo &info);
         void viewport(const Napi::CallbackInfo &info);
         void drawElements(const Napi::CallbackInfo &info);
+        void drawArrays(const Napi::CallbackInfo &info);
         void flush(const Napi::CallbackInfo &info);
         void finish(const Napi::CallbackInfo &info);
         void vertexAttribPointer(const Napi::CallbackInfo &info);
@@ -73,6 +74,9 @@ namespace NodeBinding
         DEFINE_CONST_PROPERY_GET_FUNCTION(FRAGMENT_SHADER)
         DEFINE_CONST_PROPERY_GET_FUNCTION(UNSIGNED_SHORT)
         DEFINE_CONST_PROPERY_GET_FUNCTION(FLOAT)
+
+        DEFINE_CONST_PROPERY_GET_FUNCTION(FALSE)
+        DEFINE_CONST_PROPERY_GET_FUNCTION(TRUE)
 
         std::shared_ptr<GRenderContext> mRenderContext = nullptr;
     };
