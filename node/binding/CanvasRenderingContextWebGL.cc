@@ -291,7 +291,6 @@ else
     bufferId = buffer->getId();
 }
 // printf("bindBuffer  id is %d \n", bufferId);
-
 glBindBuffer(type, bufferId);
 RECORD_TIME_END
 }
@@ -306,6 +305,7 @@ DEFINE_VOID_METHOD(bufferData)
 NodeBinding::checkArgs(info, 3);
 GLenum target = info[0].As<Napi::Number>().Uint32Value();
 GLenum usage = info[2].As<Napi::Number>().Uint32Value();
+printf("buffer data \n");
 if (info[1].IsTypedArray())
 {
     Napi::TypedArray array = info[1].As<Napi::TypedArray>();
@@ -365,7 +365,6 @@ std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 const char *shaderContent = shaderStr.c_str();
 GLint shaderContentLen = shaderStr.size();
 GLuint shaderId = shader->getId();
-// printf("the shaderContent is %s \n", shaderContent);
 glShaderSource(shader->getId(), 1, &shaderContent, &shaderContentLen);
 RECORD_TIME_END
 }
@@ -420,9 +419,8 @@ GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
 GLsizei height = info[3].As<Napi::Number>().Int32Value();
-printf("the x y width height is %d %d %d %d \n", x * 2, y * 2, width * 2, height * 2);
-glViewport(0, 0, 800, 800);
-// glViewport(x * 2, y * 2, width * 2, height * 2);
+int  dpi=mRenderContext->getDpi();
+glViewport(x * dpi, y * dpi, width * dpi, height * dpi);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(drawElements)
@@ -453,7 +451,7 @@ GLenum type = info[2].As<Napi::Number>().Uint32Value();
 GLboolean isNormalized = info[3].As<Napi::Boolean>().Value();
 GLuint stride = info[4].As<Napi::Number>().Int32Value();
 GLuint offset = info[5].As<Napi::Number>().Int32Value();
-printf("vertexAttribPointer is %d ,%d ,%d ,%d ,%d ,%d  \n", index, size, type, isNormalized, stride, offset);
+// printf("vertexAttribPointer is %d ,%d ,%d ,%d ,%d ,%d  \n", index, size, type, isNormalized, stride, offset);
 
 glVertexAttribPointer(index, size, type, isNormalized, stride, (GLvoid *)(intptr_t)offset);
 RECORD_TIME_END
@@ -471,8 +469,9 @@ NodeBinding::checkArgs(info, 4);
 GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();
-glScissor(x * 2, y * 2, width * 2, height * 2);
+GLsizei height = info[3].As<Napi::Number>().Int32Value();\
+int dpi=mRenderContext->getDpi();
+glScissor(x * dpi, y * dpi, width * dpi, height * dpi);
 RECORD_TIME_END
 }
 
@@ -481,9 +480,7 @@ NodeBinding::checkArgs(info, 3);
 GLenum mode = info[0].As<Napi::Number>().Uint32Value();
 GLint first = info[1].As<Napi::Number>().Int32Value();
 GLint count = info[2].As<Napi::Number>().Int32Value();
-// glDrawArrays(mode, first, count);
-glDrawArrays(GL_TRIANGLES, 0, 3);
-
+glDrawArrays(mode, first, count);
 RECORD_TIME_END
 }
 

@@ -57,6 +57,7 @@ namespace NodeBinding
         int getImagePixelPNG(std::vector<unsigned char> &in);
         int getImagePixelJPG(unsigned char **data, unsigned long &size);
         int readPixelAndSampleFromCurrentCtx(unsigned char *data);
+        int getDpi();
     private:
         std::shared_ptr<gcanvas::GCanvas> mCanvas2d;
         std::shared_ptr<gcanvas::WebGL::GWebGLRenderContext> mCanvasWebGL;
@@ -65,7 +66,7 @@ namespace NodeBinding
         int mWidth;
         int mCanvasHeight;
         int mCanvasWidth;
-        int mRatio;
+        int mDpi;
         int drawCount = 0;
         EGLDisplay mEglDisplay;
         EGLSurface mEglSurface;

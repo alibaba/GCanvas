@@ -17,8 +17,7 @@ function draw() {
         }
 
 
-        let vertices = new Float32Array([ 0.0, 1.0,-1.0, -1.0,1.0, -1.0]);
-        // let vertices = new Int32Array([1,2,3]);
+        let vertices = new Float32Array([0.0, 0.5, -0.5, -0.5, 0.5, -0.5]);
         let n = 3;
         let vertexBuffer = gl.createBuffer();
         if (!vertexBuffer) {
@@ -28,6 +27,7 @@ function draw() {
         gl.clearColor(0.0, 0.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        console.log("called bufer data");
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         
         let a_Position = gl.getAttribLocation(gl.program, 'a_Position');

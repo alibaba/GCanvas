@@ -18,17 +18,17 @@ namespace NodeBinding
     static EGLDisplay g_eglDisplay = EGL_NO_DISPLAY;
 
     GRenderContext::GRenderContext(int width, int height)
-        : mWidth(width), mHeight(height), mRatio(2.0), mEglDisplay(EGL_NO_DISPLAY)
+        : mWidth(width), mHeight(height), mDpi(2), mEglDisplay(EGL_NO_DISPLAY)
     {
-        mCanvasWidth = width * mRatio;
-        mCanvasHeight = height * mRatio;
+        mCanvasWidth = width * mDpi;
+        mCanvasHeight = height * mDpi;
     }
 
     GRenderContext::GRenderContext(int width, int height, int ratio)
-        : mWidth(width), mHeight(height), mRatio(ratio), mEglDisplay(EGL_NO_DISPLAY)
+        : mWidth(width), mHeight(height), mDpi(ratio), mEglDisplay(EGL_NO_DISPLAY)
     {
-        mCanvasWidth = width * mRatio;
-        mCanvasHeight = height * mRatio;
+        mCanvasWidth = width * mDpi;
+        mCanvasHeight = height * mDpi;
     }
 
     void GRenderContext::initRenderEnviroment()
@@ -194,7 +194,7 @@ namespace NodeBinding
         mCanvas2d->CreateContext();
         mCanvas2d->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
         mCanvas2d->GetGCanvasContext()->ClearScreen();
-        mCanvas2d->GetGCanvasContext()->SetDevicePixelRatio(mRatio);
+        mCanvas2d->GetGCanvasContext()->SetDevicePixelRatio(mDpi);
         mCanvas2d->OnSurfaceChanged(0, 0, mCanvasWidth, mCanvasHeight);
     }
     void GRenderContext::drawFrame()
@@ -264,6 +264,10 @@ namespace NodeBinding
         glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
         return 0;
     }
+
+     int GRenderContext::getDpi(){
+         return this->mDpi;
+     }
     void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
