@@ -20,7 +20,7 @@ namespace NodeBinding
         checkArgs(info, 2);
         mWidth = info[0].As<Napi::Number>().Int32Value();
         mHeight = info[1].As<Napi::Number>().Int32Value();
-        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight, 2.0);
+        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight, 1.0);
         mRenderContext->initRenderEnviroment();
     }
 

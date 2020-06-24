@@ -57,7 +57,6 @@ namespace NodeBinding
         int getImagePixelPNG(std::vector<unsigned char> &in);
         int getImagePixelJPG(unsigned char **data, unsigned long &size);
         int readPixelAndSampleFromCurrentCtx(unsigned char *data);
-        void renderFrame();
     private:
         std::shared_ptr<gcanvas::GCanvas> mCanvas2d;
         std::shared_ptr<gcanvas::WebGL::GWebGLRenderContext> mCanvasWebGL;

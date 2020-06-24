@@ -10,7 +10,7 @@ namespace NodeBinding
         WebGLProgram(const Napi::CallbackInfo &info);
         static void Init(Napi::Env env);
         static Napi::Object NewInstance(Napi::Env env, const Napi::Value arg);
-        GLuint getId() const
+        inline GLuint getId() const
         {
             return this->mId;
         }

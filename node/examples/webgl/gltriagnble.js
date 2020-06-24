@@ -8,22 +8,14 @@ const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triagnleWebG
 function draw() {
 
     var vertices = [
-        -0.5,0.5,0.0,
-        -0.5,-0.5,0.0,
-        0.5,-0.5,0.0,
+        -1.0,-1.0,0.0,
+        -1.0,1.0,0.0,
+        1.0,1.0,0.0,
     ];
 
     var indices = [0,1,2];
 
     var vertex_buffer = gl.createBuffer();
-    console.log(`gl.ARRAY_BUFFER  is ${gl.ARRAY_BUFFER}`)
-    console.log(`gl.STATIC_DRAW is ${gl.STATIC_DRAW}`)
-    console.log(`gl.ELEMENT_ARRAY_BUFFER is ${gl.ELEMENT_ARRAY_BUFFER}`)
-    console.log(` gl.VERTEX_SHADER ${gl.VERTEX_SHADER}`)
-    console.log(`gl.FRAGMENT_SHADER ${gl.FRAGMENT_SHADER}`)
-    console.log(`gl.COLOR_BUFFER_BIT is ${gl.COLOR_BUFFER_BIT}`)
-    console.log(`gl.DEPTH_BUFFER_BIT is ${gl.DEPTH_BUFFER_BIT}`)
-    console.log(`gl.UNSIGNED_SHORT is ${gl.UNSIGNED_SHORT}`)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -40,12 +32,11 @@ function draw() {
 
 
     var vertCode =
-    'attribute vec3 coordinates;' +
-
-    'void main(void) {' +
-       ' gl_Position = vec4(coordinates, 1.0);' +
-    '}';
-
+    "attribute vec4 vPosition;\n"+
+    "void main()\n"+
+    "{\n"+
+    "  gl_Position = vPosition;\n"+
+    "}\n";
     var vertShader = gl.createShader(gl.VERTEX_SHADER);
 
     gl.shaderSource(vertShader, vertCode);
@@ -53,10 +44,10 @@ function draw() {
 
     gl.compileShader(vertShader);
 
-    var fragCode =
-    'void main(void) {' +
-       ' gl_FragColor = vec4(0.0, 1.0, 1.0, 0.6);' +
-    '}';
+    var fragCode ="void main()\n"+
+    "{\n"+
+    "  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
+    "}\n";
 
     var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragShader, fragCode);
@@ -75,17 +66,14 @@ function draw() {
 
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, Index_Buffer);
 
-    var coord = gl.getAttribLocation(shaderProgram, "coordinates");
-
+    var coord = gl.getAttribLocation(shaderProgram, "vPosition");
     gl.vertexAttribPointer(coord, 3, gl.FLOAT, false, 0, 0);
-
     gl.enableVertexAttribArray(coord);
-
+    gl.enable(gl.DEPTH_TEST);
     gl.viewport(0,0, canvas.width, canvas.height);
-    gl.clearColor(1, 0.5, 0.4, 0.9);
+    gl.clearColor(1, 0.5, 0.4, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);

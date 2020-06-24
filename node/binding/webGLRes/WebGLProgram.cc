@@ -13,7 +13,7 @@ namespace NodeBinding
 Napi::FunctionReference WebGLProgram::constructor;
 WebGLProgram::WebGLProgram(const Napi::CallbackInfo &info) : Napi::ObjectWrap<WebGLProgram>(info)
 {
-    this->mId = info[0].As<Napi::Number>().Int32Value();
+    this->mId = info[0].As<Napi::Number>().Uint32Value();
 }
 
 void WebGLProgram::Init(Napi::Env env)

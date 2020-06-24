@@ -9,11 +9,14 @@
         return Napi::Number::New(info.Env(), GL_##propertyName);  \
     }
 
+#define CHECK_PARAM_LEGNTH(length) \
+NodeBinding::checkArgs(info,length); \
+
 #define BINDING_CONST_PROPERY(propertyName) \
-    InstanceAccessor(#propertyName, &ContextWebGL::get##propertyName, nullptr)
+    InstanceAccessor(#propertyName, &ContextWebGL::get##propertyName, nullptr) \
 
 #define BINDING_OBJECT_METHOD(methodName) \
-    InstanceMethod(#methodName, &ContextWebGL::methodName)
+    InstanceMethod(#methodName, &ContextWebGL::methodName) \
 
 namespace NodeBinding
 {
@@ -52,6 +55,15 @@ namespace NodeBinding
         void vertexAttribPointer(const Napi::CallbackInfo &info);
         void enableVertexAttribArray(const Napi::CallbackInfo &info);
         void scissor(const Napi::CallbackInfo &info);
+        Napi::Value getShaderParameter(const Napi::CallbackInfo &info);
+        Napi::Value getShaderInfoLog(const Napi::CallbackInfo &info);
+        void deleteShader(const Napi::CallbackInfo &info);
+        Napi::Value getProgramParameter(const Napi::CallbackInfo &info);
+        void deleteProgram(const Napi::CallbackInfo &info);
+        Napi::Value getUniformLocation(const Napi::CallbackInfo &info);
+        void uniform4f(const Napi::CallbackInfo &info);
+        void colorMask(const Napi::CallbackInfo &info);
+        Napi::Value getShaderSource(const Napi::CallbackInfo &info);
         static Napi::FunctionReference constructor;
         DEFINE_CONST_PROPERY_GET_FUNCTION(COLOR_BUFFER_BIT)
         DEFINE_CONST_PROPERY_GET_FUNCTION( DEPTH_BUFFER_BIT)
@@ -65,8 +77,8 @@ namespace NodeBinding
         
         DEFINE_CONST_PROPERY_GET_FUNCTION(DEPTH_TEST)
         DEFINE_CONST_PROPERY_GET_FUNCTION(SCISSOR_TEST)
-         DEFINE_CONST_PROPERY_GET_FUNCTION(STENCIL_TEST)
-
+        DEFINE_CONST_PROPERY_GET_FUNCTION(STENCIL_TEST)
+        DEFINE_CONST_PROPERY_GET_FUNCTION(COMPILE_STATUS)
         DEFINE_CONST_PROPERY_GET_FUNCTION(ARRAY_BUFFER)
         DEFINE_CONST_PROPERY_GET_FUNCTION(STATIC_DRAW)
         DEFINE_CONST_PROPERY_GET_FUNCTION(ELEMENT_ARRAY_BUFFER)
@@ -77,6 +89,7 @@ namespace NodeBinding
 
         DEFINE_CONST_PROPERY_GET_FUNCTION(FALSE)
         DEFINE_CONST_PROPERY_GET_FUNCTION(TRUE)
+        DEFINE_CONST_PROPERY_GET_FUNCTION(LINK_STATUS)
 
         std::shared_ptr<GRenderContext> mRenderContext = nullptr;
     };
