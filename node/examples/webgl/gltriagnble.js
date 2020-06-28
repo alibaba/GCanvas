@@ -46,7 +46,7 @@ function draw() {
 
     var fragCode ="void main()\n"+
     "{\n"+
-    "  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
+    "  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"+
     "}\n";
 
     var fragShader = gl.createShader(gl.FRAGMENT_SHADER);

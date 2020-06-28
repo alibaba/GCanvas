@@ -40,124 +40,6 @@
         // GLenum error = glGetError();                            \
         // printf("the error is %d \n", error);     \
 
-GLuint simpleTriangleProgram = 0;
-GLuint vPosition = 0;
-static const char glVertexShader[] =
-    "attribute vec4 vPosition;\n"
-    "void main()\n"
-    "{\n"
-    "  gl_Position = vPosition;\n"
-    "}\n";
-
-static const char glFragmentShader[] =
-    "void main()\n"
-    "{\n"
-    "  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
-    "}\n";
-
-GLuint loadShader(GLenum shaderType, const char *shaderSource)
-{
-    GLuint shader = glCreateShader(shaderType);
-    if (shader)
-    {
-        glShaderSource(shader, 1, &shaderSource, NULL);
-        glCompileShader(shader);
-        GLint compiled = 0;
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-        if (!compiled)
-        {
-            GLint infoLen = 0;
-            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-            if (infoLen)
-            {
-                char *buf = (char *)malloc(infoLen);
-                if (buf)
-                {
-                    glGetShaderInfoLog(shader, infoLen, NULL, buf);
-                    free(buf);
-                }
-                glDeleteShader(shader);
-                shader = 0;
-            }
-        }
-    }
-    return shader;
-}
-
-GLuint createProgram(const char *vertexSource, const char *fragmentSource)
-{
-    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
-    if (!vertexShader)
-    {
-        return 0;
-    }
-    GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
-    if (!fragmentShader)
-    {
-        return 0;
-    }
-    GLuint program = glCreateProgram();
-    if (program)
-    {
-        glAttachShader(program, vertexShader);
-        glAttachShader(program, fragmentShader);
-        glLinkProgram(program);
-        GLint linkStatus = GL_FALSE;
-        glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
-        if (linkStatus != GL_TRUE)
-        {
-            GLint bufLength = 0;
-            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-            if (bufLength)
-            {
-                char *buf = (char *)malloc(bufLength);
-                if (buf)
-                {
-                    glGetProgramInfoLog(program, bufLength, NULL, buf);
-                    free(buf);
-                }
-            }
-            glDeleteProgram(program);
-            program = 0;
-        }
-    }
-    return program;
-}
-
-bool setupGraphics(int w, int h)
-{
-    simpleTriangleProgram = createProgram(glVertexShader, glFragmentShader);
-    if (!simpleTriangleProgram)
-    {
-        return false;
-    }
-    vPosition = glGetAttribLocation(simpleTriangleProgram, "vPosition");
-    glViewport(0, 0, w, h);
-    return true;
-}
-
-const GLfloat triangleVertices[] = {
-    0.0f, 1.0f,
-    -1.0f, -1.0f,
-    1.0f, -1.0f};
-void renderFrame()
-{
-    printf("render frame called  \n");
-    setupGraphics(800, 800);
-    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glUseProgram(simpleTriangleProgram);
-    GLuint vertexBuffer = -1;
-    glGenBuffers(1, &vertexBuffer);
-    printf("the vertexBuffer is %d \n", vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 6, triangleVertices, GL_STATIC_DRAW);
-    GLint a_Position = glGetAttribLocation(simpleTriangleProgram, "vPosition");
-    printf("the a_Position value is %d \n", a_Position);
-    glVertexAttribPointer(a_Position, 2, GL_FLOAT, false, 0, 0);
-    glEnableVertexAttribArray(a_Position);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-}
 namespace NodeBinding
 {
 
@@ -204,7 +86,39 @@ namespace NodeBinding
                          BINDING_OBJECT_METHOD(deleteProgram),
                          BINDING_OBJECT_METHOD(getUniformLocation),
 
+                         BINDING_OBJECT_METHOD(uniform1f),
+                         BINDING_OBJECT_METHOD(uniform2f),
+                         BINDING_OBJECT_METHOD(uniform3f),
                          BINDING_OBJECT_METHOD(uniform4f),
+
+                         BINDING_OBJECT_METHOD(uniform1i),
+                         BINDING_OBJECT_METHOD(uniform2i),
+                         BINDING_OBJECT_METHOD(uniform3i),
+                         BINDING_OBJECT_METHOD(uniform4i),
+
+                         BINDING_OBJECT_METHOD(uniform1fv),
+                         BINDING_OBJECT_METHOD(uniform2fv),
+                         BINDING_OBJECT_METHOD(uniform3fv),
+                         BINDING_OBJECT_METHOD(uniform4fv),
+
+                         BINDING_OBJECT_METHOD(uniform1iv),
+                         BINDING_OBJECT_METHOD(uniform2iv),
+                         BINDING_OBJECT_METHOD(uniform3iv),
+                         BINDING_OBJECT_METHOD(uniform4iv),
+
+                         BINDING_OBJECT_METHOD(uniformMatrix2fv),
+                         BINDING_OBJECT_METHOD(uniformMatrix3fv),
+                         BINDING_OBJECT_METHOD(uniformMatrix4fv),
+
+                         BINDING_OBJECT_METHOD(vertexAttrib1f),
+                         BINDING_OBJECT_METHOD(vertexAttrib2f),
+                         BINDING_OBJECT_METHOD(vertexAttrib3f),
+                         BINDING_OBJECT_METHOD(vertexAttrib4f),
+
+                         BINDING_OBJECT_METHOD(vertexAttrib1fv),
+                         BINDING_OBJECT_METHOD(vertexAttrib2fv),
+                         BINDING_OBJECT_METHOD(vertexAttrib3fv),
+                         BINDING_OBJECT_METHOD(vertexAttrib4fv),
 
                          BINDING_CONST_PROPERY(ELEMENT_ARRAY_BUFFER),
                          BINDING_CONST_PROPERY(STATIC_DRAW),
@@ -308,7 +222,7 @@ GLenum usage = info[2].As<Napi::Number>().Uint32Value();
 if (info[1].IsTypedArray())
 {
     Napi::TypedArray array = info[1].As<Napi::TypedArray>();
-    Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
     glBufferData(target, buffer.ByteLength(), buffer.Data(), usage);
 }
 else if (info[1].IsArrayBuffer())
@@ -396,8 +310,8 @@ GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
 GLsizei height = info[3].As<Napi::Number>().Int32Value();
-int  dpi=mRenderContext->getDpi();
-glViewport(x * dpi, y * dpi, width * dpi, height * dpi);
+int dpi = mRenderContext->getDpi();
+glViewport(x *dpi, y *dpi, width *dpi, height *dpi);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(drawElements)
@@ -446,9 +360,9 @@ NodeBinding::checkArgs(info, 4);
 GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();\
-int dpi=mRenderContext->getDpi();
-glScissor(x * dpi, y * dpi, width * dpi, height * dpi);
+GLsizei height = info[3].As<Napi::Number>().Int32Value();
+int dpi = mRenderContext->getDpi();
+glScissor(x *dpi, y *dpi, width *dpi, height *dpi);
 RECORD_TIME_END
 }
 
@@ -521,6 +435,30 @@ GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str());
 RECORD_TIME_END
 return Napi::Number::New(info.Env(), index);
 }
+DEFINE_VOID_METHOD(uniform1f)
+NodeBinding::checkArgs(info, 2);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+glUniform1f(location, v1);
+RECORD_TIME_END
+}
+DEFINE_VOID_METHOD(uniform2f)
+NodeBinding::checkArgs(info, 3);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+glUniform2f(location, v1, v2);
+RECORD_TIME_END
+}
+DEFINE_VOID_METHOD(uniform3f)
+NodeBinding::checkArgs(info, 4);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
+glUniform3f(location, v1, v2, v3);
+RECORD_TIME_END
+}
 
 DEFINE_VOID_METHOD(uniform4f)
 NodeBinding::checkArgs(info, 5);
@@ -542,6 +480,239 @@ GLboolean v4 = info[3].As<Napi::Boolean>().Value();
 glColorMask(v1, v2, v3, v4);
 RECORD_TIME_END
 }
+
+DEFINE_VOID_METHOD(uniform1i)
+NodeBinding::checkArgs(info, 2);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLint v1 = info[1].As<Napi::Number>().Int32Value();
+glUniform1i(location, v1);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform2i)
+NodeBinding::checkArgs(info, 3);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLint v1 = info[1].As<Napi::Number>().Int32Value();
+GLint v2 = info[2].As<Napi::Number>().Int32Value();
+glUniform2i(location, v1, v2);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform3i)
+NodeBinding::checkArgs(info, 4);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLint v1 = info[1].As<Napi::Number>().Int32Value();
+GLint v2 = info[2].As<Napi::Number>().Int32Value();
+GLint v3 = info[3].As<Napi::Number>().Int32Value();
+glUniform3i(location, v1, v2, v3);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform4i)
+NodeBinding::checkArgs(info, 5);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLint v1 = info[1].As<Napi::Number>().Int32Value();
+GLint v2 = info[2].As<Napi::Number>().Int32Value();
+GLint v3 = info[3].As<Napi::Number>().Int32Value();
+GLint v4 = info[4].As<Napi::Number>().Int32Value();
+glUniform4i(location, v1, v2, v3, v4);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform1fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform1fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform2fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform2fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform3fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform3fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform4fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform4fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniform1iv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform1iv);
+RECORD_TIME_END
+}
+DEFINE_VOID_METHOD(uniform2iv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform2iv);
+RECORD_TIME_END
+}
+DEFINE_VOID_METHOD(uniform3iv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform3iv);
+RECORD_TIME_END
+}
+DEFINE_VOID_METHOD(uniform4iv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallUniformFunc(info, glUniform4iv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniformMatrix2fv)
+NodeBinding::checkArgs(info, 3);
+parseTypeArrayAndCallUniformFunc(info, glUniformMatrix2fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniformMatrix3fv)
+NodeBinding::checkArgs(info, 3);
+parseTypeArrayAndCallUniformFunc(info, glUniformMatrix3fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(uniformMatrix4fv)
+NodeBinding::checkArgs(info, 3);
+parseTypeArrayAndCallUniformFunc(info, glUniformMatrix4fv);
+RECORD_TIME_END
+}
+
+void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func)
+{
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    if (info[1].IsTypedArray())
+    {
+        Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0, buffer.ElementLength(), buffer.Data());
+    }
+    else if (info[1].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0, buffer.ElementLength(), buffer.Data());
+    }
+}
+
+void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformIntPtr func)
+{
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    if (info[1].IsTypedArray())
+    {
+        Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+        Napi::Int32Array buffer = array.As<Napi::Int32Array>();
+        func(0, buffer.ElementLength(), buffer.Data());
+    }
+    else if (info[1].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+        Napi::Int32Array buffer = array.As<Napi::Int32Array>();
+        func(0, buffer.ElementLength(), buffer.Data());
+    }
+}
+
+void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformMatrixPtr func)
+{
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    GLboolean transpose = info[1].As<Napi::Boolean>().Value();
+    if (info[2].IsTypedArray())
+    {
+        Napi::TypedArray array = info[2].As<Napi::TypedArray>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0, buffer.ElementLength(), transpose, buffer.Data());
+    }
+    else if (info[2].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0, buffer.ElementLength(), transpose, buffer.Data());
+    }
+}
+
+void ContextWebGL::parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &info, glVeterxFloatPtr func)
+{
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    if (info[1].IsTypedArray())
+    {
+        Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0,buffer.Data());
+    }
+    else if (info[1].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+        Napi::Float32Array buffer = array.As<Napi::Float32Array>();
+        func(0, buffer.Data());
+    }
+}
+
+DEFINE_VOID_METHOD(vertexAttrib1f)
+NodeBinding::checkArgs(info, 2);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+glVertexAttrib1f(location, v1);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib2f)
+NodeBinding::checkArgs(info, 3);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+glVertexAttrib2f(location, v1, v2);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib3f)
+NodeBinding::checkArgs(info, 4);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
+glVertexAttrib3f(location, v1, v2, v3);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib4f)
+NodeBinding::checkArgs(info, 5);
+GLuint location = info[0].As<Napi::Number>().Uint32Value();
+GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
+GLfloat v4 = info[4].As<Napi::Number>().FloatValue();
+glVertexAttrib4f(location, v1, v2, v3, v4);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib1fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallVertexFunc(info,glVertexAttrib1fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib2fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallVertexFunc(info,glVertexAttrib2fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib3fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallVertexFunc(info,glVertexAttrib3fv);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(vertexAttrib4fv)
+NodeBinding::checkArgs(info, 2);
+parseTypeArrayAndCallVertexFunc(info,glVertexAttrib4fv);
+RECORD_TIME_END
+}
+
 
 DEFINE_RETURN_VALUE_METHOD(getShaderSource)
 CHECK_PARAM_LEGNTH(1)

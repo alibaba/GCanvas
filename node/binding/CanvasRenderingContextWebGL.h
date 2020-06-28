@@ -10,16 +10,20 @@
     }
 
 #define CHECK_PARAM_LEGNTH(length) \
-NodeBinding::checkArgs(info,length); \
+    NodeBinding::checkArgs(info, length);
 
 #define BINDING_CONST_PROPERY(propertyName) \
-    InstanceAccessor(#propertyName, &ContextWebGL::get##propertyName, nullptr) \
+    InstanceAccessor(#propertyName, &ContextWebGL::get##propertyName, nullptr)
 
 #define BINDING_OBJECT_METHOD(methodName) \
-    InstanceMethod(#methodName, &ContextWebGL::methodName) \
+    InstanceMethod(#methodName, &ContextWebGL::methodName)
 
 namespace NodeBinding
 {
+    typedef void (*glUniformFloatPtr)(GLint location, GLsizei count, const GLfloat *value);
+    typedef void (*glUniformIntPtr)(GLint location, GLsizei count, const GLint *value);
+    typedef void (*glUniformMatrixPtr)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+    typedef void (*glVeterxFloatPtr)(GLuint index, const GLfloat *value);
     class ContextWebGL : public Napi::ObjectWrap<ContextWebGL>
     {
     public:
@@ -61,12 +65,50 @@ namespace NodeBinding
         Napi::Value getProgramParameter(const Napi::CallbackInfo &info);
         void deleteProgram(const Napi::CallbackInfo &info);
         Napi::Value getUniformLocation(const Napi::CallbackInfo &info);
+
+        void uniform1f(const Napi::CallbackInfo &info);
+        void uniform2f(const Napi::CallbackInfo &info);
+        void uniform3f(const Napi::CallbackInfo &info);
         void uniform4f(const Napi::CallbackInfo &info);
+
+        void uniform1i(const Napi::CallbackInfo &info);
+        void uniform2i(const Napi::CallbackInfo &info);
+        void uniform3i(const Napi::CallbackInfo &info);
+        void uniform4i(const Napi::CallbackInfo &info);
+
+        void uniform1fv(const Napi::CallbackInfo &info);
+        void uniform2fv(const Napi::CallbackInfo &info);
+        void uniform3fv(const Napi::CallbackInfo &info);
+        void uniform4fv(const Napi::CallbackInfo &info);
+
+        void uniform1iv(const Napi::CallbackInfo &info);
+        void uniform2iv(const Napi::CallbackInfo &info);
+        void uniform3iv(const Napi::CallbackInfo &info);
+        void uniform4iv(const Napi::CallbackInfo &info);
+
+        void uniformMatrix2fv(const Napi::CallbackInfo &info);
+        void uniformMatrix3fv(const Napi::CallbackInfo &info);
+        void uniformMatrix4fv(const Napi::CallbackInfo &info);
+
+        void vertexAttrib1f(const Napi::CallbackInfo &info);
+        void vertexAttrib2f(const Napi::CallbackInfo &info);
+        void vertexAttrib3f(const Napi::CallbackInfo &info);
+        void vertexAttrib4f(const Napi::CallbackInfo &info);
+
+        void vertexAttrib1fv(const Napi::CallbackInfo &info);
+        void vertexAttrib2fv(const Napi::CallbackInfo &info);
+        void vertexAttrib3fv(const Napi::CallbackInfo &info);
+        void vertexAttrib4fv(const Napi::CallbackInfo &info);
+
         void colorMask(const Napi::CallbackInfo &info);
         Napi::Value getShaderSource(const Napi::CallbackInfo &info);
+        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func);
+        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformIntPtr func);
+        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformMatrixPtr func);
+        void parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &info, glVeterxFloatPtr func);
         static Napi::FunctionReference constructor;
         DEFINE_CONST_PROPERY_GET_FUNCTION(COLOR_BUFFER_BIT)
-        DEFINE_CONST_PROPERY_GET_FUNCTION( DEPTH_BUFFER_BIT)
+        DEFINE_CONST_PROPERY_GET_FUNCTION(DEPTH_BUFFER_BIT)
         DEFINE_CONST_PROPERY_GET_FUNCTION(TRIANGLES)
         DEFINE_CONST_PROPERY_GET_FUNCTION(POINTS)
         DEFINE_CONST_PROPERY_GET_FUNCTION(LINE_STRIP)
@@ -74,7 +116,7 @@ namespace NodeBinding
         DEFINE_CONST_PROPERY_GET_FUNCTION(LINE_LOOP)
         DEFINE_CONST_PROPERY_GET_FUNCTION(TRIANGLE_FAN)
         DEFINE_CONST_PROPERY_GET_FUNCTION(TRIANGLE_STRIP)
-        
+
         DEFINE_CONST_PROPERY_GET_FUNCTION(DEPTH_TEST)
         DEFINE_CONST_PROPERY_GET_FUNCTION(SCISSOR_TEST)
         DEFINE_CONST_PROPERY_GET_FUNCTION(STENCIL_TEST)
