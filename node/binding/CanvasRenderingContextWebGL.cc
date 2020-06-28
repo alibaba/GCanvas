@@ -315,7 +315,7 @@ else if (info[1].IsArrayBuffer())
 {
     Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
     Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferData(target, array.ByteLength(), buffer.data(), usage);
+    glBufferData(target, array.ByteLength(), buffer.Data(), usage);
 }
 else if (info[1].IsNumber())
 {
