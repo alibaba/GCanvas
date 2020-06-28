@@ -305,32 +305,17 @@ DEFINE_VOID_METHOD(bufferData)
 NodeBinding::checkArgs(info, 3);
 GLenum target = info[0].As<Napi::Number>().Uint32Value();
 GLenum usage = info[2].As<Napi::Number>().Uint32Value();
-printf("buffer data \n");
 if (info[1].IsTypedArray())
 {
     Napi::TypedArray array = info[1].As<Napi::TypedArray>();
     Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-    int size=buffer.ElementLength();
-    GLfloat buffer2[size];
-    // unsigned char *test=(unsigned char *)triangleVertices;
-    for (int i = 0; i < buffer.ElementLength(); i++)
-    {
-        printf("the index[ %d] is %f \n", i, buffer[i]);
-        printf("the index[ %d] is %f \n", i, triangleVertices[i]);
-        buffer2[i] = buffer[i];
-        printf("======================= \n");
-    }
-
-    // printf("the buffer length is %d \n",buffer.ByteLength());
-    // glBufferData(target, buffer.ByteLength(), triangleVertices, usage);
-    glBufferData(target, buffer.ByteLength(), buffer2, usage);
-    // glBufferData(target, buffer.ByteLength(), buffer, usage);
+    glBufferData(target, buffer.ByteLength(), buffer.Data(), usage);
 }
 else if (info[1].IsArrayBuffer())
 {
     Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
     Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferData(target, array.ByteLength(), buffer, usage);
+    glBufferData(target, array.ByteLength(), buffer.data(), usage);
 }
 else if (info[1].IsNumber())
 {
@@ -344,15 +329,7 @@ DEFINE_RETURN_VALUE_METHOD(createShader)
 NodeBinding::checkArgs(info, 1);
 Napi::Env env = info.Env();
 GLenum shaderType = info[0].As<Napi::Number>().Uint32Value();
-GLuint shaderId = 0;
-if (shaderType == GL_VERTEX_SHADER)
-{
-    shaderId = glCreateShader(GL_VERTEX_SHADER);
-}
-else if (shaderType == GL_FRAGMENT_SHADER)
-{
-    shaderId = glCreateShader(GL_FRAGMENT_SHADER);
-}
+GLuint shaderId = glCreateShader(shaderType);
 Napi::Object obj = WebGLShader::NewInstance(info.Env(), Napi::Number::New(env, shaderId));
 RECORD_TIME_END
 return obj;
