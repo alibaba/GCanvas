@@ -2,6 +2,7 @@
 #include "./webGLRes/WebGLShader.h"
 #include "./webGLRes/WebGLProgram.h"
 #include "./webGLRes/WebGLBuffer.h"
+#include "./webGLRes/WebGLTexture.h"
 //测量单个函数耗时的debug开关
 // #define DUMP_RUNNING_TIME 1
 
@@ -50,100 +51,276 @@ namespace NodeBinding
         Napi::Function func =
             DefineClass(env,
                         "ContextWebGL",
-                        {BINDING_OBJECT_METHOD(createBuffer),
-                         BINDING_OBJECT_METHOD(createProgram),
-                         BINDING_OBJECT_METHOD(createShader),
-                         BINDING_OBJECT_METHOD(deleteShader),
+                        {
+                            BINDING_OBJECT_METHOD(createBuffer),
+                            BINDING_OBJECT_METHOD(createProgram),
+                            BINDING_OBJECT_METHOD(createTexture),
+                            BINDING_OBJECT_METHOD(createShader),
+                            BINDING_OBJECT_METHOD(deleteShader),
 
-                         BINDING_OBJECT_METHOD(viewport),
-                         BINDING_OBJECT_METHOD(scissor),
-                         BINDING_OBJECT_METHOD(clearColor),
-                         BINDING_OBJECT_METHOD(colorMask),
-                         BINDING_OBJECT_METHOD(enable),
+                            BINDING_OBJECT_METHOD(viewport),
+                            BINDING_OBJECT_METHOD(scissor),
+                            BINDING_OBJECT_METHOD(clearColor),
+                            BINDING_OBJECT_METHOD(colorMask),
+                            BINDING_OBJECT_METHOD(enable),
 
-                         BINDING_OBJECT_METHOD(bindBuffer),
-                         BINDING_OBJECT_METHOD(bufferData),
+                            BINDING_OBJECT_METHOD(bindBuffer),
+                            BINDING_OBJECT_METHOD(bufferData),
 
-                         BINDING_OBJECT_METHOD(shaderSource),
-                         BINDING_OBJECT_METHOD(getShaderSource),
-                         BINDING_OBJECT_METHOD(compileShader),
-                         BINDING_OBJECT_METHOD(attachShader),
-                         BINDING_OBJECT_METHOD(linkProgram),
-                         BINDING_OBJECT_METHOD(useProgram),
+                            BINDING_OBJECT_METHOD(bindTexture),
 
-                         BINDING_OBJECT_METHOD(getAttribLocation),
-                         BINDING_OBJECT_METHOD(vertexAttribPointer),
-                         BINDING_OBJECT_METHOD(enableVertexAttribArray),
+                            BINDING_OBJECT_METHOD(shaderSource),
+                            BINDING_OBJECT_METHOD(getShaderSource),
+                            BINDING_OBJECT_METHOD(compileShader),
+                            BINDING_OBJECT_METHOD(attachShader),
+                            BINDING_OBJECT_METHOD(linkProgram),
+                            BINDING_OBJECT_METHOD(useProgram),
 
-                         BINDING_OBJECT_METHOD(drawElements),
-                         BINDING_OBJECT_METHOD(drawArrays),
-                         BINDING_OBJECT_METHOD(flush),
-                         BINDING_OBJECT_METHOD(finish),
-                         BINDING_OBJECT_METHOD(clear),
-                         BINDING_OBJECT_METHOD(getShaderParameter),
-                         BINDING_OBJECT_METHOD(getShaderInfoLog),
-                         BINDING_OBJECT_METHOD(getProgramParameter),
-                         BINDING_OBJECT_METHOD(deleteProgram),
-                         BINDING_OBJECT_METHOD(getUniformLocation),
+                            BINDING_OBJECT_METHOD(getAttribLocation),
+                            BINDING_OBJECT_METHOD(vertexAttribPointer),
+                            BINDING_OBJECT_METHOD(enableVertexAttribArray),
 
-                         BINDING_OBJECT_METHOD(uniform1f),
-                         BINDING_OBJECT_METHOD(uniform2f),
-                         BINDING_OBJECT_METHOD(uniform3f),
-                         BINDING_OBJECT_METHOD(uniform4f),
+                            BINDING_OBJECT_METHOD(drawElements),
+                            BINDING_OBJECT_METHOD(drawArrays),
+                            BINDING_OBJECT_METHOD(flush),
+                            BINDING_OBJECT_METHOD(finish),
+                            BINDING_OBJECT_METHOD(clear),
+                            BINDING_OBJECT_METHOD(getShaderParameter),
+                            BINDING_OBJECT_METHOD(getShaderInfoLog),
+                            BINDING_OBJECT_METHOD(getProgramParameter),
+                            BINDING_OBJECT_METHOD(deleteProgram),
+                            BINDING_OBJECT_METHOD(getUniformLocation),
 
-                         BINDING_OBJECT_METHOD(uniform1i),
-                         BINDING_OBJECT_METHOD(uniform2i),
-                         BINDING_OBJECT_METHOD(uniform3i),
-                         BINDING_OBJECT_METHOD(uniform4i),
+                            BINDING_OBJECT_METHOD(uniform1f),
+                            BINDING_OBJECT_METHOD(uniform2f),
+                            BINDING_OBJECT_METHOD(uniform3f),
+                            BINDING_OBJECT_METHOD(uniform4f),
 
-                         BINDING_OBJECT_METHOD(uniform1fv),
-                         BINDING_OBJECT_METHOD(uniform2fv),
-                         BINDING_OBJECT_METHOD(uniform3fv),
-                         BINDING_OBJECT_METHOD(uniform4fv),
+                            BINDING_OBJECT_METHOD(uniform1i),
+                            BINDING_OBJECT_METHOD(uniform2i),
+                            BINDING_OBJECT_METHOD(uniform3i),
+                            BINDING_OBJECT_METHOD(uniform4i),
 
-                         BINDING_OBJECT_METHOD(uniform1iv),
-                         BINDING_OBJECT_METHOD(uniform2iv),
-                         BINDING_OBJECT_METHOD(uniform3iv),
-                         BINDING_OBJECT_METHOD(uniform4iv),
+                            BINDING_OBJECT_METHOD(uniform1fv),
+                            BINDING_OBJECT_METHOD(uniform2fv),
+                            BINDING_OBJECT_METHOD(uniform3fv),
+                            BINDING_OBJECT_METHOD(uniform4fv),
 
-                         BINDING_OBJECT_METHOD(uniformMatrix2fv),
-                         BINDING_OBJECT_METHOD(uniformMatrix3fv),
-                         BINDING_OBJECT_METHOD(uniformMatrix4fv),
+                            BINDING_OBJECT_METHOD(uniform1iv),
+                            BINDING_OBJECT_METHOD(uniform2iv),
+                            BINDING_OBJECT_METHOD(uniform3iv),
+                            BINDING_OBJECT_METHOD(uniform4iv),
 
-                         BINDING_OBJECT_METHOD(vertexAttrib1f),
-                         BINDING_OBJECT_METHOD(vertexAttrib2f),
-                         BINDING_OBJECT_METHOD(vertexAttrib3f),
-                         BINDING_OBJECT_METHOD(vertexAttrib4f),
+                            BINDING_OBJECT_METHOD(uniformMatrix2fv),
+                            BINDING_OBJECT_METHOD(uniformMatrix3fv),
+                            BINDING_OBJECT_METHOD(uniformMatrix4fv),
 
-                         BINDING_OBJECT_METHOD(vertexAttrib1fv),
-                         BINDING_OBJECT_METHOD(vertexAttrib2fv),
-                         BINDING_OBJECT_METHOD(vertexAttrib3fv),
-                         BINDING_OBJECT_METHOD(vertexAttrib4fv),
+                            BINDING_OBJECT_METHOD(vertexAttrib1f),
+                            BINDING_OBJECT_METHOD(vertexAttrib2f),
+                            BINDING_OBJECT_METHOD(vertexAttrib3f),
+                            BINDING_OBJECT_METHOD(vertexAttrib4f),
 
-                         BINDING_CONST_PROPERY(ELEMENT_ARRAY_BUFFER),
-                         BINDING_CONST_PROPERY(STATIC_DRAW),
-                         BINDING_CONST_PROPERY(ARRAY_BUFFER),
-                         BINDING_CONST_PROPERY(COLOR_BUFFER_BIT),
-                         BINDING_CONST_PROPERY(DEPTH_BUFFER_BIT),
-                         BINDING_CONST_PROPERY(VERTEX_SHADER),
-                         BINDING_CONST_PROPERY(FRAGMENT_SHADER),
-                         BINDING_CONST_PROPERY(DEPTH_TEST),
-                         BINDING_CONST_PROPERY(SCISSOR_TEST),
-                         BINDING_CONST_PROPERY(STENCIL_TEST),
-                         BINDING_CONST_PROPERY(POINTS),
-                         BINDING_CONST_PROPERY(COMPILE_STATUS),
-                         BINDING_CONST_PROPERY(LINK_STATUS),
-                         BINDING_CONST_PROPERY(TRIANGLES),
-                         BINDING_CONST_PROPERY(LINE_STRIP),
-                         BINDING_CONST_PROPERY(LINES),
-                         BINDING_CONST_PROPERY(LINE_LOOP),
-                         BINDING_CONST_PROPERY(TRIANGLE_FAN),
-                         BINDING_CONST_PROPERY(TRIANGLE_STRIP),
+                            BINDING_OBJECT_METHOD(vertexAttrib1fv),
+                            BINDING_OBJECT_METHOD(vertexAttrib2fv),
+                            BINDING_OBJECT_METHOD(vertexAttrib3fv),
+                            BINDING_OBJECT_METHOD(vertexAttrib4fv),
 
-                         BINDING_CONST_PROPERY(FALSE),
-                         BINDING_CONST_PROPERY(TRUE),
-                         BINDING_CONST_PROPERY(UNSIGNED_SHORT),
-                         BINDING_CONST_PROPERY(FLOAT)});
+                            BINDING_OBJECT_METHOD(activeTexture),
+                            BINDING_OBJECT_METHOD(pixelStorei),
+                            BINDING_OBJECT_METHOD(texParameteri),
+                            BINDING_OBJECT_METHOD(texImage2D),
+
+                            BINDING_OBJECT_METHOD(stencilFunc),
+                            BINDING_OBJECT_METHOD(stencilOp),
+                            BINDING_OBJECT_METHOD(stencilMask),
+
+                            BINDING_CONST_PROPERY(LINK_STATUS),
+                            BINDING_CONST_PROPERY(COLOR_BUFFER_BIT),
+                            BINDING_CONST_PROPERY(DEPTH_BUFFER_BIT),
+                            BINDING_CONST_PROPERY(STENCIL_BUFFER_BIT),
+                            BINDING_CONST_PROPERY(TRIANGLES),
+                            BINDING_CONST_PROPERY(POINTS),
+                            BINDING_CONST_PROPERY(LINE_STRIP),
+                            BINDING_CONST_PROPERY(LINES),
+                            BINDING_CONST_PROPERY(LINE_LOOP),
+                            BINDING_CONST_PROPERY(TRIANGLE_FAN),
+                            BINDING_CONST_PROPERY(TRIANGLE_STRIP),
+
+                            BINDING_CONST_PROPERY(DEPTH_TEST),
+                            BINDING_CONST_PROPERY(SCISSOR_TEST),
+                            BINDING_CONST_PROPERY(STENCIL_TEST),
+
+                            BINDING_CONST_PROPERY(COMPILE_STATUS),
+                            BINDING_CONST_PROPERY(ARRAY_BUFFER),
+                            BINDING_CONST_PROPERY(STATIC_DRAW),
+                            BINDING_CONST_PROPERY(ELEMENT_ARRAY_BUFFER),
+                            BINDING_CONST_PROPERY(VERTEX_SHADER),
+                            BINDING_CONST_PROPERY(FRAGMENT_SHADER),
+                            BINDING_CONST_PROPERY(UNSIGNED_SHORT),
+                            BINDING_CONST_PROPERY(FLOAT),
+
+                            BINDING_CONST_PROPERY(FALSE),
+                            BINDING_CONST_PROPERY(TRUE),
+                            BINDING_CONST_PROPERY(ZERO),
+                            BINDING_CONST_PROPERY(ONE),
+
+                            BINDING_CONST_PROPERY(SRC_COLOR),
+                            BINDING_CONST_PROPERY(ONE_MINUS_SRC_COLOR),
+                            BINDING_CONST_PROPERY(SRC_ALPHA),
+                            BINDING_CONST_PROPERY(ONE_MINUS_SRC_ALPHA),
+                            BINDING_CONST_PROPERY(DST_ALPHA),
+                            BINDING_CONST_PROPERY(ONE_MINUS_DST_ALPHA),
+                            BINDING_CONST_PROPERY(DST_COLOR),
+                            BINDING_CONST_PROPERY(ONE_MINUS_DST_COLOR),
+                            BINDING_CONST_PROPERY(SRC_ALPHA_SATURATE),
+                            BINDING_CONST_PROPERY(CONSTANT_COLOR),
+                            BINDING_CONST_PROPERY(ONE_MINUS_CONSTANT_COLOR),
+                            BINDING_CONST_PROPERY(CONSTANT_ALPHA),
+                            BINDING_CONST_PROPERY(ONE_MINUS_CONSTANT_ALPHA),
+
+                            BINDING_CONST_PROPERY(BLEND_EQUATION),
+                            BINDING_CONST_PROPERY(BLEND_EQUATION_RGB),
+                            BINDING_CONST_PROPERY(BLEND_EQUATION_ALPHA),
+                            BINDING_CONST_PROPERY(BLEND_DST_RGB),
+                            BINDING_CONST_PROPERY(BLEND_SRC_RGB),
+                            BINDING_CONST_PROPERY(BLEND_DST_ALPHA),
+                            BINDING_CONST_PROPERY(BLEND_SRC_ALPHA),
+                            BINDING_CONST_PROPERY(BLEND_COLOR),
+                            BINDING_CONST_PROPERY(ARRAY_BUFFER_BINDING),
+                            BINDING_CONST_PROPERY(ELEMENT_ARRAY_BUFFER_BINDING),
+                            BINDING_CONST_PROPERY(LINE_WIDTH),
+                            BINDING_CONST_PROPERY(ALIASED_POINT_SIZE_RANGE),
+                            BINDING_CONST_PROPERY(ALIASED_LINE_WIDTH_RANGE),
+                            BINDING_CONST_PROPERY(CULL_FACE_MODE),
+                            BINDING_CONST_PROPERY(FRONT_FACE),
+                            BINDING_CONST_PROPERY(DEPTH_RANGE),
+                            BINDING_CONST_PROPERY(DEPTH_WRITEMASK),
+                            BINDING_CONST_PROPERY(DEPTH_CLEAR_VALUE),
+                            BINDING_CONST_PROPERY(DEPTH_FUNC),
+                            BINDING_CONST_PROPERY(STENCIL_CLEAR_VALUE),
+                            BINDING_CONST_PROPERY(STENCIL_FUNC),
+                            BINDING_CONST_PROPERY(STENCIL_FAIL),
+                            BINDING_CONST_PROPERY(STENCIL_PASS_DEPTH_FAIL),
+                            BINDING_CONST_PROPERY(STENCIL_PASS_DEPTH_PASS),
+                            BINDING_CONST_PROPERY(STENCIL_REF),
+                            BINDING_CONST_PROPERY(STENCIL_VALUE_MASK),
+                            BINDING_CONST_PROPERY(STENCIL_WRITEMASK),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_FUNC),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_FAIL),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_PASS_DEPTH_FAIL),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_PASS_DEPTH_PASS),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_REF),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_VALUE_MASK),
+                            BINDING_CONST_PROPERY(STENCIL_BACK_WRITEMASK),
+                            BINDING_CONST_PROPERY(VIEWPORT),
+                            BINDING_CONST_PROPERY(SCISSOR_BOX),
+                            BINDING_CONST_PROPERY(COLOR_CLEAR_VALUE),
+                            BINDING_CONST_PROPERY(COLOR_WRITEMASK),
+                            BINDING_CONST_PROPERY(UNPACK_ALIGNMENT),
+                            BINDING_CONST_PROPERY(PACK_ALIGNMENT),
+                            BINDING_CONST_PROPERY(MAX_TEXTURE_SIZE),
+                            BINDING_CONST_PROPERY(MAX_VIEWPORT_DIMS),
+                            BINDING_CONST_PROPERY(SUBPIXEL_BITS),
+                            BINDING_CONST_PROPERY(RED_BITS),
+                            BINDING_CONST_PROPERY(GREEN_BITS),
+                            BINDING_CONST_PROPERY(BLUE_BITS),
+                            BINDING_CONST_PROPERY(ALPHA_BITS),
+                            BINDING_CONST_PROPERY(DEPTH_BITS),
+                            BINDING_CONST_PROPERY(STENCIL_BITS),
+                            BINDING_CONST_PROPERY(POLYGON_OFFSET_UNITS),
+                            BINDING_CONST_PROPERY(POLYGON_OFFSET_FACTOR),
+                            BINDING_CONST_PROPERY(TEXTURE_BINDING_2D),
+                            BINDING_CONST_PROPERY(SAMPLE_BUFFERS),
+                            BINDING_CONST_PROPERY(SAMPLES),
+                            BINDING_CONST_PROPERY(SAMPLE_COVERAGE_VALUE),
+                            BINDING_CONST_PROPERY(SAMPLE_COVERAGE_INVERT),
+                            BINDING_CONST_PROPERY(COMPRESSED_TEXTURE_FORMATS),
+                            BINDING_CONST_PROPERY(VENDOR),
+                            BINDING_CONST_PROPERY(RENDERER),
+                            BINDING_CONST_PROPERY(VERSION),
+                            BINDING_CONST_PROPERY(IMPLEMENTATION_COLOR_READ_TYPE),
+                            BINDING_CONST_PROPERY(IMPLEMENTATION_COLOR_READ_FORMAT),
+
+                            BINDING_CONST_PROPERY(NEVER),
+                            BINDING_CONST_PROPERY(LESS),
+                            BINDING_CONST_PROPERY(EQUAL),
+                            BINDING_CONST_PROPERY(LEQUAL),
+                            BINDING_CONST_PROPERY(GREATER),
+                            BINDING_CONST_PROPERY(NOTEQUAL),
+                            BINDING_CONST_PROPERY(GEQUAL),
+                            BINDING_CONST_PROPERY(ALWAYS),
+
+                            BINDING_CONST_PROPERY(KEEP),
+                            BINDING_CONST_PROPERY(REPLACE),
+                            BINDING_CONST_PROPERY(INCR),
+                            BINDING_CONST_PROPERY(DECR),
+                            BINDING_CONST_PROPERY(INVERT),
+                            BINDING_CONST_PROPERY(INCR_WRAP),
+                            BINDING_CONST_PROPERY(DECR_WRAP),
+
+                            BINDING_CONST_PROPERY(NEAREST),
+                            BINDING_CONST_PROPERY(LINEAR),
+                            BINDING_CONST_PROPERY(NEAREST_MIPMAP_NEAREST),
+                            BINDING_CONST_PROPERY(LINEAR_MIPMAP_NEAREST),
+                            BINDING_CONST_PROPERY(NEAREST_MIPMAP_LINEAR),
+                            BINDING_CONST_PROPERY(LINEAR_MIPMAP_LINEAR),
+                            BINDING_CONST_PROPERY(TEXTURE_MAG_FILTER),
+                            BINDING_CONST_PROPERY(TEXTURE_MIN_FILTER),
+                            BINDING_CONST_PROPERY(TEXTURE_WRAP_S),
+                            BINDING_CONST_PROPERY(TEXTURE_WRAP_T),
+                            BINDING_CONST_PROPERY(TEXTURE_2D),
+                            BINDING_CONST_PROPERY(TEXTURE),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP),
+                            BINDING_CONST_PROPERY(TEXTURE_BINDING_CUBE_MAP),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_POSITIVE_X),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_NEGATIVE_X),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_POSITIVE_Y),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_NEGATIVE_Y),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_POSITIVE_Z),
+                            BINDING_CONST_PROPERY(TEXTURE_CUBE_MAP_NEGATIVE_Z),
+                            BINDING_CONST_PROPERY(MAX_CUBE_MAP_TEXTURE_SIZE),
+                            BINDING_CONST_PROPERY(TEXTURE0),
+                            BINDING_CONST_PROPERY(TEXTURE1),
+                            BINDING_CONST_PROPERY(TEXTURE2),
+                            BINDING_CONST_PROPERY(TEXTURE3),
+                            BINDING_CONST_PROPERY(TEXTURE4),
+                            BINDING_CONST_PROPERY(TEXTURE5),
+                            BINDING_CONST_PROPERY(TEXTURE6),
+                            BINDING_CONST_PROPERY(TEXTURE7),
+                            BINDING_CONST_PROPERY(TEXTURE8),
+                            BINDING_CONST_PROPERY(TEXTURE9),
+                            BINDING_CONST_PROPERY(TEXTURE10),
+                            BINDING_CONST_PROPERY(TEXTURE11),
+                            BINDING_CONST_PROPERY(TEXTURE12),
+                            BINDING_CONST_PROPERY(TEXTURE13),
+                            BINDING_CONST_PROPERY(TEXTURE14),
+                            BINDING_CONST_PROPERY(TEXTURE15),
+                            BINDING_CONST_PROPERY(TEXTURE16),
+                            BINDING_CONST_PROPERY(TEXTURE17),
+                            BINDING_CONST_PROPERY(TEXTURE18),
+                            BINDING_CONST_PROPERY(TEXTURE19),
+                            BINDING_CONST_PROPERY(TEXTURE20),
+                            BINDING_CONST_PROPERY(TEXTURE21),
+                            BINDING_CONST_PROPERY(TEXTURE22),
+                            BINDING_CONST_PROPERY(TEXTURE23),
+                            BINDING_CONST_PROPERY(TEXTURE24),
+                            BINDING_CONST_PROPERY(TEXTURE25),
+                            BINDING_CONST_PROPERY(TEXTURE26),
+                            BINDING_CONST_PROPERY(TEXTURE27),
+                            BINDING_CONST_PROPERY(TEXTURE28),
+                            BINDING_CONST_PROPERY(TEXTURE29),
+                            BINDING_CONST_PROPERY(TEXTURE30),
+                            BINDING_CONST_PROPERY(TEXTURE31),
+
+                            BINDING_CONST_PROPERY(ACTIVE_TEXTURE),
+                            BINDING_CONST_PROPERY(REPEAT),
+                            BINDING_CONST_PROPERY(CLAMP_TO_EDGE),
+                            BINDING_CONST_PROPERY(MIRRORED_REPEAT),
+
+                            InstanceAccessor("UNPACK_FLIP_Y_WEBGL", &ContextWebGL::getUNPACK_FLIP_Y_WEBGL, nullptr),
+                            InstanceAccessor("UNPACK_PREMULTIPLY_ALPHA_WEBGL", &ContextWebGL::getUNPACK_PREMULTIPLY_ALPHA_WEBGL, nullptr),
+                            InstanceAccessor("UNPACK", &ContextWebGL::getUNPACK, nullptr),
+                        });
         constructor = Napi::Persistent(func);
     }
     ContextWebGL::ContextWebGL(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ContextWebGL>(info)
@@ -155,6 +332,7 @@ namespace NodeBinding
     {
         Napi::Object obj = constructor.New({});
         obj.Set("name", Napi::String::New(env, "context3d"));
+        GL_TEXTURE0;
         return obj;
     }
 
@@ -473,10 +651,39 @@ RECORD_TIME_END
 
 DEFINE_VOID_METHOD(colorMask)
 NodeBinding::checkArgs(info, 4);
-GLboolean v1 = info[0].As<Napi::Boolean>().Value();
-GLboolean v2 = info[1].As<Napi::Boolean>().Value();
-GLboolean v3 = info[2].As<Napi::Boolean>().Value();
-GLboolean v4 = info[3].As<Napi::Boolean>().Value();
+GLint v1, v2, v3, v4;
+if (info[0].IsNumber())
+{
+    v1 = info[0].As<Napi::Number>().Int32Value();
+}
+else
+{
+    v1 = info[0].As<Napi::Boolean>().Value();
+}
+if (info[1].IsNumber())
+{
+    v2 = info[1].As<Napi::Number>().Int32Value();
+}
+else
+{
+    v2 = info[1].As<Napi::Boolean>().Value();
+}
+if (info[2].IsNumber())
+{
+    v3 = info[2].As<Napi::Number>().Int32Value();
+}
+else
+{
+    v3 = info[2].As<Napi::Boolean>().Value();
+}
+if (info[3].IsNumber())
+{
+    v4 = info[3].As<Napi::Number>().Int32Value();
+}
+else
+{
+    v4 = info[3].As<Napi::Boolean>().Value();
+}
 glColorMask(v1, v2, v3, v4);
 RECORD_TIME_END
 }
@@ -641,7 +848,7 @@ void ContextWebGL::parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &inf
     {
         Napi::TypedArray array = info[1].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0,buffer.Data());
+        func(0, buffer.Data());
     }
     else if (info[1].IsArrayBuffer())
     {
@@ -691,28 +898,115 @@ RECORD_TIME_END
 
 DEFINE_VOID_METHOD(vertexAttrib1fv)
 NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info,glVertexAttrib1fv);
+parseTypeArrayAndCallVertexFunc(info, glVertexAttrib1fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib2fv)
 NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info,glVertexAttrib2fv);
+parseTypeArrayAndCallVertexFunc(info, glVertexAttrib2fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib3fv)
 NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info,glVertexAttrib3fv);
+parseTypeArrayAndCallVertexFunc(info, glVertexAttrib3fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib4fv)
 NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info,glVertexAttrib4fv);
+parseTypeArrayAndCallVertexFunc(info, glVertexAttrib4fv);
 RECORD_TIME_END
 }
 
+DEFINE_RETURN_VALUE_METHOD(createTexture)
+NodeBinding::checkArgs(info, 0);
+GLuint textureId;
+glGenTextures(1, &textureId);
+Napi::Object obj = WebGLTexture::NewInstance(info.Env(), Napi::Number::New(info.Env(), textureId));
+RECORD_TIME_END
+return obj;
+}
+
+DEFINE_VOID_METHOD(bindTexture)
+NodeBinding::checkArgs(info, 2);
+GLenum type = info[0].As<Napi::Number>().Uint32Value();
+GLuint textureId = 0;
+if (info[1].IsNull() || info[0].IsUndefined())
+{
+}
+else
+{
+    WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[1].As<Napi::Object>());
+    textureId = texture->getId();
+}
+
+glBindTexture(type, textureId);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(pixelStorei)
+NodeBinding::checkArgs(info, 2);
+GLenum type = info[0].As<Napi::Number>().Uint32Value();
+GLuint param = 0;
+if (info[1].IsBoolean())
+{
+    param = info[1].As<Napi::Boolean>().Value();
+}
+else
+{
+    param = info[1].As<Napi::Number>().Int32Value();
+}
+glPixelStorei(type, param);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(texParameteri)
+CHECK_PARAM_LEGNTH(3)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+GLenum param = info[2].As<Napi::Number>().Uint32Value();
+glTexParameteri(target, pname, param);
+RECORD_TIME_END
+}
+
+//TODO
+DEFINE_VOID_METHOD(texImage2D)
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(stencilFunc)
+CHECK_PARAM_LEGNTH(3)
+GLenum func = info[0].As<Napi::Number>().Uint32Value();
+GLint ref = info[1].As<Napi::Number>().Int32Value();
+GLuint mask = info[2].As<Napi::Number>().Uint32Value();
+glStencilFunc(func, ref, mask);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(stencilOp)
+CHECK_PARAM_LEGNTH(3)
+GLenum fail = info[0].As<Napi::Number>().Uint32Value();
+GLenum zfail = info[1].As<Napi::Number>().Uint32Value();
+GLenum zpass = info[2].As<Napi::Number>().Uint32Value();
+glStencilOp(fail, zfail, zpass);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(activeTexture)
+CHECK_PARAM_LEGNTH(1)
+GLenum texture = info[0].As<Napi::Number>().Uint32Value();
+glActiveTexture(texture);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(stencilMask)
+CHECK_PARAM_LEGNTH(1)
+GLint mask = info[0].As<Napi::Number>().Uint32Value();
+glStencilMask(mask);
+RECORD_TIME_END
+}
 
 DEFINE_RETURN_VALUE_METHOD(getShaderSource)
 CHECK_PARAM_LEGNTH(1)

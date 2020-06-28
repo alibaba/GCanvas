@@ -45,6 +45,7 @@ set(SOURCE_FILES
         ./binding/webGLRes/WebGLShader.cc
         ./binding/webGLRes/WebGLBuffer.cc
         ./binding/webGLRes/WebGLProgram.cc
+        ./binding/webGLRes/WebGLTexture.cc
         ./renderContext/GRenderContext.cc
         ./third_party/lodepng.cc
         ./util/NodeBindingUtil.cc
