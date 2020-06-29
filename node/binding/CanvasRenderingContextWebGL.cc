@@ -5,6 +5,7 @@
 #include "./webGLRes/WebGLTexture.h"
 #include "./webGLRes/WebGLFrameBuffer.h"
 #include "./webGLRes/WebGLRenderBuffer.h"
+#include "Image.h"
 //测量单个函数耗时的debug开关
 // #define DUMP_RUNNING_TIME 1
 
@@ -101,6 +102,7 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(attachShader),
                             BINDING_OBJECT_METHOD(linkProgram),
                             BINDING_OBJECT_METHOD(useProgram),
+                            BINDING_OBJECT_METHOD(validateProgram),
 
                             BINDING_OBJECT_METHOD(getAttribLocation),
                             BINDING_OBJECT_METHOD(vertexAttribPointer),
@@ -118,6 +120,7 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(clear),
 
                             BINDING_OBJECT_METHOD(getShaderInfoLog),
+                            BINDING_OBJECT_METHOD(bindAttribLocation),
                             BINDING_OBJECT_METHOD(getUniformLocation),
 
                             BINDING_OBJECT_METHOD(uniform1f),
@@ -159,9 +162,25 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(texParameteri),
                             BINDING_OBJECT_METHOD(texImage2D),
 
+                            BINDING_OBJECT_METHOD(depthFunc),
+                            BINDING_OBJECT_METHOD(depthMask),
+                            BINDING_OBJECT_METHOD(detachShader),
+                            BINDING_OBJECT_METHOD(disable),
                             BINDING_OBJECT_METHOD(stencilFunc),
                             BINDING_OBJECT_METHOD(stencilOp),
                             BINDING_OBJECT_METHOD(stencilMask),
+                            BINDING_OBJECT_METHOD(stencilOpSeparate),
+                            BINDING_OBJECT_METHOD(stencilMaskSeparate),
+                            BINDING_OBJECT_METHOD(stencilFuncSeparate),
+
+                            BINDING_OBJECT_METHOD(blendColor),
+                            BINDING_OBJECT_METHOD(blendFunc),
+                            BINDING_OBJECT_METHOD(blendFuncSeparate),
+                            BINDING_OBJECT_METHOD(blendEquation),
+                            BINDING_OBJECT_METHOD(blendEquationSeparate),
+
+                            BINDING_OBJECT_METHOD(cullFace),
+                            BINDING_OBJECT_METHOD(getError),
 
                             BINDING_CONST_PROPERY(LINK_STATUS),
                             BINDING_CONST_PROPERY(COLOR_BUFFER_BIT),
@@ -185,7 +204,25 @@ namespace NodeBinding
                             BINDING_CONST_PROPERY(ELEMENT_ARRAY_BUFFER),
                             BINDING_CONST_PROPERY(VERTEX_SHADER),
                             BINDING_CONST_PROPERY(FRAGMENT_SHADER),
+
+                            BINDING_CONST_PROPERY(RGBA),
+                            BINDING_CONST_PROPERY(RGBA4),
+                            BINDING_CONST_PROPERY(DEPTH_COMPONENT),
+                            BINDING_CONST_PROPERY(ALPHA),
+                            BINDING_CONST_PROPERY(RGB5_A1),
+                            BINDING_CONST_PROPERY(RGB565),
+                            BINDING_CONST_PROPERY(LUMINANCE),
+                            BINDING_CONST_PROPERY(LUMINANCE_ALPHA),
+                            BINDING_CONST_PROPERY(DEPTH_COMPONENT16),
+                            BINDING_CONST_PROPERY(STENCIL_INDEX8),
+
+                            BINDING_CONST_PROPERY(FLOAT),
+                            BINDING_CONST_PROPERY(BYTE),
+                            BINDING_CONST_PROPERY(UNSIGNED_BYTE),
+                            BINDING_CONST_PROPERY(SHORT),
                             BINDING_CONST_PROPERY(UNSIGNED_SHORT),
+                            BINDING_CONST_PROPERY(INT),
+                            BINDING_CONST_PROPERY(UNSIGNED_INT),
                             BINDING_CONST_PROPERY(FLOAT),
 
                             BINDING_CONST_PROPERY(FALSE),
@@ -365,13 +402,13 @@ namespace NodeBinding
     }
 
     DEFINE_VOID_METHOD(clear)
-    NodeBinding::checkArgs(info, 1);
+    CHECK_PARAM_LEGNTH(1)
     GLbitfield mask = info[0].As<Napi::Number>().Uint32Value();
     glClear(mask);
     RECORD_TIME_END
 } // namespace NodeBinding
 DEFINE_VOID_METHOD(clearColor)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLfloat red = info[0].As<Napi::Number>().FloatValue();
 GLfloat green = info[1].As<Napi::Number>().FloatValue();
 GLfloat blue = info[2].As<Napi::Number>().FloatValue();
@@ -381,14 +418,14 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(enable)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(1)
 GLenum cap = info[0].As<Napi::Number>().Uint32Value();
 glEnable(cap);
 RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createBuffer)
-NodeBinding::checkArgs(info, 0);
+CHECK_PARAM_LEGNTH(0)
 GLuint bufferId;
 glGenBuffers(1, &bufferId);
 Napi::Object obj = WebGLBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), bufferId));
@@ -422,7 +459,7 @@ RECORD_TIME_END
  * gl.bufferData(target, ArrayBufferView srcData, usage);
  **/
 DEFINE_VOID_METHOD(bufferData)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 GLenum target = info[0].As<Napi::Number>().Uint32Value();
 GLenum usage = info[2].As<Napi::Number>().Uint32Value();
 if (info[1].IsTypedArray())
@@ -446,7 +483,7 @@ RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createShader)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(1)
 Napi::Env env = info.Env();
 GLenum shaderType = info[0].As<Napi::Number>().Uint32Value();
 GLuint shaderId = glCreateShader(shaderType);
@@ -456,7 +493,7 @@ return obj;
 }
 
 DEFINE_VOID_METHOD(shaderSource)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 const char *shaderContent = shaderStr.c_str();
@@ -467,6 +504,7 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(compileShader)
+CHECK_PARAM_LEGNTH(1)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 glCompileShader(shader->getId());
 GLint compiled = 0;
@@ -474,10 +512,18 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(attachShader)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
 glAttachShader(program->getId(), shader->getId());
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(detachShader)
+CHECK_PARAM_LEGNTH(2)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
+glDetachShader(program->getId(), shader->getId());
 RECORD_TIME_END
 }
 
@@ -489,21 +535,21 @@ return WebGLProgram::NewInstance(info.Env(), Napi::Number::New(info.Env(), progr
 }
 
 DEFINE_VOID_METHOD(linkProgram)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(1)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 glLinkProgram(program->getId());
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(useProgram)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(1)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 glUseProgram(program->getId());
 RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getAttribLocation)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 const char *name = info[1].As<Napi::String>().Utf8Value().data();
 GLuint pos = glGetAttribLocation(program->getId(), name);
@@ -511,7 +557,7 @@ return Napi::Number::New(info.Env(), pos);
 }
 
 DEFINE_VOID_METHOD(viewport)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
@@ -521,7 +567,7 @@ glViewport(x *dpi, y *dpi, width *dpi, height *dpi);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(drawElements)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLenum mode = info[0].As<Napi::Number>().Uint32Value();
 GLsizei count = info[1].As<Napi::Number>().Int32Value();
 GLenum type = info[2].As<Napi::Number>().Uint32Value();
@@ -531,17 +577,19 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(flush)
+CHECK_PARAM_LEGNTH(0)
 glFlush();
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(finish)
+CHECK_PARAM_LEGNTH(0)
 glFinish();
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttribPointer)
-NodeBinding::checkArgs(info, 6);
+CHECK_PARAM_LEGNTH(6)
 GLuint index = info[0].As<Napi::Number>().Int32Value();
 GLint size = info[1].As<Napi::Number>().Int32Value();
 GLenum type = info[2].As<Napi::Number>().Uint32Value();
@@ -555,14 +603,14 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(enableVertexAttribArray)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(1)
 GLuint index = info[0].As<Napi::Number>().Uint32Value();
 glEnableVertexAttribArray(index);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(scissor)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLint x = info[0].As<Napi::Number>().Int32Value();
 GLint y = info[1].As<Napi::Number>().Int32Value();
 GLsizei width = info[2].As<Napi::Number>().Int32Value();
@@ -573,7 +621,7 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(drawArrays)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 GLenum mode = info[0].As<Napi::Number>().Uint32Value();
 GLint first = info[1].As<Napi::Number>().Int32Value();
 GLint count = info[2].As<Napi::Number>().Int32Value();
@@ -582,7 +630,7 @@ RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getShaderParameter)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 GLenum pname = info[1].As<Napi::Number>().Uint32Value();
 GLint ret = 0;
@@ -592,6 +640,7 @@ return Napi::Number::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(getShaderInfoLog)
+CHECK_PARAM_LEGNTH(1)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 GLsizei length;
 glGetShaderiv(shader->getId(), GL_INFO_LOG_LENGTH, &length);
@@ -611,13 +660,14 @@ else
 }
 
 DEFINE_VOID_METHOD(deleteShader)
+CHECK_PARAM_LEGNTH(1)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 glDeleteShader(shader->getId());
 RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getProgramParameter)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 GLenum pname = info[1].As<Napi::Number>().Uint32Value();
 GLint ret;
@@ -627,14 +677,14 @@ return Napi::Number::New(info.Env(), ret);
 }
 
 DEFINE_VOID_METHOD(deleteProgram)
-NodeBinding::checkArgs(info, 1);
+CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 glDeleteProgram(program->getId());
 RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getUniformLocation)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str());
@@ -642,14 +692,14 @@ RECORD_TIME_END
 return Napi::Number::New(info.Env(), index);
 }
 DEFINE_VOID_METHOD(uniform1f)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 GLuint location = info[0].As<Napi::Number>().Uint32Value();
 GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
 glUniform1f(location, v1);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2f)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 GLuint location = info[0].As<Napi::Number>().Uint32Value();
 GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
 GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
@@ -657,7 +707,7 @@ glUniform2f(location, v1, v2);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3f)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLuint location = info[0].As<Napi::Number>().Uint32Value();
 GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
 GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
@@ -667,7 +717,7 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4f)
-NodeBinding::checkArgs(info, 5);
+CHECK_PARAM_LEGNTH(5)
 GLuint location = info[0].As<Napi::Number>().Uint32Value();
 GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
 GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
@@ -678,7 +728,7 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(colorMask)
-NodeBinding::checkArgs(info, 4);
+CHECK_PARAM_LEGNTH(4)
 GLint v1, v2, v3, v4;
 if (info[0].IsNumber())
 {
@@ -958,7 +1008,7 @@ return obj;
 }
 
 DEFINE_VOID_METHOD(bindTexture)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 GLenum type = info[0].As<Napi::Number>().Uint32Value();
 GLuint textureId = 0;
 if (info[1].IsNull() || info[0].IsUndefined())
@@ -975,7 +1025,7 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(pixelStorei)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 GLenum type = info[0].As<Napi::Number>().Uint32Value();
 GLuint param = 0;
 if (info[1].IsBoolean())
@@ -999,8 +1049,46 @@ glTexParameteri(target, pname, param);
 RECORD_TIME_END
 }
 
-//TODO
+// support:
+//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 DEFINE_VOID_METHOD(texImage2D)
+if (info.Length() == 6)
+{
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLuint level = info[1].As<Napi::Number>().Uint32Value();
+    GLint internalFormat = info[2].As<Napi::Number>().Uint32Value();
+    GLint format = info[3].As<Napi::Number>().Uint32Value();
+    GLint type = info[4].As<Napi::Number>().Int32Value();
+    GLint border = 0;
+    if (info[5].IsNull() || info[5].IsUndefined())
+    {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        GLint width = 0;
+        GLint height = 0;
+        glTexImage2D(target, level, internalFormat, width, height, border, format, type, nullptr);
+    }
+    else if (info[5].IsObject())
+    {
+        Napi::Object object = info[5].As<Napi::Object>();
+        Napi::Value name = object.Get("name");
+        printf("the name is %d\n",name.IsNull());
+        std::string namePropetry = name.As<Napi::String>().Utf8Value();
+        //todo canvas
+        if (namePropetry == "image")
+        {
+            Image *image = Napi::ObjectWrap<Image>::Unwrap(info[5].As<Napi::Object>());
+
+            //一次处理 1 个字节
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexImage2D(target, level, internalFormat,
+                         image->getWidth(),
+                         image->getHeight(), border, format, type, &image->getPixels()[0]);
+        }
+    }
+}
+else
+{
+}
 RECORD_TIME_END
 }
 
@@ -1238,10 +1326,134 @@ CHECK_PARAM_LEGNTH(2)
 // return Napi::Number::New(info.Env(), result);
 }
 
+DEFINE_VOID_METHOD(stencilFuncSeparate)
+CHECK_PARAM_LEGNTH(4)
+GLenum face = info[0].As<Napi::Number>().Uint32Value();
+GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
+GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
+GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
+glStencilFuncSeparate(face, sfail, dpfail, dpass);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(stencilMaskSeparate)
+CHECK_PARAM_LEGNTH(2)
+GLenum face = info[0].As<Napi::Number>().Uint32Value();
+GLuint mask = info[1].As<Napi::Number>().Uint32Value();
+glStencilMaskSeparate(face, mask);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(stencilOpSeparate)
+CHECK_PARAM_LEGNTH(4)
+GLenum face = info[0].As<Napi::Number>().Uint32Value();
+GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
+GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
+GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
+glStencilOpSeparate(face, sfail, dpfail, dpass);
+RECORD_TIME_END
+}
+
 DEFINE_VOID_METHOD(clearStencil)
 CHECK_PARAM_LEGNTH(1)
 GLint s = info[0].As<Napi::Number>().Int32Value();
 glClearStencil(s);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(validateProgram)
+CHECK_PARAM_LEGNTH(1)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+glValidateProgram(program->getId());
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(depthFunc)
+CHECK_PARAM_LEGNTH(1)
+GLenum func = info[0].As<Napi::Number>().Uint32Value();
+glDepthMask(func);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(depthMask)
+CHECK_PARAM_LEGNTH(1)
+GLboolean flag = info[0].As<Napi::Boolean>().Value();
+glDepthMask(flag);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(disable)
+CHECK_PARAM_LEGNTH(1)
+GLenum cap = info[0].As<Napi::Number>().Uint32Value();
+glDisable(cap);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(blendColor)
+CHECK_PARAM_LEGNTH(4)
+GLclampf red = info[0].As<Napi::Number>().DoubleValue();
+GLclampf green = info[1].As<Napi::Number>().DoubleValue();
+GLclampf blue = info[2].As<Napi::Number>().DoubleValue();
+GLclampf alpha = info[3].As<Napi::Number>().DoubleValue();
+glBlendColor(red, green, blue, alpha);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(blendFunc)
+CHECK_PARAM_LEGNTH(2)
+GLenum sfactor = info[0].As<Napi::Number>().Uint32Value();
+GLenum dfactor = info[1].As<Napi::Number>().Uint32Value();
+glBlendFunc(sfactor, dfactor);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(blendFuncSeparate)
+CHECK_PARAM_LEGNTH(4)
+GLenum one = info[0].As<Napi::Number>().Uint32Value();
+GLenum two = info[1].As<Napi::Number>().Uint32Value();
+GLenum three = info[2].As<Napi::Number>().Uint32Value();
+GLenum four = info[3].As<Napi::Number>().Uint32Value();
+glBlendFuncSeparate(one, two, three, four);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(blendEquation)
+CHECK_PARAM_LEGNTH(2)
+GLenum one = info[0].As<Napi::Number>().Uint32Value();
+GLenum two = info[1].As<Napi::Number>().Uint32Value();
+glBlendEquationSeparate(one, two);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(blendEquationSeparate)
+CHECK_PARAM_LEGNTH(4)
+GLenum one = info[0].As<Napi::Number>().Uint32Value();
+GLenum two = info[1].As<Napi::Number>().Uint32Value();
+GLenum three = info[2].As<Napi::Number>().Uint32Value();
+GLenum four = info[4].As<Napi::Number>().Uint32Value();
+glBlendFuncSeparate(one, two, three, four);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(cullFace)
+CHECK_PARAM_LEGNTH(1)
+GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+glCullFace(mode);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getError)
+CHECK_PARAM_LEGNTH(0)
+return Napi::Number::New(info.Env(), glGetError());
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(bindAttribLocation)
+CHECK_PARAM_LEGNTH(3)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+GLuint index = info[1].As<Napi::Number>().Uint32Value();
+std::string name = info[2].As<Napi::String>().Utf8Value();
+glBindAttribLocation(program->getId(), index, name.c_str());
 RECORD_TIME_END
 }
 

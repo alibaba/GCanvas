@@ -1,3 +1,4 @@
+const { createCanvas, Image } = require('../../export')
 function setRectangle(gl, x, y, width, height) {
     var x1 = x;
     var x2 = x + width;
@@ -80,6 +81,8 @@ function drawImage(gl, canvas, image) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
     // Upload the image into the texture.
+    console.log(`the gl.RGBA is ${gl.RGBA}`)
+    console.log(`TEXTURE_2D is ${gl.TEXTURE_2D}`)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
     // lookup uniforms
@@ -133,7 +136,7 @@ function drawImage(gl, canvas, image) {
     gl.drawArrays(primitiveType, offset, count);
 }
 
-var canvas = new Canvas("", "myCanvas");
+var canvas =createCanvas(900,900);
 var c = canvas;
 var gl = c.getContext('webgl')
 
