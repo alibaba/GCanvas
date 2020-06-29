@@ -265,9 +265,10 @@ namespace NodeBinding
         return 0;
     }
 
-     int GRenderContext::getDpi(){
-         return this->mDpi;
-     }
+    int GRenderContext::getDpi()
+    {
+        return this->mDpi;
+    }
     void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
@@ -418,17 +419,6 @@ namespace NodeBinding
                 g_eglContext = eglCreateContext(mEglDisplay, eglConfig, NULL, NULL);
 #endif
             }
-        }
-    }
-    int GRenderContext::getTextureIdByUrl(std::string url)
-    {
-        if (this->imageTextureMap.find(url) == imageTextureMap.end())
-        {
-            return -1;
-        }
-        else
-        {
-            return this->imageTextureMap[url];
         }
     }
 

@@ -3,6 +3,8 @@
 #include "./webGLRes/WebGLProgram.h"
 #include "./webGLRes/WebGLBuffer.h"
 #include "./webGLRes/WebGLTexture.h"
+#include "./webGLRes/WebGLFrameBuffer.h"
+#include "./webGLRes/WebGLRenderBuffer.h"
 //测量单个函数耗时的debug开关
 // #define DUMP_RUNNING_TIME 1
 
@@ -56,18 +58,42 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(createProgram),
                             BINDING_OBJECT_METHOD(createTexture),
                             BINDING_OBJECT_METHOD(createShader),
+                            BINDING_OBJECT_METHOD(createFrameBuffer),
+                            BINDING_OBJECT_METHOD(createRenderBuffer),
+
                             BINDING_OBJECT_METHOD(deleteShader),
+                            BINDING_OBJECT_METHOD(deleteProgram),
+                            BINDING_OBJECT_METHOD(deleteFrameBuffer),
+                            BINDING_OBJECT_METHOD(deleteRenderBuffer),
+                            BINDING_OBJECT_METHOD(deleteTexture),
+                            BINDING_OBJECT_METHOD(deleteBuffer),
+
+                            BINDING_OBJECT_METHOD(isBuffer),
+                            BINDING_OBJECT_METHOD(isFramebuffer),
+                            BINDING_OBJECT_METHOD(isTexture),
+                            BINDING_OBJECT_METHOD(isShader),
+                            BINDING_OBJECT_METHOD(isProgram),
+                            BINDING_OBJECT_METHOD(isRenderBuffer),
+
+                            BINDING_OBJECT_METHOD(getShaderParameter),
+                            BINDING_OBJECT_METHOD(getProgramParameter),
+                            BINDING_OBJECT_METHOD(getBufferParameter),
+                            BINDING_OBJECT_METHOD(getTexParameter),
+                            BINDING_OBJECT_METHOD(getFramebufferAttachmentParameter),
 
                             BINDING_OBJECT_METHOD(viewport),
                             BINDING_OBJECT_METHOD(scissor),
                             BINDING_OBJECT_METHOD(clearColor),
                             BINDING_OBJECT_METHOD(colorMask),
+                            BINDING_OBJECT_METHOD(clearDepth),
+                            BINDING_OBJECT_METHOD(clearStencil),
                             BINDING_OBJECT_METHOD(enable),
 
                             BINDING_OBJECT_METHOD(bindBuffer),
                             BINDING_OBJECT_METHOD(bufferData),
 
                             BINDING_OBJECT_METHOD(bindTexture),
+                            BINDING_OBJECT_METHOD(renderbufferStorage),
 
                             BINDING_OBJECT_METHOD(shaderSource),
                             BINDING_OBJECT_METHOD(getShaderSource),
@@ -80,15 +106,18 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(vertexAttribPointer),
                             BINDING_OBJECT_METHOD(enableVertexAttribArray),
 
+                            BINDING_OBJECT_METHOD(bindFramebuffer),
+                            BINDING_OBJECT_METHOD(checkFramebufferStatus),
+                            BINDING_OBJECT_METHOD(framebufferRenderbuffer),
+                            BINDING_OBJECT_METHOD(framebufferTexture2D),
+
                             BINDING_OBJECT_METHOD(drawElements),
                             BINDING_OBJECT_METHOD(drawArrays),
                             BINDING_OBJECT_METHOD(flush),
                             BINDING_OBJECT_METHOD(finish),
                             BINDING_OBJECT_METHOD(clear),
-                            BINDING_OBJECT_METHOD(getShaderParameter),
+
                             BINDING_OBJECT_METHOD(getShaderInfoLog),
-                            BINDING_OBJECT_METHOD(getProgramParameter),
-                            BINDING_OBJECT_METHOD(deleteProgram),
                             BINDING_OBJECT_METHOD(getUniformLocation),
 
                             BINDING_OBJECT_METHOD(uniform1f),
@@ -325,7 +354,6 @@ namespace NodeBinding
     }
     ContextWebGL::ContextWebGL(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ContextWebGL>(info)
     {
-        // renderFrame();
     }
 
     Napi::Object ContextWebGL::NewInstance(Napi::Env env)
@@ -915,13 +943,13 @@ RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib4fv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallVertexFunc(info, glVertexAttrib4fv);
 RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createTexture)
-NodeBinding::checkArgs(info, 0);
+CHECK_PARAM_LEGNTH(0)
 GLuint textureId;
 glGenTextures(1, &textureId);
 Napi::Object obj = WebGLTexture::NewInstance(info.Env(), Napi::Number::New(info.Env(), textureId));
@@ -1008,16 +1036,213 @@ glStencilMask(mask);
 RECORD_TIME_END
 }
 
+DEFINE_RETURN_VALUE_METHOD(createFrameBuffer)
+CHECK_PARAM_LEGNTH(0)
+GLuint frameBufferId;
+glGenFramebuffers(1, &frameBufferId);
+Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), frameBufferId));
+RECORD_TIME_END
+return obj;
+}
+
+DEFINE_VOID_METHOD(bindFramebuffer)
+CHECK_PARAM_LEGNTH(2)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLuint frameBufferId = 0;
+if (info[1].IsNull() || info[1].IsUndefined())
+{
+}
+else
+{
+    WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
+    frameBufferId = buffer->getId();
+}
+glBindFramebuffer(target, frameBufferId);
+RECORD_TIME_END
+}
+
 DEFINE_RETURN_VALUE_METHOD(getShaderSource)
 CHECK_PARAM_LEGNTH(1)
 WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
 GLsizei length;
-
 glGetShaderiv(shader->getId(), GL_SHADER_SOURCE_LENGTH, &length);
 GLchar *src = new GLchar[length];
 glGetShaderSource(shader->getId(), length, nullptr, src);
 RECORD_TIME_END
 return Napi::String::New(info.Env(), src);
+}
+
+DEFINE_RETURN_VALUE_METHOD(checkFramebufferStatus)
+CHECK_PARAM_LEGNTH(1)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glCheckFramebufferStatus(target));
+}
+
+DEFINE_RETURN_VALUE_METHOD(isFramebuffer)
+CHECK_PARAM_LEGNTH(1)
+GLuint frameBufferId = 0;
+if (info[0].IsNull() || info[0].IsUndefined())
+{
+}
+else
+{
+    WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
+    frameBufferId = buffer->getId();
+}
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsFramebuffer(frameBufferId));
+}
+
+DEFINE_VOID_METHOD(framebufferRenderbuffer)
+CHECK_PARAM_LEGNTH(4)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
+GLenum renderBufferTarget = info[2].As<Napi::Number>().Uint32Value();
+WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[3].As<Napi::Object>());
+glFramebufferRenderbuffer(target, attachment, renderBufferTarget, renderBuffer->getId());
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(createRenderBuffer)
+CHECK_PARAM_LEGNTH(0)
+GLuint renderBufferId;
+glGenRenderbuffers(1, &renderBufferId);
+Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), renderBufferId));
+RECORD_TIME_END
+return obj;
+}
+
+DEFINE_VOID_METHOD(renderbufferStorage)
+CHECK_PARAM_LEGNTH(4)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum format = info[1].As<Napi::Number>().Uint32Value();
+GLsizei width = info[2].As<Napi::Number>().Int32Value();
+GLsizei height = info[3].As<Napi::Number>().Int32Value();
+glRenderbufferStorage(target, format, width, height);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(deleteBuffer)
+CHECK_PARAM_LEGNTH(1)
+WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
+GLuint id = buffer->getId();
+glDeleteBuffers(1, &id);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(deleteTexture)
+CHECK_PARAM_LEGNTH(1)
+WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
+GLuint id = texture->getId();
+glDeleteTextures(1, &id);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(deleteFrameBuffer)
+CHECK_PARAM_LEGNTH(1)
+WebGLFrameBuffer *frameBuffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[0].As<Napi::Object>());
+GLuint id = frameBuffer->getId();
+glDeleteTextures(1, &id);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(deleteRenderBuffer)
+CHECK_PARAM_LEGNTH(1)
+WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
+GLuint id = renderBuffer->getId();
+glDeleteTextures(1, &id);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(framebufferTexture2D)
+CHECK_PARAM_LEGNTH(5)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
+GLenum textarget = info[2].As<Napi::Number>().Uint32Value();
+WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[3].As<Napi::Object>());
+GLint level = info[4].As<Napi::Number>().Int32Value();
+glFramebufferTexture2D(target, attachment, textarget, texture->getId(), level);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getBufferParameter)
+CHECK_PARAM_LEGNTH(2)
+GLuint target = info[0].As<Napi::Number>().Uint32Value();
+GLuint pname = info[1].As<Napi::Number>().Uint32Value();
+GLint result;
+glGetBufferParameteriv(target, pname, &result);
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), result);
+}
+
+DEFINE_RETURN_VALUE_METHOD(isBuffer)
+CHECK_PARAM_LEGNTH(1)
+WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsBuffer(buffer->getId()));
+}
+
+DEFINE_RETURN_VALUE_METHOD(isShader)
+CHECK_PARAM_LEGNTH(1)
+WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsShader(buffer->getId()));
+}
+
+DEFINE_RETURN_VALUE_METHOD(isRenderBuffer)
+CHECK_PARAM_LEGNTH(1)
+WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsRenderbuffer(renderBuffer->getId()));
+}
+
+DEFINE_RETURN_VALUE_METHOD(isTexture)
+CHECK_PARAM_LEGNTH(1)
+WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsTexture(texture->getId()));
+}
+
+DEFINE_RETURN_VALUE_METHOD(isProgram)
+CHECK_PARAM_LEGNTH(1)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), glIsProgram(program->getId()));
+}
+
+DEFINE_VOID_METHOD(clearDepth)
+CHECK_PARAM_LEGNTH(1)
+GLclampd depth = info[0].As<Napi::Number>().DoubleValue();
+glClearDepth(depth);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getTexParameter)
+CHECK_PARAM_LEGNTH(2)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+GLint result;
+glGetTexParameteriv(target, pname, &result);
+RECORD_TIME_END
+return Napi::Number::New(info.Env(), result);
+}
+
+DEFINE_RETURN_VALUE_METHOD(getFramebufferAttachmentParameter)
+CHECK_PARAM_LEGNTH(2)
+// GLenum target = info[0].As<Napi::Number>().Uint32Value();
+// GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+// GLint result;
+// glGetTexParameteriv(target, pname, &result);
+// RECORD_TIME_END
+// return Napi::Number::New(info.Env(), result);
+}
+
+DEFINE_VOID_METHOD(clearStencil)
+CHECK_PARAM_LEGNTH(1)
+GLint s = info[0].As<Napi::Number>().Int32Value();
+glClearStencil(s);
+RECORD_TIME_END
 }
 
 ContextWebGL::~ContextWebGL()

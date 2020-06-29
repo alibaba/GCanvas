@@ -15,6 +15,8 @@
 #include "./webGLRes/WebGLBuffer.h"
 #include "./webGLRes/WebGLProgram.h"
 #include "./webGLRes/WebGLTexture.h"
+#include "./webGLRes/WebGLFrameBuffer.h"
+#include "./webGLRes/WebGLRenderBuffer.h"
 
 Napi::Object createCanvas(const Napi::CallbackInfo &info)
 {
@@ -50,6 +52,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   NodeBinding::WebGLProgram::Init(env);
   NodeBinding::WebGLBuffer ::Init(env);
   NodeBinding::WebGLTexture::Init(env);
+  NodeBinding::WebGLFrameBuffer::Init(env);
+  NodeBinding::WebGLRenderBuffer::Init(env);
   exports.Set(Napi::String::New(env, "createCanvas"),
               Napi::Function::New(env, createCanvas));
   exports.Set(Napi::String::New(env, "createImage"),
