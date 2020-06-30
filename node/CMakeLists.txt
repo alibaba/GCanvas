@@ -41,6 +41,8 @@ set(SOURCE_FILES
         ./binding/TextMetrics.cc
         ./binding/Image.cc
         ./binding/ImageWorker.cc
+        ./binding/WebGLActiveInfo.cc
+        ./binding/WebGLUniformLocation.cc
         ./binding/CanvasPattern.cc
         ./binding/webGLRes/WebGLShader.cc
         ./binding/webGLRes/WebGLBuffer.cc

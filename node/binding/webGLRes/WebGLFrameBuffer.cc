@@ -22,7 +22,7 @@ void WebGLFrameBuffer::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "WebGLShader",
+                    "WebGLFrameBuffer",
                     {
     
                     });

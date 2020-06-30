@@ -22,7 +22,7 @@ void WebGLTexture::Init(Napi::Env env)
 
     Napi::Function func =
         DefineClass(env,
-                    "WebGLShader",
+                    "WebGLTexture",
                     {
     
                     });

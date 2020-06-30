@@ -16,6 +16,8 @@
 #include "./webGLRes/WebGLProgram.h"
 #include "./webGLRes/WebGLTexture.h"
 #include "./webGLRes/WebGLFrameBuffer.h"
+#include "WebGLActiveInfo.h"
+#include "WebGLUniformLocation.h"
 #include "./webGLRes/WebGLRenderBuffer.h"
 
 Napi::Object createCanvas(const Napi::CallbackInfo &info)
@@ -54,6 +56,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   NodeBinding::WebGLTexture::Init(env);
   NodeBinding::WebGLFrameBuffer::Init(env);
   NodeBinding::WebGLRenderBuffer::Init(env);
+  NodeBinding::WebGLActiveInfo::Init(env);
+  NodeBinding::WebGLUniformLocation::Init(env);
   exports.Set(Napi::String::New(env, "createCanvas"),
               Napi::Function::New(env, createCanvas));
   exports.Set(Napi::String::New(env, "createImage"),

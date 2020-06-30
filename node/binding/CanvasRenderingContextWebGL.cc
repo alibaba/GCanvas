@@ -5,6 +5,8 @@
 #include "./webGLRes/WebGLTexture.h"
 #include "./webGLRes/WebGLFrameBuffer.h"
 #include "./webGLRes/WebGLRenderBuffer.h"
+#include "./WebGLActiveInfo.h"
+#include "WebGLUniformLocation.h"
 #include "Image.h"
 //测量单个函数耗时的debug开关
 // #define DUMP_RUNNING_TIME 1
@@ -47,6 +49,47 @@
 namespace NodeBinding
 {
 
+    static float parseFloat(const Napi::Value& value)
+    {
+        float ret = 0.0f;
+        if (value.IsNumber())
+        {
+            ret = value.As<Napi::Number>().FloatValue();
+        }
+        else if (value.IsBoolean())
+        {
+            ret = value.As<Napi::Boolean>().Value();
+        }
+        return ret;
+    }
+
+    static int parseInt(const Napi::Value &value)
+    {
+        int ret = 0;
+        if (value.IsNumber())
+        {
+            ret = value.As<Napi::Number>().Int32Value();
+        }
+        else if (value.IsBoolean())
+        {
+            ret = value.As<Napi::Boolean>().Value();
+        }
+        return ret;
+    }
+
+    static GLuint parseUInt(const Napi::Value& value)
+    {
+        GLuint ret = 0;
+        if (value.IsNumber())
+        {
+            ret = value.As<Napi::Number>().Uint32Value();
+        }
+        else if (value.IsBoolean())
+        {
+            ret = value.As<Napi::Boolean>().Value();
+        }
+        return ret;
+    }
     Napi::FunctionReference ContextWebGL::constructor;
     void ContextWebGL::Init(Napi::Env env)
     {
@@ -88,10 +131,10 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(colorMask),
                             BINDING_OBJECT_METHOD(clearDepth),
                             BINDING_OBJECT_METHOD(clearStencil),
-                            BINDING_OBJECT_METHOD(enable),
 
                             BINDING_OBJECT_METHOD(bindBuffer),
                             BINDING_OBJECT_METHOD(bufferData),
+                            BINDING_OBJECT_METHOD(bufferSubData),
 
                             BINDING_OBJECT_METHOD(bindTexture),
                             BINDING_OBJECT_METHOD(renderbufferStorage),
@@ -100,13 +143,15 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(getShaderSource),
                             BINDING_OBJECT_METHOD(compileShader),
                             BINDING_OBJECT_METHOD(attachShader),
+                            BINDING_OBJECT_METHOD(detachShader),
+                            BINDING_OBJECT_METHOD(getAttachedShaders),
                             BINDING_OBJECT_METHOD(linkProgram),
                             BINDING_OBJECT_METHOD(useProgram),
                             BINDING_OBJECT_METHOD(validateProgram),
 
-                            BINDING_OBJECT_METHOD(getAttribLocation),
                             BINDING_OBJECT_METHOD(vertexAttribPointer),
                             BINDING_OBJECT_METHOD(enableVertexAttribArray),
+                            BINDING_OBJECT_METHOD(disableVertexAttribArray),
 
                             BINDING_OBJECT_METHOD(bindFramebuffer),
                             BINDING_OBJECT_METHOD(checkFramebufferStatus),
@@ -119,9 +164,15 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(finish),
                             BINDING_OBJECT_METHOD(clear),
 
+                            BINDING_OBJECT_METHOD(getAttribLocation),
                             BINDING_OBJECT_METHOD(getShaderInfoLog),
                             BINDING_OBJECT_METHOD(bindAttribLocation),
                             BINDING_OBJECT_METHOD(getUniformLocation),
+                            BINDING_OBJECT_METHOD(getActiveAttrib),
+                            BINDING_OBJECT_METHOD(getActiveUniform),
+                            BINDING_OBJECT_METHOD(getUniform),
+                            BINDING_OBJECT_METHOD(getVertexAttrib),
+                            BINDING_OBJECT_METHOD(getVertexAttribOffset),
 
                             BINDING_OBJECT_METHOD(uniform1f),
                             BINDING_OBJECT_METHOD(uniform2f),
@@ -160,12 +211,17 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(activeTexture),
                             BINDING_OBJECT_METHOD(pixelStorei),
                             BINDING_OBJECT_METHOD(texParameteri),
+                            BINDING_OBJECT_METHOD(texParameterf),
                             BINDING_OBJECT_METHOD(texImage2D),
 
                             BINDING_OBJECT_METHOD(depthFunc),
                             BINDING_OBJECT_METHOD(depthMask),
-                            BINDING_OBJECT_METHOD(detachShader),
+                            BINDING_OBJECT_METHOD(depthRange),
+
+                            BINDING_OBJECT_METHOD(enable),
                             BINDING_OBJECT_METHOD(disable),
+                            BINDING_OBJECT_METHOD(isEnabled),
+
                             BINDING_OBJECT_METHOD(stencilFunc),
                             BINDING_OBJECT_METHOD(stencilOp),
                             BINDING_OBJECT_METHOD(stencilMask),
@@ -178,9 +234,17 @@ namespace NodeBinding
                             BINDING_OBJECT_METHOD(blendFuncSeparate),
                             BINDING_OBJECT_METHOD(blendEquation),
                             BINDING_OBJECT_METHOD(blendEquationSeparate),
-
+                            BINDING_OBJECT_METHOD(generateMipmap),
                             BINDING_OBJECT_METHOD(cullFace),
+                            BINDING_OBJECT_METHOD(frontFace),
                             BINDING_OBJECT_METHOD(getError),
+
+                            BINDING_OBJECT_METHOD(polygonOffset),
+                            BINDING_OBJECT_METHOD(lineWidth),
+                            BINDING_OBJECT_METHOD(sampleCoverage),
+                            BINDING_OBJECT_METHOD(hint),
+                            BINDING_OBJECT_METHOD(isContextLost),
+                            BINDING_OBJECT_METHOD(readPixels),
 
                             BINDING_CONST_PROPERY(LINK_STATUS),
                             BINDING_CONST_PROPERY(COLOR_BUFFER_BIT),
@@ -229,6 +293,73 @@ namespace NodeBinding
                             BINDING_CONST_PROPERY(TRUE),
                             BINDING_CONST_PROPERY(ZERO),
                             BINDING_CONST_PROPERY(ONE),
+
+                            BINDING_CONST_PROPERY(CURRENT_VERTEX_ATTRIB),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_ENABLED),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_SIZE),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_STRIDE),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_TYPE),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_NORMALIZED),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_POINTER),
+                            BINDING_CONST_PROPERY(VERTEX_ATTRIB_ARRAY_BUFFER_BINDING),
+
+                            BINDING_CONST_PROPERY(CULL_FACE),
+                            BINDING_CONST_PROPERY(FRONT),
+                            BINDING_CONST_PROPERY(BACK),
+                            BINDING_CONST_PROPERY(FRONT_AND_BACK),
+
+                            // Enabling and disabling
+                            BINDING_CONST_PROPERY(BLEND),
+                            BINDING_CONST_PROPERY(DITHER),
+                            BINDING_CONST_PROPERY(POLYGON_OFFSET_FILL),
+                            BINDING_CONST_PROPERY(SAMPLE_ALPHA_TO_COVERAGE),
+                            BINDING_CONST_PROPERY(SAMPLE_COVERAGE),
+
+                            // errors
+                            BINDING_CONST_PROPERY(NO_ERROR),
+                            BINDING_CONST_PROPERY(INVALID_ENUM),
+                            BINDING_CONST_PROPERY(INVALID_VALUE),
+                            BINDING_CONST_PROPERY(INVALID_OPERATION),
+                            BINDING_CONST_PROPERY(OUT_OF_MEMORY),
+                            // BINDING_CONST_PROPERY(CONTEXT_LOST_WEBGL),
+
+                            // Front face directions
+                            BINDING_CONST_PROPERY(CW),
+                            BINDING_CONST_PROPERY(CCW),
+
+                            BINDING_CONST_PROPERY(DONT_CARE),
+                            BINDING_CONST_PROPERY(FASTEST),
+                            BINDING_CONST_PROPERY(NICEST),
+                            BINDING_CONST_PROPERY(GENERATE_MIPMAP_HINT),
+
+                            // Pixel types
+                            // BIND_CONSTANT(UNSIGNED_BYTE, 0x1401),
+                            BINDING_CONST_PROPERY(UNSIGNED_SHORT_4_4_4_4),
+                            BINDING_CONST_PROPERY(UNSIGNED_SHORT_5_5_5_1),
+                            BINDING_CONST_PROPERY(UNSIGNED_SHORT_5_6_5),
+
+                            BINDING_CONST_PROPERY(FLOAT_VEC2),
+                            BINDING_CONST_PROPERY(FLOAT_VEC3),
+                            BINDING_CONST_PROPERY(FLOAT_VEC4),
+                            BINDING_CONST_PROPERY(INT_VEC2),
+                            BINDING_CONST_PROPERY(INT_VEC3),
+                            BINDING_CONST_PROPERY(INT_VEC4),
+                            BINDING_CONST_PROPERY(BOOL),
+                            BINDING_CONST_PROPERY(BOOL_VEC2),
+                            BINDING_CONST_PROPERY(BOOL_VEC3),
+                            BINDING_CONST_PROPERY(BOOL_VEC4),
+                            BINDING_CONST_PROPERY(FLOAT_MAT2),
+                            BINDING_CONST_PROPERY(FLOAT_MAT3),
+                            BINDING_CONST_PROPERY(FLOAT_MAT4),
+                            BINDING_CONST_PROPERY(SAMPLER_2D),
+                            BINDING_CONST_PROPERY(SAMPLER_CUBE),
+
+                            BINDING_CONST_PROPERY(LOW_FLOAT),
+                            BINDING_CONST_PROPERY(MEDIUM_FLOAT),
+                            BINDING_CONST_PROPERY(HIGH_FLOAT),
+                            BINDING_CONST_PROPERY(LOW_INT),
+                            BINDING_CONST_PROPERY(MEDIUM_INT),
+                            BINDING_CONST_PROPERY(HIGH_INT),
 
                             BINDING_CONST_PROPERY(SRC_COLOR),
                             BINDING_CONST_PROPERY(ONE_MINUS_SRC_COLOR),
@@ -383,6 +514,8 @@ namespace NodeBinding
                             BINDING_CONST_PROPERY(CLAMP_TO_EDGE),
                             BINDING_CONST_PROPERY(MIRRORED_REPEAT),
 
+                            InstanceAccessor("drawBufferWidth", &ContextWebGL::getDrawingBufferWidth, nullptr),
+                            InstanceAccessor("drawBufferHeight", &ContextWebGL::getDrawingBufferHeight, nullptr),
                             InstanceAccessor("UNPACK_FLIP_Y_WEBGL", &ContextWebGL::getUNPACK_FLIP_Y_WEBGL, nullptr),
                             InstanceAccessor("UNPACK_PREMULTIPLY_ALPHA_WEBGL", &ContextWebGL::getUNPACK_PREMULTIPLY_ALPHA_WEBGL, nullptr),
                             InstanceAccessor("UNPACK", &ContextWebGL::getUNPACK, nullptr),
@@ -482,6 +615,25 @@ else if (info[1].IsNumber())
 RECORD_TIME_END
 }
 
+DEFINE_VOID_METHOD(bufferSubData)
+CHECK_PARAM_LEGNTH(3)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum offset = info[1].As<Napi::Number>().Uint32Value();
+if (info[2].IsTypedArray())
+{
+    Napi::TypedArray array = info[2].As<Napi::TypedArray>();
+    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+    glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data());
+}
+else if (info[2].IsArrayBuffer())
+{
+    Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
+    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+    glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data());
+}
+RECORD_TIME_END
+}
+
 DEFINE_RETURN_VALUE_METHOD(createShader)
 CHECK_PARAM_LEGNTH(1)
 Napi::Env env = info.Env();
@@ -553,6 +705,7 @@ CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 const char *name = info[1].As<Napi::String>().Utf8Value().data();
 GLuint pos = glGetAttribLocation(program->getId(), name);
+RECORD_TIME_END
 return Napi::Number::New(info.Env(), pos);
 }
 
@@ -688,234 +841,207 @@ CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str());
+Napi::Object obj = WebGLUniformLocation::NewInstance(info.Env(), index);
 RECORD_TIME_END
-return Napi::Number::New(info.Env(), index);
+return obj;
 }
 DEFINE_VOID_METHOD(uniform1f)
 CHECK_PARAM_LEGNTH(2)
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-glUniform1f(location, v1);
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+GLfloat v1 = parseFloat(info[1]);
+glUniform1f(location->getIndex(), v1);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2f)
 CHECK_PARAM_LEGNTH(3)
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-glUniform2f(location, v1, v2);
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+GLfloat v1 = parseFloat(info[1]);
+GLfloat v2 = parseFloat(info[2]);
+glUniform2f(location->getIndex(), v1, v2);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3f)
 CHECK_PARAM_LEGNTH(4)
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
-glUniform3f(location, v1, v2, v3);
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+GLfloat v1 = parseFloat(info[1]);
+GLfloat v2 = parseFloat(info[2]);
+GLfloat v3 = parseFloat(info[3]);
+glUniform3f(location->getIndex(), v1, v2, v3);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4f)
 CHECK_PARAM_LEGNTH(5)
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
-GLfloat v4 = info[4].As<Napi::Number>().FloatValue();
-glUniform4f(location, v1, v2, v3, v4);
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+GLfloat v1 = parseFloat(info[1]);
+GLfloat v2 = parseFloat(info[2]);
+GLfloat v3 = parseFloat(info[3]);
+GLfloat v4 = parseFloat(info[4]);
+glUniform4f(location->getIndex(), v1, v2, v3, v4);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(colorMask)
 CHECK_PARAM_LEGNTH(4)
 GLint v1, v2, v3, v4;
-if (info[0].IsNumber())
-{
-    v1 = info[0].As<Napi::Number>().Int32Value();
-}
-else
-{
-    v1 = info[0].As<Napi::Boolean>().Value();
-}
-if (info[1].IsNumber())
-{
-    v2 = info[1].As<Napi::Number>().Int32Value();
-}
-else
-{
-    v2 = info[1].As<Napi::Boolean>().Value();
-}
-if (info[2].IsNumber())
-{
-    v3 = info[2].As<Napi::Number>().Int32Value();
-}
-else
-{
-    v3 = info[2].As<Napi::Boolean>().Value();
-}
-if (info[3].IsNumber())
-{
-    v4 = info[3].As<Napi::Number>().Int32Value();
-}
-else
-{
-    v4 = info[3].As<Napi::Boolean>().Value();
-}
+v1 = parseInt(info[0]);
+v2 = parseInt(info[1]);
+v3 = parseInt(info[2]);
+v4 = parseInt(info[3]);
 glColorMask(v1, v2, v3, v4);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1i)
-NodeBinding::checkArgs(info, 2);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
+CHECK_PARAM_LEGNTH(2)
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
 GLint v1 = info[1].As<Napi::Number>().Int32Value();
-glUniform1i(location, v1);
+glUniform1i(location->getIndex(), v1);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform2i)
-NodeBinding::checkArgs(info, 3);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
+CHECK_PARAM_LEGNTH(3)
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
 GLint v1 = info[1].As<Napi::Number>().Int32Value();
 GLint v2 = info[2].As<Napi::Number>().Int32Value();
-glUniform2i(location, v1, v2);
+glUniform2i(location->getIndex(), v1, v2);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform3i)
-NodeBinding::checkArgs(info, 4);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
+CHECK_PARAM_LEGNTH(4)
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
 GLint v1 = info[1].As<Napi::Number>().Int32Value();
 GLint v2 = info[2].As<Napi::Number>().Int32Value();
 GLint v3 = info[3].As<Napi::Number>().Int32Value();
-glUniform3i(location, v1, v2, v3);
+glUniform3i(location->getIndex(), v1, v2, v3);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4i)
-NodeBinding::checkArgs(info, 5);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
+CHECK_PARAM_LEGNTH(5)
+WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
 GLint v1 = info[1].As<Napi::Number>().Int32Value();
 GLint v2 = info[2].As<Napi::Number>().Int32Value();
 GLint v3 = info[3].As<Napi::Number>().Int32Value();
 GLint v4 = info[4].As<Napi::Number>().Int32Value();
-glUniform4i(location, v1, v2, v3, v4);
+glUniform4i(location->getIndex(), v1, v2, v3, v4);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1fv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallUniformFunc(info, glUniform1fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform2fv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(3)
 parseTypeArrayAndCallUniformFunc(info, glUniform2fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform3fv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(4)
 parseTypeArrayAndCallUniformFunc(info, glUniform3fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4fv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(5)
 parseTypeArrayAndCallUniformFunc(info, glUniform4fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1iv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallUniformFunc(info, glUniform1iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2iv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallUniformFunc(info, glUniform2iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3iv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallUniformFunc(info, glUniform3iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform4iv)
-NodeBinding::checkArgs(info, 2);
+CHECK_PARAM_LEGNTH(2)
 parseTypeArrayAndCallUniformFunc(info, glUniform4iv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix2fv)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 parseTypeArrayAndCallUniformFunc(info, glUniformMatrix2fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix3fv)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 parseTypeArrayAndCallUniformFunc(info, glUniformMatrix3fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix4fv)
-NodeBinding::checkArgs(info, 3);
+CHECK_PARAM_LEGNTH(3)
 parseTypeArrayAndCallUniformFunc(info, glUniformMatrix4fv);
 RECORD_TIME_END
 }
 
 void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func)
 {
-    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     if (info[1].IsTypedArray())
     {
         Napi::TypedArray array = info[1].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.ElementLength(), buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
     else if (info[1].IsArrayBuffer())
     {
         Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.ElementLength(), buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
 }
 
 void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformIntPtr func)
 {
-    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     if (info[1].IsTypedArray())
     {
         Napi::TypedArray array = info[1].As<Napi::TypedArray>();
         Napi::Int32Array buffer = array.As<Napi::Int32Array>();
-        func(0, buffer.ElementLength(), buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
     else if (info[1].IsArrayBuffer())
     {
         Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
         Napi::Int32Array buffer = array.As<Napi::Int32Array>();
-        func(0, buffer.ElementLength(), buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
 }
 
 void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformMatrixPtr func)
 {
-    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     GLboolean transpose = info[1].As<Napi::Boolean>().Value();
     if (info[2].IsTypedArray())
     {
         Napi::TypedArray array = info[2].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.ElementLength(), transpose, buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), transpose, buffer.Data());
     }
     else if (info[2].IsArrayBuffer())
     {
         Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.ElementLength(), transpose, buffer.Data());
+        func(location->getIndex(), buffer.ElementLength(), transpose, buffer.Data());
     }
 }
 
@@ -926,13 +1052,13 @@ void ContextWebGL::parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &inf
     {
         Napi::TypedArray array = info[1].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.Data());
+        func(location, buffer.Data());
     }
     else if (info[1].IsArrayBuffer())
     {
         Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(0, buffer.Data());
+        func(location, buffer.Data());
     }
 }
 
@@ -1027,15 +1153,7 @@ RECORD_TIME_END
 DEFINE_VOID_METHOD(pixelStorei)
 CHECK_PARAM_LEGNTH(2)
 GLenum type = info[0].As<Napi::Number>().Uint32Value();
-GLuint param = 0;
-if (info[1].IsBoolean())
-{
-    param = info[1].As<Napi::Boolean>().Value();
-}
-else
-{
-    param = info[1].As<Napi::Number>().Int32Value();
-}
+GLuint param = parseUInt(info[1]);
 glPixelStorei(type, param);
 RECORD_TIME_END
 }
@@ -1049,6 +1167,14 @@ glTexParameteri(target, pname, param);
 RECORD_TIME_END
 }
 
+DEFINE_VOID_METHOD(texParameterf)
+CHECK_PARAM_LEGNTH(3)
+GLfloat target = info[0].As<Napi::Number>().FloatValue();
+GLfloat pname = info[1].As<Napi::Number>().FloatValue();
+GLfloat param = info[2].As<Napi::Number>().FloatValue();
+glTexParameterf(target, pname, param);
+RECORD_TIME_END
+}
 // support:
 //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 DEFINE_VOID_METHOD(texImage2D)
@@ -1071,7 +1197,7 @@ if (info.Length() == 6)
     {
         Napi::Object object = info[5].As<Napi::Object>();
         Napi::Value name = object.Get("name");
-        printf("the name is %d\n",name.IsNull());
+        printf("the name is %d\n", name.IsNull());
         std::string namePropetry = name.As<Napi::String>().Utf8Value();
         //todo canvas
         if (namePropetry == "image")
@@ -1121,6 +1247,13 @@ DEFINE_VOID_METHOD(stencilMask)
 CHECK_PARAM_LEGNTH(1)
 GLint mask = info[0].As<Napi::Number>().Uint32Value();
 glStencilMask(mask);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(frontFace)
+CHECK_PARAM_LEGNTH(1)
+GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+glFrontFace(mode);
 RECORD_TIME_END
 }
 
@@ -1457,9 +1590,220 @@ glBindAttribLocation(program->getId(), index, name.c_str());
 RECORD_TIME_END
 }
 
+DEFINE_VOID_METHOD(polygonOffset)
+CHECK_PARAM_LEGNTH(2)
+GLfloat factor = info[0].As<Napi::Number>().FloatValue();
+GLfloat untis = info[1].As<Napi::Number>().FloatValue();
+glPolygonOffset(factor, untis);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(lineWidth)
+CHECK_PARAM_LEGNTH(1)
+GLfloat width = info[0].As<Napi::Number>().FloatValue();
+glLineWidth(width);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(sampleCoverage)
+CHECK_PARAM_LEGNTH(2)
+GLfloat value = info[0].As<Napi::Number>().FloatValue();
+GLboolean invert = info[1].As<Napi::Boolean>().Value();
+glSampleCoverage(value, invert);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(hint)
+CHECK_PARAM_LEGNTH(2)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+GLenum mode = info[1].As<Napi::Number>().Uint32Value();
+glHint(target, mode);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(isEnabled)
+CHECK_PARAM_LEGNTH(1)
+GLenum cap = info[0].As<Napi::Number>().Uint32Value();
+GLboolean ret = glIsEnabled(cap);
+RECORD_TIME_END
+return Napi::Boolean::New(info.Env(), ret);
+}
+
+DEFINE_VOID_METHOD(readPixels)
+CHECK_PARAM_LEGNTH(7)
+GLint x = info[0].As<Napi::Number>().Int32Value();
+GLint y = info[1].As<Napi::Number>().Int32Value();
+GLsizei width = info[2].As<Napi::Number>().Int32Value();
+GLsizei height = info[3].As<Napi::Number>().Int32Value();
+GLenum format = info[4].As<Napi::Number>().Uint32Value();
+GLenum type = info[5].As<Napi::Number>().Uint32Value();
+void *pixels = nullptr;
+if (info[6].IsTypedArray())
+{
+    Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+    pixels = buffer.Data();
+}
+else if (info[6].IsArrayBuffer())
+{
+    Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+    pixels = buffer.Data();
+}
+glReadPixels(x, y, width, height, format, type, pixels);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(depthRange)
+CHECK_PARAM_LEGNTH(2)
+GLfloat near = info[0].As<Napi::Number>().FloatValue();
+GLfloat far = info[1].As<Napi::Number>().FloatValue();
+glDepthRange(near, far);
+RECORD_TIME_END
+}
+
+DEFINE_VOID_METHOD(generateMipmap)
+CHECK_PARAM_LEGNTH(1)
+GLenum target = info[0].As<Napi::Number>().Uint32Value();
+glGenerateMipmap(target);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getAttachedShaders)
+CHECK_PARAM_LEGNTH(1)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+int maxCount = 32;
+int shaderCount = 0;
+GLuint shaders[maxCount];
+glGetAttachedShaders(program->getId(), maxCount, &shaderCount, shaders);
+Napi::Array arr = Napi::Array::New(info.Env());
+for (int i = 0; i < shaderCount; i++)
+{
+    Napi::Object shader = WebGLShader::NewInstance(info.Env(), Napi::Number::New(info.Env(), shaders[i]));
+    arr.Set(i, shader);
+}
+RECORD_TIME_END
+return arr;
+}
+
+DEFINE_VOID_METHOD(disableVertexAttribArray)
+CHECK_PARAM_LEGNTH(1)
+GLuint index = info[0].As<Napi::Number>().Uint32Value();
+glDisableVertexAttribArray(index);
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getActiveAttrib)
+CHECK_PARAM_LEGNTH(2)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+GLuint programId = program->getId();
+GLint index = info[1].As<Napi::Number>().Int32Value();
+GLsizei length;
+glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+GLchar *buffer = new (std::nothrow) GLchar[length];
+GLint size = 0;
+GLenum type = 0;
+glGetActiveAttrib(programId, index, length, NULL, &size, &type, buffer);
+Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
+RECORD_TIME_END
+return activeInfoObj;
+}
+
+DEFINE_RETURN_VALUE_METHOD(getActiveUniform)
+CHECK_PARAM_LEGNTH(2)
+WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+GLuint programId = program->getId();
+GLint index = info[1].As<Napi::Number>().Int32Value();
+GLsizei length;
+glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+GLchar *buffer = new (std::nothrow) GLchar[length];
+GLint size = 0;
+GLenum type = 0;
+glGetActiveUniform(programId, index, length, NULL, &size, &type, buffer);
+Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
+RECORD_TIME_END
+return activeInfoObj;
+}
+
+DEFINE_RETURN_VALUE_METHOD(getUniform)
+// glGetUniformiv()
+RECORD_TIME_END
+}
+
+DEFINE_RETURN_VALUE_METHOD(getVertexAttrib)
+CHECK_PARAM_LEGNTH(2)
+GLuint index = info[0].As<Napi::Number>().Uint32Value();
+GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+if (pname == GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING)
+{ // WebGLBuffer
+    GLint params;
+    glGetVertexAttribiv(index, pname, &params);
+    return Napi::Number::New(info.Env(), params);
+}
+else if (pname == GL_VERTEX_ATTRIB_ARRAY_ENABLED ||
+         pname == GL_VERTEX_ATTRIB_ARRAY_NORMALIZED)
+{ // GLBool
+    GLint params;
+    glGetVertexAttribiv(index, pname, &params);
+    return Napi::Number::New(info.Env(), params);
+}
+else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE ||
+         pname == GL_VERTEX_ATTRIB_ARRAY_STRIDE)
+{ // GLint
+    GLint params;
+    glGetVertexAttribiv(index, pname, &params);
+    return Napi::Number::New(info.Env(), params);
+}
+else if (pname == GL_VERTEX_ATTRIB_ARRAY_TYPE)
+{ // GLEnum
+    GLint params;
+    glGetVertexAttribiv(index, pname, &params);
+    return Napi::Number::New(info.Env(), params);
+}
+else if (pname == GL_CURRENT_VERTEX_ATTRIB)
+{ // 4元素 Float32Array
+    GLfloat *data = new GLfloat[4];
+    glGetVertexAttribfv(index, pname, data);
+    Napi::Array arr = Napi::Array::New(info.Env());
+    for (int i = 0; i < 4; i++)
+    {
+        arr.Set(i, Napi::Number::New(info.Env(), data[i]));
+    }
+    return arr;
+}
+RECORD_TIME_END
+}
+DEFINE_RETURN_VALUE_METHOD(getVertexAttribOffset)
+CHECK_PARAM_LEGNTH(2)
+GLuint index = info[0].As<Napi::Number>().Uint32Value();
+GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+if (pname == GL_VERTEX_ATTRIB_ARRAY_POINTER)
+{
+    int *p;
+    glGetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, (void **)&p);
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), *p);
+}
+else
+{
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), 0);
+}
+}
+
+DEFINE_RETURN_VALUE_METHOD(isContextLost)
+bool flag = false;
+if (!mRenderContext)
+{
+    flag = true;
+}
+RECORD_TIME_END
+return Napi::Boolean::New(info.Env(), flag);
+}
+
 ContextWebGL::~ContextWebGL()
 {
     this->mRenderContext = nullptr;
 }
 
-} // namespace NodeBinding
+} // namespace NodeBindingDataConvert::AsUInt(args[0]);
