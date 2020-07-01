@@ -12,37 +12,47 @@
 		9A40BDE01ED45B5600739AE6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A40BDDF1ED45B5600739AE6 /* Foundation.framework */; };
 		A231B1E8235064DA00466BE3 /* GCanvasWeex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231B1E6235064DA00466BE3 /* GCanvasWeex.cpp */; };
 		A231B1E9235064DA00466BE3 /* GCanvasWeex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A231B1E7235064DA00466BE3 /* GCanvasWeex.hpp */; };
+		A24156E424AC628B00405D95 /* GGL.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CB24AC628B00405D95 /* GGL.h */; };
+		A24156E524AC628B00405D95 /* GTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CC24AC628B00405D95 /* GTexture.h */; };
+		A24156E624AC628B00405D95 /* GLUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CD24AC628B00405D95 /* GLUtil.h */; };
+		A24156E724AC628B00405D95 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CE24AC628B00405D95 /* GFrameBufferObject.h */; };
+		A24156E924AC628B00405D95 /* GFrameBufferObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156D024AC628B00405D95 /* GFrameBufferObject.cpp */; };
+		A24156EA24AC628B00405D95 /* GShader.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D124AC628B00405D95 /* GShader.h */; };
+		A24156EB24AC628B00405D95 /* GShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D224AC628B00405D95 /* GShaderManager.h */; };
+		A24156ED24AC628B00405D95 /* GShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156D424AC628B00405D95 /* GShader.cpp */; };
+		A24156EE24AC628B00405D95 /* grad.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D624AC628B00405D95 /* grad.glsl */; };
+		A24156EF24AC628B00405D95 /* pattern.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D724AC628B00405D95 /* pattern.glsl */; };
+		A24156F024AC628B00405D95 /* blur.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D824AC628B00405D95 /* blur.glsl */; };
+		A24156F124AC628B00405D95 /* radiation.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D924AC628B00405D95 /* radiation.glsl */; };
+		A24156F224AC628B00405D95 /* default.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156DA24AC628B00405D95 /* default.glsl */; };
+		A24156F324AC628B00405D95 /* shadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156DB24AC628B00405D95 /* shadow.glsl */; };
+		A24156F424AC628B00405D95 /* texture.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156DC24AC628B00405D95 /* texture.glsl */; };
+		A24156F524AC628B00405D95 /* GLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DD24AC628B00405D95 /* GLUtil.cpp */; };
+		A24156F624AC628B00405D95 /* GTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DE24AC628B00405D95 /* GTexture.cpp */; };
+		A24156F724AC628B00405D95 /* GShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DF24AC628B00405D95 /* GShaderManager.cpp */; };
+		A24156F824AC628B00405D95 /* GPath2D.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E024AC628B00405D95 /* GPath2D.h */; };
+		A24156F924AC628B00405D95 /* GPath2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156E124AC628B00405D95 /* GPath2D.cpp */; };
+		A24156FA24AC628B00405D95 /* GPathStroker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156E224AC628B00405D95 /* GPathStroker.cpp */; };
+		A24156FB24AC628B00405D95 /* GPathStroker.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E324AC628B00405D95 /* GPathStroker.h */; };
+		A24156FE24AC62C100405D95 /* GFontManagerIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156FC24AC62C100405D95 /* GFontManagerIOS.h */; };
+		A24156FF24AC62C100405D95 /* GFontManagerIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A24156FD24AC62C100405D95 /* GFontManagerIOS.mm */; };
 		A25FB1F12343491700EF73E5 /* GFontStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB09B2343491500EF73E5 /* GFontStyle.cpp */; };
 		A25FB1F22343491700EF73E5 /* GTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB09C2343491500EF73E5 /* GTransform.h */; };
 		A25FB1F32343491700EF73E5 /* GStrSeparator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB09D2343491500EF73E5 /* GStrSeparator.cpp */; };
-		A25FB1F42343491700EF73E5 /* GTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB09E2343491500EF73E5 /* GTexture.h */; };
-		A25FB1F52343491700EF73E5 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB09F2343491500EF73E5 /* GFrameBufferObject.h */; };
 		A25FB1F62343491700EF73E5 /* GConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A02343491500EF73E5 /* GConvert.h */; };
 		A25FB1F82343491700EF73E5 /* GFillStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A22343491500EF73E5 /* GFillStyle.h */; };
 		A25FB1F92343491700EF73E5 /* GFontStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A32343491500EF73E5 /* GFontStyle.h */; };
-		A25FB1FA2343491700EF73E5 /* GFrameBufferObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0A42343491500EF73E5 /* GFrameBufferObject.cpp */; };
-		A25FB1FB2343491700EF73E5 /* GShader.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A52343491500EF73E5 /* GShader.h */; };
 		A25FB1FC2343491700EF73E5 /* GFontManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A62343491500EF73E5 /* GFontManager.h */; };
-		A25FB1FD2343491700EF73E5 /* GShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A72343491500EF73E5 /* GShaderManager.h */; };
 		A25FB1FE2343491700EF73E5 /* GConvert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0A82343491500EF73E5 /* GConvert.cpp */; };
 		A25FB1FF2343491700EF73E5 /* GCanvasState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0A92343491500EF73E5 /* GCanvasState.cpp */; };
 		A25FB2002343491700EF73E5 /* GTreemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0AA2343491500EF73E5 /* GTreemap.cpp */; };
 		A25FB2012343491700EF73E5 /* GPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AB2343491500EF73E5 /* GPoint.h */; };
 		A25FB2022343491700EF73E5 /* GPath.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AC2343491500EF73E5 /* GPath.h */; };
-		A25FB2032343491700EF73E5 /* GShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0AD2343491500EF73E5 /* GShader.cpp */; };
 		A25FB2042343491700EF73E5 /* GCanvas2dContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0AE2343491500EF73E5 /* GCanvas2dContext.cpp */; };
-		A25FB2052343491700EF73E5 /* grad.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B02343491500EF73E5 /* grad.glsl */; };
-		A25FB2062343491700EF73E5 /* pattern.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B12343491500EF73E5 /* pattern.glsl */; };
-		A25FB2072343491700EF73E5 /* radiation.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B22343491500EF73E5 /* radiation.glsl */; };
-		A25FB2082343491700EF73E5 /* default.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B32343491500EF73E5 /* default.glsl */; };
-		A25FB2092343491700EF73E5 /* shadow.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B42343491500EF73E5 /* shadow.glsl */; };
-		A25FB20A2343491700EF73E5 /* texture.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A25FB0B52343491500EF73E5 /* texture.glsl */; };
 		A25FB20D2343491700EF73E5 /* GGlyphCache.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0B92343491500EF73E5 /* GGlyphCache.h */; };
 		A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BA2343491500EF73E5 /* GWebglContext.h */; };
-		A25FB20F2343491700EF73E5 /* GTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0BB2343491500EF73E5 /* GTexture.cpp */; };
 		A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BC2343491500EF73E5 /* GStrSeparator.h */; };
 		A25FB2112343491700EF73E5 /* GWebglContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0BD2343491500EF73E5 /* GWebglContext.cpp */; };
-		A25FB2122343491700EF73E5 /* GShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0BE2343491500EF73E5 /* GShaderManager.cpp */; };
 		A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */; };
 		A25FB2142343491700EF73E5 /* GTreemap.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C02343491500EF73E5 /* GTreemap.h */; };
 		A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C12343491500EF73E5 /* GCanvasState.h */; };
@@ -53,7 +63,6 @@
 		A25FB21A2343491700EF73E5 /* export.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C62343491500EF73E5 /* export.h */; };
 		A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C72343491500EF73E5 /* GCanvas.hpp */; };
 		A25FB21D2343491700EF73E5 /* GCVFont.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0CB2343491500EF73E5 /* GCVFont.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A25FB21E2343491700EF73E5 /* GFontManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0CC2343491500EF73E5 /* GFontManager.mm */; };
 		A25FB21F2343491700EF73E5 /* GCVFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0CD2343491500EF73E5 /* GCVFont.mm */; };
 		A25FB22B2343491700EF73E5 /* GCanvasManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0DA2343491500EF73E5 /* GCanvasManager.h */; };
 		A25FB22C2343491700EF73E5 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0DC2343491500EF73E5 /* Log.cpp */; };
@@ -65,8 +74,6 @@
 		A25FB2392343491700EF73E5 /* Encode.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E92343491500EF73E5 /* Encode.h */; };
 		A25FB23B2343491700EF73E5 /* GCanvasManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0EB2343491500EF73E5 /* GCanvasManager.cpp */; };
 		A25FB23C2343491700EF73E5 /* GCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0EC2343491500EF73E5 /* GCanvas.cpp */; };
-		A27A8BED23600E0B008471E3 /* GLUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = A27A8BEC23600E0B008471E3 /* GLUtil.h */; };
-		A27A8BF123604BA2008471E3 /* GLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A27A8BF023604BA2008471E3 /* GLUtil.cpp */; };
 		A284A2FB234348880029BBCA /* GCVLog.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A273234348880029BBCA /* GCVLog.m */; };
 		A284A2FC234348880029BBCA /* GCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A274234348880029BBCA /* GCanvasModule.m */; };
 		A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A275234348880029BBCA /* GCanvasModuleProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -89,38 +96,47 @@
 		9A40BDDF1ED45B5600739AE6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A231B1E6235064DA00466BE3 /* GCanvasWeex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasWeex.cpp; sourceTree = "<group>"; };
 		A231B1E7235064DA00466BE3 /* GCanvasWeex.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = GCanvasWeex.hpp; sourceTree = "<group>"; };
-		A23F9F0523629A75006078B4 /* GGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GGL.h; sourceTree = "<group>"; };
+		A24156CB24AC628B00405D95 /* GGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GGL.h; sourceTree = "<group>"; };
+		A24156CC24AC628B00405D95 /* GTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTexture.h; sourceTree = "<group>"; };
+		A24156CD24AC628B00405D95 /* GLUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtil.h; sourceTree = "<group>"; };
+		A24156CE24AC628B00405D95 /* GFrameBufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFrameBufferObject.h; sourceTree = "<group>"; };
+		A24156D024AC628B00405D95 /* GFrameBufferObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFrameBufferObject.cpp; sourceTree = "<group>"; };
+		A24156D124AC628B00405D95 /* GShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GShader.h; sourceTree = "<group>"; };
+		A24156D224AC628B00405D95 /* GShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GShaderManager.h; sourceTree = "<group>"; };
+		A24156D424AC628B00405D95 /* GShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GShader.cpp; sourceTree = "<group>"; };
+		A24156D624AC628B00405D95 /* grad.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grad.glsl; sourceTree = "<group>"; };
+		A24156D724AC628B00405D95 /* pattern.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pattern.glsl; sourceTree = "<group>"; };
+		A24156D824AC628B00405D95 /* blur.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blur.glsl; sourceTree = "<group>"; };
+		A24156D924AC628B00405D95 /* radiation.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = radiation.glsl; sourceTree = "<group>"; };
+		A24156DA24AC628B00405D95 /* default.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = default.glsl; sourceTree = "<group>"; };
+		A24156DB24AC628B00405D95 /* shadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shadow.glsl; sourceTree = "<group>"; };
+		A24156DC24AC628B00405D95 /* texture.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = texture.glsl; sourceTree = "<group>"; };
+		A24156DD24AC628B00405D95 /* GLUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLUtil.cpp; sourceTree = "<group>"; };
+		A24156DE24AC628B00405D95 /* GTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GTexture.cpp; sourceTree = "<group>"; };
+		A24156DF24AC628B00405D95 /* GShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GShaderManager.cpp; sourceTree = "<group>"; };
+		A24156E024AC628B00405D95 /* GPath2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPath2D.h; sourceTree = "<group>"; };
+		A24156E124AC628B00405D95 /* GPath2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPath2D.cpp; sourceTree = "<group>"; };
+		A24156E224AC628B00405D95 /* GPathStroker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPathStroker.cpp; sourceTree = "<group>"; };
+		A24156E324AC628B00405D95 /* GPathStroker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPathStroker.h; sourceTree = "<group>"; };
+		A24156FC24AC62C100405D95 /* GFontManagerIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFontManagerIOS.h; sourceTree = "<group>"; };
+		A24156FD24AC62C100405D95 /* GFontManagerIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GFontManagerIOS.mm; sourceTree = "<group>"; };
 		A25FB09B2343491500EF73E5 /* GFontStyle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFontStyle.cpp; sourceTree = "<group>"; };
 		A25FB09C2343491500EF73E5 /* GTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTransform.h; sourceTree = "<group>"; };
 		A25FB09D2343491500EF73E5 /* GStrSeparator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GStrSeparator.cpp; sourceTree = "<group>"; };
-		A25FB09E2343491500EF73E5 /* GTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTexture.h; sourceTree = "<group>"; };
-		A25FB09F2343491500EF73E5 /* GFrameBufferObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFrameBufferObject.h; sourceTree = "<group>"; };
 		A25FB0A02343491500EF73E5 /* GConvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GConvert.h; sourceTree = "<group>"; };
 		A25FB0A22343491500EF73E5 /* GFillStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFillStyle.h; sourceTree = "<group>"; };
 		A25FB0A32343491500EF73E5 /* GFontStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFontStyle.h; sourceTree = "<group>"; };
-		A25FB0A42343491500EF73E5 /* GFrameBufferObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFrameBufferObject.cpp; sourceTree = "<group>"; };
-		A25FB0A52343491500EF73E5 /* GShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GShader.h; sourceTree = "<group>"; };
 		A25FB0A62343491500EF73E5 /* GFontManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFontManager.h; sourceTree = "<group>"; };
-		A25FB0A72343491500EF73E5 /* GShaderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GShaderManager.h; sourceTree = "<group>"; };
 		A25FB0A82343491500EF73E5 /* GConvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GConvert.cpp; sourceTree = "<group>"; };
 		A25FB0A92343491500EF73E5 /* GCanvasState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasState.cpp; sourceTree = "<group>"; };
 		A25FB0AA2343491500EF73E5 /* GTreemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GTreemap.cpp; sourceTree = "<group>"; };
 		A25FB0AB2343491500EF73E5 /* GPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPoint.h; sourceTree = "<group>"; };
 		A25FB0AC2343491500EF73E5 /* GPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPath.h; sourceTree = "<group>"; };
-		A25FB0AD2343491500EF73E5 /* GShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GShader.cpp; sourceTree = "<group>"; };
 		A25FB0AE2343491500EF73E5 /* GCanvas2dContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvas2dContext.cpp; sourceTree = "<group>"; };
-		A25FB0B02343491500EF73E5 /* grad.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grad.glsl; sourceTree = "<group>"; };
-		A25FB0B12343491500EF73E5 /* pattern.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pattern.glsl; sourceTree = "<group>"; };
-		A25FB0B22343491500EF73E5 /* radiation.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = radiation.glsl; sourceTree = "<group>"; };
-		A25FB0B32343491500EF73E5 /* default.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = default.glsl; sourceTree = "<group>"; };
-		A25FB0B42343491500EF73E5 /* shadow.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = shadow.glsl; sourceTree = "<group>"; };
-		A25FB0B52343491500EF73E5 /* texture.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = texture.glsl; sourceTree = "<group>"; };
 		A25FB0B92343491500EF73E5 /* GGlyphCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GGlyphCache.h; sourceTree = "<group>"; };
 		A25FB0BA2343491500EF73E5 /* GWebglContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWebglContext.h; sourceTree = "<group>"; };
-		A25FB0BB2343491500EF73E5 /* GTexture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GTexture.cpp; sourceTree = "<group>"; };
 		A25FB0BC2343491500EF73E5 /* GStrSeparator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GStrSeparator.h; sourceTree = "<group>"; };
 		A25FB0BD2343491500EF73E5 /* GWebglContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GWebglContext.cpp; sourceTree = "<group>"; };
-		A25FB0BE2343491500EF73E5 /* GShaderManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GShaderManager.cpp; sourceTree = "<group>"; };
 		A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvas2dContext.h; sourceTree = "<group>"; };
 		A25FB0C02343491500EF73E5 /* GTreemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTreemap.h; sourceTree = "<group>"; };
 		A25FB0C12343491500EF73E5 /* GCanvasState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasState.h; sourceTree = "<group>"; };
@@ -131,7 +147,6 @@
 		A25FB0C62343491500EF73E5 /* export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = export.h; sourceTree = "<group>"; };
 		A25FB0C72343491500EF73E5 /* GCanvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCanvas.hpp; sourceTree = "<group>"; };
 		A25FB0CB2343491500EF73E5 /* GCVFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCVFont.h; sourceTree = "<group>"; };
-		A25FB0CC2343491500EF73E5 /* GFontManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GFontManager.mm; sourceTree = "<group>"; };
 		A25FB0CD2343491500EF73E5 /* GCVFont.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GCVFont.mm; sourceTree = "<group>"; };
 		A25FB0DA2343491500EF73E5 /* GCanvasManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasManager.h; sourceTree = "<group>"; };
 		A25FB0DC2343491500EF73E5 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
@@ -143,8 +158,6 @@
 		A25FB0E92343491500EF73E5 /* Encode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Encode.h; sourceTree = "<group>"; };
 		A25FB0EB2343491500EF73E5 /* GCanvasManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvasManager.cpp; sourceTree = "<group>"; };
 		A25FB0EC2343491500EF73E5 /* GCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCanvas.cpp; sourceTree = "<group>"; };
-		A27A8BEC23600E0B008471E3 /* GLUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtil.h; sourceTree = "<group>"; };
-		A27A8BF023604BA2008471E3 /* GLUtil.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GLUtil.cpp; sourceTree = "<group>"; };
 		A284A273234348880029BBCA /* GCVLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCVLog.m; sourceTree = "<group>"; };
 		A284A274234348880029BBCA /* GCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCanvasModule.m; sourceTree = "<group>"; };
 		A284A275234348880029BBCA /* GCanvasModuleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasModuleProtocol.h; sourceTree = "<group>"; };
@@ -202,6 +215,39 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A24156CA24AC628B00405D95 /* GL */ = {
+			isa = PBXGroup;
+			children = (
+				A24156D024AC628B00405D95 /* GFrameBufferObject.cpp */,
+				A24156CE24AC628B00405D95 /* GFrameBufferObject.h */,
+				A24156CB24AC628B00405D95 /* GGL.h */,
+				A24156DD24AC628B00405D95 /* GLUtil.cpp */,
+				A24156CD24AC628B00405D95 /* GLUtil.h */,
+				A24156D424AC628B00405D95 /* GShader.cpp */,
+				A24156D124AC628B00405D95 /* GShader.h */,
+				A24156DF24AC628B00405D95 /* GShaderManager.cpp */,
+				A24156D224AC628B00405D95 /* GShaderManager.h */,
+				A24156DE24AC628B00405D95 /* GTexture.cpp */,
+				A24156CC24AC628B00405D95 /* GTexture.h */,
+				A24156D524AC628B00405D95 /* shaders */,
+			);
+			path = GL;
+			sourceTree = "<group>";
+		};
+		A24156D524AC628B00405D95 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				A24156D624AC628B00405D95 /* grad.glsl */,
+				A24156D724AC628B00405D95 /* pattern.glsl */,
+				A24156D824AC628B00405D95 /* blur.glsl */,
+				A24156D924AC628B00405D95 /* radiation.glsl */,
+				A24156DA24AC628B00405D95 /* default.glsl */,
+				A24156DB24AC628B00405D95 /* shadow.glsl */,
+				A24156DC24AC628B00405D95 /* texture.glsl */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
 		A25FAF092343491500EF73E5 /* core */ = {
 			isa = PBXGroup;
 			children = (
@@ -231,6 +277,7 @@
 		A25FB09A2343491500EF73E5 /* gcanvas */ = {
 			isa = PBXGroup;
 			children = (
+				A24156CA24AC628B00405D95 /* GL */,
 				A25FB0AE2343491500EF73E5 /* GCanvas2dContext.cpp */,
 				A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */,
 				A25FB0A92343491500EF73E5 /* GCanvasState.cpp */,
@@ -242,44 +289,25 @@
 				A25FB0A62343491500EF73E5 /* GFontManager.h */,
 				A25FB09B2343491500EF73E5 /* GFontStyle.cpp */,
 				A25FB0A32343491500EF73E5 /* GFontStyle.h */,
-				A25FB0A42343491500EF73E5 /* GFrameBufferObject.cpp */,
-				A25FB09F2343491500EF73E5 /* GFrameBufferObject.h */,
 				A25FB0C22343491500EF73E5 /* GGlyphCache.cpp */,
 				A25FB0B92343491500EF73E5 /* GGlyphCache.h */,
-				A23F9F0523629A75006078B4 /* GGL.h */,
 				A25FB0C42343491500EF73E5 /* GPath.cpp */,
 				A25FB0AC2343491500EF73E5 /* GPath.h */,
+				A24156E124AC628B00405D95 /* GPath2D.cpp */,
+				A24156E024AC628B00405D95 /* GPath2D.h */,
+				A24156E224AC628B00405D95 /* GPathStroker.cpp */,
+				A24156E324AC628B00405D95 /* GPathStroker.h */,
 				A25FB0AB2343491500EF73E5 /* GPoint.h */,
-				A25FB0AD2343491500EF73E5 /* GShader.cpp */,
-				A25FB0A52343491500EF73E5 /* GShader.h */,
-				A25FB0BE2343491500EF73E5 /* GShaderManager.cpp */,
-				A25FB0A72343491500EF73E5 /* GShaderManager.h */,
 				A25FB09D2343491500EF73E5 /* GStrSeparator.cpp */,
 				A25FB0BC2343491500EF73E5 /* GStrSeparator.h */,
 				A25FB0C32343491500EF73E5 /* GTextDefine.h */,
-				A25FB0BB2343491500EF73E5 /* GTexture.cpp */,
-				A25FB09E2343491500EF73E5 /* GTexture.h */,
 				A25FB09C2343491500EF73E5 /* GTransform.h */,
 				A25FB0AA2343491500EF73E5 /* GTreemap.cpp */,
 				A25FB0C02343491500EF73E5 /* GTreemap.h */,
 				A25FB0BD2343491500EF73E5 /* GWebglContext.cpp */,
 				A25FB0BA2343491500EF73E5 /* GWebglContext.h */,
-				A25FB0AF2343491500EF73E5 /* shaders */,
 			);
 			path = gcanvas;
-			sourceTree = "<group>";
-		};
-		A25FB0AF2343491500EF73E5 /* shaders */ = {
-			isa = PBXGroup;
-			children = (
-				A25FB0B32343491500EF73E5 /* default.glsl */,
-				A25FB0B02343491500EF73E5 /* grad.glsl */,
-				A25FB0B12343491500EF73E5 /* pattern.glsl */,
-				A25FB0B22343491500EF73E5 /* radiation.glsl */,
-				A25FB0B42343491500EF73E5 /* shadow.glsl */,
-				A25FB0B52343491500EF73E5 /* texture.glsl */,
-			);
-			path = shaders;
 			sourceTree = "<group>";
 		};
 		A25FB0C92343491500EF73E5 /* platform */ = {
@@ -295,7 +323,8 @@
 			children = (
 				A25FB0CB2343491500EF73E5 /* GCVFont.h */,
 				A25FB0CD2343491500EF73E5 /* GCVFont.mm */,
-				A25FB0CC2343491500EF73E5 /* GFontManager.mm */,
+				A24156FC24AC62C100405D95 /* GFontManagerIOS.h */,
+				A24156FD24AC62C100405D95 /* GFontManagerIOS.mm */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -306,8 +335,6 @@
 				A25FB0E62343491500EF73E5 /* DynArray.h */,
 				A25FB0E82343491500EF73E5 /* Encode.cpp */,
 				A25FB0E92343491500EF73E5 /* Encode.h */,
-				A27A8BF023604BA2008471E3 /* GLUtil.cpp */,
-				A27A8BEC23600E0B008471E3 /* GLUtil.h */,
 				A25FB0DC2343491500EF73E5 /* Log.cpp */,
 				A25FB0E42343491500EF73E5 /* Log.h */,
 				A25FB0DD2343491500EF73E5 /* Util.cpp */,
@@ -349,22 +376,25 @@
 				A284A308234348880029BBCA /* GCVCommon.h in Headers */,
 				A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */,
 				A284A307234348880029BBCA /* GCanvasObject.h in Headers */,
+				A24156E424AC628B00405D95 /* GGL.h in Headers */,
 				A284A301234348880029BBCA /* GCanvasModule.h in Headers */,
 				A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */,
 				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
 				A284A306234348880029BBCA /* GCanvasSDK.h in Headers */,
 				A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */,
-				A25FB1F52343491700EF73E5 /* GFrameBufferObject.h in Headers */,
 				A25FB1F62343491700EF73E5 /* GConvert.h in Headers */,
 				A25FB2142343491700EF73E5 /* GTreemap.h in Headers */,
-				A27A8BED23600E0B008471E3 /* GLUtil.h in Headers */,
+				A24156E624AC628B00405D95 /* GLUtil.h in Headers */,
 				A25FB2022343491700EF73E5 /* GPath.h in Headers */,
-				A25FB1FB2343491700EF73E5 /* GShader.h in Headers */,
 				A25FB2342343491700EF73E5 /* Log.h in Headers */,
-				A25FB1F42343491700EF73E5 /* GTexture.h in Headers */,
+				A24156E524AC628B00405D95 /* GTexture.h in Headers */,
 				A25FB1F92343491700EF73E5 /* GFontStyle.h in Headers */,
+				A24156FB24AC628B00405D95 /* GPathStroker.h in Headers */,
 				A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */,
+				A24156EA24AC628B00405D95 /* GShader.h in Headers */,
+				A24156FE24AC62C100405D95 /* GFontManagerIOS.h in Headers */,
 				A231B1E9235064DA00466BE3 /* GCanvasWeex.hpp in Headers */,
+				A24156E724AC628B00405D95 /* GFrameBufferObject.h in Headers */,
 				A25FB21A2343491700EF73E5 /* export.h in Headers */,
 				A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */,
 				A25FB2362343491700EF73E5 /* DynArray.h in Headers */,
@@ -375,12 +405,13 @@
 				A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */,
 				A25FB2372343491700EF73E5 /* Util.h in Headers */,
 				A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */,
+				A24156EB24AC628B00405D95 /* GShaderManager.h in Headers */,
 				A25FB22B2343491700EF73E5 /* GCanvasManager.h in Headers */,
 				A25FB20D2343491700EF73E5 /* GGlyphCache.h in Headers */,
 				A25FB2192343491700EF73E5 /* GContext2dType.h in Headers */,
 				A25FB1FC2343491700EF73E5 /* GFontManager.h in Headers */,
-				A25FB1FD2343491700EF73E5 /* GShaderManager.h in Headers */,
 				A25FB2012343491700EF73E5 /* GPoint.h in Headers */,
+				A24156F824AC628B00405D95 /* GPath2D.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,12 +475,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A25FB20A2343491700EF73E5 /* texture.glsl in Resources */,
-				A25FB2092343491700EF73E5 /* shadow.glsl in Resources */,
-				A25FB2082343491700EF73E5 /* default.glsl in Resources */,
-				A25FB2062343491700EF73E5 /* pattern.glsl in Resources */,
-				A25FB2072343491700EF73E5 /* radiation.glsl in Resources */,
-				A25FB2052343491700EF73E5 /* grad.glsl in Resources */,
+				A24156F424AC628B00405D95 /* texture.glsl in Resources */,
+				A24156EE24AC628B00405D95 /* grad.glsl in Resources */,
+				A24156F024AC628B00405D95 /* blur.glsl in Resources */,
+				A24156F224AC628B00405D95 /* default.glsl in Resources */,
+				A24156EF24AC628B00405D95 /* pattern.glsl in Resources */,
+				A24156F124AC628B00405D95 /* radiation.glsl in Resources */,
+				A24156F324AC628B00405D95 /* shadow.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,31 +492,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A24156F524AC628B00405D95 /* GLUtil.cpp in Sources */,
 				A25FB2382343491700EF73E5 /* Encode.cpp in Sources */,
 				A25FB23C2343491700EF73E5 /* GCanvas.cpp in Sources */,
+				A24156FA24AC628B00405D95 /* GPathStroker.cpp in Sources */,
 				A25FB1F12343491700EF73E5 /* GFontStyle.cpp in Sources */,
 				A25FB21F2343491700EF73E5 /* GCVFont.mm in Sources */,
 				A25FB2042343491700EF73E5 /* GCanvas2dContext.cpp in Sources */,
 				A25FB2112343491700EF73E5 /* GWebglContext.cpp in Sources */,
 				A25FB2002343491700EF73E5 /* GTreemap.cpp in Sources */,
-				A25FB2122343491700EF73E5 /* GShaderManager.cpp in Sources */,
-				A27A8BF123604BA2008471E3 /* GLUtil.cpp in Sources */,
 				A25FB2182343491700EF73E5 /* GPath.cpp in Sources */,
-				A25FB2032343491700EF73E5 /* GShader.cpp in Sources */,
+				A24156F724AC628B00405D95 /* GShaderManager.cpp in Sources */,
+				A24156F924AC628B00405D95 /* GPath2D.cpp in Sources */,
 				A25FB1FE2343491700EF73E5 /* GConvert.cpp in Sources */,
+				A24156E924AC628B00405D95 /* GFrameBufferObject.cpp in Sources */,
 				A284A300234348880029BBCA /* GCanvasObject.m in Sources */,
 				A25FB23B2343491700EF73E5 /* GCanvasManager.cpp in Sources */,
 				A25FB2162343491700EF73E5 /* GGlyphCache.cpp in Sources */,
-				A25FB21E2343491700EF73E5 /* GFontManager.mm in Sources */,
+				A24156FF24AC62C100405D95 /* GFontManagerIOS.mm in Sources */,
 				A284A305234348880029BBCA /* GCanvasPlugin.mm in Sources */,
 				A25FB1F32343491700EF73E5 /* GStrSeparator.cpp in Sources */,
 				A231B1E8235064DA00466BE3 /* GCanvasWeex.cpp in Sources */,
+				A24156F624AC628B00405D95 /* GTexture.cpp in Sources */,
+				A24156ED24AC628B00405D95 /* GShader.cpp in Sources */,
 				A25FB22C2343491700EF73E5 /* Log.cpp in Sources */,
 				A284A2FE234348880029BBCA /* GCVCommon.m in Sources */,
 				A25FB22D2343491700EF73E5 /* Util.cpp in Sources */,
-				A25FB1FA2343491700EF73E5 /* GFrameBufferObject.cpp in Sources */,
 				A25FB1FF2343491700EF73E5 /* GCanvasState.cpp in Sources */,
-				A25FB20F2343491700EF73E5 /* GTexture.cpp in Sources */,
 				A284A2FB234348880029BBCA /* GCVLog.m in Sources */,
 				A284A2FC234348880029BBCA /* GCanvasModule.m in Sources */,
 			);
