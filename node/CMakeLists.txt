@@ -53,6 +53,7 @@ set(SOURCE_FILES
         ${CORE_DIR}src/gcanvas/GConvert.cpp
         ${CORE_DIR}src/gcanvas/GFontManager.cpp
         ${CORE_DIR}src/gcanvas/GFontStyle.cpp
+        ${CORE_DIR}src/gcanvas/GPath2D.cpp
         ${CORE_DIR}src/gcanvas/GL/GFrameBufferObject.cpp
         ${CORE_DIR}src/gcanvas/GGlyphCache.cpp
         ${CORE_DIR}src/gcanvas/GPath.cpp

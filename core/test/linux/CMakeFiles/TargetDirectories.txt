@@ -1,0 +1,3 @@
+/home/mingzong/GCanvas/core/test/linux/CMakeFiles/rebuild_cache.dir
+/home/mingzong/GCanvas/core/test/linux/CMakeFiles/gcanvasTest.dir
+/home/mingzong/GCanvas/core/test/linux/CMakeFiles/edit_cache.dir

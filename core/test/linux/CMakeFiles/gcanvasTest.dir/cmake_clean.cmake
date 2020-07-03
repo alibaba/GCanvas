@@ -1,0 +1,42 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/gcanvasTest.dir/GBenchMark.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/GCanvas.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/GCanvasManager.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/GCanvasWeex.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GCanvas2dContext.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GCanvasState.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GConvert.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GFontStyle.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GGlyphCache.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GL/GFrameBufferObject.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GL/GLUtil.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GL/GShader.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GL/GShaderManager.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GL/GTexture.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GPath.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GStrSeparator.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/gcanvas/GTreemap.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Android/GCanvas2DContextImpl.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Android/GFrameBufferObjectImpl.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Android/GFreeTypeWrap.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Linux/GFontCacheLinux.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Linux/GFontLinux.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/platform/Linux/GFontManagerLinux.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/CharacterSet.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/Encode.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/FileUtils.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/Log.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/Util.o"
+  "CMakeFiles/gcanvasTest.dir/home/mingzong/GCanvas/core/src/support/Value.o"
+  "CMakeFiles/gcanvasTest.dir/mainOffScreen.o"
+  "CMakeFiles/gcanvasTest.dir/util/lodepng.o"
+  "CMakeFiles/gcanvasTest.dir/util/testCases.o"
+  "CMakeFiles/gcanvasTest.dir/util/util.o"
+  "gcanvasTest"
+  "gcanvasTest.pdb"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/gcanvasTest.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
