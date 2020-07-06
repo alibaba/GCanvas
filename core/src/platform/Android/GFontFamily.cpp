@@ -24,13 +24,14 @@ namespace gcanvas
         weight = GFontStyle::Weight::NORMAL;
 
     }
-    GFontFamily::GFontFamily(std::list< const char * > &fontFamily)
-    {
-        matchFontFamily(fontFamily);
+
+
+    GFontFamily::GFontFamily(std::list< const char * > &fontFamily) {
+        InitFontFamily(fontFamily);
     }
 
-    const char *GFontFamily::MatchFamilyStyle(GFontStyle &fontStyle) {
 
+    const char *GFontFamily::MatchFamilyStyle(GFontStyle &fontStyle) {
         GFontStyle::Style style = fontStyle.GetStyle();
         GFontStyle::Weight weight = fontStyle.GetWeight();
         GFontStyle::Variant variant = fontStyle.GetVariant();
@@ -48,19 +49,21 @@ namespace gcanvas
             weight = GFontStyle::Weight::LIGHT;
         }
 
-        // LOG_E("match fontStyle begin %s", fontStyle.GetFullFontStyle().data());
-
         GFontFamilyItem* closetItem = nullptr;
         for (auto it = fontItems.begin(); it != fontItems.end(); ++it) {
             GFontFamilyItem* item = &(*it);
-            if (item->style == style) {
-                if (closetItem == nullptr) { // 选择首个style匹配的item
-                    closetItem = item;
-                }
-                if (item->weight == weight) { // style & weight 都匹配的item
-                    closetItem = item;
-                    if (item->variant == variant) {
-                        break;
+            // LOG_E("match fontStyle: familyt item=%s, style=%i, weight=%i", item->font_file_name, item->style, item->weight);
+            if (item != nullptr) {
+                closetItem = item;
+                if (item->style == style) {
+                    if (closetItem == nullptr) { // 选择首个style匹配的item
+                        closetItem = item;
+                    }
+                    if (item->weight == weight) { // style & weight 都匹配的item
+                        closetItem = item;
+                        if (item->variant == variant) {
+                            break;
+                        }
                     }
                 }
             }
@@ -70,8 +73,7 @@ namespace gcanvas
             // LOG_E("match fontStyle (%s) = file (%s) ", fontStyle.GetFullFontStyle().data(), closetItem->font_file_name);
             return closetItem->font_file_name;
         }
-
-        // LOG_E("match fontStyle (%s) = file (%s) ", fontStyle.GetFullFontStyle().data(), result);
+        // LOG_E("match fontStyle (%s) = file empty ", fontStyle.GetFullFontStyle().data());
         return "";
     }
 
@@ -79,7 +81,7 @@ namespace gcanvas
     /**
      * 将xml中的font名称 转化为font family item
      */
-    void GFontFamily::matchFontFamily(std::list<const char *> &fontFamily) {
+    void GFontFamily::InitFontFamily(std::list<const char *> &fontFamily) {
         fontItems.clear();
 
         // style
@@ -97,8 +99,6 @@ namespace gcanvas
         const char *weight_bold = "bold";
         const char *weight_black = "black";
 
-
-        GFontFamilyItem* item;
         for (auto it = fontFamily.begin(); it != fontFamily.end(); ++it) {
             int length = strlen(*it);
             char *fontFileLowerCase = new char[length + 1];
@@ -108,63 +108,33 @@ namespace gcanvas
                 fontFileLowerCase[i] = tolower(fontFileLowerCase[i]);
             }
 
-            // 字符串比较方式
-            item = new GFontFamilyItem();
+            // new item
+            GFontFamilyItem item;
+
             if (strstr(fontFileLowerCase, style_italic) != nullptr) {
-                item->style = GFontStyle::Style::ITALIC;
+                item.style = GFontStyle::Style::ITALIC;
             }
 
             if (strstr(fontFileLowerCase, var_smallcaps) != nullptr) {
-                item->variant = GFontStyle::Variant::SMALL_CAPS;
+                item.variant = GFontStyle::Variant::SMALL_CAPS;
             }
 
             if (strstr(fontFileLowerCase, weight_thin) != nullptr) {
-                item->weight = GFontStyle::Weight::THIN;
+                item.weight = GFontStyle::Weight::THIN;
             } else if (strstr(fontFileLowerCase, weight_light) != nullptr) {
-                item->weight = GFontStyle::Weight::LIGHT;
+                item.weight = GFontStyle::Weight::LIGHT;
             } else if (strstr(fontFileLowerCase, weight_regular) != nullptr) {
-                item->weight = GFontStyle::Weight::NORMAL;
+                item.weight = GFontStyle::Weight::NORMAL;
             } else if (strstr(fontFileLowerCase, weight_medium) != nullptr) {
-                item->weight = GFontStyle::Weight::MEDIUM;
+                item.weight = GFontStyle::Weight::MEDIUM;
             } else if (strstr(fontFileLowerCase, weight_bold) != nullptr) {
-                item->weight = GFontStyle::Weight::BOLD;
+                item.weight = GFontStyle::Weight::BOLD;
             } else if (strstr(fontFileLowerCase, weight_black) != nullptr) {
-                item->weight = GFontStyle::Weight::BLACK;
+                item.weight = GFontStyle::Weight::BLACK;
             }
 
-            item->font_file_name = *it;
-
-            fontItems.push_back(std::move(*item));
-
-            delete[] fontFileLowerCase;
-        }
-    }
-
-    void GFontFamily::matchFontFamilyLegacy(std::list<const char *> &fontFamily) {
-        const char *italic = "italic";
-        const char *bold = "bold";
-        const char *light = "light";
-        for (auto it = fontFamily.begin(); it != fontFamily.end(); ++it) {
-            int length = strlen(*it);
-            char *fontFileLowerCase = new char[length + 1];
-            strcpy(fontFileLowerCase, *it);
-            for (int i = 0; i < length; ++i) {
-                fontFileLowerCase[i] = tolower(fontFileLowerCase[i]);
-            }
-
-            if (strstr(fontFileLowerCase, bold) != nullptr) {
-                if (strstr(fontFileLowerCase, italic) != nullptr) {
-                    this->mFontBoldItalic = *it;
-                } else {
-                    this->mFontBold = *it;
-                }
-            } else if (strstr(fontFileLowerCase, italic)) {
-                this->mFontItalic = *it;
-            } else if (strstr(fontFileLowerCase, light)) {
-                this->mFontLight = *it;
-            } else {
-                this->mFontNormal = *it;
-            }
+            item.font_file_name = *it;
+            fontItems.push_back(item);
 
             delete[] fontFileLowerCase;
         }
@@ -172,7 +142,6 @@ namespace gcanvas
 
 
     char *GFontFamily::GetProperFontFile() {
-
         GFontFamilyItem* closetItem = nullptr;
         if(fontItems.size() > 0) {
             closetItem = &fontItems[0];

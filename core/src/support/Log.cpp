@@ -7,15 +7,14 @@
  * the LICENSE file in the root directory of this source tree.
  */
 #include "Log.h"
-#include <vector>
-#include <stdarg.h> 
-
 
 
 //namespace gcanvas {
 
-#define LOG_TAG_BUF_SIZE 128
-#define LOG_MSG_BUF_SIZE 1024
+    #define TRACE_TAG_BUF_SIZE 128
+    #define TRACE_MSG_BUF_SIZE 512
+
+    #define LOG_MSG_BUF_SIZE 1024
 
 
     // external system log handler
@@ -36,32 +35,46 @@
     };
 
 
+    // should rename to GCanvasTraceData
     GCanvasLog::GCanvasLog() {
-        tag.reserve(LOG_TAG_BUF_SIZE);
-        detail.reserve(LOG_MSG_BUF_SIZE);
+        tag.resize(TRACE_TAG_BUF_SIZE, '\0');
+        detail.resize(TRACE_MSG_BUF_SIZE, '\0');
     }
 
 
-    void fillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...)
-    {
-        snprintf((char*)log.tag.data(), LOG_TAG_BUF_SIZE, "%s", tag);
-
+    // @deprecated, will delete soon
+    void fillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...) {
+        snprintf((char*)log.tag.data(), TRACE_TAG_BUF_SIZE, "%s", tag);
         va_list va;
         va_start(va, format);
-        vsnprintf((char*)log.detail.data(), LOG_MSG_BUF_SIZE, format, va);
+        vsnprintf((char*)log.detail.data(), TRACE_MSG_BUF_SIZE, format, va);
+        va_end(va);
+    }
+
+
+
+    void FillLogInfo(GCanvasLog &log, const char *tag, const char *format, ...) {
+        snprintf((char*)log.tag.data(), TRACE_TAG_BUF_SIZE, "%s", tag);
+        va_list va;
+        va_start(va, format);
+        vsnprintf((char*)log.detail.data(), TRACE_MSG_BUF_SIZE, format, va);
         va_end(va);
     }
 
 
     void AppendErrorLogInfo(std::vector<GCanvasLog> *errVec, const char *tag, const char *format, ...)
     {
+        if (errVec == nullptr) {
+            return;
+        }
+
         GCanvasLog log;
 
-        snprintf((char*)log.tag.data(), LOG_TAG_BUF_SIZE, "%s", tag);
+        snprintf((char*)log.tag.data(), TRACE_TAG_BUF_SIZE, "%s", tag);
 
         va_list va;
         va_start(va, format);
-        vsnprintf((char*)log.detail.data(), LOG_MSG_BUF_SIZE, format, va);
+        vsnprintf((char*)log.detail.data(), TRACE_MSG_BUF_SIZE, format, va);
         va_end(va);
 
         errVec->push_back(log);
@@ -83,22 +96,25 @@
 
     void LogExt(LogLevel logLevel, const char *tag, const char *format, ...) {
         if (g_log_level > logLevel) return;
+
         va_list va;
-      
         char buffer[LOG_MSG_BUF_SIZE];
+
         va_start(va, format);
         vsnprintf(buffer, LOG_MSG_BUF_SIZE, format, va);
         va_end(va);
 
 #if defined(__ANDROID__)
         if (gcanvasSystemLog) {
-            gcanvasSystemLog(tag, buffer);
+            gcanvasSystemLog(logLevel, tag, buffer);
         } else {
             __android_log_write(TransLogLevel(logLevel), tag, buffer);
         }
 #else
         if (gcanvasSystemLog) {
-            gcanvasSystemLog(tag, buffer);
+            gcanvasSystemLog(logLevel, tag, buffer);
+        } else {
+            printf("%s\n", buffer);
         }
 #endif
     }
@@ -109,21 +125,21 @@
     {
         va_list va;
         char buffer[LOG_MSG_BUF_SIZE];
+
         va_start(va, format);
         vsnprintf(buffer, LOG_MSG_BUF_SIZE, format, va);
         va_end(va);
 
+
 #if defined(__ANDROID__)
-        if (hooks && hooks->GCanvasException)
-        {
-            hooks->GCanvasException(contextId.c_str(), tag, buffer);
-        } else
-        {
+        if (hooks && hooks->GCanvasException) {
+            hooks->GCanvasException(contextId.data(), tag, buffer, hooks);
+        } else {
             __android_log_write(TransLogLevel(g_log_level), tag, buffer);
         }
 #else
         if (hooks && hooks->GCanvasException) {
-            hooks->GCanvasException(contextId.c_str(), tag, buffer);
+            hooks->GCanvasException(contextId.c_str(), tag, buffer, nullptr);
         }
 #endif
     }

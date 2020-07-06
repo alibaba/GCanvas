@@ -33,7 +33,6 @@ typedef union
 } GColorRGBA;
 
 
-
 typedef struct
 {
     GPoint pos;
@@ -81,6 +80,7 @@ static inline GPoint PointNormalize(GPoint v)
 
 struct GRectf
 {
+    bool isTransformed = false; //坐标是否经过transform变换
     GPoint leftTop = {0, 0};
     GPoint bottomRight = {0, 0};
 
@@ -103,13 +103,13 @@ struct GRectf
     }
 };
 
-inline GRectf operator/(const GRectf &rect, float factor)
+inline GRectf operator *(const GRectf &rect, float factor )
 {
     GRectf result = rect;
-    result.leftTop.x /= factor;
-    result.leftTop.y /= factor;
-    result.bottomRight.x /= factor;
-    result.bottomRight.y /= factor;
+    result.leftTop.x *= factor;
+    result.leftTop.y *= factor;
+    result.bottomRight.x *= factor;
+    result.bottomRight.y *= factor;
     return result;
 }
 

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { createCanvas, Image } = require('bindings')('canvas');
+const { createCanvas, Image } = require('../export');
 
 const canvas1 = createCanvas(150, 150);
 const ctx1 = canvas1.getContext('2d');
@@ -25,6 +25,6 @@ canvas1.createPNG("drawcanvas1")
 
 const canvas2 = createCanvas(150, 150);
 const ctx2 = canvas2.getContext('2d');
-
+console.log("ctx2 drawimage with canvas1")
 ctx2.drawImage(canvas1, 0, 0);
 canvas2.createPNG("drawcanvas2")

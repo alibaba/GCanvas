@@ -1,6 +1,15 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #include "CanvasGradient.h"
 #include "CanvasRenderingContext2D.h"
 #include "NodeBindingUtil.h"
+#include <algorithm> 
 namespace NodeBinding
 {
 Napi::FunctionReference Gradient::constructor;
@@ -82,8 +91,12 @@ void Gradient::addColorStop(const Napi::CallbackInfo &info)
         throwError(info, "the arg type is invaild");
     }
     std::string color = info[1].As<Napi::String>().Utf8Value();
-    offsets.push_back(offset);
-    colors.push_back(std::move(color));
+    mColorStopSet.push_back(ColorStop(offset,std::move(color)));
+    std::sort(mColorStopSet.begin(),mColorStopSet.end(),less_than_key());
     return;
+}
+
+const   std::vector<ColorStop> &  Gradient::getColorStops(){
+        return this->mColorStopSet;
 }
 } // namespace NodeBinding

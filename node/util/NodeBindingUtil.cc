@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
 #include "jpeglib.h"
@@ -7,6 +15,7 @@
 #include <iostream>
 namespace NodeBinding
 {
+static std::unordered_map<std::string,std::shared_ptr<ImageCached>> imagePool;
 static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -75,7 +84,17 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
 
     return content->size;
 }
+std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url){
+    if(imagePool.find(url) == imagePool.end()){
+        return nullptr;
+    }else{
+        return imagePool[url];
+    }
+}
 
+void cachedImage(const std::string url,std::shared_ptr<ImageCached> imageCached){
+     imagePool[url]=imageCached;
+}
 void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height)
 {
     //write the pixles to file
@@ -128,7 +147,7 @@ PIC_FORMAT getImageTypeByMagic(const unsigned char *data, unsigned int len)
     }
 }
 
-PIC_FORMAT getPicFormatFromContent(char *content, int len)
+PIC_FORMAT parseFormat(char *content, int len)
 {
     if (content == nullptr || len <= 0)
     {
@@ -137,7 +156,7 @@ PIC_FORMAT getPicFormatFromContent(char *content, int len)
     return getImageTypeByMagic((unsigned char *)content, (unsigned int)len);
 }
 
-int readLocalImage(const std::string &path, ImageContent *content)
+int readImageFromLocalFile(const std::string &path, ImageContent *content)
 {
     FILE *pFile;
     size_t result; // 返回值是读取的内容数量
@@ -203,7 +222,7 @@ void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, in
     fclose(outfile);
 }
 
-void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void decodeImageJPEG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -233,8 +252,42 @@ void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width
     jpeg_destroy_decompress(&cinfo);
 }
 
-void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void encodeJPEGInBuffer(unsigned char **out,unsigned long &size ,unsigned char *data,int width,int height)
+{   
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    JSAMPROW row_pointer[1]; /* pointer to JSAMPLE row[s] */
+    cinfo.err = jpeg_std_error(&jerr);
+    int row_stride;
+    jpeg_create_compress(&cinfo);
+    unsigned long tmpSize=0;
+    jpeg_mem_dest(&cinfo,out,&tmpSize);
+    cinfo.image_width = width;
+    cinfo.image_height = height;
+    cinfo.input_components = 4;
+    cinfo.in_color_space = JCS_EXT_RGBA;
+    jpeg_set_defaults(&cinfo);
+    jpeg_start_compress(&cinfo, TRUE);
+    row_stride = width * 4;
+    while (cinfo.next_scanline < cinfo.image_height)
+    {
+        row_pointer[0] = &data[cinfo.next_scanline * row_stride];
+        (void)jpeg_write_scanlines(&cinfo, row_pointer, 1);
+    }
+    //todo fix jpeg_mem_dest tmpsize always 4096
+    size= 4*width*height;
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+}
+
+void decodeImagePNG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     lodepng::decode(pixels, width, height, content, len);
 }
+
+void encodePNGInBuffer(std::vector<unsigned char> &in,unsigned char *data,int width,int height)
+{
+    lodepng::encode(in, data, width, height);
+}
+
 } // namespace NodeBinding

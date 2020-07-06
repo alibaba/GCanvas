@@ -11,6 +11,7 @@
 
 #include "GPoint.h"
 #include "GTexture.h"
+#include "GFontStyle.h"
 #include "GGlyphCache.h"
 #include "GTreemap.h"
 
@@ -18,44 +19,30 @@
 #include <string>
 #include <vector>
 
-#define GFONT_LOAD_BY_FREETYPE
-
-#ifdef GFONT_LOAD_BY_FREETYPE
-#include <ft2build.h>
-#include <freetype/freetype.h>
-#include <freetype/ftstroke.h>
-#include <freetype/ftbitmap.h>
-#include <freetype/ftglyph.h>
-#endif
+#include "GFreeTypeWrap.h"
 
 
 class GCanvasContext;
 
 
 
+std::string GetGlyphKey(std::string& fontFileName, gcanvas::GFontStyle* fontStyle,
+        float scaleFontX, float scaleFontY);
 
 
-bool LoadFace(FT_Library *library, const char *filename,
-              const float size, FT_Face *face, float scaleFontX, float scaleFontY);
+//std::string FontStyleNameForScale(std::string& fontName, float scaleFontX, float scaleFontY);
 
 
-
-bool IsGlyphExistedInFont(const wchar_t charCode, const float size,
-                          std::string filename, float scaleFontX, float scaleFontY);
+//std::string GetScaleFontName(GCanvasContext *context, float scaleFontX, float scaleFontY);
 
 
-
-std::string FontStyleNameForScale(std::string& fontName, float scaleFontX, float scaleFontY);
-
-
-std::string GetCurrentScaleFontName(GCanvasContext *context);
+//std::string GetCurrentScaleFontName(GCanvasContext *context);
 
 
 
 typedef struct GFontMetrics
 {
     GFontMetrics();
-
     // units of EM square: font units
     unsigned short unitsPerEM;
     // sized ascender: 26.6 pixel format
@@ -68,85 +55,118 @@ typedef struct GFontMetrics
 
 class GFontManager;
 
+
+/**
+ * Font Draw Impl
+ * A GFont is a FreeType face wrap, different style(weight, italic) use different GFont,
+ * a GFont can generate any size glyph and font bitmap
+ */
 class GFont
 {
 public:
 #ifdef GFONT_LOAD_BY_FREETYPE
-    GFont(GCanvasContext* context, GFontManager& fontManager, const char *fontName, const float size);
+    GFont(GFontManager& fontManager, const char *fontFileName);
 #else
     GFont(const char *fontDefinition);
 #endif
     ~GFont();
 
-    void DrawText(wchar_t text, GCanvasContext *context, float &x, float y,
-                  GColorRGBA color, bool isStroke);
-    void DrawText(const wchar_t *text, GCanvasContext *context, float &x,
-                  float y, GColorRGBA color, bool isStroke);
 
-    const GGlyph *GetGlyph(const wchar_t charcode, bool isStroke);
+    void DrawText(GCanvasContext *context, wchar_t text, float &x, float y,
+                  GColorRGBA color, float scaleX, float scaleY, bool isStroke);
+
+
+    void DrawText(GCanvasContext *context, const wchar_t *text, float &x,
+                  float y, GColorRGBA color, float scaleX, float scaleY, bool isStroke);
+
+
+    const GGlyph *GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_t charcode, bool isStroke,
+                           float scaleX, float scaleY,float lineWidth=1.0,float deviceRatio=1.0);
+
+
+    // deprecated
     void RemoveGlyph(const wchar_t charcode, bool isStroke);
 
-    void LoadGlyph(wchar_t charcode, int ftBitmapWidth, int ftBitmapHeight,
-                   unsigned char *bitmapBuffer, int left, int top,
-                   float advanceX, float advanceY, bool isStroke);
-    void LoadGlyphTexture( GGlyph& glyph);
 
     GFontMetrics *GetMetrics() { return &mFontMetrics; }
 
-    const std::string &GetFontName() const;
 
-    static void
-    SetFontCallback(void *(*getFontCallback)(const char *fontDefinition),
+    const std::string &GetFontFileName() const;
+
+
+    static void SetFontCallback(void *(*getFontCallback)(const char *fontDefinition),
                     bool (*getFontImageCallback)(
                             void *font, wchar_t charcode, int &ftBitmapWidth,
                             int &ftBitmapHeight, unsigned char *&bitmapBuffer,
                             int &left, int &top, float &advanceX, float &advanceY));
 
-    bool IsGlyphExistedInFont(const wchar_t charCode);
+
+    bool IsCharInFont(const wchar_t charCode);
+
+
+    void SetFtLibrary(FT_Library libraryPtr);
+
 private:
-    void drawGlyph(const GGlyph *glyph, GCanvasContext *context, float x,
-                   float y, GColorRGBA color);
+
+  void DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x, float y,
+                float scaleX, float scaleY, GColorRGBA color, bool needDrawShadow);
+
 
     static void *(*getFontCallback)(const char *fontDefinition);
-    static bool (*getFontImageCallback)(void *font, wchar_t charcode,
+
+
+    static bool (*getFontImageCallback)(void *font, wchar_t charCode,
                                         int &ftBitmapWidth, int &ftBitmapHeight,
                                         unsigned char *&bitmapBuffer, int &left,
                                         int &top, float &advanceX,
                                         float &advanceY);
 
-    bool TryLoadFaceIfNotValid();
-
 #ifdef GFONT_LOAD_BY_FREETYPE
-    void loadGlyphs(const wchar_t *charcodes,bool isStroke);
 
-    void DisposeFreeTypeFace();
-    void DisposeFreeType();
+    void LoadGlyphs(gcanvas::GFontStyle* style, const wchar_t *charCodes, bool isStroke,
+                    float scaleX, float scaleY,float lineWidth,float deviceRatio);
 
 #endif
-    bool LoadStroke(const char *filename, const float size,
-                    FT_Stroker *stroker);
-    bool LoadFace(const char *filename, const float size,
-                  FT_Face *face);
+
+    bool LoadStroke(const char *filename, FT_Stroker *stroker, float scaleX, float scaleY,float lineWidth,float deviceRatio);
+
+
+    bool LoadFaceIfNot();
+
+
+    bool PrepareLoadGlyph(float fontSize, float scaleX, float scaleY);
+
+
+    void UpdateCurrentTextMetrics();
+
 
 private:
-    GCanvasContext* mContext;
+
     GFontManager& mFontManager;
+
 #ifdef GFONT_LOAD_BY_FREETYPE
     float mPointSize;
-    std::string mFontName;
+
+    // font file path
+    std::string mFontFileName;
 
     int mHinting;            // whether to use autohint when rendering font
     int mOutlineType;        //(0 = None, 1 = line, 2 = inner, 3 = outer)
-    float mOutlineThickness; //
+    float mOutlineThickness;
 #endif
 
     std::string mFontDefinition;
     bool mHasSetMetrics;
+
     GFontMetrics mFontMetrics;
 
-    FT_Library mLibrary= nullptr;
-    FT_Face mFace= nullptr;
-    FT_Stroker mStroker= nullptr;
+    // not own FT_Library, set from external, do not dispose!!
+    FT_Library mLibrary = nullptr;
+
+    FT_Face mFace = nullptr;
+
+    // FT_Stroker mStroker = nullptr;
+
 };
 
 #endif

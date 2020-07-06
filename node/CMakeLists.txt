@@ -20,10 +20,13 @@ include_directories("./util")
 include_directories("./third_party")
 include_directories("./third_party/font/freetype2/")
 include_directories("./renderContext/")
+include_directories("./image/")
 
 include_directories("${CORE_DIR}")
 include_directories("${CORE_DIR}src/")
+include_directories("${CORE_DIR}src")
 include_directories("${CORE_DIR}src/gcanvas")
+include_directories("${CORE_DIR}src/gcanvas/GL")
 include_directories("${CORE_DIR}src/support")
 include_directories("${CORE_DIR}src/platform/Android")
 include_directories("${CORE_DIR}src/platform/Linux")
@@ -36,6 +39,7 @@ set(SOURCE_FILES
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc
         ./binding/Image.cc
+        ./binding/ImageWorker.cc
         ./binding/CanvasPattern.cc
         ./renderContext/GRenderContext.cc
         ./third_party/lodepng.cc
@@ -47,31 +51,35 @@ set(SOURCE_FILES
         ${CORE_DIR}src/gcanvas/GCanvas2dContext.cpp
         ${CORE_DIR}src/gcanvas/GCanvasState.cpp
         ${CORE_DIR}src/gcanvas/GConvert.cpp
+        ${CORE_DIR}src/gcanvas/GFontManager.cpp
         ${CORE_DIR}src/gcanvas/GFontStyle.cpp
-        ${CORE_DIR}src/gcanvas/GFrameBufferObject.cpp
+        ${CORE_DIR}src/gcanvas/GPath2D.cpp
+        ${CORE_DIR}src/gcanvas/GL/GFrameBufferObject.cpp
         ${CORE_DIR}src/gcanvas/GGlyphCache.cpp
         ${CORE_DIR}src/gcanvas/GPath.cpp
-        ${CORE_DIR}src/gcanvas/GShader.cpp
-        ${CORE_DIR}src/gcanvas/GShaderManager.cpp
+        ${CORE_DIR}src/gcanvas/GL/GShader.cpp
+        ${CORE_DIR}src/gcanvas/GL/GShaderManager.cpp
         ${CORE_DIR}src/gcanvas/GStrSeparator.cpp
-        ${CORE_DIR}src/gcanvas/GTexture.cpp
+        ${CORE_DIR}src/gcanvas/GL/GTexture.cpp
         ${CORE_DIR}src/gcanvas/GTreemap.cpp
+        ${CORE_DIR}src/gcanvas/GPathStroker.cpp
  
         # # platform srcs
       
-        ${CORE_DIR}src/platform/Linux/GFontManager.cpp
-        ${CORE_DIR}src/platform/Linux/GFont.cpp
-        ${CORE_DIR}src/platform/Linux/GFontCache.cpp
-        ${CORE_DIR}src/platform/Linux/GSystemFontInformation.cpp
-        ${CORE_DIR}src/platform/Linux/GFontFamily.cpp
+        ${CORE_DIR}src/platform/Linux/GFontManagerLinux.cpp
+        ${CORE_DIR}src/platform/Linux/GFontLinux.cpp
+        ${CORE_DIR}src/platform/Linux/GFontCacheLinux.cpp
+        # ${CORE_DIR}src/platform/Linux/GSystemFontInformation.cpp
+        # ${CORE_DIR}src/platform/Linux/GFontFamily.cpp
         #linux can reuse the android GCanvas2DContextImpl/GFrameBufferObjectImpl
         ${CORE_DIR}src/platform/Android/GCanvas2DContextImpl.cpp
         ${CORE_DIR}src/platform/Android/GFrameBufferObjectImpl.cpp
+        ${CORE_DIR}src/platform/Android/GFreeTypeWrap.cpp
         # support
         ${CORE_DIR}src/support/CharacterSet.cpp
         ${CORE_DIR}src/support/Encode.cpp
         ${CORE_DIR}src/support/FileUtils.cpp
-        ${CORE_DIR}src/support/GLUtil.cpp
+        ${CORE_DIR}/src/gcanvas/GL/GLUtil.cpp
         ${CORE_DIR}src/support/Log.cpp
         ${CORE_DIR}src/support/Util.cpp
         ${CORE_DIR}src/support/Value.cpp
@@ -83,6 +91,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
 target_link_libraries(${PROJECT_NAME} 
                       ${CMAKE_JS_LIB}
+                      GL
                       GLESv2
                       EGL
                       atomic

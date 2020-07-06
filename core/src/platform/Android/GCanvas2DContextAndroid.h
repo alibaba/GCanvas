@@ -18,7 +18,8 @@
 
 #include <cstdint>
 
-class GFontCache;
+//class GFontCache;
+
 
 
 class GCanvas2DContextAndroid : public GCanvasContext {
@@ -27,7 +28,10 @@ class GCanvas2DContextAndroid : public GCanvasContext {
 public:
 
 
-    GCanvas2DContextAndroid(uint32_t width, uint32_t h, GCanvasConfig &config);
+    API_EXPORT  GCanvas2DContextAndroid(uint32_t w, uint32_t h, GCanvasConfig &config);
+
+
+    API_EXPORT GCanvas2DContextAndroid(uint32_t width, uint32_t h, GCanvasConfig &config, GCanvasHooks* hooks);
 
 
     virtual ~GCanvas2DContextAndroid();
@@ -36,10 +40,16 @@ public:
     void InitFBO() override;
 
 
-    API_EXPORT GShader *FindShader(const char *) override;
+    API_EXPORT void SetUseShaderBinaryCache(bool v);
 
 
-    API_EXPORT void ClearColor();
+    API_EXPORT void SetShaderBinaryCachePath(const std::string& path);
+
+
+    API_EXPORT void ClearColorToTransparent();
+
+
+    API_EXPORT void ClearColor(GColorRGBA& c);
 
 
     API_EXPORT void GetRawImageData(int width, int height, uint8_t *pixels);
@@ -57,16 +67,17 @@ public:
     API_EXPORT void CopyFBO(GFrameBufferObject &srcFbo, GFrameBufferObject &destFbo);
 
 
-    API_EXPORT void
-    CopyImageToCanvas(int width, int height, const unsigned char *rgbaData, int imgWidth,
+    API_EXPORT void CopyImageToCanvas(int width, int height, const unsigned char *rgbaData, int imgWidth,
                       int imgHeight);
 
-
-    API_EXPORT int BindImage(const unsigned char *rgbaData, GLint format, unsigned int width,
-                             unsigned int height);
+//    API_EXPORT int BindImage(const unsigned char *rgbaData, GLint format, unsigned int width,
+//                             unsigned int height);
 
 
     API_EXPORT void DrawFrame(bool clear);
+
+
+    API_EXPORT void ResizeCanvas(int width, int height);
 
 
     API_EXPORT void ResizeCopyUseFbo(int width, int height);
@@ -78,20 +89,20 @@ public:
     void SetEnableFboMsaa(bool v) { mEnableFboMsaa = v; }
 
 
-    GShaderManager* GetShaderManager();
+    API_EXPORT void SetShaderManager(GShaderManager* shaderManager);
+
+
+    GShaderManager *GetShaderManager() override;
+
 protected:
+
+    void Create();
 
 
     void ResetGLBeforeCopyFrame(int dest_fbo_w, int dest_fbo_h);
 
 
     void RestoreGLAfterCopyFrame();
-
-
-    bool InitializeGLShader() override;
-
-
-    // void GLBlend(GCompositeOperation op, GCompositeOperation alphaOp);
 
 
     void DrawFBO(std::string fboName, GCompositeOperation compositeOp = COMPOSITE_OP_SOURCE_OVER,
@@ -102,10 +113,8 @@ protected:
 private:
 
     bool mEnableFboMsaa = false;
+
     GShaderManager *mShaderManager = nullptr;
-
-    GFontCache *mFontCache = nullptr;
-
 
 };
 

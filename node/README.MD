@@ -244,6 +244,43 @@ canvas.createJPEG("demo2")
 
  ```  
 
+##### createPNGStream
+ ```javascript
+   createPNGStream(void) => void
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.png');
+ctx.fillStyle = '#09F' 
+ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
+var stream = canvas.createPNGStream();
+stream.on('data', function (chunk) {
+    out.write(chunk);
+});
+ ```  
+##### createJPEGStream
+ ```javascript
+   createJPEGStream(void) => void
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.jpg');
+ctx.fillStyle = '#09F' 
+ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
+var stream = canvas.createJPEGStream();
+stream.on('data', function (chunk) {
+    out.write(chunk);
+});
+ ```  
+
 ### API Documentation
 #### Standard APIs
    * GCanvas benchmarking Web Canvas API implementation, as close as possible to the Web Canvas API. The API documentation, please visit the Mozilla Web Canvas API (https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D). (see this link for current API compatibility)
