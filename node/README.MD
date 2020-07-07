@@ -281,6 +281,36 @@ stream.on('data', function (chunk) {
 });
  ```  
 
+
+##### toBuffer
+ ```javascript
+   toBuffer(string?) => ArrayBuffer 
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+ctx.fillStyle="#ff0000"
+ctx.fillRect(0, 0, 150, 150) //
+
+fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.png`, canvas.toBuffer("image/png"), err => {
+    if (err) {
+        throw err;
+    }
+});
+
+fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.jpg`, canvas.toBuffer("image/jpeg"), err => {
+    if (err) {
+        throw err;
+    }
+});
+
+var buffer=canvas.toBuffer("raw")
+console.log(buffer)
+ ``` 
+
 ### API Documentation
 #### Standard APIs
    * GCanvas benchmarking Web Canvas API implementation, as close as possible to the Web Canvas API. The API documentation, please visit the Mozilla Web Canvas API (https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D). (see this link for current API compatibility)
@@ -423,8 +453,71 @@ ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 canvas.createJPEG("demo2") // export a jpeg picture
 
  ```  
+##### createPNGStream
+ ```javascript
+   createPNGStream(void) => void
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.png');
+ctx.fillStyle = '#09F' 
+ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
+var stream = canvas.createPNGStream();
+stream.on('data', function (chunk) {
+    out.write(chunk);
+});
+ ```  
+##### createJPEGStream
+ ```javascript
+   createJPEGStream(void) => void
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.jpg');
+ctx.fillStyle = '#09F' 
+ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
+var stream = canvas.createJPEGStream();
+stream.on('data', function (chunk) {
+    out.write(chunk);
+});
+ ```  
 
+##### toBuffer
+ ```javascript
+   toBuffer(string?) => ArrayBuffer 
+ ```  
+  ```javascript
+const { createCanvas, Image } = require('../export')
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+const fs = require('fs')
+const path = require('path');
+ctx.fillStyle="#ff0000"
+ctx.fillRect(0, 0, 150, 150) //
 
+fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.png`, canvas.toBuffer("image/png"), err => {
+    if (err) {
+        throw err;
+    }
+});
+
+fs.writeFile(`${path.join(__dirname, "..")}/tobuffer.jpg`, canvas.toBuffer("image/jpeg"), err => {
+    if (err) {
+        throw err;
+    }
+});
+
+var buffer=canvas.toBuffer("raw")
+console.log(buffer)
+ ``` 
 
  ### Node-GCanvas  源代码构建以及测试运行
 如果你想基于源代码进行构建以及开发等工作， 这份文档会告诉你如何基于原代码构建以及运行和测试。
@@ -435,7 +528,8 @@ Node-canvas使用node-addon的binding的api以及使用cmake-js进行构建。
  ``` 
   npm install cmake-js -g //安装cmake-js
   local=true npm install // 安装项目所需要的依赖,local=true表示基于源代码安装
-  cmake-js compile  // 构建工程
+  cmake-js compile  // 构建工程，第一次构建
+  npm run dev // 增量构建
  ``` 
 
 运行步骤
