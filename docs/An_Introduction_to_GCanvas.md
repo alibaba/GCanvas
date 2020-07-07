@@ -22,8 +22,8 @@ The below diagram shows the high-level design of GCanvas:
 
 ### 2.1 Canvas Delegate Layer
 
-Canvas Delegate Layer is responsible for mimicing canvas APIs. It intercepts the calls of origin canvas APIs and converts the call to a command sequence.
-The code is under ./gcanvas/js/, which mainly includes core files in ./src/core/ and bridge files in ./bridge/.
+Canvas Delegate Layer is responsible for mimicking canvas APIs. It intercepts the calls of origin canvas APIs and converts the call to a command sequence.
+The code is under ./gcanvas/src/, which mainly includes core files in ./src/core/ and bridge files in ./packages/.
 
 A simple workflow is as below:
 

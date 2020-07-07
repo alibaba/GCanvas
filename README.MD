@@ -43,11 +43,18 @@ See the  [Introduction to GCanvas](https://alibaba.github.io/GCanvas/docs/Develo
 
 ## Getting Started
 
-### Weex
-Follow [Weex Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html) to integrate GCanvas on Weex
+We will continue to maintain the C++ `core` engine. And will no further update and support `Weex`、 `ReactNative` and `JS bridge`.
 
-### ReactNative
-Follow [ReactNative Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html)  to integrate GCanvas on ReactNative.
+### Node
+Follow [Node Guide](),  use GCanvas in NodeJS.  
+
+
+### Weex
+
+Follow [Weex Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html) to integrate GCanvas on Weex. 
+
+### ReactNative 
+Follow [ReactNative Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20ReactNative.html)  to integrate GCanvas on ReactNative. 
 
 ### JavaScript
 Try our [Playground](https://alibaba.github.io/GCanvas/playground.html).
@@ -57,7 +64,7 @@ GCanvas has browser-like canvas APIs, so almost all of the APIs are exactly same
 ## Documentation
 Check [Documentation](https://alibaba.github.io/GCanvas/docs/Introduction.html) for more information.
 
-## Examples
+## Examples【No further update】 
 We take [Weex](https://github.com/apache/incubator-weex) as example, code snippet of context 2d using `GCanvas`.
 ```javascript
 import { enable, WeexBridge, Image as GImage } from "@gcanvas/core";
