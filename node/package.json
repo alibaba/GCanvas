@@ -1,6 +1,6 @@
 {
   "name": "@gcanvas/node",
-  "version": "1.2.0",
+  "version": "1.0.3",
   "description": "gcanvas for node developer",
   "dependencies": {
     "bindings": "~1.2.1",
