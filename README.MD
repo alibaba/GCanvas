@@ -43,6 +43,11 @@ See the  [Introduction to GCanvas](https://alibaba.github.io/GCanvas/docs/Develo
 
 ## Getting Started
 
+We will continue to maintain the C++ `core` engine. And will no further update and support `Weex`、 `ReactNative` and `JS bridge`.
+
+### Node
+Follow [Node Guide](./node/README.md),  use GCanvas in Node.js.  
+
 ### Weex
 Follow [Weex Setup Guide](https://alibaba.github.io/GCanvas/docs/Integrate%20GCanvas%20on%20Weex.html) to integrate GCanvas on Weex
 
