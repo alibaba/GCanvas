@@ -12,7 +12,7 @@ namespace NodeBinding
 {
     Napi::FunctionReference Canvas::constructor;
 
-    Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info)
+    Canvas::Canvas(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Canvas>(info), mDataRaw(nullptr)
     {
         Napi::Env env = info.Env();
         Napi::HandleScope scope(env);
@@ -20,7 +20,7 @@ namespace NodeBinding
         checkArgs(info, 2);
         mWidth = info[0].As<Napi::Number>().Int32Value();
         mHeight = info[1].As<Napi::Number>().Int32Value();
-        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight);
+        mRenderContext = std::make_shared<GRenderContext>(mWidth, mHeight,2.0);
         mRenderContext->initRenderEnviroment();
     }
 
@@ -69,7 +69,7 @@ namespace NodeBinding
     Napi::Object Canvas::NewInstance(Napi::Env env, Napi::Value arg, Napi::Value arg2)
     {
         Napi::Object obj = constructor.New({arg, arg2});
-        obj.Set("name", Napi::String::New(env, "gcanvas"));
+        obj.Set("name", Napi::String::New(env, "canvas"));
         Canvas *canvas = Napi::ObjectWrap<Canvas>::Unwrap(obj);
         canvas->mRef = Napi::ObjectReference::New(obj);
         return obj;
@@ -182,12 +182,12 @@ namespace NodeBinding
             this->mRenderContext->makeCurrent();
             this->mRenderContext->drawFrame();
         }
-        std::vector<unsigned char> in;
-        int ret = this->mRenderContext->getImagePixelPNG(in);
+        std::vector<unsigned char> dataPNGFormat;
+        int ret = this->mRenderContext->getImagePixelPNG(dataPNGFormat);
         if (ret == 0)
         {
-            size = in.size();
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), &in[0], in.size());
+            size = dataPNGFormat.size();
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), &dataPNGFormat[0], dataPNGFormat.size());
         }
         else
         {
@@ -201,11 +201,11 @@ namespace NodeBinding
             this->mRenderContext->makeCurrent();
             this->mRenderContext->drawFrame();
         }
-        unsigned char *data = nullptr;
-        int ret = this->mRenderContext->getImagePixelJPG(&data, size);
+        unsigned char *dataJPGFormat = nullptr;
+        int ret = this->mRenderContext->getImagePixelJPG(&dataJPGFormat, size);
         if (ret == 0)
         {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, size);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), dataJPGFormat, size);
         }
         else
         {
@@ -215,11 +215,15 @@ namespace NodeBinding
     }
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
-        unsigned char *data = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(data);
+
+        if (this->mDataRaw == nullptr)
+        {
+            this->mDataRaw = new unsigned char[4 * mWidth * mHeight];
+        }
+        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(mDataRaw);
         if (ret == 0)
         {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), data, 4 * mWidth * mHeight);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), this->mDataRaw, 4 * mWidth * mHeight);
         }
         else
         {
@@ -267,5 +271,11 @@ namespace NodeBinding
     Canvas::~Canvas()
     {
         this->mRenderContext = nullptr;
+        if (this->mDataRaw != nullptr)
+        {
+            free(this->mDataRaw);
+            this->mDataRaw = nullptr;
+        }
+        printf("canvas destroy called \n");
     }
 } // namespace NodeBinding

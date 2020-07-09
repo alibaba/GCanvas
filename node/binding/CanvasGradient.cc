@@ -91,12 +91,12 @@ void Gradient::addColorStop(const Napi::CallbackInfo &info)
         throwError(info, "the arg type is invaild");
     }
     std::string color = info[1].As<Napi::String>().Utf8Value();
-    offsets.push_back(ColorStop(offset,color));
-    std::sort(offsets.begin(),offsets.end(),less_than_key());
+    mColorStopSet.push_back(ColorStop(offset,std::move(color)));
+    std::sort(mColorStopSet.begin(),mColorStopSet.end(),less_than_key());
     return;
 }
 
 const   std::vector<ColorStop> &  Gradient::getColorStops(){
-        return this->offsets;
+        return this->mColorStopSet;
 }
 } // namespace NodeBinding

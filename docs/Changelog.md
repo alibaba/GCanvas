@@ -3,6 +3,22 @@
 All notable changes of this project will be documented in.
 
 
+## [1.1.2] - 2020-07-07
+### Changed
+* Core Engine
+  * Support Linux platform
+  * Add NodeJS binding of `GCanvas`
+  * Fix some 2d issues
+
+* GCanvas Component
+  `Weex` has been archived and not updated。 We will delete `/bridges` folder, and no further update about GCanvas bridge components such as `WeexGCanvas` and `ReactNativeGCanvas`. 
+  
+## [1.1.1] - 2019-12-30
+### Changed
+* GCanvas Project
+  * Add `travi-ci` 
+  * Add benchmark and cppcheck
+
 ## [1.1.0] - 2019-10-31
 
 ### Changed

@@ -12,54 +12,55 @@
 #include "GFontCache.h"
 #include "GPoint.h"
 #include "GFontManagerAndroid.h"
-#include "gcanvas/GFrameBufferObject.h"
-#include "gcanvas/GShaderManager.h"
+#include "GFrameBufferObject.h"
+#include "GShaderManager.h"
 #include "support/Log.h"
 
 
+extern bool g_use_pre_compile;
+extern std::string g_shader_cache_path;
+
 
 GCanvas2DContextAndroid::GCanvas2DContextAndroid(uint32_t w, uint32_t h, GCanvasConfig &config) :
-        GCanvasContext(w, h, config) {
-    // init shader manager
+        GCanvasContext(w, h, config, nullptr) {
+    Create();
+}
+
+
+GCanvas2DContextAndroid::GCanvas2DContextAndroid(uint32_t w, uint32_t h, GCanvasConfig &config, GCanvasHooks* hooks) :
+        GCanvasContext(w, h, config, hooks) {
+    Create();
+}
+
+
+void GCanvas2DContextAndroid::Create() {
     mShaderManager = nullptr;
 
-    // init font cache
-    mFontCache = new GFontCache(*mFontManager);
-    GFontManagerAndroid *ptr = static_cast<GFontManagerAndroid *>(mFontManager);
-    if (ptr != nullptr) {
-        ptr->SetFontCache(mFontCache);
-    } else {
-        LOG_D("mFontManager init fail");
+    if (!mConfig.sharedShader) {
+        mShaderManager = new GShaderManager();
     }
 }
 
 
 GCanvas2DContextAndroid::~GCanvas2DContextAndroid() {
-    // TODO 验证父类 delete 顺序
-    if (mFontCache != nullptr) {
-        delete mFontCache;
-        mFontCache = nullptr;
-    }
-
-    if (mShaderManager != nullptr) {
-        delete mShaderManager;
-        mShaderManager = nullptr;
+    if (!mConfig.sharedShader) {
+        if (mShaderManager != nullptr) {
+            delete mShaderManager;
+            mShaderManager = nullptr;
+        }
     }
 }
 
 
-bool GCanvas2DContextAndroid::InitializeGLShader() {
-    if (mShaderManager == nullptr) {
-        mShaderManager = new GShaderManager();
-    }
-
-    return GCanvasContext::InitializeGLShader();
+void GCanvas2DContextAndroid::SetUseShaderBinaryCache(bool v) {
+    g_use_pre_compile = true;
 }
 
 
-GShader *GCanvas2DContextAndroid::FindShader(const char *name) {
-    return mShaderManager->programForKey(name);
+void GCanvas2DContextAndroid::SetShaderBinaryCachePath(const std::string& v) {
+    g_shader_cache_path = v;
 }
+
 
 
 void GCanvas2DContextAndroid::InitFBO() {
@@ -78,13 +79,21 @@ void GCanvas2DContextAndroid::InitFBO() {
         mIsFboSupported = mFboMap[DefaultFboName].InitFBO(mWidth, mHeight,
                                                           GColorTransparent, mEnableFboMsaa,
                                                           &logVec);
+
         LOG_EXCEPTION_VECTOR(mHooks, mContextId.c_str(), logVec);
     }
 }
 
 
-void GCanvas2DContextAndroid::ClearColor() {
-    GColorRGBA c = GColorTransparentWhite;
+
+void GCanvas2DContextAndroid::ClearColorToTransparent()
+{
+    GColorRGBA c = GColorTransparent;
+    ClearColor(c);
+}
+
+
+void GCanvas2DContextAndroid::ClearColor(GColorRGBA& c) {
     glClearColor(c.rgba.r, c.rgba.g, c.rgba.b, c.rgba.a);
     glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -108,9 +117,11 @@ void GCanvas2DContextAndroid::GetRawImageData(int width, int height, uint8_t *pi
 
 
 void GCanvas2DContextAndroid::BeginDraw(bool is_first_draw) {
+    glEnable(GL_DEPTH_TEST);
+
     if (mConfig.useFbo) {
         // 深度test 一直开启
-        glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_DEPTH_TEST);
         BindFBO();
     } else {
         if (is_first_draw) {
@@ -139,6 +150,44 @@ GTexture *GCanvas2DContextAndroid::GetFBOTextureData() {
     return &(mFboMap[DefaultFboName].mFboTexture);
 }
 
+
+void GCanvas2DContextAndroid::ResizeCanvas(int width, int height) {
+    mWidth = width;
+    mHeight = height;
+
+    mCanvasWidth = width;
+    mCanvasHeight = height;
+
+    if (mContextType == 0) {
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        mVertexBufferIndex = 0;
+        UpdateProjectTransform();
+
+        if (mCurrentState != nullptr) {
+            GTransform old = mCurrentState->mTransform;
+            mCurrentState->mTransform = GTransformIdentity;
+            if (!GTransformEqualToTransform(old, mCurrentState->mTransform)) {
+                // update shader transform
+                SetTransformOfShader(mProjectTransform);
+            }
+        }
+
+        ResetStateStack();
+        DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
+        UseDefaultRenderPipeline();
+
+        ClearScreen();
+    }
+
+    mFboMap.erase(GCanvasContext::DefaultFboName);
+    InitFBO();
+    BindFBO();
+}
+
+
+
 /**
  * 在改变canvas view大小时进行内容复制
  * 新建fbo, 并进行fbo复制
@@ -153,26 +202,34 @@ void GCanvas2DContextAndroid::ResizeCopyUseFbo(int width, int height) {
     }
 
     bool shouldChangeDimension = (mCanvasWidth <= 0 && mCanvasHeight <= 0);
-    if (0 == mContextType && mIsFboSupported) {
+    if (0 == mContextType && mIsFboSupported && mWidth > 0 && mHeight > 0) {
         // 1.切换回主fbo
         UnbindFBO();
         // 2.新创建fbo
-        GFrameBufferObject *newFbo = new GFrameBufferObject();
-        mIsFboSupported = newFbo->InitFBO(mWidth, mHeight, GColorTransparent, mEnableFboMsaa,nullptr);
+        GFrameBufferObject newFbo;
+
+        // 记录新创建init fbo vector的异常
+        std::vector<GCanvasLog> logVec;
+        mIsFboSupported = newFbo.InitFBO(mWidth, mHeight, GColorTransparent, mEnableFboMsaa, &logVec);
+        LOG_EXCEPTION_VECTOR(mHooks, mContextId, logVec);
+
+        // FIXME 如果新创建fbo失败，老fbo尺寸又不对，后续绘制必定出错
+
         // 是否存在旧的fbo, 如果有则拷贝旧fbo并删除旧的
         if (mFboMap.find(DefaultFboName) != mFboMap.end()) {
             // 3.拷贝fbo
-            CopyFBO(mFboMap[DefaultFboName], *newFbo);
+            CopyFBO(mFboMap[DefaultFboName], newFbo);
             // 4.删除旧的fbo，并回收fbo资源
             mFboMap.erase(DefaultFboName);
         }
+
         // 5.复制新FBO到map内(复制对象内存, 方法内的对象依然存在)
-        mFboMap[DefaultFboName] = *newFbo;
+        std::string key = DefaultFboName;
+        // 替换掉旧的写入方法
+        mFboMap.emplace(key, std::move(newFbo));
 
         // 6.切换到新FBO上(可以绘制)
         BindFBO();
-        // TODO newFbo对象也要想办法回收
-        // (直接释会导致FBO被删除，会导致功能异常)
     }
 
     // 如果画布尺寸为0，表示要跟随surface变换，继续以(0,0)更新dimension，计算新的变换矩阵
@@ -260,43 +317,6 @@ void GCanvas2DContextAndroid::CopyImageToCanvas(int width, int height,
 }
 
 
-int
-GCanvas2DContextAndroid::BindImage(const unsigned char *rgbaData, GLint format, unsigned int width,
-                                   unsigned int height) {
-    if (nullptr == rgbaData)
-        return (GLuint) -1;
-
-    GLenum glerror = 0;
-    GLuint glID;
-    glGenTextures(1, &glID);
-    glerror = glGetError();
-    if (glerror) {
-//        LOG_EXCEPTION("", "gen_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
-//                      glerror);
-    }
-    glBindTexture(GL_TEXTURE_2D, glID);
-    glerror = glGetError();
-    if (glerror) {
-//        LOG_EXCEPTION("", "bind_texture_fail", "<function:%s, glGetError:%x>", __FUNCTION__,
-//                      glerror);
-    }
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, rgbaData);
-    glerror = glGetError();
-    if (glerror) {
-//        LOG_EXCEPTION("", "glTexImage2D_failglTexImage2D_fail", "<function:%s, glGetError:%x>",
-//                      __FUNCTION__, glerror);
-    }
-
-    return glID;
-}
-
-
 void
 GCanvas2DContextAndroid::
 DrawFBO(std::string fboName, GCompositeOperation compositeOp, float sx, float sy, float sw,
@@ -380,6 +400,12 @@ void GCanvas2DContextAndroid::DrawFrame(bool clear) {
         ClearGeometryDataBuffers();
     }
 }
+
+
+void GCanvas2DContextAndroid::SetShaderManager(GShaderManager* shaderManager) {
+    this->mShaderManager = shaderManager;
+}
+
 
 GShaderManager *GCanvas2DContextAndroid::GetShaderManager() {
     return this->mShaderManager;

@@ -26,7 +26,7 @@ public:
     GCanvasManager();
     virtual ~GCanvasManager();
 
-    GCanvas* NewCanvas(const std::string canvasId, bool onScreen=true, bool useFbo = true, GCanvasHooks *hooks = nullptr);
+    GCanvas* NewCanvas(const std::string canvasId, GCanvasConfig config, GCanvasHooks *hooks = nullptr);
 #ifdef GCANVAS_WEEX
     GCanvasWeex* NewCanvasWeex(const std::string canvasId, bool onScreen=true, bool useFbo = true);
 #endif

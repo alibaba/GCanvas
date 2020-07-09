@@ -7,169 +7,150 @@
  * the LICENSE file in the root directory of this source tree.
  */
 #include "Image.h"
+#include "Canvas.h"
 #include "NodeBindingUtil.h"
 #include <iostream>
 #include <stdlib.h>
 namespace NodeBinding
 {
-Napi::FunctionReference Image::constructor;
-Image::Image(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Image>(info)
-{
-}
-
-void Image::Init(Napi::Env env, Napi::Object exports)
-{
-    Napi::HandleScope scope(env);
-
-    Napi::Function func =
-        DefineClass(env,
-                    "Image",
-                    {
-                        InstanceAccessor("src", &Image::getSrc, &Image::setSrc),
-                        InstanceAccessor("width", &Image::getWidth, nullptr),
-                        InstanceAccessor("height", &Image::getHeight, nullptr),
-                        InstanceAccessor("onload", &Image::getOnLoad, &Image::setOnLoad),
-                        InstanceAccessor("onerror", &Image::getOnError, &Image::setOnError),
-                    });
-    constructor = Napi::Persistent(func);
-    constructor.SuppressDestruct();
-    exports.Set("Image", func);
-}
-
-Napi::Value Image::getSrc(const Napi::CallbackInfo &info)
-{
-    return Napi::String::New(info.Env(), this->src);
-}
-
-void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    checkArgs(info, 1);
-    this->src = value.As<Napi::String>().Utf8Value();
-    if (mWorker)
+    Napi::FunctionReference Image::constructor;
+    Image::Image(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Image>(info)
     {
-        mWorker->url = this->src;
-        mWorker->Queue();
+        this->mCallbackSet = new ImageCallbackSet();
     }
-}
-Napi::Value Image::getOnLoad(const Napi::CallbackInfo &info)
-{
-    return this->onLoadCallback;
-}
-void Image::setOnLoad(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    checkArgs(info, 1);
-    this->onLoadCallback = value.As<Napi::Function>();
-    if (!mWorker)
+
+    Image::~Image()
     {
-        mWorker = new ImageWorker(info.Env(), pixels, width, height);
+        delete this->mDownloadImageWorker;
+        this->mDownloadImageWorker = nullptr;
+        delete this->mCallbackSet;
+        this->mCallbackSet = nullptr;
+        this->mImageMemCached = nullptr;
     }
-    mWorker->setOnLoadCallback(this->onLoadCallback);
-}
 
-void Image::setOnError(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-    checkArgs(info, 1);
-    this->onErrorCallback = value.As<Napi::Function>();
-    if (!mWorker)
+    void Image::Init(Napi::Env env, Napi::Object exports)
     {
-        mWorker = new ImageWorker(info.Env(), pixels, width, height);
+        Napi::HandleScope scope(env);
+
+        Napi::Function func =
+            DefineClass(env,
+                        "Image",
+                        {
+                            InstanceAccessor("src", &Image::getSrc, &Image::setSrc),
+                            InstanceAccessor("width", &Image::getWidth, nullptr),
+                            InstanceAccessor("height", &Image::getHeight, nullptr),
+                            InstanceAccessor("onload", &Image::getOnLoadCallback, &Image::setOnLoadCallback),
+                            InstanceAccessor("onerror", &Image::getOnErrorCallback, &Image::setOnErrorCallback),
+                        });
+        constructor = Napi::Persistent(func);
+        constructor.SuppressDestruct();
+        exports.Set("Image", func);
     }
-    mWorker->setOnErrorCallback(onErrorCallback);
-}
 
-Napi::Value Image::getWidth(const Napi::CallbackInfo &info)
-{
-    return Napi::Number::New(info.Env(), this->width);
-}
-Napi::Value Image::getHeight(const Napi::CallbackInfo &info)
-{
-    return Napi::Number::New(info.Env(), this->height);
-}
-
-int Image::getWidth()
-{
-    return this->width;
-}
-int Image::getHeight()
-{
-    return this->height;
-}
-Napi::Value Image::getOnError(const Napi::CallbackInfo &info)
-{
-    return this->onErrorCallback;
-}
-
-std::vector<unsigned char> &Image::getPixels()
-{
-    return this->pixels;
-}
-
-void ImageWorker::setOnErrorCallback(Napi::Function func)
-{
-    this->onErrorCallback = Napi::Persistent(func);
-}
-
-void ImageWorker::setOnLoadCallback(Napi::Function func)
-{
-    this->onLoadCallback = Napi::Persistent(func);
-}
-
-void ImageWorker::OnOK()
-{
-    if (this->onLoadCallback)
+    Napi::Object Image::NewInstance(Napi::Env env)
     {
-        this->onLoadCallback.Call({Env().Undefined()});
+        Napi::Object obj = constructor.New({});
+        obj.Set("name", Napi::String::New(env, "image"));
+        return obj;
     }
-}
 
-void ImageWorker::OnError(const Napi::Error &e)
-{
-    if (this->onErrorCallback)
+    Napi::Value Image::getSrc(const Napi::CallbackInfo &info)
     {
-        this->onErrorCallback.Call({Napi::String::New(Env(), e.Message())});
+        return Napi::String::New(info.Env(), this->src);
     }
-}
 
-void ImageWorker::Execute()
-{
-    if (url.rfind("http", 0) == 0 || url.rfind("https", 0) == 0)
-    {
-        content.size = downloadImage(url, &content);
-        if ((int)content.size <= 0)
+    void Image::setSrc(const Napi::CallbackInfo &info, const Napi::Value &value)
+     {
+        checkArgs(info, 1);
+        this->src = value.As<Napi::String>().Utf8Value();
+        this->mImageMemCached=std::make_shared<ImageCached>();
+        if (!mDownloadImageWorker)
         {
-            free(content.memory);
-            content.memory = nullptr;
-            this->SetError(std::move("Image Download Fail"));
-            return;
+            mDownloadImageWorker = new ImageWorker(info.Env(), this->mImageMemCached,
+                                      this->mImageMemCached->width,
+                                      this->mImageMemCached->height);
+        }
+        if (mDownloadImageWorker)
+        {
+            mDownloadImageWorker->url = this->src;
+            mDownloadImageWorker->setOnErrorCallback(this->mCallbackSet->mOnErrorCallback.Value());
+            mDownloadImageWorker->setOnLoadCallback(this->mCallbackSet->mOnLoadCallback.Value());
+            mDownloadImageWorker->Queue();
         }
     }
-    else
-    { //本地文件
-        content.size = readLocalImage(url, &content);
-        if ((int)content.size <= 0)
+    Napi::Value Image::getOnLoadCallback(const Napi::CallbackInfo &info)
+    {
+        return this->mCallbackSet->mOnLoadCallback.Value();
+    }
+    Napi::Value Image::getOnErrorCallback(const Napi::CallbackInfo &info)
+    {
+        return this->mCallbackSet->mOnErrorCallback.Value();
+    }
+
+    void Image::setOnLoadCallback(const Napi::CallbackInfo &info, const Napi::Value &value)
+    {
+        checkArgs(info, 1);
+        this->mCallbackSet->mOnLoadCallback = Napi::Persistent(value.As<Napi::Function>());
+    }
+
+    void Image::setOnErrorCallback(const Napi::CallbackInfo &info, const Napi::Value &value)
+    {
+        checkArgs(info, 1);
+        this->mCallbackSet->mOnErrorCallback = Napi::Persistent(value.As<Napi::Function>());
+    }
+
+    Napi::Value Image::getWidth(const Napi::CallbackInfo &info)
+    {
+        if (this->mImageMemCached)
         {
-            free(content.memory);
-            content.memory = nullptr;
-            this->SetError(std::move("Image Read Fail"));
-            return;
+            return Napi::Number::New(info.Env(), this->mImageMemCached->width);
+        }
+        else
+        {
+            return Napi::Number::New(info.Env(), 0);
+        }
+    }
+    Napi::Value Image::getHeight(const Napi::CallbackInfo &info)
+    {
+        if (this->mImageMemCached)
+        {
+            return Napi::Number::New(info.Env(), this->mImageMemCached->height);
+        }
+        else
+        {
+            return Napi::Number::New(info.Env(), 0);
         }
     }
 
-    PIC_FORMAT format = getPicFormatFromContent(content.memory, content.size);
-    if (format == PNG_FORAMT)
+    int Image::getWidth()
     {
-        decodeFromPNGImage(_pixels, _width, _height, (const unsigned char *)content.memory, content.size);
+        return this->mImageMemCached != nullptr ? mImageMemCached->width : 0;
     }
-    else if (format == JPEG_FORMAT)
+    int Image::getHeight()
     {
-        decodeFromJEPGImage(_pixels, _width, _height, (const unsigned char *)content.memory, (unsigned int)content.size);
+        return this->mImageMemCached != nullptr ? mImageMemCached->height : 0;
     }
-    else if (format == UNKOWN_PIC_FORMAT)
+
+    std::vector<unsigned char> &Image::getPixels()
     {
-        this->SetError(std::move("Image Format Unspported"));
+        if (this->mImageMemCached)
+        {
+            return this->mImageMemCached->getPixels();
+        }
+        else
+        {
+            //引用没办法,只能给一个非局部的vector,稍微浪费一点内存
+            return this->emptyPixels;
+        }
     }
-    free(content.memory);
-    content.memory = nullptr;
-}
+
+    void Image::setTextureId(int textureId)
+    {
+        this->textureId = textureId;
+    }
+    int Image::getTextureId()
+    {
+        return this->textureId;
+    }
 
 }; // namespace NodeBinding

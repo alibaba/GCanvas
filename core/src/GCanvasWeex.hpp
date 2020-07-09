@@ -147,13 +147,6 @@ public:
      void AddOfflineTexture(int textureGroupId, int glID);
 #endif
     
-     void GetAllParameter(std::string &ret);
-    
-#ifdef ANDROID
-     void AddCallback(const char *callbackID, const char *result, bool isError);
-     Callback *GetNextCallback();
-     void PopCallbacks();
-#endif
     
      void DrawImage(int textureId, float sx, float sy, float sw, float sh,
                             float dx, float dy, float dw, float dh);
@@ -162,7 +155,6 @@ public:
                                std::string &pixelsData);
      void PutImageData(const char *imageData, int dataLength, float dx, float dy,
                                float sw, float sh, float dw, float dh);
-
      void RemoveTexture(int id);
      void Render(const char *renderCommands, int length);
      void SetOrtho(int width, int height);
@@ -172,91 +164,62 @@ public:
      void UsePatternRenderPipeline(int textureListId, const std::string &pattern,
                                   bool isStroke=false);
     
-    //Weex WebGL
-     void setSyncResult(std::string result);
+    
 #ifdef ANDROID
-     std::string exeSyncCmd(int cmd, const char *&args);
-     std::string exe2dSyncCmd(int cmd, const char *&args);
-     void initWebglExt();
-     const char *CallNative(int type, const std::string &args);
-     int getCmdType(int type);
-     int getSyncAttrib(int type);
-     int getOpType(int type);
-     std::string canvasProc(int op, int sync, std::string args);
-     std::string webglProc(int op, int sync, std::string args);
-     std::string vulkanProc(int op, int sync, std::string args);
-     std::string metalProc(int op, int sync, std::string args);
-     virtual void signalUpGLthread();
-     void LinkNativeGLProc();
-     void clearCmdQueue();
-     void QueueProc(std::queue<struct GCanvasCmd *> *queue);
-     virtual void setRefreshFlag(bool refresh);
-     void setSyncFlag();
-     void setThreadExit();
-     void finishProc();
-     bool continueProcess();
-     void addBitmapQueue(struct BitmapCmd *p);
-     void bindTexture(struct BitmapCmd cmd);
-     void bindTexture(GTexture *texture);
-     void texSubImage2D(struct BitmapCmd cmd);
-     void setContextLost(bool lost);
+    void AddCallback(const char *callbackID, const char *result, bool isError);
+    Callback *GetNextCallback();
+    void PopCallbacks();
+    
+    //Weex WebGL
+    std::string exeSyncCmd(int cmd, const char *&args);
+    std::string exe2dSyncCmd(int cmd, const char *&args);
+    void initWebglExt();
+    const char *CallNative(int type, const std::string &args);
+    int getCmdType(int type);
+    int getSyncAttrib(int type);
+    int getOpType(int type);
+    std::string canvasProc(int op, int sync, std::string args);
+    std::string webglProc(int op, int sync, std::string args);
+    std::string vulkanProc(int op, int sync, std::string args);
+    std::string metalProc(int op, int sync, std::string args);
+    virtual void signalUpGLthread();
+    void LinkNativeGLProc();
+    void clearCmdQueue();
+    void QueueProc(std::queue<struct GCanvasCmd *> *queue);
+    virtual void setRefreshFlag(bool refresh);
+    void setSyncFlag();
+    void setThreadExit();
+    void finishProc();
+    bool continueProcess();
+    void addBitmapQueue(struct BitmapCmd *p);
+    void bindTexture(struct BitmapCmd cmd);
+    void bindTexture(GTexture *texture);
+    void texSubImage2D(struct BitmapCmd cmd);
+    void setContextLost(bool lost);
 #endif
     
-    
-    
-    
-        
+    void GetAllParameter(std::string &ret);
+    void setSyncResult(std::string result);
+
 protected:
     //GCanvas Weex API
     void drawFBO(std::string fboName, GCompositeOperation compositeOp = COMPOSITE_OP_SOURCE_OVER,
-                 float sx = 0, float sy = 0, float sw = 1, float sh = 1, float dx = 0, float dy = 0,
-                 float dw = 1, float dh = 1);
-    
-     void calculateFPS();
-     void execute2dCommands(const char *renderCommands, int length);
-     int executeWebGLCommands(const char *&cmd, int length);
-     bool isCmd(const char *in, const char *match) { return in[0] == match[0]; }
-     const char *parseSetTransform(const char *renderCommands,
-                                  int parseMode, // what to read: IDENTITY, FULL_XFORM, etc.
-                                  bool concat,   // if true, concatenate, else replace.
-                                  GTransform transIn,    // the current xform
-                                  GTransform *transOut); // where to write the new xform
+             float sx = 0, float sy = 0, float sw = 1, float sh = 1, float dx = 0, float dy = 0,
+             float dw = 1, float dh = 1);
 
-     void parseSetTransForTextform(float v1, float v2,
-                                  int parseMode,    // what to read: IDENTITY, FULL_XFORM, etc.
-                                  bool concat,      // if true, concatenate, else replace.
-                                  GTransform transIn, // the current xform
-                                  GTransform *transOut);
+    void calculateFPS();
 
-     const char *parseSetTransformT( const char *renderCommands,
-                                int parseMode,          // what to read: IDENTITY, FULL_XFORM, etc.
-                                bool concat,            // if true, concatenate, else replace.
-                                GTransform transIn,    // the current xform
-                                GTransform *transOut); // where to write the new xform
-     const char *parseTokens(const char *renderCommands, float *tokens,
-                                     int iMaxCount = 6);
-     void parseTokesOpt(float *tokens, const char **pp);
-     const char *parseDrawImage(const char *renderCommands, ClipStruct *clipOut);
-     const char *parseName(const char *p, std::string &name);
-     const char *parseBindingPara(const char *p, std::string &name, float &width, float &height);
-     const char *parseBindingPara(const char *p, std::string &name,
-                                          float& sx, float& sy, float& sw, float& sh,
-                                          float& dx, float& dy, float& dw, float& dh);
-     const char *parseUnknown(const char *renderCommands);
-     const char *extractOneParameterFromCommand(char *outParameter,
-                                               const char *commands);
-     const Texture *getTextureWithOneImage(int id);
-     float fastFloat(const char *str) { return (float) atof(str); }
-    
-    enum
-    {
-        IDENTITY,  // rt
-        SET_XFORM, // st
-        SCALE,     // sc
-        ROTATE,    // ro
-        TRANSLATE, // tr
-        NUM_PARSE_MODES
-    };
+    void execute2dCommands(const char *renderCommands, int length);
+    int executeWebGLCommands(const char *&cmd, int length);
+
+    const char *parseTokens(const char *renderCommands, float *tokens, int iMaxCount = 6);
+    void parseTokesOpt(float *tokens, const char **pp);
+    const char *parseDrawImage(const char *renderCommands, ClipStruct *clipOut);
+    const char *parseUnknown(const char *renderCommands);
+    const char *extractOneParameterFromCommand(char *outParameter,
+                                           const char *commands);
+    const Texture *getTextureWithOneImage(int id);
+    float fastFloat(const char *str) { return (float) atof(str); }
 
     enum {
         CANVAS,
@@ -278,9 +241,7 @@ public:
     int mFrames;
     float mFps;
     std::string mTempStr;
-    GTransform mCurrentTransform;
     bool mContextLost;
-    DynArray<GTransform> mActionStack;
     TextureMgr mTextureMgr;
     std::string mResult = "";
 
