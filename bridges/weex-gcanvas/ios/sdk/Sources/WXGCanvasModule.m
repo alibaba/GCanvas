@@ -22,7 +22,7 @@
 #import <GCanvas/GCanvasModule.h>
 #import <WeexSDK/WXDefine.h>
 #import <WeexSDK/WXComponentManager.h>
-#import <SDWebImage/SDWebImageManager.h>
+#import <UME_SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 
 @interface WXGCanvasModule()<GCanvasModuleProtocol, GCVImageLoaderProtocol>
