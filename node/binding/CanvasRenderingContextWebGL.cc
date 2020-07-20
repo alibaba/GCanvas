@@ -9,7 +9,7 @@
 #include "./webgl/WebGLUniformLocation.h"
 #include "Image.h"
 //测量单个函数耗时的debug开关
-// #define DUMP_RUNNING_TIME 1
+#define DUMP_RUNNING_TIME 1
 
 #ifdef DUMP_RUNNING_TIME
 #define RECORD_TIME_BEGIN  \
@@ -17,8 +17,9 @@
     start = clock();
 
 #define RECORD_TIME_END \
+    printf(" error=%d ",  glGetError()); \
     finish = clock();   \
-    printf("cost time %f ms\n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
+    printf(" cost time %.5f ms, \n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
 #else
 #define RECORD_TIME_BEGIN
 #define RECORD_TIME_END
@@ -31,9 +32,7 @@
     {                                                        \
         RECORD_TIME_BEGIN                                    \
         mRenderContext->makeCurrent();                       \
-        // printf("the function :  " #methodName " is  called \n"); \
-        // GLenum error = glGetError();                             \
-        // printf("the error is %d \n", error);
+        printf(" gl function  :  `" #methodName " `is  called  "); \
 
 #define DEFINE_RETURN_VALUE_METHOD(methodName)               \
     \ 
@@ -42,9 +41,7 @@
     {                                                        \
         RECORD_TIME_BEGIN                                    \
         mRenderContext->makeCurrent();                       \
-        // printf("the function : " #methodName " is  called \n"); \
-        // GLenum error = glGetError();                            \
-        // printf("the error is %d \n", error);     \
+        printf(" gl function  :  `" #methodName " `is  called  "); \
 
 namespace NodeBinding
 {
@@ -524,22 +521,24 @@ namespace NodeBinding
     }
     ContextWebGL::ContextWebGL(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ContextWebGL>(info)
     {
+        mUnpackFlipYWebGL = false;
+        mUnpackPremultiplyAlphaWebGL = false;
     }
 
     Napi::Object ContextWebGL::NewInstance(Napi::Env env)
     {
         Napi::Object obj = constructor.New({});
-        obj.Set("name", Napi::String::New(env, "context3d"));
-        GL_TEXTURE0;
+        obj.Set("name", Napi::String::New(env, "contextwebgl"));
         return obj;
     }
 
-    DEFINE_VOID_METHOD(clear)
+DEFINE_VOID_METHOD(clear)
     CHECK_PARAM_LEGNTH(1)
     GLbitfield mask = info[0].As<Napi::Number>().Uint32Value();
     glClear(mask);
     RECORD_TIME_END
 } // namespace NodeBinding
+
 DEFINE_VOID_METHOD(clearColor)
 CHECK_PARAM_LEGNTH(4)
 GLfloat red = info[0].As<Napi::Number>().FloatValue();
@@ -1032,7 +1031,7 @@ void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &in
     WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     GLboolean transpose = info[1].As<Napi::Boolean>().Value();
     if (info[2].IsTypedArray())
-    {
+    { /* constant-expression */
         Napi::TypedArray array = info[2].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
         func(location->getIndex(), buffer.ElementLength(), transpose, buffer.Data());
@@ -1152,9 +1151,26 @@ RECORD_TIME_END
 
 DEFINE_VOID_METHOD(pixelStorei)
 CHECK_PARAM_LEGNTH(2)
-GLenum type = info[0].As<Napi::Number>().Uint32Value();
+GLenum pname = info[0].As<Napi::Number>().Uint32Value();
 GLuint param = parseUInt(info[1]);
-glPixelStorei(type, param);
+switch (pname)
+{
+case GL_UNPACK_FLIP_Y_WEBGL:
+    mUnpackFlipYWebGL = param;
+    break;
+
+case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
+    mUnpackPremultiplyAlphaWebGL = param;
+    break;
+
+case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
+    printf("Unsupport  GL_UNPACK_COLORSPACE_CONVERSION_WEBGL");
+    break;
+
+default:
+    glPixelStorei(pname, param);
+    break;
+}
 RECORD_TIME_END
 }
 

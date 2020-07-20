@@ -1,7 +1,12 @@
-#ifndef CONTEXT3D_H
-#define CONTEXT3D_H
+#ifndef CONTEXTWEBGL_H
+#define CONTEXTWEBGL_H
 #include <napi.h>
 #include "GRenderContext.h"
+
+
+#define GL_UNPACK_FLIP_Y_WEBGL      0x9240
+#define GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL   0x9241
+#define GL_UNPACK_COLORSPACE_CONVERSION_WEBGL 0x9243
 
 #define DEFINE_CONST_PROPERY_GET_FUNCTION(propertyName)           \
     Napi::Value get##propertyName(const Napi::CallbackInfo &info) \
@@ -479,12 +484,12 @@ namespace NodeBinding
 
         Napi::Value getUNPACK_FLIP_Y_WEBGL(const Napi::CallbackInfo &info)
         {
-            return Napi::Number::New(info.Env(), 3);
+            return Napi::Number::New(info.Env(), GL_UNPACK_FLIP_Y_WEBGL);
         }
 
         Napi::Value getUNPACK_PREMULTIPLY_ALPHA_WEBGL(const Napi::CallbackInfo &info)
         {
-            return Napi::Number::New(info.Env(), 0x9241);
+            return Napi::Number::New(info.Env(), GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL);
         }
 
         Napi::Value getUNPACK(const Napi::CallbackInfo &info)
@@ -501,7 +506,11 @@ namespace NodeBinding
         {
             return Napi::Number::New(info.Env(), this->mRenderContext->getHeight());
         }
+
+    protected:
         std::shared_ptr<GRenderContext> mRenderContext = nullptr;
+        bool mUnpackFlipYWebGL;
+        bool mUnpackPremultiplyAlphaWebGL;
     };
 } // namespace NodeBinding
 #endif
