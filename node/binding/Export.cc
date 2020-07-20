@@ -11,14 +11,14 @@
 #include "Canvas.h"
 #include "Image.h"
 #include "TextMetrics.h"
-#include "./webGLRes/WebGLShader.h"
-#include "./webGLRes/WebGLBuffer.h"
-#include "./webGLRes/WebGLProgram.h"
-#include "./webGLRes/WebGLTexture.h"
-#include "./webGLRes/WebGLFrameBuffer.h"
-#include "WebGLActiveInfo.h"
-#include "WebGLUniformLocation.h"
-#include "./webGLRes/WebGLRenderBuffer.h"
+#include "./webgl/WebGLShader.h"
+#include "./webgl/WebGLBuffer.h"
+#include "./webgl/WebGLProgram.h"
+#include "./webgl/WebGLTexture.h"
+#include "./webgl/WebGLFrameBuffer.h"
+#include "./webgl/WebGLActiveInfo.h"
+#include "./webgl/WebGLUniformLocation.h"
+#include "./webgl/WebGLRenderBuffer.h"
 
 Napi::Object createCanvas(const Napi::CallbackInfo &info)
 {

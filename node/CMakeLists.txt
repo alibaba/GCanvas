@@ -41,15 +41,15 @@ set(SOURCE_FILES
         ./binding/TextMetrics.cc
         ./binding/Image.cc
         ./binding/ImageWorker.cc
-        ./binding/WebGLActiveInfo.cc
-        ./binding/WebGLUniformLocation.cc
         ./binding/CanvasPattern.cc
-        ./binding/webGLRes/WebGLShader.cc
-        ./binding/webGLRes/WebGLBuffer.cc
-        ./binding/webGLRes/WebGLProgram.cc
-        ./binding/webGLRes/WebGLTexture.cc
-        ./binding/webGLRes/WebGLFrameBuffer.cc
-        ./binding/webGLRes/WebGLRenderBuffer.cc
+        ./binding/webgl/WebGLShader.cc
+        ./binding/webgl/WebGLBuffer.cc
+        ./binding/webgl/WebGLProgram.cc
+        ./binding/webgl/WebGLTexture.cc
+        ./binding/webgl/WebGLFrameBuffer.cc
+        ./binding/webgl/WebGLRenderBuffer.cc
+        ./binding/webgl/WebGLActiveInfo.cc
+        ./binding/webgl/WebGLUniformLocation.cc
         ./renderContext/GRenderContext.cc
         ./third_party/lodepng.cc
         ./util/NodeBindingUtil.cc
