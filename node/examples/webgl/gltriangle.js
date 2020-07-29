@@ -3,7 +3,7 @@ const canvas = createCanvas(400, 400);
 const gl = canvas.getContext('webgl')
 const fs = require('fs')
 const path = require('path');
-const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triagnleWebGL.png');
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triangle1.png');
 
 function draw() {
 

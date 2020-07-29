@@ -3,7 +3,7 @@ const canvas = createCanvas(400, 400);
 const gl = canvas.getContext('webgl')
 const fs = require('fs')
 const path = require('path');
-const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triagnleWebGL.png');
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triangle2.png');
 
 function draw() {
 
@@ -27,7 +27,6 @@ function draw() {
         gl.clearColor(0.0, 0.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        console.log("called bufer data");
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         
         let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
