@@ -1213,7 +1213,6 @@ if (info.Length() == 6)
     {
         Napi::Object object = info[5].As<Napi::Object>();
         Napi::Value name = object.Get("name");
-        printf("the name is %d\n", name.IsNull());
         std::string namePropetry = name.As<Napi::String>().Utf8Value();
         //todo canvas
         if (namePropetry == "image")
