@@ -1,11 +1,12 @@
-var that;
+const { createCanvas, Image } = require('../../export')
+const fs = require('fs')
+const path = require('path');
 
-var canvas;
-var gl;
-
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/stencil.png');
+const canvas = createCanvas(600, 600);
+var gl = canvas.getContext("webgl");
 var width;
 var height;
-const { createCanvas, Image } = require('../../export')
 var program = null;
 var program2 = null;
 var samplerUniform = null;
@@ -189,11 +190,6 @@ function createTexture(source) {
   return texture;
 }
 
-
-canvas = createCanvas(600,600);
-gl = canvas.getContext('webgl');
-
-
 height = canvas.height;
 width = canvas.width;
 
@@ -206,7 +202,10 @@ var img = new Image();
 img.onload = function() {
   maskTexture = createTexture(img);
   setupBufferAndDraw();
-  canvas.createPNG("stencil")
+  var stream = canvas.createPNGStream();
+  stream.on('data', function (chunk) {
+      out.write(chunk);
+  });
 };
 img.crossOrigin = "";
 img.src = 'https://img.alicdn.com/tfs/TB1edrqL7Y2gK0jSZFgXXc5OFXa-128-128.png';

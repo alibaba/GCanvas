@@ -515,7 +515,6 @@ namespace NodeBinding
                             InstanceAccessor("drawBufferHeight", &ContextWebGL::getDrawingBufferHeight, nullptr),
                             InstanceAccessor("UNPACK_FLIP_Y_WEBGL", &ContextWebGL::getUNPACK_FLIP_Y_WEBGL, nullptr),
                             InstanceAccessor("UNPACK_PREMULTIPLY_ALPHA_WEBGL", &ContextWebGL::getUNPACK_PREMULTIPLY_ALPHA_WEBGL, nullptr),
-                            InstanceAccessor("UNPACK", &ContextWebGL::getUNPACK, nullptr),
                         });
         constructor = Napi::Persistent(func);
     }
@@ -840,6 +839,9 @@ CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
 std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
 GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str());
+
+printf("getUniformationLocation(%d, %s)=%d\n", program->getId(), shaderStr.c_str(), index);
+
 Napi::Object obj = WebGLUniformLocation::NewInstance(info.Env(), index);
 RECORD_TIME_END
 return obj;
@@ -931,68 +933,68 @@ RECORD_TIME_END
 
 DEFINE_VOID_METHOD(uniform1fv)
 CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFunc(info, glUniform1fv);
+parseTypeArrayAndCallUniformFloatFunc(info, glUniform1fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform2fv)
 CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformFunc(info, glUniform2fv);
+parseTypeArrayAndCallUniformFloatFunc(info, glUniform2fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform3fv)
 CHECK_PARAM_LEGNTH(4)
-parseTypeArrayAndCallUniformFunc(info, glUniform3fv);
+parseTypeArrayAndCallUniformFloatFunc(info, glUniform3fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4fv)
 CHECK_PARAM_LEGNTH(5)
-parseTypeArrayAndCallUniformFunc(info, glUniform4fv);
+parseTypeArrayAndCallUniformFloatFunc(info, glUniform4fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1iv)
 CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFunc(info, glUniform1iv);
+parseTypeArrayAndCallUniformIntFunc(info, glUniform1iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2iv)
 CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFunc(info, glUniform2iv);
+parseTypeArrayAndCallUniformIntFunc(info, glUniform2iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3iv)
 CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFunc(info, glUniform3iv);
+parseTypeArrayAndCallUniformIntFunc(info, glUniform3iv);
 RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform4iv)
 CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFunc(info, glUniform4iv);
+parseTypeArrayAndCallUniformIntFunc(info, glUniform4iv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix2fv)
 CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformFunc(info, glUniformMatrix2fv);
+parseTypeArrayAndCallUniformMatrixFunc(info, 4, glUniformMatrix2fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix3fv)
 CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformFunc(info, glUniformMatrix3fv);
+parseTypeArrayAndCallUniformMatrixFunc(info, 9,  glUniformMatrix3fv);
 RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix4fv)
 CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformFunc(info, glUniformMatrix4fv);
+parseTypeArrayAndCallUniformMatrixFunc(info, 16, glUniformMatrix4fv);
 RECORD_TIME_END
 }
 
-void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func)
+void ContextWebGL::parseTypeArrayAndCallUniformFloatFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func)
 {
     WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     if (info[1].IsTypedArray())
@@ -1007,9 +1009,19 @@ void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &in
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
         func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
+    else if( info[1].IsArray() )
+    {
+        Napi::Array array  = info[2].As<Napi::Array>();
+        float floatArray[array.Length()];
+        for (size_t i = 0; i < array.Length(); i++)
+        {
+            floatArray[i] =  array.Get(i).ToNumber();
+        }
+        func(location->getIndex(), array.Length(), floatArray);
+    }
 }
 
-void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformIntPtr func)
+void ContextWebGL::parseTypeArrayAndCallUniformIntFunc(const Napi::CallbackInfo &info, glUniformIntPtr func)
 {
     WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     if (info[1].IsTypedArray())
@@ -1024,23 +1036,45 @@ void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &in
         Napi::Int32Array buffer = array.As<Napi::Int32Array>();
         func(location->getIndex(), buffer.ElementLength(), buffer.Data());
     }
+    else if( info[1].IsArray() )
+    {
+        Napi::Array array  = info[2].As<Napi::Array>();
+        int intArray[array.Length()];
+        for (size_t i = 0; i < array.Length(); i++)
+        {
+            intArray[i] =  array.Get(i).ToNumber();
+        }
+        func(location->getIndex(), array.Length(), intArray);
+    }
 }
 
-void ContextWebGL::parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformMatrixPtr func)
+void ContextWebGL::parseTypeArrayAndCallUniformMatrixFunc(const Napi::CallbackInfo &info, int size, glUniformMatrixPtr func)
 {
     WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
     GLboolean transpose = info[1].As<Napi::Boolean>().Value();
+
     if (info[2].IsTypedArray())
     { /* constant-expression */
         Napi::TypedArray array = info[2].As<Napi::TypedArray>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(location->getIndex(), buffer.ElementLength(), transpose, buffer.Data());
+        func(location->getIndex(), buffer.ElementLength()/size, transpose, buffer.Data());
     }
     else if (info[2].IsArrayBuffer())
     {
         Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
         Napi::Float32Array buffer = array.As<Napi::Float32Array>();
-        func(location->getIndex(), buffer.ElementLength(), transpose, buffer.Data());
+        func(location->getIndex(), buffer.ElementLength()/size, transpose, buffer.Data());
+    }
+    else if( info[2].IsArray() )
+    {
+        Napi::Array array  = info[2].As<Napi::Array>();
+        float floatArray[array.Length()];
+        for (size_t i = 0; i < array.Length(); i++)
+        {
+            floatArray[i] =  array.Get(i).ToNumber();
+        }
+    
+        func(location->getIndex(), array.Length()/size, transpose, floatArray);
     }
 }
 
@@ -1449,8 +1483,8 @@ return Napi::Number::New(info.Env(), glIsProgram(program->getId()));
 
 DEFINE_VOID_METHOD(clearDepth)
 CHECK_PARAM_LEGNTH(1)
-GLclampd depth = info[0].As<Napi::Number>().DoubleValue();
-glClearDepth(depth);
+GLfloat depth = info[0].As<Napi::Number>().FloatValue();
+glClearDepthf(depth);
 RECORD_TIME_END
 }
 

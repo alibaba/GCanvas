@@ -103,6 +103,7 @@ namespace NodeBinding
             ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);
             ctx->setRenderContext(this->mRenderContext);
             this->mRenderContext->setType(type);
+            obj.Set("canvas",  this->Value());
             return obj;
         }
         else

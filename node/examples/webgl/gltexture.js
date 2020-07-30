@@ -1,4 +1,12 @@
 const { createCanvas, Image } = require('../../export')
+const fs = require('fs')
+const path = require('path');
+
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/texture.png');
+const canvas = createCanvas(900, 900);
+var gl = canvas.getContext("webgl");
+
+
 function setRectangle(gl, x, y, width, height) {
     var x1 = x;
     var x2 = x + width;
@@ -136,15 +144,12 @@ function drawImage(gl, canvas, image) {
     gl.drawArrays(primitiveType, offset, count);
 }
 
-var canvas =createCanvas(900,900);
-var c = canvas;
-var gl = c.getContext('webgl')
-
-
 var image = new Image();
-
 image.onload = function () {
     drawImage(gl, canvas, image);
-    canvas.createPNG("gltexture")
+    var stream = canvas.createPNGStream();
+    stream.on('data', function (chunk) {
+        out.write(chunk);
+    });
 }
 image.src = "https://img.alicdn.com/tfs/TB1FQDkCEz1gK0jSZLeXXb9kVXa-1200-807.jpg";

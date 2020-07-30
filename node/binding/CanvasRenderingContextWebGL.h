@@ -179,9 +179,10 @@ namespace NodeBinding
 
         void colorMask(const Napi::CallbackInfo &info);
         Napi::Value getShaderSource(const Napi::CallbackInfo &info);
-        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func);
-        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformIntPtr func);
-        void parseTypeArrayAndCallUniformFunc(const Napi::CallbackInfo &info, glUniformMatrixPtr func);
+
+        void parseTypeArrayAndCallUniformFloatFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func);
+        void parseTypeArrayAndCallUniformIntFunc(const Napi::CallbackInfo &info, glUniformIntPtr func);
+        void parseTypeArrayAndCallUniformMatrixFunc(const Napi::CallbackInfo &info, int size, glUniformMatrixPtr func);
         void parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &info, glVeterxFloatPtr func);
 
         static Napi::FunctionReference constructor;

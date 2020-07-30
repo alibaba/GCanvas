@@ -1,13 +1,14 @@
 const { createCanvas, Image } = require('../../export')
-const canvas = createCanvas(400, 400);
-const gl = canvas.getContext('webgl')
 const fs = require('fs')
 const path = require('path');
 const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triangle2.png');
 
+
+const canvas = createCanvas(400, 400);
+const gl = canvas.getContext('webgl')
+
 function draw() {
 
-    
     function initShaders(e, r, a) { var t = createProgram(e, r, a); return t ? (e.useProgram(t), e.program = t, !0) : (console.log("Failed to create program"), !1) } function createProgram(e, r, a) { var t = loadShader(e, e.VERTEX_SHADER, r), o = loadShader(e, e.FRAGMENT_SHADER, a); if (!t || !o) return null; var l = e.createProgram(); if (!l) return null; if (e.attachShader(l, t), e.attachShader(l, o), e.linkProgram(l), !e.getProgramParameter(l, e.LINK_STATUS)) { var n = e.getProgramInfoLog(l); return console.log("Failed to link program: " + n), e.deleteProgram(l), e.deleteShader(o), e.deleteShader(t), null } return l } function loadShader(e, r, a) { var t = e.createShader(r); if (null == t) return console.log("unable to create shader"), null; if (e.shaderSource(t, a), e.compileShader(t), !e.getShaderParameter(t, e.COMPILE_STATUS)) { var o = e.getShaderInfoLog(t); return console.log("Failed to compile shader: " + o), e.deleteShader(t), null } return t } function getWebGLContext(e, r) { var a = WebGLUtils.setupWebGL(e); return a ? ((arguments.length < 2 || r) && (a = WebGLDebugUtils.makeDebugContext(a)), a) : null }
     
     function init(VSHADER_SOURCE, FSHADER_SOURCE) {    
