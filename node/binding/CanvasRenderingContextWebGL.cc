@@ -701,8 +701,8 @@ RECORD_TIME_END
 DEFINE_RETURN_VALUE_METHOD(getAttribLocation)
 CHECK_PARAM_LEGNTH(2)
 WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-const char *name = info[1].As<Napi::String>().Utf8Value().data();
-GLuint pos = glGetAttribLocation(program->getId(), name);
+std::string name = info[1].As<Napi::String>().Utf8Value();
+GLuint pos = glGetAttribLocation(program->getId(), name.c_str());
 RECORD_TIME_END
 return Napi::Number::New(info.Env(), pos);
 }

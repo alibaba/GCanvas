@@ -2,7 +2,7 @@ const { createCanvas, Image } = require('../../export')
 const fs = require('fs')
 const path = require('path');
 
-const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triangle1.png');
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/triangle.png');
 const canvas = createCanvas(400, 400);
 const gl = canvas.getContext('webgl')
 

@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path');
 const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/rectangle.png');
 
-const canvas = createCanvas(1000, 1000);
+const canvas = createCanvas(1200, 700);
 var gl = canvas.getContext("webgl");
 
 var vertexSource = `

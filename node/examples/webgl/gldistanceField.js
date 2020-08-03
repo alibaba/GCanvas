@@ -1,17 +1,10 @@
+const { createCanvas, Image } = require('../../export')
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/distanceField.png');
 
-
-var stats;
-
-var that;
-
-var canvas;
-var gl;
-
-var width;
-var height;
-
-console.log("file start!!");
-
+const canvas = createCanvas(400, 400);
+var gl = canvas.getContext("webgl");
 
 var vs_source = "attribute vec2 aVertexPosition;\
 void main()\
@@ -440,19 +433,15 @@ function init() {
     }
   };
   render();
-  canvas.createPNG("distacenField")
-//   canvas.requestAnimationFrame(render);
 }
-
-const { createCanvas, Image } = require('../../export')
- canvas = createCanvas(400, 400);
-var c = canvas;
-var webgl = c.getContext('webgl');
-
-gl = webgl;
-
-var height = canvas.height;
-var width = canvas.width;
 
 console.log("init ...");
 init();
+
+
+var stream = canvas.createPNGStream();
+stream.on('data', function (chunk) {
+      out.write(chunk);
+});
+
+//   canvas.requestAnimationFrame(render);
