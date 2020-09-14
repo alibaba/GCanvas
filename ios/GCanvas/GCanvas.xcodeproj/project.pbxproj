@@ -11,14 +11,14 @@
 		9A40BDDE1ED45B5000739AE6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A40BDDD1ED45B5000739AE6 /* UIKit.framework */; };
 		9A40BDE01ED45B5600739AE6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A40BDDF1ED45B5600739AE6 /* Foundation.framework */; };
 		A231B1E8235064DA00466BE3 /* GCanvasWeex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A231B1E6235064DA00466BE3 /* GCanvasWeex.cpp */; };
-		A231B1E9235064DA00466BE3 /* GCanvasWeex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A231B1E7235064DA00466BE3 /* GCanvasWeex.hpp */; };
-		A24156E424AC628B00405D95 /* GGL.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CB24AC628B00405D95 /* GGL.h */; };
-		A24156E524AC628B00405D95 /* GTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CC24AC628B00405D95 /* GTexture.h */; };
-		A24156E624AC628B00405D95 /* GLUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CD24AC628B00405D95 /* GLUtil.h */; };
-		A24156E724AC628B00405D95 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CE24AC628B00405D95 /* GFrameBufferObject.h */; };
+		A231B1E9235064DA00466BE3 /* GCanvasWeex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A231B1E7235064DA00466BE3 /* GCanvasWeex.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156E424AC628B00405D95 /* GGL.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CB24AC628B00405D95 /* GGL.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156E524AC628B00405D95 /* GTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CC24AC628B00405D95 /* GTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156E624AC628B00405D95 /* GLUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CD24AC628B00405D95 /* GLUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156E724AC628B00405D95 /* GFrameBufferObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156CE24AC628B00405D95 /* GFrameBufferObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A24156E924AC628B00405D95 /* GFrameBufferObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156D024AC628B00405D95 /* GFrameBufferObject.cpp */; };
-		A24156EA24AC628B00405D95 /* GShader.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D124AC628B00405D95 /* GShader.h */; };
-		A24156EB24AC628B00405D95 /* GShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D224AC628B00405D95 /* GShaderManager.h */; };
+		A24156EA24AC628B00405D95 /* GShader.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D124AC628B00405D95 /* GShader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156EB24AC628B00405D95 /* GShaderManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156D224AC628B00405D95 /* GShaderManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A24156ED24AC628B00405D95 /* GShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156D424AC628B00405D95 /* GShader.cpp */; };
 		A24156EE24AC628B00405D95 /* grad.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D624AC628B00405D95 /* grad.glsl */; };
 		A24156EF24AC628B00405D95 /* pattern.glsl in Resources */ = {isa = PBXBuildFile; fileRef = A24156D724AC628B00405D95 /* pattern.glsl */; };
@@ -30,48 +30,48 @@
 		A24156F524AC628B00405D95 /* GLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DD24AC628B00405D95 /* GLUtil.cpp */; };
 		A24156F624AC628B00405D95 /* GTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DE24AC628B00405D95 /* GTexture.cpp */; };
 		A24156F724AC628B00405D95 /* GShaderManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156DF24AC628B00405D95 /* GShaderManager.cpp */; };
-		A24156F824AC628B00405D95 /* GPath2D.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E024AC628B00405D95 /* GPath2D.h */; };
+		A24156F824AC628B00405D95 /* GPath2D.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E024AC628B00405D95 /* GPath2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A24156F924AC628B00405D95 /* GPath2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156E124AC628B00405D95 /* GPath2D.cpp */; };
 		A24156FA24AC628B00405D95 /* GPathStroker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A24156E224AC628B00405D95 /* GPathStroker.cpp */; };
-		A24156FB24AC628B00405D95 /* GPathStroker.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E324AC628B00405D95 /* GPathStroker.h */; };
-		A24156FE24AC62C100405D95 /* GFontManagerIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156FC24AC62C100405D95 /* GFontManagerIOS.h */; };
+		A24156FB24AC628B00405D95 /* GPathStroker.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156E324AC628B00405D95 /* GPathStroker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A24156FE24AC62C100405D95 /* GFontManagerIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = A24156FC24AC62C100405D95 /* GFontManagerIOS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A24156FF24AC62C100405D95 /* GFontManagerIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = A24156FD24AC62C100405D95 /* GFontManagerIOS.mm */; };
 		A25FB1F12343491700EF73E5 /* GFontStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB09B2343491500EF73E5 /* GFontStyle.cpp */; };
-		A25FB1F22343491700EF73E5 /* GTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB09C2343491500EF73E5 /* GTransform.h */; };
+		A25FB1F22343491700EF73E5 /* GTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB09C2343491500EF73E5 /* GTransform.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB1F32343491700EF73E5 /* GStrSeparator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB09D2343491500EF73E5 /* GStrSeparator.cpp */; };
-		A25FB1F62343491700EF73E5 /* GConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A02343491500EF73E5 /* GConvert.h */; };
-		A25FB1F82343491700EF73E5 /* GFillStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A22343491500EF73E5 /* GFillStyle.h */; };
-		A25FB1F92343491700EF73E5 /* GFontStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A32343491500EF73E5 /* GFontStyle.h */; };
-		A25FB1FC2343491700EF73E5 /* GFontManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A62343491500EF73E5 /* GFontManager.h */; };
+		A25FB1F62343491700EF73E5 /* GConvert.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A02343491500EF73E5 /* GConvert.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB1F82343491700EF73E5 /* GFillStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A22343491500EF73E5 /* GFillStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB1F92343491700EF73E5 /* GFontStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A32343491500EF73E5 /* GFontStyle.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB1FC2343491700EF73E5 /* GFontManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0A62343491500EF73E5 /* GFontManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB1FE2343491700EF73E5 /* GConvert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0A82343491500EF73E5 /* GConvert.cpp */; };
 		A25FB1FF2343491700EF73E5 /* GCanvasState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0A92343491500EF73E5 /* GCanvasState.cpp */; };
 		A25FB2002343491700EF73E5 /* GTreemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0AA2343491500EF73E5 /* GTreemap.cpp */; };
-		A25FB2012343491700EF73E5 /* GPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AB2343491500EF73E5 /* GPoint.h */; };
-		A25FB2022343491700EF73E5 /* GPath.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AC2343491500EF73E5 /* GPath.h */; };
+		A25FB2012343491700EF73E5 /* GPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AB2343491500EF73E5 /* GPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2022343491700EF73E5 /* GPath.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0AC2343491500EF73E5 /* GPath.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB2042343491700EF73E5 /* GCanvas2dContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0AE2343491500EF73E5 /* GCanvas2dContext.cpp */; };
-		A25FB20D2343491700EF73E5 /* GGlyphCache.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0B92343491500EF73E5 /* GGlyphCache.h */; };
-		A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BA2343491500EF73E5 /* GWebglContext.h */; };
-		A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BC2343491500EF73E5 /* GStrSeparator.h */; };
+		A25FB20D2343491700EF73E5 /* GGlyphCache.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0B92343491500EF73E5 /* GGlyphCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BA2343491500EF73E5 /* GWebglContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BC2343491500EF73E5 /* GStrSeparator.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB2112343491700EF73E5 /* GWebglContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0BD2343491500EF73E5 /* GWebglContext.cpp */; };
-		A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */; };
-		A25FB2142343491700EF73E5 /* GTreemap.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C02343491500EF73E5 /* GTreemap.h */; };
-		A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C12343491500EF73E5 /* GCanvasState.h */; };
+		A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2142343491700EF73E5 /* GTreemap.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C02343491500EF73E5 /* GTreemap.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C12343491500EF73E5 /* GCanvasState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB2162343491700EF73E5 /* GGlyphCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0C22343491500EF73E5 /* GGlyphCache.cpp */; };
-		A25FB2172343491700EF73E5 /* GTextDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C32343491500EF73E5 /* GTextDefine.h */; };
+		A25FB2172343491700EF73E5 /* GTextDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C32343491500EF73E5 /* GTextDefine.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB2182343491700EF73E5 /* GPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0C42343491500EF73E5 /* GPath.cpp */; };
-		A25FB2192343491700EF73E5 /* GContext2dType.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C52343491500EF73E5 /* GContext2dType.h */; };
-		A25FB21A2343491700EF73E5 /* export.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C62343491500EF73E5 /* export.h */; };
-		A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C72343491500EF73E5 /* GCanvas.hpp */; };
+		A25FB2192343491700EF73E5 /* GContext2dType.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C52343491500EF73E5 /* GContext2dType.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB21A2343491700EF73E5 /* export.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C62343491500EF73E5 /* export.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0C72343491500EF73E5 /* GCanvas.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB21D2343491700EF73E5 /* GCVFont.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0CB2343491500EF73E5 /* GCVFont.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB21F2343491700EF73E5 /* GCVFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0CD2343491500EF73E5 /* GCVFont.mm */; };
-		A25FB22B2343491700EF73E5 /* GCanvasManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0DA2343491500EF73E5 /* GCanvasManager.h */; };
+		A25FB22B2343491700EF73E5 /* GCanvasManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0DA2343491500EF73E5 /* GCanvasManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB22C2343491700EF73E5 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0DC2343491500EF73E5 /* Log.cpp */; };
 		A25FB22D2343491700EF73E5 /* Util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0DD2343491500EF73E5 /* Util.cpp */; };
-		A25FB2342343491700EF73E5 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E42343491500EF73E5 /* Log.h */; };
-		A25FB2362343491700EF73E5 /* DynArray.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E62343491500EF73E5 /* DynArray.h */; };
-		A25FB2372343491700EF73E5 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E72343491500EF73E5 /* Util.h */; };
+		A25FB2342343491700EF73E5 /* Log.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E42343491500EF73E5 /* Log.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2362343491700EF73E5 /* DynArray.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E62343491500EF73E5 /* DynArray.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A25FB2372343491700EF73E5 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E72343491500EF73E5 /* Util.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB2382343491700EF73E5 /* Encode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0E82343491500EF73E5 /* Encode.cpp */; };
-		A25FB2392343491700EF73E5 /* Encode.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E92343491500EF73E5 /* Encode.h */; };
+		A25FB2392343491700EF73E5 /* Encode.h in Headers */ = {isa = PBXBuildFile; fileRef = A25FB0E92343491500EF73E5 /* Encode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A25FB23B2343491700EF73E5 /* GCanvasManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0EB2343491500EF73E5 /* GCanvasManager.cpp */; };
 		A25FB23C2343491700EF73E5 /* GCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A25FB0EC2343491500EF73E5 /* GCanvas.cpp */; };
 		A284A2FB234348880029BBCA /* GCVLog.m in Sources */ = {isa = PBXBuildFile; fileRef = A284A273234348880029BBCA /* GCVLog.m */; };
@@ -84,9 +84,10 @@
 		A284A303234348880029BBCA /* GCVLog.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27B234348880029BBCA /* GCVLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27C234348880029BBCA /* GCanvasViewProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A305234348880029BBCA /* GCanvasPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = A284A27D234348880029BBCA /* GCanvasPlugin.mm */; };
-		A284A306234348880029BBCA /* GCanvasSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27E234348880029BBCA /* GCanvasSDK.h */; };
+		A284A306234348880029BBCA /* GCanvasSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27E234348880029BBCA /* GCanvasSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A307234348880029BBCA /* GCanvasObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27F234348880029BBCA /* GCanvasObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A308234348880029BBCA /* GCVCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A280234348880029BBCA /* GCVCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CC612BFF250B595900315124 /* GFontManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC612BFE250B595900315124 /* GFontManager.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -171,6 +172,7 @@
 		A284A27E234348880029BBCA /* GCanvasSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasSDK.h; sourceTree = "<group>"; };
 		A284A27F234348880029BBCA /* GCanvasObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasObject.h; sourceTree = "<group>"; };
 		A284A280234348880029BBCA /* GCVCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCVCommon.h; sourceTree = "<group>"; };
+		CC612BFE250B595900315124 /* GFontManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GFontManager.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -277,6 +279,7 @@
 		A25FB09A2343491500EF73E5 /* gcanvas */ = {
 			isa = PBXGroup;
 			children = (
+				CC612BFE250B595900315124 /* GFontManager.cpp */,
 				A24156CA24AC628B00405D95 /* GL */,
 				A25FB0AE2343491500EF73E5 /* GCanvas2dContext.cpp */,
 				A25FB0BF2343491500EF73E5 /* GCanvas2dContext.h */,
@@ -376,10 +379,9 @@
 				A284A308234348880029BBCA /* GCVCommon.h in Headers */,
 				A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */,
 				A284A307234348880029BBCA /* GCanvasObject.h in Headers */,
-				A24156E424AC628B00405D95 /* GGL.h in Headers */,
 				A284A301234348880029BBCA /* GCanvasModule.h in Headers */,
 				A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */,
-				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
+				A24156E424AC628B00405D95 /* GGL.h in Headers */,
 				A284A306234348880029BBCA /* GCanvasSDK.h in Headers */,
 				A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */,
 				A25FB1F62343491700EF73E5 /* GConvert.h in Headers */,
@@ -412,6 +414,7 @@
 				A25FB1FC2343491700EF73E5 /* GFontManager.h in Headers */,
 				A25FB2012343491700EF73E5 /* GPoint.h in Headers */,
 				A24156F824AC628B00405D95 /* GPath2D.h in Headers */,
+				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -512,6 +515,7 @@
 				A24156FF24AC62C100405D95 /* GFontManagerIOS.mm in Sources */,
 				A284A305234348880029BBCA /* GCanvasPlugin.mm in Sources */,
 				A25FB1F32343491700EF73E5 /* GStrSeparator.cpp in Sources */,
+				CC612BFF250B595900315124 /* GFontManager.cpp in Sources */,
 				A231B1E8235064DA00466BE3 /* GCanvasWeex.cpp in Sources */,
 				A24156F624AC628B00405D95 /* GTexture.cpp in Sources */,
 				A24156ED24AC628B00405D95 /* GShader.cpp in Sources */,
@@ -645,7 +649,13 @@
 					GCANVAS_RUNTIME,
 					GCANVAS_WEEX,
 				);
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../core/src\"",
+					"\"$(SRCROOT)/../../core/src/gcanvas\"",
+					"\"$(SRCROOT)/../../core/support\"",
+					"\"$(SRCROOT)/../../core/platform\"",
+					"\"$(SRCROOT)/../../core/platform/iOS\"",
+				);
 				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -682,7 +692,13 @@
 					GCANVAS_RUNTIME,
 					GCANVAS_WEEX,
 				);
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../core/src\"",
+					"\"$(SRCROOT)/../../core/src/gcanvas\"",
+					"\"$(SRCROOT)/../../core/support\"",
+					"\"$(SRCROOT)/../../core/platform\"",
+					"\"$(SRCROOT)/../../core/platform/iOS\"",
+				);
 				INFOPLIST_FILE = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
