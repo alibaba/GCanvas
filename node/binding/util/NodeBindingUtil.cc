@@ -38,7 +38,7 @@ writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 }
 bool checkArgs(const Napi::CallbackInfo &info, int exectedNumber)
 {
-    if (info.Length() != exectedNumber)
+    if (info.Length() < exectedNumber)
     {
         throwError(info, "wrong argument number");
         return false;
@@ -289,5 +289,19 @@ void encodePNGInBuffer(std::vector<unsigned char> &in,unsigned char *data,int wi
 {
     lodepng::encode(in, data, width, height);
 }
+
+#ifdef ENABLE_CHECK_GL_ERROR
+void CheckGLError(const char* stmt, const char* fname, int line)
+{
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR){
+        printf("GL error 0x%08x, at %s:%i - for `%s`\n", err, fname, line, stmt);
+    }
+    else
+    {
+        printf("GL call  `%s` ->  success\n",  stmt);
+    }
+}
+#endif
 
 } // namespace NodeBinding

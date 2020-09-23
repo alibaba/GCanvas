@@ -3,7 +3,7 @@ const fs = require('fs')
 const path = require('path');
 const out = fs.createWriteStream(path.join(__dirname, "..","..")+ '/distanceField.png');
 
-const canvas = createCanvas(400, 400);
+const canvas = createCanvas(900, 2100);
 var gl = canvas.getContext("webgl");
 
 var vs_source = "attribute vec2 aVertexPosition;\
@@ -368,7 +368,6 @@ function init() {
 
          var time = (Date.now() - firstTime) / 1000.0;
          program.time = gl.getUniformLocation(program, "time");
-         console.log(` program.time ${ program.time}`)
          gl.uniform1f(program.time, time);
 
          program.resolution = gl.getUniformLocation(program, "resolution");

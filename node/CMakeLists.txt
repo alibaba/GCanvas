@@ -16,10 +16,10 @@ project(canvas)
  # CMake JS
 include_directories(${CMAKE_JS_INC})
 
-include_directories("./util")
+include_directories("./binding/util")
 include_directories("./third_party")
 include_directories("./third_party/font/freetype2/")
-include_directories("./renderContext/")
+include_directories("./binding/renderContext/")
 include_directories("./image/")
 
 include_directories("${CORE_DIR}")
@@ -50,9 +50,9 @@ set(SOURCE_FILES
         ./binding/webgl/WebGLRenderBuffer.cc
         ./binding/webgl/WebGLActiveInfo.cc
         ./binding/webgl/WebGLUniformLocation.cc
-        ./renderContext/GRenderContext.cc
+        ./binding/renderContext/GRenderContext.cc
+        ./binding/util/NodeBindingUtil.cc
         ./third_party/lodepng.cc
-        ./util/NodeBindingUtil.cc
         ${CORE_DIR}src/GCanvas.cpp        
         ${CORE_DIR}src/GCanvasManager.cpp
 

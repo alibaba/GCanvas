@@ -14,8 +14,7 @@
         return Napi::Number::New(info.Env(), GL_##propertyName);  \
     }
 
-#define CHECK_PARAM_LEGNTH(length) \
-    NodeBinding::checkArgs(info, length);
+#define CHECK_PARAM_LEGNTH(length)      NodeBinding::checkArgs(info, length)
 
 #define BINDING_CONST_PROPERY(propertyName) \
     InstanceAccessor(#propertyName, &ContextWebGL::get##propertyName, nullptr)

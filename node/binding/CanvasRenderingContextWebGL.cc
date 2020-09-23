@@ -8,44 +8,32 @@
 #include "./webgl/WebGLActiveInfo.h"
 #include "./webgl/WebGLUniformLocation.h"
 #include "Image.h"
-//测量单个函数耗时的debug开关
-#define DUMP_RUNNING_TIME 1
 
-#ifdef DUMP_RUNNING_TIME
+
+// #define ENABLE_RECORD_COST_TIME
+#ifdef ENABLE_RECORD_COST_TIME
 #define RECORD_TIME_BEGIN  \
     clock_t start, finish; \
     start = clock();
-
 #define RECORD_TIME_END \
-    printf(" error=%d ",  glGetError()); \
     finish = clock();   \
-    printf(" cost time %.5f ms, \n", (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
+    printf("[%s]cost time %.5f ms, \n", __FUNCTION__,   (double)(finish - start) * 1000.0f / CLOCKS_PER_SEC);
 #else
 #define RECORD_TIME_BEGIN
 #define RECORD_TIME_END
 #endif
 
-#define DEFINE_VOID_METHOD(methodName)                       \
-    \ 
-     void                                                    \
-    ContextWebGL::methodName(const Napi::CallbackInfo &info) \
-    {                                                        \
-        RECORD_TIME_BEGIN                                    \
-        mRenderContext->makeCurrent();                       \
-        printf(" gl function  :  `" #methodName " `is  called  "); \
+#define  EGL_MAKE_CURRENT   mRenderContext->makeCurrent();
 
-#define DEFINE_RETURN_VALUE_METHOD(methodName)               \
-    \ 
-     Napi::Value                                             \
-    ContextWebGL::methodName(const Napi::CallbackInfo &info) \
-    {                                                        \
-        RECORD_TIME_BEGIN                                    \
-        mRenderContext->makeCurrent();                       \
-        printf(" gl function  :  `" #methodName " `is  called  "); \
+
+#define DEFINE_VOID_METHOD(methodName)    void ContextWebGL::methodName(const Napi::CallbackInfo &info) 
+
+#define DEFINE_RETURN_VALUE_METHOD(methodName)  Napi::Value ContextWebGL::methodName(const Napi::CallbackInfo &info)
+
+
 
 namespace NodeBinding
 {
-
     static float parseFloat(const Napi::Value& value)
     {
         float ret = 0.0f;
@@ -524,6 +512,11 @@ namespace NodeBinding
         mUnpackPremultiplyAlphaWebGL = false;
     }
 
+    ContextWebGL::~ContextWebGL()
+    {
+        this->mRenderContext = nullptr;
+    }
+
     Napi::Object ContextWebGL::NewInstance(Napi::Env env)
     {
         Napi::Object obj = constructor.New({});
@@ -532,55 +525,77 @@ namespace NodeBinding
     }
 
 DEFINE_VOID_METHOD(clear)
-    CHECK_PARAM_LEGNTH(1)
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
     GLbitfield mask = info[0].As<Napi::Number>().Uint32Value();
-    glClear(mask);
+    GL_CHECK( glClear(mask) );
     RECORD_TIME_END
-} // namespace NodeBinding
+}
 
 DEFINE_VOID_METHOD(clearColor)
-CHECK_PARAM_LEGNTH(4)
-GLfloat red = info[0].As<Napi::Number>().FloatValue();
-GLfloat green = info[1].As<Napi::Number>().FloatValue();
-GLfloat blue = info[2].As<Napi::Number>().FloatValue();
-GLfloat alpha = info[3].As<Napi::Number>().FloatValue();
-glClearColor(red, green, blue, alpha);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat red = info[0].As<Napi::Number>().FloatValue();
+    GLfloat green = info[1].As<Napi::Number>().FloatValue();
+    GLfloat blue = info[2].As<Napi::Number>().FloatValue();
+    GLfloat alpha = info[3].As<Napi::Number>().FloatValue();
+    GL_CHECK( glClearColor(red, green, blue, alpha) );
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(enable)
-CHECK_PARAM_LEGNTH(1)
-GLenum cap = info[0].As<Napi::Number>().Uint32Value();
-glEnable(cap);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum cap = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK( glEnable(cap) );
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createBuffer)
-CHECK_PARAM_LEGNTH(0)
-GLuint bufferId;
-glGenBuffers(1, &bufferId);
-Napi::Object obj = WebGLBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), bufferId));
-// this->mRenderContext->getCtxWebGL()->AddGLResource(Buffer, bufferId);
-RECORD_TIME_END
-return obj;
+{
+    // RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint bufferId;
+    glGenBuffers(1, &bufferId);
+    // GL_CHECK(glGenBuffers(1, &bufferId));
+    Napi::Object obj = WebGLBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), bufferId));
+    // this->mRenderContext->getCtxWebGL()->AddGLResource(Buffer, bufferId);
+    // RECORD_TIME_END
+    return obj;
 }
 
 DEFINE_VOID_METHOD(bindBuffer)
-NodeBinding::checkArgs(info, 2);
-GLenum type = info[0].As<Napi::Number>().Uint32Value();
-GLuint bufferId;
-if (info[1].IsNull() || info[1].IsUndefined())
 {
-    bufferId = 0;
-}
-else
-{
-    WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[1].As<Napi::Object>());
-    bufferId = buffer->getId();
-}
-// printf("bindBuffer  id is %d \n", bufferId);
-glBindBuffer(type, bufferId);
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum type = info[0].As<Napi::Number>().Uint32Value();
+    GLuint bufferId;
+    if (info[1].IsNull() || info[1].IsUndefined())
+    {
+        bufferId = 0;
+    }
+    else
+    {
+        WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[1].As<Napi::Object>());
+        bufferId = buffer->getId();
+    }
+    GL_CHECK(glBindBuffer(type, bufferId));
+    RECORD_TIME_END
 }
 
 /**
@@ -590,408 +605,630 @@ RECORD_TIME_END
  * gl.bufferData(target, ArrayBufferView srcData, usage);
  **/
 DEFINE_VOID_METHOD(bufferData)
-CHECK_PARAM_LEGNTH(3)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum usage = info[2].As<Napi::Number>().Uint32Value();
-if (info[1].IsTypedArray())
 {
-    Napi::TypedArray array = info[1].As<Napi::TypedArray>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferData(target, buffer.ByteLength(), buffer.Data(), usage);
-}
-else if (info[1].IsArrayBuffer())
-{
-    Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferData(target, array.ByteLength(), buffer.Data(), usage);
-}
-else if (info[1].IsNumber())
-{
-    GLuint size = info[1].As<Napi::Number>().Int32Value();
-    glBufferData(target, size, NULL, usage);
-}
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum usage = info[2].As<Napi::Number>().Uint32Value();
+    if (info[1].IsTypedArray())
+    {
+        Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        GL_CHECK(glBufferData(target, buffer.ByteLength(), buffer.Data(), usage));
+    }
+    else if (info[1].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        GL_CHECK(glBufferData(target, array.ByteLength(), buffer.Data(), usage));
+    }
+    else if( info[1].IsArray() )
+    {
+        //TODO
+    }
+    else if (info[1].IsNumber())
+    {
+        GLuint size = info[1].As<Napi::Number>().Int32Value();
+        GL_CHECK(glBufferData(target, size, NULL, usage));
+    }
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(bufferSubData)
-CHECK_PARAM_LEGNTH(3)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum offset = info[1].As<Napi::Number>().Uint32Value();
-if (info[2].IsTypedArray())
 {
-    Napi::TypedArray array = info[2].As<Napi::TypedArray>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data());
-}
-else if (info[2].IsArrayBuffer())
-{
-    Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data());
-}
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum offset = info[1].As<Napi::Number>().Uint32Value();
+    if (info[2].IsTypedArray())
+    {
+        Napi::TypedArray array = info[2].As<Napi::TypedArray>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        GL_CHECK(glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data()));
+    }
+    else if (info[2].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[2].As<Napi::ArrayBuffer>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        GL_CHECK(glBufferSubData(target, offset, buffer.ByteLength(), buffer.Data()));
+    }
+    else if( info[2].IsArray() )
+    {
+        //TODO
+    }
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createShader)
-CHECK_PARAM_LEGNTH(1)
-Napi::Env env = info.Env();
-GLenum shaderType = info[0].As<Napi::Number>().Uint32Value();
-GLuint shaderId = glCreateShader(shaderType);
-Napi::Object obj = WebGLShader::NewInstance(info.Env(), Napi::Number::New(env, shaderId));
-RECORD_TIME_END
-return obj;
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return  info.Env().Null();
+
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    Napi::Env env = info.Env();
+    GLenum shaderType = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK( GLuint shaderId = glCreateShader(shaderType) );
+    Napi::Object obj = WebGLShader::NewInstance(env, Napi::Number::New(env, shaderId));
+    RECORD_TIME_END
+    return obj;
 }
 
 DEFINE_VOID_METHOD(shaderSource)
-CHECK_PARAM_LEGNTH(2)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
-const char *shaderContent = shaderStr.c_str();
-GLint shaderContentLen = shaderStr.size();
-GLuint shaderId = shader->getId();
-glShaderSource(shader->getId(), 1, &shaderContent, &shaderContentLen);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
+    const char *shaderContent = shaderStr.c_str();
+    GLint shaderContentLen = shaderStr.size();
+    GLuint shaderId = shader->getId();
+    GL_CHECK(glShaderSource(shader->getId(), 1, &shaderContent, &shaderContentLen));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(compileShader)
-CHECK_PARAM_LEGNTH(1)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-glCompileShader(shader->getId());
-GLint compiled = 0;
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glCompileShader(shader->getId()));
+    GLint compiled = 0;
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(attachShader)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
-glAttachShader(program->getId(), shader->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
+    GL_CHECK(glAttachShader(program->getId(), shader->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(detachShader)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
-glDetachShader(program->getId(), shader->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[1].As<Napi::Object>());
+    GL_CHECK(glDetachShader(program->getId(), shader->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createProgram)
-NodeBinding::checkArgs(info, 0);
-GLuint programId = glCreateProgram();
-RECORD_TIME_END
-return WebGLProgram::NewInstance(info.Env(), Napi::Number::New(info.Env(), programId));
+{    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint programId = glCreateProgram();
+    RECORD_TIME_END
+    return WebGLProgram::NewInstance(info.Env(), Napi::Number::New(info.Env(), programId));
 }
 
 DEFINE_VOID_METHOD(linkProgram)
-CHECK_PARAM_LEGNTH(1)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-glLinkProgram(program->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glLinkProgram(program->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(useProgram)
-CHECK_PARAM_LEGNTH(1)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-glUseProgram(program->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glUseProgram(program->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getAttribLocation)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-std::string name = info[1].As<Napi::String>().Utf8Value();
-GLuint pos = glGetAttribLocation(program->getId(), name.c_str());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), pos);
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return  info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    std::string name = info[1].As<Napi::String>().Utf8Value();
+    GL_CHECK(GLuint pos = glGetAttribLocation(program->getId(), name.c_str()));
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), pos);
 }
 
-DEFINE_VOID_METHOD(viewport)
-CHECK_PARAM_LEGNTH(4)
-GLint x = info[0].As<Napi::Number>().Int32Value();
-GLint y = info[1].As<Napi::Number>().Int32Value();
-GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();
-int dpi = mRenderContext->getDpi();
-glViewport(x *dpi, y *dpi, width *dpi, height *dpi);
-RECORD_TIME_END
+// DEFINE_VOID_METHOD(viewport)
+void ContextWebGL::viewport(const Napi::CallbackInfo &info) 
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint x = info[0].As<Napi::Number>().Int32Value();
+    GLint y = info[1].As<Napi::Number>().Int32Value();
+    GLsizei width = info[2].As<Napi::Number>().Int32Value();
+    GLsizei height = info[3].As<Napi::Number>().Int32Value();
+    int dpi = mRenderContext->getDpi();
+    printf("dpi=%d\n", dpi);
+    GL_CHECK(glViewport(x *dpi, y *dpi, width *dpi, height *dpi));
+    RECORD_TIME_END
 }
+
 DEFINE_VOID_METHOD(drawElements)
-CHECK_PARAM_LEGNTH(4)
-GLenum mode = info[0].As<Napi::Number>().Uint32Value();
-GLsizei count = info[1].As<Napi::Number>().Int32Value();
-GLenum type = info[2].As<Napi::Number>().Uint32Value();
-GLuint offset = info[3].As<Napi::Number>().Uint32Value();
-glDrawElements(mode, count, type, (GLvoid *)(intptr_t)offset);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+    GLsizei count = info[1].As<Napi::Number>().Int32Value();
+    GLenum type = info[2].As<Napi::Number>().Uint32Value();
+    GLuint offset = info[3].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glDrawElements(mode, count, type, (GLvoid *)(intptr_t)offset));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(flush)
-CHECK_PARAM_LEGNTH(0)
-glFlush();
-RECORD_TIME_END
+{
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(glFlush());
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(finish)
-CHECK_PARAM_LEGNTH(0)
-glFinish();
-RECORD_TIME_END
+{
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(glFinish());
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttribPointer)
-CHECK_PARAM_LEGNTH(6)
-GLuint index = info[0].As<Napi::Number>().Int32Value();
-GLint size = info[1].As<Napi::Number>().Int32Value();
-GLenum type = info[2].As<Napi::Number>().Uint32Value();
-GLboolean isNormalized = info[3].As<Napi::Boolean>().Value();
-GLuint stride = info[4].As<Napi::Number>().Int32Value();
-GLuint offset = info[5].As<Napi::Number>().Int32Value();
-// printf("vertexAttribPointer is %d ,%d ,%d ,%d ,%d ,%d  \n", index, size, type, isNormalized, stride, offset);
-
-glVertexAttribPointer(index, size, type, isNormalized, stride, (GLvoid *)(intptr_t)offset);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(6) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint index = info[0].As<Napi::Number>().Int32Value();
+    GLint size = info[1].As<Napi::Number>().Int32Value();
+    GLenum type = info[2].As<Napi::Number>().Uint32Value();
+    GLboolean isNormalized = info[3].As<Napi::Boolean>().Value();
+    GLuint stride = info[4].As<Napi::Number>().Int32Value();
+    GLuint offset = info[5].As<Napi::Number>().Int32Value();
+    GL_CHECK(glVertexAttribPointer(index, size, type, isNormalized, stride, (GLvoid *)(intptr_t)offset));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(enableVertexAttribArray)
-CHECK_PARAM_LEGNTH(1)
-GLuint index = info[0].As<Napi::Number>().Uint32Value();
-glEnableVertexAttribArray(index);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint index = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glEnableVertexAttribArray(index));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(scissor)
-CHECK_PARAM_LEGNTH(4)
-GLint x = info[0].As<Napi::Number>().Int32Value();
-GLint y = info[1].As<Napi::Number>().Int32Value();
-GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();
-int dpi = mRenderContext->getDpi();
-glScissor(x *dpi, y *dpi, width *dpi, height *dpi);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint x = info[0].As<Napi::Number>().Int32Value();
+    GLint y = info[1].As<Napi::Number>().Int32Value();
+    GLsizei width = info[2].As<Napi::Number>().Int32Value();
+    GLsizei height = info[3].As<Napi::Number>().Int32Value();
+    int dpi = mRenderContext->getDpi();
+    GL_CHECK(glScissor(x *dpi, y *dpi, width *dpi, height *dpi));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(drawArrays)
-CHECK_PARAM_LEGNTH(3)
-GLenum mode = info[0].As<Napi::Number>().Uint32Value();
-GLint first = info[1].As<Napi::Number>().Int32Value();
-GLint count = info[2].As<Napi::Number>().Int32Value();
-glDrawArrays(mode, first, count);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+    GLint first = info[1].As<Napi::Number>().Int32Value();
+    GLint count = info[2].As<Napi::Number>().Int32Value();
+    GL_CHECK(glDrawArrays(mode, first, count));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getShaderParameter)
-CHECK_PARAM_LEGNTH(2)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-GLint ret = 0;
-glGetShaderiv(shader->getId(), pname, &ret);
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), ret);
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    GLint ret = 0;
+    GL_CHECK(glGetShaderiv(shader->getId(), pname, &ret));
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(getShaderInfoLog)
-CHECK_PARAM_LEGNTH(1)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-GLsizei length;
-glGetShaderiv(shader->getId(), GL_INFO_LOG_LENGTH, &length);
-if (length <= 0)
 {
-    RECORD_TIME_END
-    return Napi::String::New(info.Env(), "");
-}
-else
-{
-    GLchar *src = new GLchar[length];
-    int real_size = 0;
-    glGetShaderInfoLog(shader->getId(), length, &real_size, src);
-    RECORD_TIME_END
-    return Napi::String::New(info.Env(), src);
-}
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::String::New(info.Env(), "");
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    GLsizei length;
+    glGetShaderiv(shader->getId(), GL_INFO_LOG_LENGTH, &length);
+    if (length <= 0)
+    {
+        RECORD_TIME_END
+        return Napi::String::New(info.Env(), "");
+    }
+    else
+    {
+        GLchar *src = new GLchar[length];
+        int real_size = 0;
+        GL_CHECK(glGetShaderInfoLog(shader->getId(), length, &real_size, src));
+        RECORD_TIME_END
+        return Napi::String::New(info.Env(), src);
+    }
 }
 
 DEFINE_VOID_METHOD(deleteShader)
-CHECK_PARAM_LEGNTH(1)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-glDeleteShader(shader->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glDeleteShader(shader->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getProgramParameter)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-GLint ret;
-glGetProgramiv(program->getId(), pname, &ret);
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), ret);
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    GLint ret;
+    GL_CHECK(glGetProgramiv(program->getId(), pname, &ret));
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), ret);
 }
 
 DEFINE_VOID_METHOD(deleteProgram)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-glDeleteProgram(program->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glDeleteProgram(program->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getUniformLocation)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
-GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str());
-
-printf("getUniformationLocation(%d, %s)=%d\n", program->getId(), shaderStr.c_str(), index);
-
-Napi::Object obj = WebGLUniformLocation::NewInstance(info.Env(), index);
-RECORD_TIME_END
-return obj;
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    std::string shaderStr = info[1].As<Napi::String>().Utf8Value();
+    GL_CHECK(GLuint index = glGetUniformLocation(program->getId(), shaderStr.c_str()));
+    Napi::Object obj = WebGLUniformLocation::NewInstance(info.Env(), index);
+    RECORD_TIME_END
+    return obj;
 }
 DEFINE_VOID_METHOD(uniform1f)
-CHECK_PARAM_LEGNTH(2)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLfloat v1 = parseFloat(info[1]);
-glUniform1f(location->getIndex(), v1);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLfloat v1 = parseFloat(info[1]);
+    GL_CHECK(glUniform1f(location->getIndex(), v1));
+    RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2f)
-CHECK_PARAM_LEGNTH(3)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLfloat v1 = parseFloat(info[1]);
-GLfloat v2 = parseFloat(info[2]);
-glUniform2f(location->getIndex(), v1, v2);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLfloat v1 = parseFloat(info[1]);
+    GLfloat v2 = parseFloat(info[2]);
+    GL_CHECK(glUniform2f(location->getIndex(), v1, v2));
+    RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3f)
-CHECK_PARAM_LEGNTH(4)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLfloat v1 = parseFloat(info[1]);
-GLfloat v2 = parseFloat(info[2]);
-GLfloat v3 = parseFloat(info[3]);
-glUniform3f(location->getIndex(), v1, v2, v3);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLfloat v1 = parseFloat(info[1]);
+    GLfloat v2 = parseFloat(info[2]);
+    GLfloat v3 = parseFloat(info[3]);
+    GL_CHECK(glUniform3f(location->getIndex(), v1, v2, v3));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4f)
-CHECK_PARAM_LEGNTH(5)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLfloat v1 = parseFloat(info[1]);
-GLfloat v2 = parseFloat(info[2]);
-GLfloat v3 = parseFloat(info[3]);
-GLfloat v4 = parseFloat(info[4]);
-glUniform4f(location->getIndex(), v1, v2, v3, v4);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(5) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLfloat v1 = parseFloat(info[1]);
+    GLfloat v2 = parseFloat(info[2]);
+    GLfloat v3 = parseFloat(info[3]);
+    GLfloat v4 = parseFloat(info[4]);
+    GL_CHECK(glUniform4f(location->getIndex(), v1, v2, v3, v4));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(colorMask)
-CHECK_PARAM_LEGNTH(4)
-GLint v1, v2, v3, v4;
-v1 = parseInt(info[0]);
-v2 = parseInt(info[1]);
-v3 = parseInt(info[2]);
-v4 = parseInt(info[3]);
-glColorMask(v1, v2, v3, v4);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint v1, v2, v3, v4;
+    v1 = parseInt(info[0]);
+    v2 = parseInt(info[1]);
+    v3 = parseInt(info[2]);
+    v4 = parseInt(info[3]);
+    GL_CHECK(glColorMask(v1, v2, v3, v4));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1i)
-CHECK_PARAM_LEGNTH(2)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLint v1 = info[1].As<Napi::Number>().Int32Value();
-glUniform1i(location->getIndex(), v1);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLint v1 = info[1].As<Napi::Number>().Int32Value();
+    GL_CHECK(glUniform1i(location->getIndex(), v1));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform2i)
-CHECK_PARAM_LEGNTH(3)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLint v1 = info[1].As<Napi::Number>().Int32Value();
-GLint v2 = info[2].As<Napi::Number>().Int32Value();
-glUniform2i(location->getIndex(), v1, v2);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLint v1 = info[1].As<Napi::Number>().Int32Value();
+    GLint v2 = info[2].As<Napi::Number>().Int32Value();
+    GL_CHECK(glUniform2i(location->getIndex(), v1, v2));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform3i)
-CHECK_PARAM_LEGNTH(4)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLint v1 = info[1].As<Napi::Number>().Int32Value();
-GLint v2 = info[2].As<Napi::Number>().Int32Value();
-GLint v3 = info[3].As<Napi::Number>().Int32Value();
-glUniform3i(location->getIndex(), v1, v2, v3);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLint v1 = info[1].As<Napi::Number>().Int32Value();
+    GLint v2 = info[2].As<Napi::Number>().Int32Value();
+    GLint v3 = info[3].As<Napi::Number>().Int32Value();
+    GL_CHECK(glUniform3i(location->getIndex(), v1, v2, v3));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4i)
-CHECK_PARAM_LEGNTH(5)
-WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
-GLint v1 = info[1].As<Napi::Number>().Int32Value();
-GLint v2 = info[2].As<Napi::Number>().Int32Value();
-GLint v3 = info[3].As<Napi::Number>().Int32Value();
-GLint v4 = info[4].As<Napi::Number>().Int32Value();
-glUniform4i(location->getIndex(), v1, v2, v3, v4);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(5) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLUniformLocation *location = Napi::ObjectWrap<WebGLUniformLocation>::Unwrap(info[0].As<Napi::Object>());
+    GLint v1 = info[1].As<Napi::Number>().Int32Value();
+    GLint v2 = info[2].As<Napi::Number>().Int32Value();
+    GLint v3 = info[3].As<Napi::Number>().Int32Value();
+    GLint v4 = info[4].As<Napi::Number>().Int32Value();
+    GL_CHECK(glUniform4i(location->getIndex(), v1, v2, v3, v4));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1fv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformFloatFunc(info, glUniform1fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK( parseTypeArrayAndCallUniformFloatFunc(info, glUniform1fv) );
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform2fv)
-CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformFloatFunc(info, glUniform2fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformFloatFunc(info, glUniform2fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform3fv)
-CHECK_PARAM_LEGNTH(4)
-parseTypeArrayAndCallUniformFloatFunc(info, glUniform3fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformFloatFunc(info, glUniform3fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform4fv)
-CHECK_PARAM_LEGNTH(5)
-parseTypeArrayAndCallUniformFloatFunc(info, glUniform4fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(5) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformFloatFunc(info, glUniform4fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniform1iv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformIntFunc(info, glUniform1iv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformIntFunc(info, glUniform1iv));
+    RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform2iv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformIntFunc(info, glUniform2iv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformIntFunc(info, glUniform2iv));
+    RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform3iv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformIntFunc(info, glUniform3iv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformIntFunc(info, glUniform3iv));
+    RECORD_TIME_END
 }
 DEFINE_VOID_METHOD(uniform4iv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallUniformIntFunc(info, glUniform4iv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformIntFunc(info, glUniform4iv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix2fv)
-CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformMatrixFunc(info, 4, glUniformMatrix2fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformMatrixFunc(info, 4, glUniformMatrix2fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix3fv)
-CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformMatrixFunc(info, 9,  glUniformMatrix3fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformMatrixFunc(info, 9,  glUniformMatrix3fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(uniformMatrix4fv)
-CHECK_PARAM_LEGNTH(3)
-parseTypeArrayAndCallUniformMatrixFunc(info, 16, glUniformMatrix4fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallUniformMatrixFunc(info, 16, glUniformMatrix4fv));
+    RECORD_TIME_END
 }
 
 void ContextWebGL::parseTypeArrayAndCallUniformFloatFunc(const Napi::CallbackInfo &info, glUniformFloatPtr func)
@@ -1096,410 +1333,632 @@ void ContextWebGL::parseTypeArrayAndCallVertexFunc(const Napi::CallbackInfo &inf
 }
 
 DEFINE_VOID_METHOD(vertexAttrib1f)
-NodeBinding::checkArgs(info, 2);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-glVertexAttrib1f(location, v1);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+    GL_CHECK(glVertexAttrib1f(location, v1));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib2f)
-NodeBinding::checkArgs(info, 3);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-glVertexAttrib2f(location, v1, v2);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+    GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+    GL_CHECK(glVertexAttrib2f(location, v1, v2));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib3f)
-NodeBinding::checkArgs(info, 4);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
-glVertexAttrib3f(location, v1, v2, v3);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+    GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+    GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
+    GL_CHECK(glVertexAttrib3f(location, v1, v2, v3));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib4f)
-NodeBinding::checkArgs(info, 5);
-GLuint location = info[0].As<Napi::Number>().Uint32Value();
-GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
-GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
-GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
-GLfloat v4 = info[4].As<Napi::Number>().FloatValue();
-glVertexAttrib4f(location, v1, v2, v3, v4);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(5) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint location = info[0].As<Napi::Number>().Uint32Value();
+    GLfloat v1 = info[1].As<Napi::Number>().FloatValue();
+    GLfloat v2 = info[2].As<Napi::Number>().FloatValue();
+    GLfloat v3 = info[3].As<Napi::Number>().FloatValue();
+    GLfloat v4 = info[4].As<Napi::Number>().FloatValue();
+    GL_CHECK(glVertexAttrib4f(location, v1, v2, v3, v4));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib1fv)
-NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info, glVertexAttrib1fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallVertexFunc(info, glVertexAttrib1fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib2fv)
-NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info, glVertexAttrib2fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallVertexFunc(info, glVertexAttrib2fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib3fv)
-NodeBinding::checkArgs(info, 2);
-parseTypeArrayAndCallVertexFunc(info, glVertexAttrib3fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallVertexFunc(info, glVertexAttrib3fv));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(vertexAttrib4fv)
-CHECK_PARAM_LEGNTH(2)
-parseTypeArrayAndCallVertexFunc(info, glVertexAttrib4fv);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GL_CHECK(parseTypeArrayAndCallVertexFunc(info, glVertexAttrib4fv));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createTexture)
-CHECK_PARAM_LEGNTH(0)
-GLuint textureId;
-glGenTextures(1, &textureId);
-Napi::Object obj = WebGLTexture::NewInstance(info.Env(), Napi::Number::New(info.Env(), textureId));
-RECORD_TIME_END
-return obj;
+{
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint textureId;
+    GL_CHECK(glGenTextures(1, &textureId));
+    Napi::Object obj = WebGLTexture::NewInstance(info.Env(), Napi::Number::New(info.Env(), textureId));
+    RECORD_TIME_END
+    return obj;
 }
 
 DEFINE_VOID_METHOD(bindTexture)
-CHECK_PARAM_LEGNTH(2)
-GLenum type = info[0].As<Napi::Number>().Uint32Value();
-GLuint textureId = 0;
-if (info[1].IsNull() || info[0].IsUndefined())
 {
-}
-else
-{
-    WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[1].As<Napi::Object>());
-    textureId = texture->getId();
-}
-
-glBindTexture(type, textureId);
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum type = info[0].As<Napi::Number>().Uint32Value();
+    GLuint textureId = 0;
+    if (info[1].IsNull() || info[0].IsUndefined())
+    {
+    }
+    else
+    {
+        WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[1].As<Napi::Object>());
+        textureId = texture->getId();
+    }
+    GL_CHECK(glBindTexture(type, textureId));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(pixelStorei)
-CHECK_PARAM_LEGNTH(2)
-GLenum pname = info[0].As<Napi::Number>().Uint32Value();
-GLuint param = parseUInt(info[1]);
-switch (pname)
 {
-case GL_UNPACK_FLIP_Y_WEBGL:
-    mUnpackFlipYWebGL = param;
-    break;
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    GLenum pname = info[0].As<Napi::Number>().Uint32Value();
+    GLuint param = parseUInt(info[1]);
+    switch (pname)
+    {
+    case GL_UNPACK_FLIP_Y_WEBGL:
+        mUnpackFlipYWebGL = param;
+        break;
 
-case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
-    mUnpackPremultiplyAlphaWebGL = param;
-    break;
+    case GL_UNPACK_PREMULTIPLY_ALPHA_WEBGL:
+        mUnpackPremultiplyAlphaWebGL = param;
+        break;
 
-case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
-    printf("Unsupport  GL_UNPACK_COLORSPACE_CONVERSION_WEBGL");
-    break;
+    case GL_UNPACK_COLORSPACE_CONVERSION_WEBGL:
+        printf("Unsupport  GL_UNPACK_COLORSPACE_CONVERSION_WEBGL");
+        break;
 
-default:
-    glPixelStorei(pname, param);
-    break;
-}
-RECORD_TIME_END
+    default:
+        EGL_MAKE_CURRENT
+        GL_CHECK(glPixelStorei(pname, param));
+        break;
+    }
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(texParameteri)
-CHECK_PARAM_LEGNTH(3)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-GLenum param = info[2].As<Napi::Number>().Uint32Value();
-glTexParameteri(target, pname, param);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    GLenum param = info[2].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glTexParameteri(target, pname, param));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(texParameterf)
-CHECK_PARAM_LEGNTH(3)
-GLfloat target = info[0].As<Napi::Number>().FloatValue();
-GLfloat pname = info[1].As<Napi::Number>().FloatValue();
-GLfloat param = info[2].As<Napi::Number>().FloatValue();
-glTexParameterf(target, pname, param);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat target = info[0].As<Napi::Number>().FloatValue();
+    GLfloat pname = info[1].As<Napi::Number>().FloatValue();
+    GLfloat param = info[2].As<Napi::Number>().FloatValue();
+    GL_CHECK(glTexParameterf(target, pname, param));
+    RECORD_TIME_END
 }
 // support:
 //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 DEFINE_VOID_METHOD(texImage2D)
-if (info.Length() == 6)
 {
-    GLenum target = info[0].As<Napi::Number>().Uint32Value();
-    GLuint level = info[1].As<Napi::Number>().Uint32Value();
-    GLint internalFormat = info[2].As<Napi::Number>().Uint32Value();
-    GLint format = info[3].As<Napi::Number>().Uint32Value();
-    GLint type = info[4].As<Napi::Number>().Int32Value();
-    GLint border = 0;
-    if (info[5].IsNull() || info[5].IsUndefined())
+    if( !CHECK_PARAM_LEGNTH(6) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    if (info.Length() == 6)
     {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        GLint width = 0;
-        GLint height = 0;
-        glTexImage2D(target, level, internalFormat, width, height, border, format, type, nullptr);
-    }
-    else if (info[5].IsObject())
-    {
-        Napi::Object object = info[5].As<Napi::Object>();
-        Napi::Value name = object.Get("name");
-        std::string namePropetry = name.As<Napi::String>().Utf8Value();
-        //todo canvas
-        if (namePropetry == "image")
+        GLenum target = info[0].As<Napi::Number>().Uint32Value();
+        GLuint level = info[1].As<Napi::Number>().Uint32Value();
+        GLint internalFormat = info[2].As<Napi::Number>().Uint32Value();
+        GLint format = info[3].As<Napi::Number>().Uint32Value();
+        GLint type = info[4].As<Napi::Number>().Int32Value();
+        GLint border = 0;
+        if (info[5].IsNull() || info[5].IsUndefined())
         {
-            Image *image = Napi::ObjectWrap<Image>::Unwrap(info[5].As<Napi::Object>());
-
-            //一次处理 1 个字节
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(target, level, internalFormat,
-                         image->getWidth(),
-                         image->getHeight(), border, format, type, &image->getPixels()[0]);
+            GLint width = 0;
+            GLint height = 0;
+            GL_CHECK(glTexImage2D(target, level, internalFormat, width, height, border, format, type, nullptr));
+        }
+        else if (info[5].IsObject())
+        {
+            Napi::Object object = info[5].As<Napi::Object>();
+            Napi::Value name = object.Get("name");
+            std::string namePropetry = name.As<Napi::String>().Utf8Value();
+            //todo canvas
+            if (namePropetry == "image")
+            {
+                Image *image = Napi::ObjectWrap<Image>::Unwrap(info[5].As<Napi::Object>());
+
+                //一次处理 1 个字节
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                GL_CHECK(glTexImage2D(target, level, internalFormat,image->getWidth(),image->getHeight(), 
+                                                                        border, format, type, &image->getPixels()[0]));
+            }
+            else
+            {
+
+            }
         }
     }
-}
-else
-{
-}
-RECORD_TIME_END
+    else if( info.Length() == 9 )
+    {
+        //TODO 9个参数
+    }
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(stencilFunc)
-CHECK_PARAM_LEGNTH(3)
-GLenum func = info[0].As<Napi::Number>().Uint32Value();
-GLint ref = info[1].As<Napi::Number>().Int32Value();
-GLuint mask = info[2].As<Napi::Number>().Uint32Value();
-glStencilFunc(func, ref, mask);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum func = info[0].As<Napi::Number>().Uint32Value();
+    GLint ref = info[1].As<Napi::Number>().Int32Value();
+    GLuint mask = info[2].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilFunc(func, ref, mask));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(stencilOp)
-CHECK_PARAM_LEGNTH(3)
-GLenum fail = info[0].As<Napi::Number>().Uint32Value();
-GLenum zfail = info[1].As<Napi::Number>().Uint32Value();
-GLenum zpass = info[2].As<Napi::Number>().Uint32Value();
-glStencilOp(fail, zfail, zpass);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum fail = info[0].As<Napi::Number>().Uint32Value();
+    GLenum zfail = info[1].As<Napi::Number>().Uint32Value();
+    GLenum zpass = info[2].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilOp(fail, zfail, zpass));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(activeTexture)
-CHECK_PARAM_LEGNTH(1)
-GLenum texture = info[0].As<Napi::Number>().Uint32Value();
-glActiveTexture(texture);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum texture = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glActiveTexture(texture));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(stencilMask)
-CHECK_PARAM_LEGNTH(1)
-GLint mask = info[0].As<Napi::Number>().Uint32Value();
-glStencilMask(mask);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint mask = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilMask(mask));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(frontFace)
-CHECK_PARAM_LEGNTH(1)
-GLenum mode = info[0].As<Napi::Number>().Uint32Value();
-glFrontFace(mode);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glFrontFace(mode));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createFrameBuffer)
-CHECK_PARAM_LEGNTH(0)
-GLuint frameBufferId;
-glGenFramebuffers(1, &frameBufferId);
-Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), frameBufferId));
-RECORD_TIME_END
-return obj;
+{    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT  
+    GLuint frameBufferId;
+    GL_CHECK(glGenFramebuffers(1, &frameBufferId));
+    Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), frameBufferId));
+    RECORD_TIME_END
+    return obj;
 }
 
 DEFINE_VOID_METHOD(bindFramebuffer)
-CHECK_PARAM_LEGNTH(2)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLuint frameBufferId = 0;
-if (info[1].IsNull() || info[1].IsUndefined())
 {
-}
-else
-{
-    WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
-    frameBufferId = buffer->getId();
-}
-glBindFramebuffer(target, frameBufferId);
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLuint frameBufferId = 0;
+    if (info[1].IsNull() || info[1].IsUndefined())
+    {
+    }
+    else
+    {
+        WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
+        frameBufferId = buffer->getId();
+    }
+    GL_CHECK(glBindFramebuffer(target, frameBufferId));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getShaderSource)
-CHECK_PARAM_LEGNTH(1)
-WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
-GLsizei length;
-glGetShaderiv(shader->getId(), GL_SHADER_SOURCE_LENGTH, &length);
-GLchar *src = new GLchar[length];
-glGetShaderSource(shader->getId(), length, nullptr, src);
-RECORD_TIME_END
-return Napi::String::New(info.Env(), src);
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+    GLsizei length;
+    glGetShaderiv(shader->getId(), GL_SHADER_SOURCE_LENGTH, &length);
+    GLchar *src = new GLchar[length];
+    GL_CHECK(glGetShaderSource(shader->getId(), length, nullptr, src));
+    RECORD_TIME_END
+    return Napi::String::New(info.Env(), src);
 }
 
 DEFINE_RETURN_VALUE_METHOD(checkFramebufferStatus)
-CHECK_PARAM_LEGNTH(1)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glCheckFramebufferStatus(target));
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum status = glCheckFramebufferStatus(target);
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), status);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isFramebuffer)
-CHECK_PARAM_LEGNTH(1)
-GLuint frameBufferId = 0;
-if (info[0].IsNull() || info[0].IsUndefined())
 {
-}
-else
-{
-    WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
-    frameBufferId = buffer->getId();
-}
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsFramebuffer(frameBufferId));
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return info.Env().Null();
+    
+    bool isFrameBuffer = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+
+        WebGLFrameBuffer *buffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[1].As<Napi::Object>());
+        GLuint frameBufferId = buffer->getId();
+        GL_CHECK(isFrameBuffer = glIsFramebuffer(frameBufferId));
+        RECORD_TIME_END
+    }
+    return Napi::Number::New(info.Env(), glIsFramebuffer(isFrameBuffer));
 }
 
 DEFINE_VOID_METHOD(framebufferRenderbuffer)
-CHECK_PARAM_LEGNTH(4)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
-GLenum renderBufferTarget = info[2].As<Napi::Number>().Uint32Value();
-WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[3].As<Napi::Object>());
-glFramebufferRenderbuffer(target, attachment, renderBufferTarget, renderBuffer->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
+    GLenum renderBufferTarget = info[2].As<Napi::Number>().Uint32Value();
+    WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[3].As<Napi::Object>());
+    GL_CHECK(glFramebufferRenderbuffer(target, attachment, renderBufferTarget, renderBuffer->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(createRenderBuffer)
-CHECK_PARAM_LEGNTH(0)
-GLuint renderBufferId;
-glGenRenderbuffers(1, &renderBufferId);
-Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), renderBufferId));
-RECORD_TIME_END
-return obj;
+{
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint renderBufferId;
+    glGenRenderbuffers(1, &renderBufferId);
+    Napi::Object obj = WebGLFrameBuffer::NewInstance(info.Env(), Napi::Number::New(info.Env(), renderBufferId));
+    RECORD_TIME_END
+    return obj;
 }
 
 DEFINE_VOID_METHOD(renderbufferStorage)
-CHECK_PARAM_LEGNTH(4)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum format = info[1].As<Napi::Number>().Uint32Value();
-GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();
-glRenderbufferStorage(target, format, width, height);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum format = info[1].As<Napi::Number>().Uint32Value();
+    GLsizei width = info[2].As<Napi::Number>().Int32Value();
+    GLsizei height = info[3].As<Napi::Number>().Int32Value();
+    GL_CHECK(glRenderbufferStorage(target, format, width, height));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(deleteBuffer)
-CHECK_PARAM_LEGNTH(1)
-WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
-GLuint id = buffer->getId();
-glDeleteBuffers(1, &id);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
+    GLuint id = buffer->getId();
+    GL_CHECK(glDeleteBuffers(1, &id));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(deleteTexture)
-CHECK_PARAM_LEGNTH(1)
-WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
-GLuint id = texture->getId();
-glDeleteTextures(1, &id);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
+    GLuint id = texture->getId();
+    GL_CHECK(glDeleteTextures(1, &id));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(deleteFrameBuffer)
-CHECK_PARAM_LEGNTH(1)
-WebGLFrameBuffer *frameBuffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[0].As<Napi::Object>());
-GLuint id = frameBuffer->getId();
-glDeleteTextures(1, &id);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLFrameBuffer *frameBuffer = Napi::ObjectWrap<WebGLFrameBuffer>::Unwrap(info[0].As<Napi::Object>());
+    GLuint id = frameBuffer->getId();
+    GL_CHECK(glDeleteTextures(1, &id));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(deleteRenderBuffer)
-CHECK_PARAM_LEGNTH(1)
-WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
-GLuint id = renderBuffer->getId();
-glDeleteTextures(1, &id);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
+    GLuint id = renderBuffer->getId();
+    GL_CHECK(glDeleteTextures(1, &id));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(framebufferTexture2D)
-CHECK_PARAM_LEGNTH(5)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
-GLenum textarget = info[2].As<Napi::Number>().Uint32Value();
-WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[3].As<Napi::Object>());
-GLint level = info[4].As<Napi::Number>().Int32Value();
-glFramebufferTexture2D(target, attachment, textarget, texture->getId(), level);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(5) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum attachment = info[1].As<Napi::Number>().Uint32Value();
+    GLenum textarget = info[2].As<Napi::Number>().Uint32Value();
+    WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[3].As<Napi::Object>());
+    GLint level = info[4].As<Napi::Number>().Int32Value();
+    GL_CHECK(glFramebufferTexture2D(target, attachment, textarget, texture->getId(), level));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getBufferParameter)
-CHECK_PARAM_LEGNTH(2)
-GLuint target = info[0].As<Napi::Number>().Uint32Value();
-GLuint pname = info[1].As<Napi::Number>().Uint32Value();
-GLint result;
-glGetBufferParameteriv(target, pname, &result);
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), result);
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint target = info[0].As<Napi::Number>().Uint32Value();
+    GLuint pname = info[1].As<Napi::Number>().Uint32Value();
+    GLint result;
+    GL_CHECK(glGetBufferParameteriv(target, pname, &result));
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), result);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isBuffer)
-CHECK_PARAM_LEGNTH(1)
-WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsBuffer(buffer->getId()));
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::Boolean::New(info.Env(), false);
+
+    bool ret = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
+        GL_CHECK(ret = glIsBuffer(buffer->getId()));
+        RECORD_TIME_END
+    }
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isShader)
-CHECK_PARAM_LEGNTH(1)
-WebGLBuffer *buffer = Napi::ObjectWrap<WebGLBuffer>::Unwrap(info[0].As<Napi::Object>());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsShader(buffer->getId()));
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::Boolean::New(info.Env(), false);
+
+    bool ret = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        WebGLShader *shader = Napi::ObjectWrap<WebGLShader>::Unwrap(info[0].As<Napi::Object>());
+        GL_CHECK(ret = glIsShader(shader->getId()));
+        RECORD_TIME_END
+    }
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isRenderBuffer)
-CHECK_PARAM_LEGNTH(1)
-WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsRenderbuffer(renderBuffer->getId()));
+{
+     if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::Boolean::New(info.Env(), false);
+
+    bool ret = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        WebGLRenderBuffer *renderBuffer = Napi::ObjectWrap<WebGLRenderBuffer>::Unwrap(info[0].As<Napi::Object>());
+        GL_CHECK(ret = glIsRenderbuffer(renderBuffer->getId()));
+        RECORD_TIME_END
+    }
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isTexture)
-CHECK_PARAM_LEGNTH(1)
-WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsTexture(texture->getId()));
+{
+     if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::Boolean::New(info.Env(), false);
+
+    bool ret = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        WebGLTexture *texture = Napi::ObjectWrap<WebGLTexture>::Unwrap(info[0].As<Napi::Object>());
+        GL_CHECK(ret = glIsTexture(texture->getId()));
+        RECORD_TIME_END
+    }
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_RETURN_VALUE_METHOD(isProgram)
-CHECK_PARAM_LEGNTH(1)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), glIsProgram(program->getId()));
+{
+     if( !CHECK_PARAM_LEGNTH(1) )
+        return Napi::Boolean::New(info.Env(), false);
+
+    bool ret = false;
+    if( info[0].IsObject() )
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+        GL_CHECK(ret = glIsProgram(program->getId()));
+        RECORD_TIME_END
+    }
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_VOID_METHOD(clearDepth)
-CHECK_PARAM_LEGNTH(1)
-GLfloat depth = info[0].As<Napi::Number>().FloatValue();
-glClearDepthf(depth);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat depth = info[0].As<Napi::Number>().FloatValue();
+    GL_CHECK(glClearDepthf(depth));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getTexParameter)
-CHECK_PARAM_LEGNTH(2)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-GLint result;
-glGetTexParameteriv(target, pname, &result);
-RECORD_TIME_END
-return Napi::Number::New(info.Env(), result);
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    GLint result;
+    GL_CHECK(glGetTexParameteriv(target, pname, &result));
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), result);
 }
 
 DEFINE_RETURN_VALUE_METHOD(getFramebufferAttachmentParameter)
-CHECK_PARAM_LEGNTH(2)
+{
+    //TODO
+// !CHECK_PARAM_LEGNTH(2)
 // GLenum target = info[0].As<Napi::Number>().Uint32Value();
 // GLenum pname = info[1].As<Napi::Number>().Uint32Value();
 // GLint result;
@@ -1509,350 +1968,506 @@ CHECK_PARAM_LEGNTH(2)
 }
 
 DEFINE_VOID_METHOD(stencilFuncSeparate)
-CHECK_PARAM_LEGNTH(4)
-GLenum face = info[0].As<Napi::Number>().Uint32Value();
-GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
-GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
-GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
-glStencilFuncSeparate(face, sfail, dpfail, dpass);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum face = info[0].As<Napi::Number>().Uint32Value();
+    GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
+    GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
+    GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilFuncSeparate(face, sfail, dpfail, dpass));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(stencilMaskSeparate)
-CHECK_PARAM_LEGNTH(2)
-GLenum face = info[0].As<Napi::Number>().Uint32Value();
-GLuint mask = info[1].As<Napi::Number>().Uint32Value();
-glStencilMaskSeparate(face, mask);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum face = info[0].As<Napi::Number>().Uint32Value();
+    GLuint mask = info[1].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilMaskSeparate(face, mask));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(stencilOpSeparate)
-CHECK_PARAM_LEGNTH(4)
-GLenum face = info[0].As<Napi::Number>().Uint32Value();
-GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
-GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
-GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
-glStencilOpSeparate(face, sfail, dpfail, dpass);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum face = info[0].As<Napi::Number>().Uint32Value();
+    GLenum sfail = info[1].As<Napi::Number>().Uint32Value();
+    GLenum dpfail = info[2].As<Napi::Number>().Uint32Value();
+    GLenum dpass = info[3].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glStencilOpSeparate(face, sfail, dpfail, dpass));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(clearStencil)
-CHECK_PARAM_LEGNTH(1)
-GLint s = info[0].As<Napi::Number>().Int32Value();
-glClearStencil(s);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint s = info[0].As<Napi::Number>().Int32Value();
+    GL_CHECK(glClearStencil(s));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(validateProgram)
-CHECK_PARAM_LEGNTH(1)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-glValidateProgram(program->getId());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GL_CHECK(glValidateProgram(program->getId()));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(depthFunc)
-CHECK_PARAM_LEGNTH(1)
-GLenum func = info[0].As<Napi::Number>().Uint32Value();
-glDepthMask(func);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum func = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glDepthMask(func));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(depthMask)
-CHECK_PARAM_LEGNTH(1)
-GLboolean flag = info[0].As<Napi::Boolean>().Value();
-glDepthMask(flag);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLboolean flag = info[0].As<Napi::Boolean>().Value();
+    GL_CHECK(glDepthMask(flag));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(disable)
-CHECK_PARAM_LEGNTH(1)
-GLenum cap = info[0].As<Napi::Number>().Uint32Value();
-glDisable(cap);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum cap = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glDisable(cap));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(blendColor)
-CHECK_PARAM_LEGNTH(4)
-GLclampf red = info[0].As<Napi::Number>().DoubleValue();
-GLclampf green = info[1].As<Napi::Number>().DoubleValue();
-GLclampf blue = info[2].As<Napi::Number>().DoubleValue();
-GLclampf alpha = info[3].As<Napi::Number>().DoubleValue();
-glBlendColor(red, green, blue, alpha);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLclampf red = info[0].As<Napi::Number>().DoubleValue();
+    GLclampf green = info[1].As<Napi::Number>().DoubleValue();
+    GLclampf blue = info[2].As<Napi::Number>().DoubleValue();
+    GLclampf alpha = info[3].As<Napi::Number>().DoubleValue();
+    GL_CHECK(glBlendColor(red, green, blue, alpha));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(blendFunc)
-CHECK_PARAM_LEGNTH(2)
-GLenum sfactor = info[0].As<Napi::Number>().Uint32Value();
-GLenum dfactor = info[1].As<Napi::Number>().Uint32Value();
-glBlendFunc(sfactor, dfactor);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum sfactor = info[0].As<Napi::Number>().Uint32Value();
+    GLenum dfactor = info[1].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glBlendFunc(sfactor, dfactor));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(blendFuncSeparate)
-CHECK_PARAM_LEGNTH(4)
-GLenum one = info[0].As<Napi::Number>().Uint32Value();
-GLenum two = info[1].As<Napi::Number>().Uint32Value();
-GLenum three = info[2].As<Napi::Number>().Uint32Value();
-GLenum four = info[3].As<Napi::Number>().Uint32Value();
-glBlendFuncSeparate(one, two, three, four);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum one = info[0].As<Napi::Number>().Uint32Value();
+    GLenum two = info[1].As<Napi::Number>().Uint32Value();
+    GLenum three = info[2].As<Napi::Number>().Uint32Value();
+    GLenum four = info[3].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glBlendFuncSeparate(one, two, three, four));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(blendEquation)
-CHECK_PARAM_LEGNTH(2)
-GLenum one = info[0].As<Napi::Number>().Uint32Value();
-GLenum two = info[1].As<Napi::Number>().Uint32Value();
-glBlendEquationSeparate(one, two);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum one = info[0].As<Napi::Number>().Uint32Value();
+    GLenum two = info[1].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glBlendEquationSeparate(one, two));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(blendEquationSeparate)
-CHECK_PARAM_LEGNTH(4)
-GLenum one = info[0].As<Napi::Number>().Uint32Value();
-GLenum two = info[1].As<Napi::Number>().Uint32Value();
-GLenum three = info[2].As<Napi::Number>().Uint32Value();
-GLenum four = info[4].As<Napi::Number>().Uint32Value();
-glBlendFuncSeparate(one, two, three, four);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(4) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum one = info[0].As<Napi::Number>().Uint32Value();
+    GLenum two = info[1].As<Napi::Number>().Uint32Value();
+    GLenum three = info[2].As<Napi::Number>().Uint32Value();
+    GLenum four = info[4].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glBlendFuncSeparate(one, two, three, four));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(cullFace)
-CHECK_PARAM_LEGNTH(1)
-GLenum mode = info[0].As<Napi::Number>().Uint32Value();
-glCullFace(mode);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum mode = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glCullFace(mode));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getError)
-CHECK_PARAM_LEGNTH(0)
-return Napi::Number::New(info.Env(), glGetError());
-RECORD_TIME_END
+{
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum err= glGetError();
+    RECORD_TIME_END
+    return Napi::Number::New(info.Env(), err);
+    
 }
 
 DEFINE_VOID_METHOD(bindAttribLocation)
-CHECK_PARAM_LEGNTH(3)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-GLuint index = info[1].As<Napi::Number>().Uint32Value();
-std::string name = info[2].As<Napi::String>().Utf8Value();
-glBindAttribLocation(program->getId(), index, name.c_str());
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(3) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GLuint index = info[1].As<Napi::Number>().Uint32Value();
+    std::string name = info[2].As<Napi::String>().Utf8Value();
+    GL_CHECK(glBindAttribLocation(program->getId(), index, name.c_str()));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(polygonOffset)
-CHECK_PARAM_LEGNTH(2)
-GLfloat factor = info[0].As<Napi::Number>().FloatValue();
-GLfloat untis = info[1].As<Napi::Number>().FloatValue();
-glPolygonOffset(factor, untis);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat factor = info[0].As<Napi::Number>().FloatValue();
+    GLfloat untis = info[1].As<Napi::Number>().FloatValue();
+    GL_CHECK(glPolygonOffset(factor, untis));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(lineWidth)
-CHECK_PARAM_LEGNTH(1)
-GLfloat width = info[0].As<Napi::Number>().FloatValue();
-glLineWidth(width);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat width = info[0].As<Napi::Number>().FloatValue();
+    GL_CHECK(glLineWidth(width));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(sampleCoverage)
-CHECK_PARAM_LEGNTH(2)
-GLfloat value = info[0].As<Napi::Number>().FloatValue();
-GLboolean invert = info[1].As<Napi::Boolean>().Value();
-glSampleCoverage(value, invert);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat value = info[0].As<Napi::Number>().FloatValue();
+    GLboolean invert = info[1].As<Napi::Boolean>().Value();
+    GL_CHECK(glSampleCoverage(value, invert));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(hint)
-CHECK_PARAM_LEGNTH(2)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-GLenum mode = info[1].As<Napi::Number>().Uint32Value();
-glHint(target, mode);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GLenum mode = info[1].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glHint(target, mode));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(isEnabled)
-CHECK_PARAM_LEGNTH(1)
-GLenum cap = info[0].As<Napi::Number>().Uint32Value();
-GLboolean ret = glIsEnabled(cap);
-RECORD_TIME_END
-return Napi::Boolean::New(info.Env(), ret);
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return  Napi::Boolean::New(info.Env(), false);
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum cap = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(GLboolean ret = glIsEnabled(cap));
+    RECORD_TIME_END
+    return Napi::Boolean::New(info.Env(), ret);
 }
 
 DEFINE_VOID_METHOD(readPixels)
-CHECK_PARAM_LEGNTH(7)
-GLint x = info[0].As<Napi::Number>().Int32Value();
-GLint y = info[1].As<Napi::Number>().Int32Value();
-GLsizei width = info[2].As<Napi::Number>().Int32Value();
-GLsizei height = info[3].As<Napi::Number>().Int32Value();
-GLenum format = info[4].As<Napi::Number>().Uint32Value();
-GLenum type = info[5].As<Napi::Number>().Uint32Value();
-void *pixels = nullptr;
-if (info[6].IsTypedArray())
 {
-    Napi::TypedArray array = info[1].As<Napi::TypedArray>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    pixels = buffer.Data();
-}
-else if (info[6].IsArrayBuffer())
-{
-    Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
-    Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
-    pixels = buffer.Data();
-}
-glReadPixels(x, y, width, height, format, type, pixels);
-RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(7) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLint x = info[0].As<Napi::Number>().Int32Value();
+    GLint y = info[1].As<Napi::Number>().Int32Value();
+    GLsizei width = info[2].As<Napi::Number>().Int32Value();
+    GLsizei height = info[3].As<Napi::Number>().Int32Value();
+    GLenum format = info[4].As<Napi::Number>().Uint32Value();
+    GLenum type = info[5].As<Napi::Number>().Uint32Value();
+    void *pixels = nullptr;
+    if (info[6].IsTypedArray())
+    {
+        Napi::TypedArray array = info[1].As<Napi::TypedArray>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        pixels = buffer.Data();
+    }
+    else if (info[6].IsArrayBuffer())
+    {
+        Napi::ArrayBuffer array = info[1].As<Napi::ArrayBuffer>();
+        Napi::Uint8Array buffer = array.As<Napi::Uint8Array>();
+        pixels = buffer.Data();
+    }
+    else
+    {
+        //TODO IsArray
+    }
+    GL_CHECK(glReadPixels(x, y, width, height, format, type, pixels));
+    RECORD_TIME_END
 }
 
 DEFINE_VOID_METHOD(depthRange)
-CHECK_PARAM_LEGNTH(2)
-GLfloat near = info[0].As<Napi::Number>().FloatValue();
-GLfloat far = info[1].As<Napi::Number>().FloatValue();
-glDepthRange(near, far);
-RECORD_TIME_END
-}
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLfloat near = info[0].As<Napi::Number>().FloatValue();
+    GLfloat far = info[1].As<Napi::Number>().FloatValue();
+    GL_CHECK(glDepthRange(near, far));
+    RECORD_TIME_END
+    }
 
 DEFINE_VOID_METHOD(generateMipmap)
-CHECK_PARAM_LEGNTH(1)
-GLenum target = info[0].As<Napi::Number>().Uint32Value();
-glGenerateMipmap(target);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLenum target = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glGenerateMipmap(target));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getAttachedShaders)
-CHECK_PARAM_LEGNTH(1)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-int maxCount = 32;
-int shaderCount = 0;
-GLuint shaders[maxCount];
-glGetAttachedShaders(program->getId(), maxCount, &shaderCount, shaders);
-Napi::Array arr = Napi::Array::New(info.Env());
-for (int i = 0; i < shaderCount; i++)
 {
-    Napi::Object shader = WebGLShader::NewInstance(info.Env(), Napi::Number::New(info.Env(), shaders[i]));
-    arr.Set(i, shader);
-}
-RECORD_TIME_END
-return arr;
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    int maxCount = 32;
+    int shaderCount = 0;
+    GLuint shaders[maxCount];
+    GL_CHECK(glGetAttachedShaders(program->getId(), maxCount, &shaderCount, shaders));
+    Napi::Array arr = Napi::Array::New(info.Env());
+    for (int i = 0; i < shaderCount; i++)
+    {
+        Napi::Object shader = WebGLShader::NewInstance(info.Env(), Napi::Number::New(info.Env(), shaders[i]));
+        arr.Set(i, shader);
+    }
+    RECORD_TIME_END
+    return arr;
 }
 
 DEFINE_VOID_METHOD(disableVertexAttribArray)
-CHECK_PARAM_LEGNTH(1)
-GLuint index = info[0].As<Napi::Number>().Uint32Value();
-glDisableVertexAttribArray(index);
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(1) )
+        return;
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    GLuint index = info[0].As<Napi::Number>().Uint32Value();
+    GL_CHECK(glDisableVertexAttribArray(index));
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getActiveAttrib)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-GLuint programId = program->getId();
-GLint index = info[1].As<Napi::Number>().Int32Value();
-GLsizei length;
-glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
-GLchar *buffer = new (std::nothrow) GLchar[length];
-GLint size = 0;
-GLenum type = 0;
-glGetActiveAttrib(programId, index, length, NULL, &size, &type, buffer);
-Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
-RECORD_TIME_END
-return activeInfoObj;
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GLuint programId = program->getId();
+    GLint index = info[1].As<Napi::Number>().Int32Value();
+    GLsizei length;
+    glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+    GLchar *buffer = new (std::nothrow) GLchar[length];
+    GLint size = 0;
+    GLenum type = 0;
+    GL_CHECK(glGetActiveAttrib(programId, index, length, NULL, &size, &type, buffer));
+    Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
+    RECORD_TIME_END
+    return activeInfoObj;
 }
 
 DEFINE_RETURN_VALUE_METHOD(getActiveUniform)
-CHECK_PARAM_LEGNTH(2)
-WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
-GLuint programId = program->getId();
-GLint index = info[1].As<Napi::Number>().Int32Value();
-GLsizei length;
-glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
-GLchar *buffer = new (std::nothrow) GLchar[length];
-GLint size = 0;
-GLenum type = 0;
-glGetActiveUniform(programId, index, length, NULL, &size, &type, buffer);
-Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
-RECORD_TIME_END
-return activeInfoObj;
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+    WebGLProgram *program = Napi::ObjectWrap<WebGLProgram>::Unwrap(info[0].As<Napi::Object>());
+    GLuint programId = program->getId();
+    GLint index = info[1].As<Napi::Number>().Int32Value();
+    GLsizei length;
+    glGetProgramiv(programId, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+    GLchar *buffer = new (std::nothrow) GLchar[length];
+    GLint size = 0;
+    GLenum type = 0;
+    GL_CHECK(glGetActiveUniform(programId, index, length, NULL, &size, &type, buffer));
+    Napi::Object activeInfoObj = WebGLActiveInfo::NewInstance(info.Env(), size, type, buffer);
+    RECORD_TIME_END
+    return activeInfoObj;
 }
 
 DEFINE_RETURN_VALUE_METHOD(getUniform)
-// glGetUniformiv()
-RECORD_TIME_END
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+
+    //TODO 
+    // glGetUniformiv()
+    RECORD_TIME_END
 }
 
 DEFINE_RETURN_VALUE_METHOD(getVertexAttrib)
-CHECK_PARAM_LEGNTH(2)
-GLuint index = info[0].As<Napi::Number>().Uint32Value();
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-if (pname == GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING)
-{ // WebGLBuffer
-    GLint params;
-    glGetVertexAttribiv(index, pname, &params);
-    return Napi::Number::New(info.Env(), params);
-}
-else if (pname == GL_VERTEX_ATTRIB_ARRAY_ENABLED ||
-         pname == GL_VERTEX_ATTRIB_ARRAY_NORMALIZED)
-{ // GLBool
-    GLint params;
-    glGetVertexAttribiv(index, pname, &params);
-    return Napi::Number::New(info.Env(), params);
-}
-else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE ||
-         pname == GL_VERTEX_ATTRIB_ARRAY_STRIDE)
-{ // GLint
-    GLint params;
-    glGetVertexAttribiv(index, pname, &params);
-    return Napi::Number::New(info.Env(), params);
-}
-else if (pname == GL_VERTEX_ATTRIB_ARRAY_TYPE)
-{ // GLEnum
-    GLint params;
-    glGetVertexAttribiv(index, pname, &params);
-    return Napi::Number::New(info.Env(), params);
-}
-else if (pname == GL_CURRENT_VERTEX_ATTRIB)
-{ // 4元素 Float32Array
-    GLfloat *data = new GLfloat[4];
-    glGetVertexAttribfv(index, pname, data);
-    Napi::Array arr = Napi::Array::New(info.Env());
-    for (int i = 0; i < 4; i++)
-    {
-        arr.Set(i, Napi::Number::New(info.Env(), data[i]));
+{
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    RECORD_TIME_BEGIN 
+    EGL_MAKE_CURRENT
+
+    GLuint index = info[0].As<Napi::Number>().Uint32Value();
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    if (pname == GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING)
+    { // WebGLBuffer
+        GLint params;
+        GL_CHECK(glGetVertexAttribiv(index, pname, &params));
+        return Napi::Number::New(info.Env(), params);
     }
-    return arr;
-}
-RECORD_TIME_END
+    else if (pname == GL_VERTEX_ATTRIB_ARRAY_ENABLED ||
+            pname == GL_VERTEX_ATTRIB_ARRAY_NORMALIZED)
+    { // GLBool
+        GLint params;
+        GL_CHECK(glGetVertexAttribiv(index, pname, &params));
+        return Napi::Number::New(info.Env(), params);
+    }
+    else if (pname == GL_VERTEX_ATTRIB_ARRAY_SIZE ||
+            pname == GL_VERTEX_ATTRIB_ARRAY_STRIDE)
+    { // GLint
+        GLint params;
+        GL_CHECK(glGetVertexAttribiv(index, pname, &params));
+        return Napi::Number::New(info.Env(), params);
+    }
+    else if (pname == GL_VERTEX_ATTRIB_ARRAY_TYPE)
+    { // GLEnum
+        GLint params;
+        GL_CHECK(glGetVertexAttribiv(index, pname, &params));
+        return Napi::Number::New(info.Env(), params);
+    }
+    else if (pname == GL_CURRENT_VERTEX_ATTRIB)
+    { // 4元素 Float32Array
+        GLfloat *data = new GLfloat[4];
+        GL_CHECK(glGetVertexAttribfv(index, pname, data));
+        Napi::Array arr = Napi::Array::New(info.Env());
+        for (int i = 0; i < 4; i++)
+        {
+            arr.Set(i, Napi::Number::New(info.Env(), data[i]));
+        }
+        return arr;
+    }
+    RECORD_TIME_END
 }
 DEFINE_RETURN_VALUE_METHOD(getVertexAttribOffset)
-CHECK_PARAM_LEGNTH(2)
-GLuint index = info[0].As<Napi::Number>().Uint32Value();
-GLenum pname = info[1].As<Napi::Number>().Uint32Value();
-if (pname == GL_VERTEX_ATTRIB_ARRAY_POINTER)
 {
-    int *p;
-    glGetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, (void **)&p);
-    RECORD_TIME_END
-    return Napi::Number::New(info.Env(), *p);
-}
-else
-{
-    RECORD_TIME_END
+    if( !CHECK_PARAM_LEGNTH(2) )
+        return info.Env().Null();
+    
+    GLuint index = info[0].As<Napi::Number>().Uint32Value();
+    GLenum pname = info[1].As<Napi::Number>().Uint32Value();
+    if (pname == GL_VERTEX_ATTRIB_ARRAY_POINTER)
+    {
+        RECORD_TIME_BEGIN 
+        EGL_MAKE_CURRENT
+        int *p;
+        GL_CHECK(glGetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, (void **)&p));
+        RECORD_TIME_END
+        return Napi::Number::New(info.Env(), *p);
+    }
     return Napi::Number::New(info.Env(), 0);
-}
 }
 
 DEFINE_RETURN_VALUE_METHOD(isContextLost)
-bool flag = false;
-if (!mRenderContext)
 {
-    flag = true;
-}
-RECORD_TIME_END
-return Napi::Boolean::New(info.Env(), flag);
+    RECORD_TIME_BEGIN 
+    bool flag = false;
+    if (!mRenderContext)
+    {
+        flag = true;
+    }
+    RECORD_TIME_END
+    return Napi::Boolean::New(info.Env(), flag);
 }
 
-ContextWebGL::~ContextWebGL()
-{
-    this->mRenderContext = nullptr;
-}
-
-} // namespace NodeBindingDataConvert::AsUInt(args[0]);
+} // namespace NodeBinding
