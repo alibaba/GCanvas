@@ -44,10 +44,10 @@ namespace NodeBinding
         GCanvasContext *getCtx2d() { return mCanvas2d->GetGCanvasContext(); }
         std::shared_ptr<gcanvas::WebGL::GWebGLRenderContext> getCtxWebGL()
         {
-            return this->mCanvasWebGL;
+            return mCanvasWebGL;
         }
-        int inline getWdith() { return this->mWidth; }
-        int inline getHeight() { return this->mHeight; }
+        int inline getWdith() { return mWidth; }
+        int inline getHeight() { return mHeight; }
         void destoryRenderEnviroment();
         void recordTextures(int textureId);
         void recordImageTexture(std::string url, int textureId);

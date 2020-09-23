@@ -82,29 +82,41 @@ namespace NodeBinding
         std::string type = info[0].As<Napi::String>().Utf8Value();
         if (type == "2d")
         {
-            if (this->context2dRef.IsEmpty())
+            if (mContext2dRef.IsEmpty())
             {
                 Napi::Object obj = Context2D::NewInstance(env);
-                this->context2dRef = Napi::ObjectReference::New(obj);
                 Context2D *ctx = Napi::ObjectWrap<Context2D>::Unwrap(obj);
-                this->mRenderContext->setType(type);
-                ctx->setRenderContext(this->mRenderContext);
+                mRenderContext->setType(type);
+                ctx->setRenderContext(mRenderContext);
                 ctx->setCanvasRef(this);
+
+                //save reference
+                mContext2dRef = Napi::ObjectReference::New(obj);
                 return obj;
             }
             else
             {
-                return this->context2dRef.Value();
+                return mContext2dRef.Value();
             }
         }
         else if (type == "webgl")
         {
-            Napi::Object obj = ContextWebGL::NewInstance(env);
-            ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);
-            ctx->setRenderContext(this->mRenderContext);
-            this->mRenderContext->setType(type);
-            obj.Set("canvas",  this->Value());
-            return obj;
+            if (mContextWebGLRef.IsEmpty())
+            {
+                Napi::Object obj = ContextWebGL::NewInstance(env);
+                ContextWebGL *ctx = Napi::ObjectWrap<ContextWebGL>::Unwrap(obj);
+                ctx->setRenderContext(mRenderContext);
+                mRenderContext->setType(type);
+                obj.Set("canvas",  this->Value());
+
+                 // save reference
+                mContextWebGLRef = Napi::ObjectReference::New(obj);
+                return obj;
+            }
+            else
+            {
+                return mContextWebGLRef.Value();
+            }
         }
         else
         {
@@ -116,11 +128,11 @@ namespace NodeBinding
     {
         NodeBinding::checkArgs(info, 1);
         std::string arg = info[0].As<Napi::String>().Utf8Value();
-        if (this->mRenderContext)
+        if (mRenderContext)
         {
-            this->mRenderContext->makeCurrent();
-            this->mRenderContext->drawFrame();
-            this->mRenderContext->render2file(arg.c_str(), PNG_FORAMT);
+            mRenderContext->makeCurrent();
+            mRenderContext->drawFrame();
+            mRenderContext->render2file(arg.c_str(), PNG_FORAMT);
         }
         return;
     }
@@ -128,11 +140,11 @@ namespace NodeBinding
     {
         NodeBinding::checkArgs(info, 1);
         std::string arg = info[0].As<Napi::String>().Utf8Value();
-        if (this->mRenderContext)
+        if (mRenderContext)
         {
-            this->mRenderContext->makeCurrent();
-            this->mRenderContext->drawFrame();
-            this->mRenderContext->render2file(arg.c_str(), JPEG_FORMAT);
+            mRenderContext->makeCurrent();
+            mRenderContext->drawFrame();
+            mRenderContext->render2file(arg.c_str(), JPEG_FORMAT);
         }
         return;
     }
@@ -140,7 +152,7 @@ namespace NodeBinding
     {
         NodeBinding::checkArgs(info, 2);
         unsigned long size = 0;
-        Napi::Buffer<unsigned char> buffer = this->getJPGBuffer(info, size);
+        Napi::Buffer<unsigned char> buffer = getJPGBuffer(info, size);
         if (size >= 0)
         {
             Napi::Function callback = info[0].As<Napi::Function>();
@@ -165,7 +177,7 @@ namespace NodeBinding
     {
         NodeBinding::checkArgs(info, 2);
         unsigned long size = 0;
-        Napi::Buffer<unsigned char> buffer = this->getPNGBuffer(info, size);
+        Napi::Buffer<unsigned char> buffer = getPNGBuffer(info, size);
         if (size >= 0)
         {
             Napi::Function callback = info[0].As<Napi::Function>();
@@ -187,13 +199,13 @@ namespace NodeBinding
     }
     Napi::Buffer<unsigned char> Canvas::getPNGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
-        if (this->mRenderContext)
+        if (mRenderContext)
         {
-            this->mRenderContext->makeCurrent();
-            this->mRenderContext->drawFrame();
+            mRenderContext->makeCurrent();
+            mRenderContext->drawFrame();
         }
         std::vector<unsigned char> dataPNGFormat;
-        int ret = this->mRenderContext->getImagePixelPNG(dataPNGFormat);
+        int ret = mRenderContext->getImagePixelPNG(dataPNGFormat);
         if (ret == 0)
         {
             size = dataPNGFormat.size();
@@ -206,13 +218,13 @@ namespace NodeBinding
     }
     Napi::Buffer<unsigned char> Canvas::getJPGBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
-        if (this->mRenderContext)
+        if (mRenderContext)
         {
-            this->mRenderContext->makeCurrent();
-            this->mRenderContext->drawFrame();
+            mRenderContext->makeCurrent();
+            mRenderContext->drawFrame();
         }
         unsigned char *dataJPGFormat = nullptr;
-        int ret = this->mRenderContext->getImagePixelJPG(&dataJPGFormat, size);
+        int ret = mRenderContext->getImagePixelJPG(&dataJPGFormat, size);
         if (ret == 0)
         {
             return Napi::Buffer<unsigned char>::Copy(info.Env(), dataJPGFormat, size);
@@ -226,14 +238,14 @@ namespace NodeBinding
     Napi::Buffer<unsigned char> Canvas::getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size)
     {
 
-        if (this->mDataRaw == nullptr)
+        if (mDataRaw == nullptr)
         {
-            this->mDataRaw = new unsigned char[4 * mWidth * mHeight];
+            mDataRaw = new unsigned char[4 * mWidth * mHeight];
         }
-        int ret = this->mRenderContext->readPixelAndSampleFromCurrentCtx(mDataRaw);
+        int ret = mRenderContext->readPixelAndSampleFromCurrentCtx(mDataRaw);
         if (ret == 0)
         {
-            return Napi::Buffer<unsigned char>::Copy(info.Env(), this->mDataRaw, 4 * mWidth * mHeight);
+            return Napi::Buffer<unsigned char>::Copy(info.Env(), mDataRaw, 4 * mWidth * mHeight);
         }
         else
         {
@@ -247,7 +259,7 @@ namespace NodeBinding
         //默认输出png 编码
         if (info.Length() == 0)
         {
-            return this->getPNGBuffer(info, size);
+            return getPNGBuffer(info, size);
         }
         else
         {
@@ -257,15 +269,15 @@ namespace NodeBinding
                 std::string mimeType = info[0].As<Napi::String>().Utf8Value();
                 if (mimeType == "image/png")
                 {
-                    ret = this->getPNGBuffer(info, size);
+                    ret = getPNGBuffer(info, size);
                 }
                 else if (mimeType == "image/jpeg")
                 {
-                    ret = this->getJPGBuffer(info, size);
+                    ret = getJPGBuffer(info, size);
                 }
                 else if (mimeType == "raw")
                 {
-                    ret = this->getRawDataBuffer(info, size);
+                    ret = getRawDataBuffer(info, size);
                 }
             }
             if (size < 0)
@@ -280,11 +292,11 @@ namespace NodeBinding
     }
     Canvas::~Canvas()
     {
-        this->mRenderContext = nullptr;
-        if (this->mDataRaw != nullptr)
+        mRenderContext = nullptr;
+        if (mDataRaw != nullptr)
         {
-            free(this->mDataRaw);
-            this->mDataRaw = nullptr;
+            free(mDataRaw);
+            mDataRaw = nullptr;
         }
         printf("canvas destroy called \n");
     }

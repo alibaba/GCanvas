@@ -107,27 +107,27 @@ namespace NodeBinding
         // end of standard gl context setup
 
         // Step 9 - create framebuffer object
-        this->mFboIdSrc = this->createFBO(mCanvasWidth, mCanvasHeight, &this->mRenderBufferIdSrc, &this->mDepthRenderbufferIdSrc);
-        this->mFboIdDes = this->createFBO(mWidth, mHeight, &this->mRenderBufferIdDes, &this->mDepthRenderbufferIdDes);
-        glBindFramebuffer(GL_FRAMEBUFFER, this->mFboIdSrc);
+        mFboIdSrc = createFBO(mCanvasWidth, mCanvasHeight, &mRenderBufferIdSrc, &mDepthRenderbufferIdSrc);
+        mFboIdDes = createFBO(mWidth, mHeight, &mRenderBufferIdDes, &mDepthRenderbufferIdDes);
+        glBindFramebuffer(GL_FRAMEBUFFER, mFboIdSrc);
     }
 
     void GRenderContext::setType(std::string type)
     {
         if (type == "2d")
         {
-            this->initCanvas2d();
+            initCanvas2d();
         }
         else if (type == "webgl")
         {
-            this->initCanvasWebGL();
+            initCanvasWebGL();
         }
         g_RenderContextVC.push_back(this);
     }
 
     void GRenderContext::initCanvasWebGL()
     {
-        // this->mCanvasWebGL = std::make_shared<gcanvas::WebGL::GWebGLRenderContext>("node-gcanvas");
+        // mCanvasWebGL = std::make_shared<gcanvas::WebGL::GWebGLRenderContext>("node-gcanvas");
     }
     GLuint GRenderContext::createFBO(int fboWidth, int fboHeight, GLuint *renderBufferId, GLuint *depthBufferId)
     {
@@ -171,7 +171,7 @@ namespace NodeBinding
             EGLSurface currentSurface = eglGetCurrentSurface(EGL_DRAW);
             if (mEglContext == currentContext && mEglSurface == currentSurface)
             {
-                this->BindFBO();
+                BindFBO();
                 return;
             }
             else
@@ -181,7 +181,7 @@ namespace NodeBinding
                     printf("eglMakeCurrent fail \n");
                     exit(-1);
                 }
-                this->BindFBO();
+                BindFBO();
                 return;
             }
         }
@@ -190,7 +190,7 @@ namespace NodeBinding
     void GRenderContext::initCanvas2d()
     {
         GCanvasConfig config = {true, false};
-        this->mCanvas2d = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
+        mCanvas2d = std::make_shared<gcanvas::GCanvas>("node-gcanvas", config, nullptr);
         mCanvas2d->CreateContext();
         mCanvas2d->GetGCanvasContext()->SetClearColor(gcanvas::StrValueToColorRGBA("transparent"));
         mCanvas2d->GetGCanvasContext()->ClearScreen();
@@ -203,13 +203,13 @@ namespace NodeBinding
         {
             mCanvas2d->drawFrame();
         }
-        this->drawCount++;
+        drawCount++;
     }
 
     int GRenderContext::getImagePixelPNG(std::vector<unsigned char> &in)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        int ret = readPixelAndSampleFromCurrentCtx(data);
         if (ret == 0)
         {
             encodePNGInBuffer(in, data, mWidth, mHeight);
@@ -228,7 +228,7 @@ namespace NodeBinding
     int GRenderContext::getImagePixelJPG(unsigned char **in, unsigned long &size)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        int ret = readPixelAndSampleFromCurrentCtx(data);
         if (ret == 0)
         {
             encodeJPEGInBuffer(in, size, data, mWidth, mHeight);
@@ -246,8 +246,8 @@ namespace NodeBinding
 
     int GRenderContext::readPixelAndSampleFromCurrentCtx(unsigned char *data)
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, this->mFboIdSrc); // src FBO (multi-sample)
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, this->mFboIdDes);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, mFboIdSrc); // src FBO (multi-sample)
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFboIdDes);
         glBlitFramebuffer(0, 0, mCanvasWidth, mCanvasHeight, // src rect
                           0, 0, mWidth, mHeight,             // dst rect
                           GL_COLOR_BUFFER_BIT,               // buffer mask
@@ -260,19 +260,19 @@ namespace NodeBinding
                           0, 0, mWidth, mHeight,             // dst rect
                           GL_STENCIL_BUFFER_BIT,             // buffer mask
                           GL_LINEAR);
-        glBindFramebuffer(GL_FRAMEBUFFER, this->mFboIdDes);
+        glBindFramebuffer(GL_FRAMEBUFFER, mFboIdDes);
         glReadPixels(0, 0, mWidth, mHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
         return 0;
     }
 
     int GRenderContext::getDpi()
     {
-        return this->mDpi;
+        return mDpi;
     }
     void GRenderContext::render2file(std::string fileName, PIC_FORMAT format)
     {
         unsigned char *data = new unsigned char[4 * mWidth * mHeight];
-        int ret = this->readPixelAndSampleFromCurrentCtx(data);
+        int ret = readPixelAndSampleFromCurrentCtx(data);
         if (ret == 0)
         {
             if (format == PNG_FORAMT)
@@ -296,33 +296,33 @@ namespace NodeBinding
 
     void GRenderContext::destoryRenderEnviroment()
     {
-        if (this->mFboIdSrc != 0)
+        if (mFboIdSrc != 0)
         {
-            glDeleteFramebuffers(1, &this->mFboIdSrc);
+            glDeleteFramebuffers(1, &mFboIdSrc);
         }
-        if (this->mFboIdDes != 0)
+        if (mFboIdDes != 0)
         {
-            glDeleteFramebuffers(1, &this->mFboIdDes);
+            glDeleteFramebuffers(1, &mFboIdDes);
         }
-        if (this->mRenderBufferIdSrc != 0)
+        if (mRenderBufferIdSrc != 0)
         {
-            glDeleteRenderbuffers(1, &this->mRenderBufferIdSrc);
+            glDeleteRenderbuffers(1, &mRenderBufferIdSrc);
         }
-        if (this->mRenderBufferIdDes != 0)
+        if (mRenderBufferIdDes != 0)
         {
-            glDeleteRenderbuffers(1, &this->mRenderBufferIdDes);
+            glDeleteRenderbuffers(1, &mRenderBufferIdDes);
         }
-        if (this->mDepthRenderbufferIdSrc != 0)
+        if (mDepthRenderbufferIdSrc != 0)
         {
-            glDeleteRenderbuffers(1, &this->mDepthRenderbufferIdSrc);
+            glDeleteRenderbuffers(1, &mDepthRenderbufferIdSrc);
         }
-        if (this->mDepthRenderbufferIdDes != 0)
+        if (mDepthRenderbufferIdDes != 0)
         {
-            glDeleteRenderbuffers(1, &this->mDepthRenderbufferIdDes);
+            glDeleteRenderbuffers(1, &mDepthRenderbufferIdDes);
         }
-        if (this->textures.size() > 0)
+        if (textures.size() > 0)
         {
-            glDeleteTextures(this->textures.size(), (GLuint *)&textures[0]);
+            glDeleteTextures(textures.size(), (GLuint *)&textures[0]);
         }
 
         if (mEglSurface != EGL_NO_SURFACE)
@@ -354,7 +354,7 @@ namespace NodeBinding
 
     void GRenderContext::recordTextures(int textureId)
     {
-        this->textures.push_back(textureId);
+        textures.push_back(textureId);
     }
 
     void GRenderContext::BindFBO()
@@ -373,7 +373,7 @@ namespace NodeBinding
 
     void GRenderContext::recordImageTexture(std::string url, int textureId)
     {
-        this->imageTextureMap[url] = textureId;
+        imageTextureMap[url] = textureId;
     }
 
     void GRenderContext::InitSharedContextIfNot()
@@ -424,6 +424,6 @@ namespace NodeBinding
 
     GRenderContext::~GRenderContext()
     {
-        this->destoryRenderEnviroment();
+        destoryRenderEnviroment();
     }
 } // namespace NodeBinding
