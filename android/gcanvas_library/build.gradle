@@ -43,18 +43,52 @@ android {
         }
     }
 
+    flavorDimensions "target_app"
+    productFlavors {
+        standalone {
+            dimension "target_app"
+            externalNativeBuild {
+                cmake {
+                    arguments  '-DGCANVAS_WEEX=0', '-DANDROID_STL=c++_shared', '-DGSTANDALONE=1'
+                }
 
-    externalNativeBuild {
-        cmake {
-            path file('../../CMakeLists.txt')
+                ndk {
+                    abiFilters 'armeabi-v7a', 'arm64-v8a'
+                }
+            }
+
+            packagingOptions {
+                exclude '**/libc++_shared.so'
+                exclude '**/**/libc++_shared.so'
+            }
+        }
+
+        ali {
+            dimension "target_app"
+
+            externalNativeBuild {
+                cmake {
+                    arguments  '-DGCANVAS_WEEX=1', '-DANDROID_STL=c++_shared', '-DGSTANDALONE=0'
+                }
+
+                ndk {
+                    abiFilters 'armeabi-v7a', 'arm64-v8a'
+                }
+            }
+
+            if (rootProject.extensions.sdks.EXCLUDE_CPP_SHARED) {
+                packagingOptions {
+                    exclude '**/libc++_shared.so'
+                    exclude '**/**/libc++_shared.so'
+                }
+            }
         }
     }
 
 
-    if (rootProject.extensions.sdks.EXCLUDE_CPP_SHARED) {
-        packagingOptions {
-            exclude '**/libc++_shared.so'
-            exclude '**/**/libc++_shared.so'
+    externalNativeBuild {
+        cmake {
+            path file('../../CMakeLists.txt')
         }
     }
 }
