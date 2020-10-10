@@ -40,67 +40,123 @@ include_directories("./android/3d/util")
 include_directories("./android/3d/view")
 include_directories("./android/freetype-prebuilt/include")
 
+if (GSTANDALONE)
+    set(SRC_FILES
+            #root srcs
+            ./src/GCanvas.cpp
+            ./src/GCanvasManager.cpp
+
+            # gcanvas srcs
+            ./src/gcanvas/GCanvas2dContext.cpp
+            ./src/gcanvas/GCanvasState.cpp
+            ./src/gcanvas/GConvert.cpp
+            ./src/gcanvas/GFontStyle.cpp
+            ./src/gcanvas/GL/GFrameBufferObject.cpp
+            ./src/gcanvas/GGlyphCache.cpp
+            ./src/gcanvas/GPath.cpp
+            ./src/gcanvas/GPath2D.cpp
+            ./src/gcanvas/GPathStroker.cpp
+            ./src/gcanvas/GL/GShader.cpp
+            ./src/gcanvas/GL/GShaderManager.cpp
+            ./src/gcanvas/GStrSeparator.cpp
+            ./src/gcanvas/GL/GTexture.cpp
+            ./src/gcanvas/GTreemap.cpp
+            ./src/gcanvas/GWebglContext.cpp
+            ./src/gcanvas/GFontManager.cpp
+
+            # platform srcs
+            ./src/platform/Android/GCanvas2DContextImpl.cpp
+            ./src/platform/Android/GCanvas2DContextAndroid.cpp
+            ./src/platform/Android/GCanvasAndroid.cpp
+            ./src/platform/Android/GFreeTypeWrap.cpp
+            ./src/platform/Android/GFont.cpp
+            ./src/platform/Android/GFontCache.cpp
+            ./src/platform/Android/GFontFamily.cpp
+            ./src/platform/Android/GFontManagerAndroid.cpp
+            ./src/platform/Android/GFrameBufferObjectImpl.cpp
+            ./src/platform/Android/GPreCompiledShaders.cpp
+            ./src/platform/Android/GSystemFontInformation.cpp
+            ./src/platform/Android/GFontManagerAndroid.cpp
 
 
-set(SRC_FILES
-        #root srcs
-        ./src/GCanvas.cpp
-        ./src/GCanvasManager.cpp
-        ./src/GCanvasWeex.cpp # todo remove
-
-        # gcanvas srcs
-        ./src/gcanvas/GCanvas2dContext.cpp
-        ./src/gcanvas/GCanvasState.cpp
-        ./src/gcanvas/GConvert.cpp
-        ./src/gcanvas/GFontStyle.cpp
-        ./src/gcanvas/GL/GFrameBufferObject.cpp
-        ./src/gcanvas/GGlyphCache.cpp
-        ./src/gcanvas/GPath.cpp
-        ./src/gcanvas/GPath2D.cpp
-        ./src/gcanvas/GPathStroker.cpp
-        ./src/gcanvas/GL/GShader.cpp
-        ./src/gcanvas/GL/GShaderManager.cpp
-        ./src/gcanvas/GStrSeparator.cpp
-        ./src/gcanvas/GL/GTexture.cpp
-        ./src/gcanvas/GTreemap.cpp
-        ./src/gcanvas/GWebglContext.cpp
-        ./src/gcanvas/GFontManager.cpp
-
-        # platform srcs
-        ./src/platform/Android/GCanvas2DContextImpl.cpp
-        ./src/platform/Android/GCanvas2DContextAndroid.cpp
-        ./src/platform/Android/GCanvasAndroid.cpp
-        ./src/platform/Android/GFreeTypeWrap.cpp
-        ./src/platform/Android/GFont.cpp
-        ./src/platform/Android/GFontCache.cpp
-        ./src/platform/Android/GFontFamily.cpp
-        ./src/platform/Android/GFontManagerAndroid.cpp
-        ./src/platform/Android/GFrameBufferObjectImpl.cpp
-        ./src/platform/Android/GPreCompiledShaders.cpp
-        ./src/platform/Android/GSystemFontInformation.cpp
-        ./src/platform/Android/GFontManagerAndroid.cpp
-    
-
-        ./src/platform/Android/egl/GEGLPbufferContext.cpp
-        ./src/platform/Android/egl/GEGLWindowContext.cpp
-        ./src/platform/Android/egl/GSharedEGLContext.cpp
+            ./src/platform/Android/egl/GEGLPbufferContext.cpp
+            ./src/platform/Android/egl/GEGLWindowContext.cpp
+            ./src/platform/Android/egl/GSharedEGLContext.cpp
 
 
-        # support
-        ./src/support/CharacterSet.cpp
-        ./src/support/Encode.cpp
-        ./src/support/FileUtils.cpp
-        ./src/gcanvas/GL/GLUtil.cpp
-        ./src/support/Log.cpp
-        ./src/support/Util.cpp
-        ./src/support/Value.cpp
+            # support
+            ./src/support/CharacterSet.cpp
+            ./src/support/Encode.cpp
+            ./src/support/FileUtils.cpp
+            ./src/gcanvas/GL/GLUtil.cpp
+            ./src/support/Log.cpp
+            ./src/support/Util.cpp
+            ./src/support/Value.cpp
 
-        ./src/commandbuffer/GCommandBuffer.cpp
-        ./src/commandbuffer/GCommandDecoder.cpp
-        ./src/webgl/GCommandDecoderWebGL.cpp
-        ./src/webgl/GWebGLRenderContextInner.cpp
-        ./src/webgl/GWebGLRenderContext.cpp
-        )
+            ./src/commandbuffer/GCommandBuffer.cpp
+            ./src/commandbuffer/GCommandDecoder.cpp
+            )
+elseif ()
+    set(SRC_FILES
+            #root srcs
+            ./src/GCanvas.cpp
+            ./src/GCanvasManager.cpp
+            ./src/GCanvasWeex.cpp # todo remove
+
+            # gcanvas srcs
+            ./src/gcanvas/GCanvas2dContext.cpp
+            ./src/gcanvas/GCanvasState.cpp
+            ./src/gcanvas/GConvert.cpp
+            ./src/gcanvas/GFontStyle.cpp
+            ./src/gcanvas/GL/GFrameBufferObject.cpp
+            ./src/gcanvas/GGlyphCache.cpp
+            ./src/gcanvas/GPath.cpp
+            ./src/gcanvas/GPath2D.cpp
+            ./src/gcanvas/GPathStroker.cpp
+            ./src/gcanvas/GL/GShader.cpp
+            ./src/gcanvas/GL/GShaderManager.cpp
+            ./src/gcanvas/GStrSeparator.cpp
+            ./src/gcanvas/GL/GTexture.cpp
+            ./src/gcanvas/GTreemap.cpp
+            ./src/gcanvas/GWebglContext.cpp
+            ./src/gcanvas/GFontManager.cpp
+
+            # platform srcs
+            ./src/platform/Android/GCanvas2DContextImpl.cpp
+            ./src/platform/Android/GCanvas2DContextAndroid.cpp
+            ./src/platform/Android/GCanvasAndroid.cpp
+            ./src/platform/Android/GFreeTypeWrap.cpp
+            ./src/platform/Android/GFont.cpp
+            ./src/platform/Android/GFontCache.cpp
+            ./src/platform/Android/GFontFamily.cpp
+            ./src/platform/Android/GFontManagerAndroid.cpp
+            ./src/platform/Android/GFrameBufferObjectImpl.cpp
+            ./src/platform/Android/GPreCompiledShaders.cpp
+            ./src/platform/Android/GSystemFontInformation.cpp
+            ./src/platform/Android/GFontManagerAndroid.cpp
+
+
+            ./src/platform/Android/egl/GEGLPbufferContext.cpp
+            ./src/platform/Android/egl/GEGLWindowContext.cpp
+            ./src/platform/Android/egl/GSharedEGLContext.cpp
+
+
+            # support
+            ./src/support/CharacterSet.cpp
+            ./src/support/Encode.cpp
+            ./src/support/FileUtils.cpp
+            ./src/gcanvas/GL/GLUtil.cpp
+            ./src/support/Log.cpp
+            ./src/support/Util.cpp
+            ./src/support/Value.cpp
+
+            ./src/commandbuffer/GCommandBuffer.cpp
+            ./src/commandbuffer/GCommandDecoder.cpp
+            ./src/webgl/GCommandDecoderWebGL.cpp
+            ./src/webgl/GWebGLRenderContextInner.cpp
+            ./src/webgl/GWebGLRenderContext.cpp
+            )
+endif ()
 
 
 if (GCANVAS_WEEX)
