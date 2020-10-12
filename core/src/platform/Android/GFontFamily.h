@@ -48,17 +48,16 @@ public:
     char *GetProperFontFile();
 
 private:
-    void matchFontFamily(std::list<const char *> &fontFamily);
+    void InitFontFamily(std::list<const char *> &fontFamily);
 
-    void matchFontFamilyLegacy(std::list<const char *> &fontFamily);
-
+//    void matchFontFamilyLegacy(std::list<const char *> &fontFamily);
 
     // @depreated
-    const char *mFontNormal= nullptr;
-    const char *mFontLight= nullptr;
-    const char *mFontBold= nullptr;
-    const char *mFontItalic= nullptr;
-    const char *mFontBoldItalic= nullptr;
+//    const char *mFontNormal= nullptr;
+//    const char *mFontLight= nullptr;
+//    const char *mFontBold= nullptr;
+//    const char *mFontItalic= nullptr;
+//    const char *mFontBoldItalic= nullptr;
 
     std::vector<GFontFamilyItem> fontItems;
 

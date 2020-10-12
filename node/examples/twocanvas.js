@@ -7,7 +7,6 @@ const ctx1 = canvas1.getContext('2d');
 
 const canvas2 = createCanvas(150, 150);
 const ctx2 = canvas2.getContext('2d');
-
 ctx1.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
 ctx1.save() // Save the default state
 

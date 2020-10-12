@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #define CONTEXT_ES20
 #ifndef GBACKEND_H
 #define GBACKEND_H
@@ -5,6 +13,7 @@
 #include <GCanvas.hpp>
 #include "lodepng.h"
 #include <functional>
+#include <unordered_map>
 #include <unordered_map>
 #include "GConvert.h"
 #include "NodeBindingUtil.h"
@@ -36,11 +45,13 @@ public:
     int inline getHeight() { return this->mHeight; }
     void destoryRenderEnviroment();
     void recordTextures(int textureId);
-    
+    void recordImageTexture(std::string url,int textureId);
+    int getTextureIdByUrl(std::string url);
     void BindFBO();
     void makeCurrent();
     int getImagePixelPNG(std::vector<unsigned char> &in);
     int getImagePixelJPG(unsigned char **data,unsigned long &size);
+    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
 private:
     std::shared_ptr<gcanvas::GCanvas> mCanvas;
     void initCanvas();
@@ -53,11 +64,16 @@ private:
     EGLDisplay mEglDisplay;
     EGLSurface mEglSurface;
     EGLContext mEglContext;
-    GLuint mFboId = 0;
-    GLuint mRenderBuffer = 0;
-    GLuint mDepthRenderbuffer = 0;
+    GLuint mFboIdSrc = 0;
+    GLuint mRenderBufferIdSrc = 0;
+    GLuint mDepthRenderbufferIdSrc = 0;
     std::vector<int> textures;
-    int readPixelAndSampleFromCurrentCtx(unsigned char *data);
+    std::unordered_map<std::string,int> imageTextureMap;
+    static void InitSharedContextIfNot();
+    GLuint createFBO(int fboWidth,int fboHeigh,GLuint *renderBufferId,GLuint *depthBufferId);
+    GLuint mFboIdDes=0;
+    GLuint mRenderBufferIdDes=0;
+    GLuint mDepthRenderbufferIdDes=0;
    
 };
 } // namespace NodeBinding

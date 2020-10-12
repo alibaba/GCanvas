@@ -17,7 +17,7 @@ using namespace gcanvas;
 __attribute__ ((visibility ("default"))) const char *
 GCanvasLinkNative::CallNative(const char *ContextId, int type, const char *args) {
     if (ContextId == nullptr || args == nullptr || !strcmp(args, "")) {
-        LOG_D("parameter error.\n");
+//        LOG_D("parameter error.\n");
 //        if (ContextId == nullptr) {
 //            LOG_D("context Id is null");
 //        }

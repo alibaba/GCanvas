@@ -53,7 +53,9 @@ struct GGlyph
     wchar_t charcode;
 
     GTexture *texture;
+
     unsigned char *bitmapBuffer;
+
     /**
      * Glyph's width in pixels.
      */
@@ -123,21 +125,26 @@ struct GGlyph
 
 };
 
+// key_tuple: <simpleFontName, charCode, fullFontName, isStroke>
 typedef std::unordered_map<key_tuple, GGlyph, key_hash, key_equal> GGlyphMap;
 
+
 class GFontManager;
+
 
 class GGlyphCache
 {
 public:
-    GGlyphCache(GCanvasContext *context, GFontManager &fontManager);
+    GGlyphCache(GFontManager &fontManager);
 
     ~GGlyphCache() {};
 
     const GGlyph *GetGlyph(const std::string &fontName, const wchar_t charcode,
-                           const std::string &font, bool isStroke);
+                           const std::string &fullFontName, bool isStroke, bool autoLoadTexture = true);
+
 
     void Erase(const std::string &fontName, const wchar_t charcode, const std::string &font, bool isStroke);
+
 
     void
     Insert(const std::string &fontName, const wchar_t charcode, const std::string &font, bool isStroke,
@@ -146,13 +153,13 @@ public:
     void ClearGlyphsTexture();
 
 private:
-    bool LoadGlyphTexture(GGlyph &glyph);
+
+    bool LoadGlyphToTexture(GGlyph &glyph);
 
 private:
-    GCanvasContext *mContext;
+    // GCanvasContext *mContext;
     GFontManager &mFontManager;
     GGlyphMap mGlyphs;
-
 };
 
 #endif /* GCANVAS_GGLYPHCACHE_H */

@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
 #include "jpeglib.h"
@@ -7,6 +15,7 @@
 #include <iostream>
 namespace NodeBinding
 {
+static std::unordered_map<std::string,std::shared_ptr<ImageCached>> imagePool;
 static size_t
 writeMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
@@ -75,7 +84,17 @@ unsigned int downloadImage(const std::string &src, ImageContent *content)
 
     return content->size;
 }
+std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url){
+    if(imagePool.find(url) == imagePool.end()){
+        return nullptr;
+    }else{
+        return imagePool[url];
+    }
+}
 
+void cachedImage(const std::string url,std::shared_ptr<ImageCached> imageCached){
+     imagePool[url]=imageCached;
+}
 void encodePixelsToPNGFile(std::string filename, uint8_t *buffer, int width, int height)
 {
     //write the pixles to file
@@ -128,7 +147,7 @@ PIC_FORMAT getImageTypeByMagic(const unsigned char *data, unsigned int len)
     }
 }
 
-PIC_FORMAT getPicFormatFromContent(char *content, int len)
+PIC_FORMAT parseFormat(char *content, int len)
 {
     if (content == nullptr || len <= 0)
     {
@@ -137,7 +156,7 @@ PIC_FORMAT getPicFormatFromContent(char *content, int len)
     return getImageTypeByMagic((unsigned char *)content, (unsigned int)len);
 }
 
-int readLocalImage(const std::string &path, ImageContent *content)
+int readImageFromLocalFile(const std::string &path, ImageContent *content)
 {
     FILE *pFile;
     size_t result; // 返回值是读取的内容数量
@@ -203,7 +222,7 @@ void encodePixelsToJPEGFile(std::string filename, uint8_t *buffer, int width, in
     fclose(outfile);
 }
 
-void decodeFromJEPGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void decodeImageJPEG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
@@ -261,7 +280,7 @@ void encodeJPEGInBuffer(unsigned char **out,unsigned long &size ,unsigned char *
     jpeg_destroy_compress(&cinfo);
 }
 
-void decodeFromPNGImage(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
+void decodeImagePNG(std::vector<unsigned char> &pixels, unsigned int &width, unsigned int &height, const unsigned char *content, int len)
 {
     lodepng::decode(pixels, width, height, content, len);
 }

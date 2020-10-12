@@ -22,20 +22,29 @@
 
 const int InvalidateTextureId = -1;
 
+
 class GCanvasState
 {
 public:
     GCanvasState();
+
     GCanvasState(const GCanvasState &state);
+
     GCanvasState &operator=(const GCanvasState &state);
+
     ~GCanvasState();
+
+    void Clone(const GCanvasState&st);
+
+    void ClearStyle();
+
+    void ClearClip();
     
     //transfrom
     GTransform mTransform;
-    GTransform mUserTransform;
     
-    //ClipPath
-    GPath *mClipPath;
+    // Clip Paths
+    std::vector<GPath*> clipPaths;
 
 
     //fill style,stroke style,shadow
@@ -46,7 +55,7 @@ public:
     GFillStyle *mStrokeStyle;
 
     GColorRGBA mShadowColor;
-    int mShadowBlur;
+    float mShadowBlur;
     float mShadowOffsetX;
     float mShadowOffsetY;
     
@@ -63,18 +72,16 @@ public:
     gcanvas::GFontStyle *mFont;
     GTextAlign mTextAlign;
     GTextBaseline mTextBaseline;
-
-    float mscaleFontX = 1.0f;
-    float mscaleFontY = 1.0f;
     
-    //global
+    //global alpha / composite
     float mGlobalAlpha;
     GCompositeOperation mGlobalCompositeOp;
-    
-    
-    //shader & texture
+
+    // TODO manager shader pointer
+    // shader & texture
     GShader *mShader;
     int mTextureId = InvalidateTextureId;
+
 };
 
 

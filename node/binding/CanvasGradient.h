@@ -1,3 +1,11 @@
+/**
+ * Created by G-Canvas Open Source Team.
+ * Copyright (c) 2017, Alibaba, Inc. All rights reserved.
+ *
+ * This source code is licensed under the Apache Licence 2.0.
+ * For the full copyright and license information, please view
+ * the LICENSE file in the root directory of this source tree.
+ */
 #ifndef GRADIENT_H
 #define GRADIENT_H
 #include <napi.h>
@@ -49,13 +57,13 @@ struct less_than_key
         static Napi::Object NewInstance(Napi::Env env, const Napi::CallbackInfo &info);
         std::shared_ptr<LinearGradientInfo> mLinearGradientInfo = nullptr;
         std::shared_ptr<RadialGradientInfo> mRadialGradientInfo = nullptr;
-        int getCount() { return this->offsets.size(); }
+        int getCount() { return this->mColorStopSet.size(); }
         const std::vector<ColorStop> &getColorStops();
 
     private:
         static Napi::FunctionReference constructor;
         void addColorStop(const Napi::CallbackInfo &info);
-        std::vector<ColorStop> offsets;
+        std::vector<ColorStop> mColorStopSet;
 
         bool compareInterval(ColorStop colorStop1, ColorStop colorStop2)
         {
