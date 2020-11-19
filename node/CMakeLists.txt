@@ -16,15 +16,15 @@ project(canvas)
  # CMake JS
 include_directories(${CMAKE_JS_INC})
 
-include_directories("./util")
+include_directories("./binding/util")
 include_directories("./third_party")
 include_directories("./third_party/font/freetype2/")
-include_directories("./renderContext/")
+include_directories("./binding/renderContext/")
 include_directories("./image/")
 
 include_directories("${CORE_DIR}")
 include_directories("${CORE_DIR}src/")
-include_directories("${CORE_DIR}src")
+include_directories("${CORE_DIR}src/webgl/")
 include_directories("${CORE_DIR}src/gcanvas")
 include_directories("${CORE_DIR}src/gcanvas/GL")
 include_directories("${CORE_DIR}src/support")
@@ -35,15 +35,24 @@ set(SOURCE_FILES
         ./binding/Export.cc
         ./binding/Canvas.cc
         ./binding/CanvasRenderingContext2D.cc
+        ./binding/CanvasRenderingContextWebGL.cc
         ./binding/CanvasGradient.cc
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc
         ./binding/Image.cc
         ./binding/ImageWorker.cc
         ./binding/CanvasPattern.cc
-        ./renderContext/GRenderContext.cc
+        ./binding/webgl/WebGLShader.cc
+        ./binding/webgl/WebGLBuffer.cc
+        ./binding/webgl/WebGLProgram.cc
+        ./binding/webgl/WebGLTexture.cc
+        ./binding/webgl/WebGLFrameBuffer.cc
+        ./binding/webgl/WebGLRenderBuffer.cc
+        ./binding/webgl/WebGLActiveInfo.cc
+        ./binding/webgl/WebGLUniformLocation.cc
+        ./binding/renderContext/GRenderContext.cc
+        ./binding/util/NodeBindingUtil.cc
         ./third_party/lodepng.cc
-        ./util/NodeBindingUtil.cc
         ${CORE_DIR}src/GCanvas.cpp        
         ${CORE_DIR}src/GCanvasManager.cpp
 

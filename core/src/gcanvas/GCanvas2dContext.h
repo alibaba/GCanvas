@@ -93,7 +93,7 @@ public:
     API_EXPORT bool InitializeGLEnvironment();
     bool InitializeGLShader();
     void ResetStateStack();
-    
+    void mock();
     void BindVertexBuffer();
     void ClearGeometryDataBuffers();
     API_EXPORT void SendVertexBufferToGPU(const GLenum geometry_type = GL_TRIANGLES);

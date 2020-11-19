@@ -10,6 +10,7 @@
 #define CANVAS_H
 #include "GRenderContext.h"
 #include "CanvasRenderingContext2D.h"
+#include "CanvasRenderingContextWebGL.h"
 #include "CanvasGradient.h"
 #include "ImageData.h"
 #include "CanvasPattern.h"
@@ -41,7 +42,9 @@ namespace NodeBinding
         Napi::Buffer<unsigned char> getPNGBuffer(const Napi::CallbackInfo &info, unsigned long &size);
         Napi::Buffer<unsigned char> getJPGBuffer(const Napi::CallbackInfo &info, unsigned long &size);
         Napi::Buffer<unsigned char> getRawDataBuffer(const Napi::CallbackInfo &info, unsigned long &size);
-        Napi::ObjectReference context2dRef;
+        
+        Napi::ObjectReference mContext2dRef;
+        Napi::ObjectReference mContextWebGLRef;
 
         void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
         void setHeight(const Napi::CallbackInfo &info, const Napi::Value &value);
