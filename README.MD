@@ -2,7 +2,7 @@
 
 GCanvas is a cross-platform rendering engine for mobile devices developed by Alibaba. It is written with C++ based on OpenGL ES, so it can provide high performance 2D/WebGL rendering capabilities for JavaScript runtime. It also  has browser-like canvas APIs, so it's very convenient and flexiable for use, especially for web developers.
 
-Supported operating systems are Android 4.0+ (API 14) and  iOS 8.0+.
+Supported operating systems are Android 4.0+ (API 14) and iOS 8.0+.
 
 - [Getting Started](#getting-started)
 - [Documentation](#documentation)
@@ -94,7 +94,6 @@ Please read [CONTRIBUTING](./docs/Contributing.md) for details on our code of co
 
 GCanvas Open Source Team
 
-
 ## License
 
-This project is licensed under the Apache License - see the [LICENSE](./docs/LICENSE.md) file for details
+This project is licensed under the Apache [LICENSE](./LICENSE)
