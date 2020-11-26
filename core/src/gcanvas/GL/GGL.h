@@ -23,6 +23,11 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
+#elif __APPLE__
+#include <OpenGL/gltypes.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+
 #elif  __linux__
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>

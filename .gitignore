@@ -27,5 +27,7 @@ build/
 distribution/
 .vscode
 package-lock.json
-/node/*.png
-/node/*.jpg
+
+node/*.png
+node/*.jpg
+node/*.jpeg

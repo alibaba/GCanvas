@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(400, 267);
 const ctx = canvas.getContext('2d');
@@ -19,4 +17,9 @@ ctx.fillText('Japanese: 図書館の中では、静かにする。', 10, 30)
 ctx.fillText('Arabic: اللغة العربية هي أكثر اللغات تحدثا ضمن', 10, 50)
 ctx.fillText('Korean: 모타는사라미 못하는 사람이', 10, 70)
 
-canvas.createPNG("pango-glyphs");
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..") + '/pango-glyphs.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);
+

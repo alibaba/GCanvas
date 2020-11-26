@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(320, 320);
 const ctx = canvas.getContext('2d')
@@ -17,4 +15,8 @@ ctx.fillText('Quo Vaids?', 0, 210)
 ctx.font = 'bold italic 50px pfennigFont'
 ctx.fillText('Quo Vaids?', 0, 280)
 
-canvas.createPNG("font");
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/font.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

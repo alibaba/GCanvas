@@ -14,9 +14,9 @@ Napi::FunctionReference ImageData::constructor;
 
 ImageData::ImageData(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ImageData>(info)
 {
-    this->width = info[0].As<Napi::Number>().Int32Value();
-    this->height = info[1].As<Napi::Number>().Int32Value();
-    this->pixels.resize(4 * width * height);
+    mWidth = info[0].As<Napi::Number>().Int32Value();
+    mHeight = info[1].As<Napi::Number>().Int32Value();
+    pixels.resize(4 * mWidth * mHeight);
 }
 
 void ImageData::Init(Napi::Env env)
@@ -45,56 +45,56 @@ Napi::Object ImageData::NewInstance(Napi::Env env, const Napi::Value width, cons
 Napi::Value ImageData::getData(const Napi::CallbackInfo &info)
 {
     hasImageDataWrite = true;
-    if (this->mImageDataRef.IsEmpty())
+    if (mImageDataRef.IsEmpty())
     {
-        Napi::Array ret = Napi::Array::New(info.Env(), this->pixels.size());
+        Napi::Array ret = Napi::Array::New(info.Env(), pixels.size());
 
-        if (!this->pixels.empty())
+        if (!pixels.empty())
         {
             for (int i = 0; i < pixels.size(); i++)
             {
                 ret.Set(i, Napi::Number::New(info.Env(), pixels[i]));
             }
         }
-        this->mImageDataRef = Napi::ObjectReference::New(ret);
+        mImageDataRef = Napi::ObjectReference::New(ret);
         return ret;
     }
     else
     {
-        return this->mImageDataRef.Value();
+        return mImageDataRef.Value();
     }
 }
 
 Napi::Value ImageData::getWidth(const Napi::CallbackInfo &info)
 {
-    return Napi::Number::New(info.Env(), this->width);
+    return Napi::Number::New(info.Env(), mWidth);
 }
 
 Napi::Value ImageData::getHeight(const Napi::CallbackInfo &info)
 {
-    return Napi::Number::New(info.Env(), this->height);
+    return Napi::Number::New(info.Env(),mHeight);
 }
 
 int ImageData::getWidth()
 {
-    return this->width;
+    return mWidth;
 }
 int ImageData::getHeight()
 {
-    return this->height;
+    return mHeight;
 }
 
-std::vector<u_int8_t> &ImageData::getPixles()
+std::vector<u_int8_t> &ImageData::getPixels()
 {
-    if (!this->mImageDataRef.IsEmpty() && hasImageDataWrite)
+    if (!mImageDataRef.IsEmpty() && hasImageDataWrite)
     {
-        Napi::Array ret = this->mImageDataRef.Value().As<Napi::Array>();
-        for (int i = 0; i < this->pixels.size(); i++)
+        Napi::Array ret = mImageDataRef.Value().As<Napi::Array>();
+        for (int i = 0; i < pixels.size(); i++)
         {
-            this->pixels[i] = ret.Get(i).As<Napi::Number>().Int32Value();
+            pixels[i] = ret.Get(i).As<Napi::Number>().Int32Value();
         }
         hasImageDataWrite = false;
     }
-    return this->pixels;
+    return pixels;
 }
 } // namespace NodeBinding

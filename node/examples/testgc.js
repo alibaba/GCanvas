@@ -29,7 +29,5 @@ setTimeout(() => {
     ctx.fillStyle = "#ff0000"
     ctx.fillRect(0, 0, canvasGlobal.width, canvasGlobal.height);
     var stream = canvasGlobal.createPNGStream();
-    stream.on('data', function (chunk) {
-        out.write(chunk);
-    });
+    stream.pipe(out);
 }, 100);

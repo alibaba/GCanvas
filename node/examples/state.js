@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(150, 150)
 const ctx = canvas.getContext('2d')
@@ -20,5 +18,9 @@ ctx.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 
 ctx.restore() // Restore original state
 ctx.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
-canvas.createPNG("state")
-// canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'state.png')))
+
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/state.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

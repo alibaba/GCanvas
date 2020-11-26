@@ -13,16 +13,17 @@
 #include "Image.h"
 namespace NodeBinding
 {
-class Pattern : public Napi::ObjectWrap<Pattern> {
-   public:
+class Pattern : public Napi::ObjectWrap<Pattern> 
+{
+public:
     Pattern(const Napi::CallbackInfo& info);
     static void Init(Napi::Env env);
-    static Napi::Object NewInstance(Napi::Env env, const Napi::Value repetition);
-    std::shared_ptr<Image> content;
+    static Napi::Object NewInstance(const Napi::CallbackInfo &info,  Napi::Value image, Napi::Value repetition);
+    Image *content;
     const std::string& getRepetition();
 private:
     static Napi::FunctionReference constructor;
-   std::string repetition;
+    std::string repetition;
 };
 } // namespace NodeBinding
 #endif

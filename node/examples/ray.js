@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(243 * 4, 243)
 const ctx = canvas.getContext('2d')
@@ -80,5 +78,10 @@ ctx.translate(243, 0)
 render(1)
 
 console.log('Rendered in %s seconds', (new Date() - start) / 1000)
-canvas.createPNG("ray")
-// canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'ray.png')))
+
+
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/ray.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(200, 200)
 const ctx = canvas.getContext('2d')
@@ -40,4 +38,9 @@ ctx.strokeRect(
     m.actualBoundingBoxAscent + m.actualBoundingBoxDescent
 )
 
-canvas.createPNG("text")
+
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/text.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

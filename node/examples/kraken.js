@@ -1,5 +1,8 @@
 const fs = require('fs')
 const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/kraken.png');
+
+
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(400, 267);
 const ctx = canvas.getContext('2d');
@@ -9,7 +12,9 @@ img.onload = () => {
   ctx.drawImage(img, 0, 0);
   buildKernel()
   blurTest()
-  canvas.createPNG("kraken");
+  var stream = canvas.createPNGStream();
+  stream.pipe(out);
+
 
 }
 img.onerror = err => {
