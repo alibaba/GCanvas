@@ -1,6 +1,5 @@
 language: cpp
 compiler:
-  - clang
   - g++
 node_js:
   - 10
