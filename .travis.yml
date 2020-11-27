@@ -83,4 +83,5 @@ deploy:
   overwrite: true
   draft: true
   on:
-    branch: feature_cairo_binding
+    all_branches: true
+    #branch: node_canvas
