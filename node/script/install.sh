@@ -26,8 +26,6 @@ else
         apt-get install -y cmake libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget curl nodejs
         apt-get install -y libcurl4-openssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libglib2.0-dev
     fi
-    npm install cmake-js
-    npm run compile
 fi
 
 
