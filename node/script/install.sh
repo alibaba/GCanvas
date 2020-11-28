@@ -22,9 +22,18 @@ else
         # brew update
         brew install cairo pango libpng jpeg-turbo curl-openssl
     else 
-        # apt-get update
-        apt-get install -y cmake libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget curl nodejs
-        apt-get install -y libcurl4-openssl-dev libjpeg-dev libcairo2-dev libpango1.0-dev libglib2.0-dev
+        npm install cmake-js
+        # mkdir -p external/cmake
+        # pushd external/cmake
+        # wget https://cmake.org/files/v3.8/cmake-3.8.0-Linux-x86_64.sh
+        # chmod +x cmake-*-Linux-x86_64.sh
+        # ./cmake-*-Linux-x86_64.sh --exclude-subdir --skip-license
+        # export PATH="${PWD}/bin:$PATH"
+        # cmake -version
+        # popd
+        apt-get update && apt-get install -y cmake
+        apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget curl nodejs --fix-missing
+        apt-get install -y libjpeg-dev libcairo2-dev libpango1.0-dev libglib2.0-dev --fix-missing
     fi
 fi
 

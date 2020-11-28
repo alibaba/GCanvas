@@ -1,6 +1,6 @@
 {
   "name": "@gcanvas/node",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "gcanvas for node developer",
   "dependencies": {
     "bindings": "~1.2.1",
@@ -12,8 +12,7 @@
     "postinstall": "npm run dev",
     "dev": "cmake-js -d ./node build",
     "clean": "cmake-js -d ./node clean",
-    "debug": "cmake-js -d ./node -D build",
-    "compile": "cmake-js -d ./node compile --CDCORE_DIR=../core/",
+    "debug": "cmake-js -d ./node -D build",      
     "test": "node --expose-gc ./node/examples/$case",
     "before-headless": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
     "test-headless": "npm run before-headless && npm run test"
