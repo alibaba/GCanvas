@@ -32,6 +32,7 @@ else
         # cmake -version
         # popd
         apt-get update && apt-get install -y cmake
+        apt-get install -y libcurl4-openssl-dev
         apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev xvfb wget curl nodejs --fix-missing
         apt-get install -y libjpeg-dev libcairo2-dev libpango1.0-dev libglib2.0-dev --fix-missing
     fi
