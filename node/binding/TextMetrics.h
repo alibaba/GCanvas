@@ -22,7 +22,6 @@ private:
     float textWidth = 0;
     static Napi::FunctionReference constructor;
     Napi::Value getWidth(const Napi::CallbackInfo &info);
-    void setWidth(const Napi::CallbackInfo &info, const Napi::Value &value);
 };
 } // namespace NodeBinding
 #endif

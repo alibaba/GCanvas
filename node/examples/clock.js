@@ -1,6 +1,5 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
+
 function getX(angle) {
   return -Math.sin(angle + Math.PI)
 }
@@ -11,7 +10,7 @@ function getY(angle) {
 
 function clock(ctx) {
   var x, y, i
-  var now = new Date()
+  var now = new Date('2020-05-01 09:14:30');
 
   ctx.clearRect(0, 0, 320, 320)
 
@@ -106,5 +105,9 @@ var canvas = createCanvas(320, 320)
 var ctx = canvas.getContext('2d')
 
 clock(ctx)
-canvas.createPNG("clock");
 
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/clock.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

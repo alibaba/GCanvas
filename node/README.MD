@@ -1,6 +1,6 @@
 # Node-GCanvas
 
-Node-GCanvas is `GCanvas(OpenGLES)` backed Canvas implementation for Node.js. It provide a way use `GCanvas` in Node.js environment. So you can use canvas-like object to do your own render task at server side just like on Web. Now, we just support Linux.
+Node-GCanvas is `GCanvas(OpenGLES) or Cairo` backed Canvas implementation for Node.js. It provide a way use `Canvas` in Node.js environment. So you can use canvas-like object to do your own render task at server side just like on Web. Now, we just support `Linux` and `MacOS`.
 
 
 ## Installation
@@ -10,22 +10,21 @@ npm install @gcanvas/node
 ```
 Note: Node.js version >=10.0。
 
-
 ## Compiling
-
-Since GCanvas relies on OpenGL for graphics rendering, you need to install the dependency libraries needed for OpenGL operation on the corresponding system. Meanwhile, the GCanvas is built with CMake, so the system needs to install the CMake version >=3.8.0. The dependency libraries required to install the GCanvas run on each operating system are listed below.
+Since GCanvas relies on OpenGL for graphics rendering, CairoCanvas depedency `cairo` library,  you need to install the dependency libraries needed for operation on the corresponding system. Meanwhile, the `@gcanvas/node` is built with CMake, so the system needs to install the CMake version >=3.8.0. The dependency libraries required to run on each operating system are listed below.
 
 OS | Command
 ----- | -----
-OS X | Not support 
-Ubuntu 18.04 |  `sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev libjpeg-dev`  && install [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html) && install cmake
-Windows  | Not support 
-Docker   | [Dockerfile](./docker/Dockerfile)
+OS X | `sudo brew install jpeg-turbo cairo pango pangocairo` 
+Ubuntu 18.04 |  `sudo apt-get update && apt-get install -y libglfw3-dev libgles2-mesa-dev libboost-all-dev libfreetype6-dev libcurl4-openssl-dev libjpeg-dev libcairo2-dev  libpangocairo-1.0-0 libpango-1.0 libglib2.0-dev`  && install [freetype字体库](http://www.linuxfromscratch.org/blfs/view/svn/general/freetype2.html) && install cmake
+Docker   | [Dockerfile](./node/docker/Dockerfile)
 
 ## Quick Start Example
 
+After run `npm install @gcanvas/node`, install npm package success, You can quick start an example like this. 
+
 ```javascript
-const { createCanvas, Image } = require('bindings')('canvas');
+const { createCanvas, Image } = require('@gcanvas/node');
 const canvas = createCanvas(400, 400);
 const ctx = canvas.getContext('2d')
 
@@ -46,8 +45,18 @@ ctx.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 ctx.restore() // Restore original state
 ctx.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
 
-canvas.createPNG("demo1")
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "")+ '/test-output.png');
+const stream = canvas.createPNGStream();
+stream.pipe(out);
 ```
+
+Save the example as a `test.js` file, then execute in your terminal `node test.js`, you will get an output put file named `test-output.png`. 
+![output](https://gw.alicdn.com/tfs/TB1.tg4sDM11u4jSZPxXXahcXXa-400-400.png)
+
+
+
 
 ## API Documentation
 ### Standard APIs
@@ -145,14 +154,16 @@ img.src = 'https://alibaba.github.io/GCanvas/assets/logo-gcanvas.png'
 ```javascript
 const fs = require('fs')
 const path = require('path')
-const { createCanvas, Image } = require('bindings')('canvas');
+const { createCanvas, Image } = require('@gcanvas/node');
 const img = new Image()
 const canvas = createCanvas(500, 500)
 const ctx = canvas.getContext('2d')
 	
 img.onload = () => {
 	ctx.drawImage(img, 0, 0)
-	canvas.createPNG("local")
+	const out = fs.createWriteStream(path.join(__dirname, "")+ '/localimage.png');
+	const stream = canvas.createPNGStream();
+	stream.pipe(out);
 }
 img.onerror = err => {
 	throw err
@@ -162,79 +173,46 @@ img.src = path.join(__dirname,'images', 'image.png')
  
 ```
 
-#### createPNG
+#### createPNGStream
 
 ```javascript
-createPNG(name:string) => void
+createPNGStream() => void
 ```  
  
 ```javascript
-let canvas = createCanvas(400, 400);
-var ctx = canvas.getContext('2d');
+const { createCanvas, Image } = require('@gcanvas/node');
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d');
 ctx.fillStyle="#ff0000"
 ctx.fillRect(0, 0, 150, 150) 
 canvas.createPNG("demo1") //export a png picture
+
+const out = fs.createWriteStream(path.join(__dirname, "")+ '/localimage.png');
+const stream = canvas.createPNGStream();
+stream.pipe(out);
 ```  
 
-#### createJPEG
-```javascript
-createPNG(name:string) => void
-```  
-```javascript
-const { createCanvas, Image } = require('bindings')('canvas');
-const canvas = createCanvas(400, 400);
-const ctx = canvas.getContext('2d')
-ctx.fillStyle = '#09F' 
-ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
-canvas.createJPEG("demo2") // export a jpeg picture
-
-```
-
-
-#### createPNGStream
-```javascript
-createPNGStream(void) => void
-```  
-```javascript
-const { createCanvas, Image } = require('../export')
-const canvas = createCanvas(400, 400);
-const ctx = canvas.getContext('2d')
-const fs = require('fs')
-const path = require('path');
-const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.png');
-ctx.fillStyle = '#09F' 
-ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
-var stream = canvas.createPNGStream();
-    stream.on('data', function (chunk) {
-    out.write(chunk);
-});
-```  
 #### createJPEGStream
 ```javascript
-createJPEGStream(void) => void
+createJPEGStream() => void
 ```  
 ```javascript
-const { createCanvas, Image } = require('../export')
+const { createCanvas, Image } = require('@gcanvas/node');
 const canvas = createCanvas(400, 400);
 const ctx = canvas.getContext('2d')
-const fs = require('fs')
-const path = require('path');
-const out = fs.createWriteStream(path.join(__dirname, "..")+ '/demo1.jpg');
 ctx.fillStyle = '#09F' 
 ctx.fillRect(0, 0, 150, 150) // Draw a rectangle with default settings
-var stream = canvas.createJPEGStream();
-    stream.on('data', function (chunk) {
-    out.write(chunk);
-});
-```  
-
+const out = fs.createWriteStream(path.join(__dirname, "")+ '/output-jpeg.jpg')
+const stream = canvas.createJPEGStream(); // export a jpeg picture
+stream.pipe(out);
+```
 
 #### toBuffer
 ```javascript
 toBuffer(string?) => ArrayBuffer 
 ```  
 ```javascript
-const { createCanvas, Image } = require('../export')
+const { createCanvas, Image } = require('@gcanvas/node');
 const canvas = createCanvas(400, 400);
 const ctx = canvas.getContext('2d')
 const fs = require('fs')
@@ -258,6 +236,19 @@ var buffer=canvas.toBuffer("raw")
 console.log(buffer)
 ``` 
 
+#### toDataURL
+```javascript
+toDataURL(string?) => ArrayBuffer 
+```  
+```javascript
+const { createCanvas, Image } = require('@gcanvas/node');
+const canvas = createCanvas(400, 400);
+const ctx = canvas.getContext('2d')
+ctx.fillStyle="#ff0000";
+ctx.fillRect(0, 0, 150, 150);
+var base64 = canvas.toDataURL();
+console.log(base64)
+``` 
 
 
 ### Node-GCanvas Source Code Build & Test Running 
@@ -268,9 +259,9 @@ Node-canvas USES node-addon's binding API and builds with cmake-js.
 #### Step of build
   
 ``` 
-npm install cmake-js -g //install cmake-js
-local=true npm install // install dependency ,local=true means install with source
-cmake-js compile // build project
+npm install cmake-js -g			//install cmake-js
+npm install 					// install dependency
+npm run dev 					//build project
 ``` 
 
 #### Step of running

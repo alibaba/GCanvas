@@ -28,13 +28,14 @@ public:
     static Napi::Object NewInstance(Napi::Env env);
     void inline setRenderContext(std::shared_ptr<GRenderContext> renderContext)
     {
-        this->mRenderContext = renderContext;
+        mRenderContext = renderContext;
     }
 
 private:
+    static Napi::FunctionReference constructor;
     NodeBinding::Canvas *mCanvas = nullptr;
     std::shared_ptr<GRenderContext> mRenderContext = nullptr;
-    static Napi::FunctionReference constructor;
+
     void fillRect(const Napi::CallbackInfo &info);
     void arc(const Napi::CallbackInfo &info);
     void arcTo(const Napi::CallbackInfo &info);
@@ -71,8 +72,8 @@ private:
     void resetTransform(const Napi::CallbackInfo &info);
     void translate(const Napi::CallbackInfo &info);
 
-    Napi::Value getFillStyle(const Napi::CallbackInfo &info);
-    void setFillStyle(const Napi::CallbackInfo &info, const Napi::Value &value);
+    Napi::Value getfillStyle(const Napi::CallbackInfo &info);
+    void setfillStyle(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getfont(const Napi::CallbackInfo &info);
     void setfont(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getglobalAlpha(const Napi::CallbackInfo &info);

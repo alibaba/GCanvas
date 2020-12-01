@@ -1,3 +1,6 @@
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/image.png');
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(400, 400);
 const ctx = canvas.getContext('2d');
@@ -13,7 +16,8 @@ img.onload = () => {
     }
     img2.onload = () => {
         ctx.drawImage(img2, 150, 150, 100, 100);
-        canvas.createPNG("image");
+        var stream = canvas.createPNGStream();
+        stream.pipe(out);
     }
     img2.src = "https://img.alicdn.com/imgextra/i3/80/O1CN011CSgGWymNlCrNO3_!!80-2-luban.png"
 }

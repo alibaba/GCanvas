@@ -20,12 +20,9 @@ void TextMetrics::Init(Napi::Env env)
 {
     Napi::HandleScope scope(env);
 
-    Napi::Function func =
-        DefineClass(env,
-                    "TextMetric",
-                    {
-                        InstanceAccessor("width", &TextMetrics::getWidth, nullptr),
-                    });
+    Napi::Function func = DefineClass(env, "TextMetric", {
+        InstanceAccessor("width", &TextMetrics::getWidth, nullptr),
+    });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 }
@@ -40,7 +37,5 @@ Napi::Value TextMetrics::getWidth(const Napi::CallbackInfo &info)
 {
     return Napi::Number::New(info.Env(), this->textWidth);
 }
-void TextMetrics::setWidth(const Napi::CallbackInfo &info, const Napi::Value &value)
-{
-}
+
 } // namespace NodeBinding

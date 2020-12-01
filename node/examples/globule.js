@@ -45,7 +45,7 @@ Circle.prototype.update = function () {
     return true;
 }
 var circleArr = [];
-setInterval(function () {
+var handler =  setInterval(function () {
     new Circle(parseInt(Math.random() * 1000), parseInt(Math.random() * 600), 30, "orange");
     new Circle(parseInt(Math.random() * 1000), parseInt(Math.random() * 600), 20, "red");
     ctx.clearRect(0, 0, 1000, 600)
@@ -53,10 +53,15 @@ setInterval(function () {
         circleArr[i].update() && circleArr[i].render();
     };
     if (circleArr.length > 40) {
+        clearInterval(handler);
+        const fs = require('fs')
+        const path = require('path')
+        const out = fs.createWriteStream(path.join(__dirname, "..")+ '/globule.png');
+        var stream = canvas.createPNGStream();
+        stream.pipe(out);
         return;
     }
     console.log("the arr length is " + circleArr.length);
-    canvas.createPNG("globule");
 }, 1000);
 
 

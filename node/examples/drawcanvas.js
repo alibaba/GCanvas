@@ -1,7 +1,9 @@
 const fs = require('fs')
-const path = require('path')
-const { createCanvas, Image } = require('../export');
+const path = require('path');
+const out1 = fs.createWriteStream(path.join(__dirname, "..")+ '/drawcanvas1.png');
+const out2 = fs.createWriteStream(path.join(__dirname, "..")+ '/drawcanvas2.png');
 
+const { createCanvas, Image } = require('../export');
 const canvas1 = createCanvas(150, 150);
 const ctx1 = canvas1.getContext('2d');
 
@@ -21,10 +23,14 @@ ctx1.fillRect(45, 45, 60, 60) // Draw a rectangle with restored settings
 
 ctx1.restore() // Restore original state
 ctx1.fillRect(60, 60, 30, 30) // Draw a rectangle with restored settings
-canvas1.createPNG("drawcanvas1")
+var stream = canvas1.createPNGStream();
+stream.pipe(out1);
+
 
 const canvas2 = createCanvas(150, 150);
 const ctx2 = canvas2.getContext('2d');
 console.log("ctx2 drawimage with canvas1")
 ctx2.drawImage(canvas1, 0, 0);
-canvas2.createPNG("drawcanvas2")
+var stream2 = canvas2.createPNGStream();
+stream2.pipe(out2);
+

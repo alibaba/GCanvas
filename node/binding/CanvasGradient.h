@@ -41,14 +41,15 @@ namespace NodeBinding
             this->color = color;
         }
     };
-
-struct less_than_key
-{
-    inline bool operator() (const ColorStop& colorStop1, const ColorStop& colorStop2)
+    
+    struct less_than_key
     {
-        return (colorStop1.offset < colorStop2.offset);
-    }
-};
+        inline bool operator() (const ColorStop& colorStop1, const ColorStop& colorStop2)
+        {
+            return (colorStop1.offset < colorStop2.offset);
+        }
+    };
+
     class Gradient : public Napi::ObjectWrap<Gradient>
     {
     public:

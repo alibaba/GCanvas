@@ -1,0 +1,52 @@
+{
+  "name": "@gcanvas/node",
+  "version": "1.3.4",
+  "description": "gcanvas for node developer",
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "cmake-js": "^6.1.0",
+    "node-addon-api": "^1.0.0"
+  },
+  "scripts": {
+    "preinstall": "bash ./node/script/install.sh",
+    "postinstall": "npm run dev",
+    "dev": "cmake-js -d ./node build",
+    "clean": "cmake-js -d ./node clean",
+    "debug": "cmake-js -d ./node -D build",      
+    "test": "node --expose-gc ./node/examples/$case",
+    "before-headless": "export DISPLAY=:99.0 && Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &",
+    "test-headless": "npm run before-headless && npm run test"
+  },
+  "main": "node/export.js",
+  "files": [
+    "node/CMakeLists.txt",
+    "node/script",
+    "node/binding/**/*.{h,cc,hpp,cpp}",
+    "node/libs/",
+    "node/third_party",
+    "core/src/*.{h,cc,hpp,cpp}",
+    "core/src/gcanvas/**/*.{h,cc,hpp,cpp,glsl}",
+    "core/src/platform/Linux/*.hpp",
+    "core/src/platform/Linux/GFontManagerLinux.cpp",
+    "core/src/platform/Linux/GFontLinux.cpp",
+    "core/src/platform/Linux/GFontCacheLinux.cpp",
+    "core/src/platform/Android/*.h",  
+    "core/src/platform/Android/GCanvas2DContextImpl.cpp",
+    "core/src/platform/Android/GFrameBufferObjectImpl.cpp",
+    "core/src/platform/Android/GFreeTypeWrap.cpp",
+    "core/src/support"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "keywords": [
+    "node",
+    "GCanvas",
+    "2D",
+    "WebGL",
+    "OpenGL",
+    "Graphic",
+    "Light",
+    "Cairo"
+  ]
+}

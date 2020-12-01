@@ -1,6 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(320, 320)
 const ctx = canvas.getContext('2d')
@@ -24,5 +21,9 @@ ctx.strokeStyle = lingrad2
 // draw shapes
 
 ctx.strokeRect(50, 50, 50, 50)
-canvas.createPNG("gradients");
-// canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'gradients.png')))
+
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/gradients.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(500, 500);
 const ctx = canvas.getContext('2d')
@@ -15,4 +13,8 @@ ctx.restore();
 ctx.fillStyle = "green";
 ctx.fillRect(200, 0, 150, 100);
 
-canvas.createPNG("clip");
+const fs = require('fs')
+const path = require('path');
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/clip.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

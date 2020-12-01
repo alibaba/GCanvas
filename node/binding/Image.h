@@ -13,17 +13,14 @@
 #include <vector>
 #include "NodeBindingUtil.h"
 #include "lodepng.h"
-#include "ImageCahced.h"
-#include "ImageWorker.h"
+#include "ImagePixelInfo.h"
+#include "ImageAsyncWorker.h"
 
 
 namespace NodeBinding
 {
-struct ImageCallbackSet{
-    Napi::FunctionReference mOnErrorCallback;
-    Napi::FunctionReference mOnLoadCallback;
-};
-extern std::shared_ptr<ImageCached> findCacheByUrl(const std::string &url);
+
+extern std::shared_ptr<ImagePixelInfo> findCacheByUrl(const std::string &url);
 class Image : public Napi::ObjectWrap<Image>
 {
 public:
@@ -35,26 +32,28 @@ public:
     std::vector<unsigned char> &getPixels();
     void setTextureId(int textureId);
     int getTextureId();
-    std::string getUrl(){
-        return this->src;
-    }
+    std::string getSrc(){ return mSrc; }
     static Napi::Object NewInstance(Napi::Env env);
 private:
     static Napi::FunctionReference constructor;
-    std::string src;
-    ImageCallbackSet *mCallbackSet;
-    ImageWorker *mDownloadImageWorker = nullptr;
+    std::string mSrc;
+    Napi::FunctionReference mOnErrorCallback;
+    Napi::FunctionReference mOnLoadCallback;
+    ImageAsyncWorker *mDownloadImageWorker = nullptr;
     std::vector<unsigned char> emptyPixels;
-    std::shared_ptr<ImageCached> mImageMemCached;
-    Napi::Value getSrc(const Napi::CallbackInfo &info);
-    void setSrc(const Napi::CallbackInfo &info, const Napi::Value &value);
+    std::shared_ptr<ImagePixelInfo> mImageMemCached;
+    Napi::Value getSource(const Napi::CallbackInfo &info);
+    void setSource(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getOnLoadCallback(const Napi::CallbackInfo &info);
     void setOnLoadCallback(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getOnErrorCallback(const Napi::CallbackInfo &info);
     void setOnErrorCallback(const Napi::CallbackInfo &info, const Napi::Value &value);
     Napi::Value getWidth(const Napi::CallbackInfo &info);
     Napi::Value getHeight(const Napi::CallbackInfo &info);
-    int textureId=-1;
+
+    void DownloadCallback(Napi::Env env, uint8_t *data, size_t size, std::string errMsg );
+
+    int mTextureId=-1;
 };
 } // namespace NodeBinding
 

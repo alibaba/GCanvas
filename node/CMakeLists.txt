@@ -16,34 +16,123 @@ project(canvas)
  # CMake JS
 include_directories(${CMAKE_JS_INC})
 
-include_directories("./util")
+
+MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
+
+ # CMake JS
+include_directories(${CMAKE_JS_INC})
+
+IF (APPLE)
+        MESSAGE(STSTUS "############# APPLE ######################")
+
+        include_directories("/usr/local/include/cairo")
+        include_directories("/usr/local/include/pango-1.0")
+        include_directories("/usr/local/include/glib-2.0")
+        include_directories("/usr/local/include/harfbuzz")
+        include_directories("/usr/local/opt/jpeg-turbo/include")
+        include_directories("/usr/local/lib/glib-2.0/include")  #fix glibconfig.h not found
+        include_directories("/usr/local/opt/curl-openssl/include")
+
+        link_directories("/usr/local/opt/glib/lib")
+        link_directories("/usr/local/opt/cairo/lib")
+        link_directories("/usr/local/opt/pango/lib")
+        link_directories("/usr/local/opt/libffi/lib")
+        link_directories("/usr/local/opt/curl-openssl/lib")
+        link_directories("/usr/local/opt/jpeg-turbo/lib")
+
+        find_package(PNG REQUIRED)
+        if(PNG_FOUND)
+                message(STATUS "PNG library status:" )
+                message(STATUS "                    include path:${PNG_INCLUDE_DIR}")
+                message(STATUS "                    library path:${PNG_LIBRARIES}")	
+                include_directories(${PNG_INCLUDE_DIR})
+        endif()
+
+ELSEIF (UNIX) 
+        MESSAGE(STSTUS "############# UNIX ######################")
+
+        include_directories("/usr/include")
+        include_directories("/usr/include/cairo")
+        include_directories("/usr/include/pango-1.0")
+        include_directories("/usr/include/glib-2.0")
+        include_directories("/usr/lib/x86_64-linux-gnu/glib-2.0/include") #fix glibconfig.h not found
+        include_directories("/usr/lib/x86_64-linux-gnu")
+
+        link_directories("/usr/lib/x86_64-linux-gnu")
+
+        # force USE_CAIRO
+        # add_definitions(-DUSE_CAIRO)
+ENDIF()
+
+include_directories("./binding")
+include_directories("./binding/util")
+include_directories("./binding/cairo")
+include_directories("./binding/renderContext")
+include_directories("./binding/webgl")
 include_directories("./third_party")
 include_directories("./third_party/font/freetype2/")
-include_directories("./renderContext/")
-include_directories("./image/")
 
 include_directories("${CORE_DIR}")
 include_directories("${CORE_DIR}src/")
-include_directories("${CORE_DIR}src")
+#include_directories("${CORE_DIR}src/webgl/")
 include_directories("${CORE_DIR}src/gcanvas")
 include_directories("${CORE_DIR}src/gcanvas/GL")
 include_directories("${CORE_DIR}src/support")
 include_directories("${CORE_DIR}src/platform/Android")
 include_directories("${CORE_DIR}src/platform/Linux")
 
+IF(APPLE)
+set(SOURCE_FILES 
+        ./binding/Export.cc
+        ./binding/util/NodeBindingUtil.cc
+        ./binding/util/ImageAsyncWorker.cc
+        ./third_party/lodepng.cc
+        ./binding/cairo/CairoImageBackend.cc
+        ./binding/cairo/CairoCanvas.cc
+        ./binding/cairo/CairoCanvasGradient.cc
+        ./binding/cairo/CairoCanvasPattern.cc
+        ./binding/cairo/CairoCanvasRenderingContext2d.cc
+        ./binding/cairo/CairoImage.cc
+        ./binding/cairo/CairoImageData.cc
+        ./binding/cairo/color.cc
+        ./binding/cairo/closure.cc
+)
+ELSEIF(UNIX)
 set(SOURCE_FILES 
         ./binding/Export.cc
         ./binding/Canvas.cc
         ./binding/CanvasRenderingContext2D.cc
+        ./binding/CanvasRenderingContextWebGL.cc
         ./binding/CanvasGradient.cc
         ./binding/ImageData.cc
         ./binding/TextMetrics.cc
         ./binding/Image.cc
-        ./binding/ImageWorker.cc
         ./binding/CanvasPattern.cc
-        ./renderContext/GRenderContext.cc
+        ./binding/webgl/WebGLShader.cc
+        ./binding/webgl/WebGLBuffer.cc
+        ./binding/webgl/WebGLProgram.cc
+        ./binding/webgl/WebGLTexture.cc
+        ./binding/webgl/WebGLFrameBuffer.cc
+        ./binding/webgl/WebGLRenderBuffer.cc
+        ./binding/webgl/WebGLActiveInfo.cc
+        ./binding/webgl/WebGLUniformLocation.cc
+        ./binding/renderContext/GRenderContext.cc
+        
+        ./binding/util/NodeBindingUtil.cc
+        ./binding/util/ImageAsyncWorker.cc
+
         ./third_party/lodepng.cc
-        ./util/NodeBindingUtil.cc
+
+        ./binding/cairo/CairoImageBackend.cc
+        ./binding/cairo/CairoCanvas.cc
+        ./binding/cairo/CairoCanvasGradient.cc
+        ./binding/cairo/CairoCanvasPattern.cc
+        ./binding/cairo/CairoCanvasRenderingContext2d.cc
+        ./binding/cairo/CairoImage.cc
+        ./binding/cairo/CairoImageData.cc
+        ./binding/cairo/color.cc
+        ./binding/cairo/closure.cc
+
         ${CORE_DIR}src/GCanvas.cpp        
         ${CORE_DIR}src/GCanvasManager.cpp
 
@@ -85,21 +174,45 @@ set(SOURCE_FILES
         ${CORE_DIR}src/support/Value.cpp
 )
 
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
+ENDIF()
 
+
+
+
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
-target_link_libraries(${PROJECT_NAME} 
-                      ${CMAKE_JS_LIB}
-                      GL
-                      GLESv2
-                      EGL
-                      atomic
-                      glfw
-                      freetype
-                      boost_system
-                      jpeg
-                      curl)
+if( APPLE )
+  target_link_libraries(${PROJECT_NAME} 
+                        ${CMAKE_JS_LIB}
+                        "-framework GLUT"
+                        "-framework OpenGL"
+                        ${PNG_LIBRARIES}
+                        jpeg
+                        ffi
+                        curl
+                        glib-2.0
+                        cairo
+                        pango-1.0
+                        pangocairo-1.0)
+
+elseif(UNIX)
+        target_link_libraries(${PROJECT_NAME} 
+                        ${CMAKE_JS_LIB}
+                        GL
+                        GLESv2
+                        EGL
+                        atomic
+                        glfw
+                        freetype
+                        boost_system
+                        jpeg
+                        curl
+                        glib-2.0
+                        cairo
+                        pango-1.0
+                        pangocairo-1.0)
+endif()
 
 # Include N-API wrappers
 execute_process(COMMAND node -p "require('node-addon-api').include"

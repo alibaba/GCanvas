@@ -1,5 +1,3 @@
-const fs = require('fs')
-const path = require('path')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(40, 15)
 const ctx = canvas.getContext('2d')
@@ -27,5 +25,10 @@ function spark(ctx, data) {
 }
 
 spark(ctx, [1, 2, 4, 5, 10, 4, 2, 5, 4, 3, 3, 2])
-canvas.createPNG("spark")
-// canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'spark.png')))
+
+
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..") + '/spark.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);

@@ -1,6 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-// var Canvas = require('../app')
 const { createCanvas, Image } = require('../export');
 const canvas = createCanvas(150, 150)
 const ctx = canvas.getContext('2d')
@@ -29,5 +26,8 @@ for (var i = 0; i < 7; i++) {
   ctx.fill()
 }
 
-canvas.createPNG("globalAlpha");
-// canvas.createPNGStream().pipe(fs.createWriteStream(path.join(__dirname, 'globalAlpha.png')))
+const fs = require('fs')
+const path = require('path')
+const out = fs.createWriteStream(path.join(__dirname, "..")+ '/globalAlpha.png');
+var stream = canvas.createPNGStream();
+stream.pipe(out);
