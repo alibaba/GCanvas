@@ -9,7 +9,7 @@
 #ifndef GCANVAS_GPOINT_H
 #define GCANVAS_GPOINT_H
 
-#include "GL/GGL.h"
+#include "./GL/GGL.h"
 #include "GContext2dType.h"
 #include "export.h"
 
