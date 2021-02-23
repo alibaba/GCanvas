@@ -402,12 +402,12 @@
 		A2A898F725E4B463008C90F2 /* commandbuffer */ = {
 			isa = PBXGroup;
 			children = (
-				A2A898F825E4B463008C90F2 /* GCommandTypes.hpp */,
-				A2A898F925E4B463008C90F2 /* GCommandDecoder.cpp */,
-				A2A898FA25E4B463008C90F2 /* GCommandBuffer.hpp */,
-				A2A898FB25E4B463008C90F2 /* GCommandTypes.cpp */,
-				A2A898FC25E4B463008C90F2 /* GCommandDecoder.hpp */,
 				A2A898FD25E4B463008C90F2 /* GCommandBuffer.cpp */,
+				A2A898FA25E4B463008C90F2 /* GCommandBuffer.hpp */,
+				A2A898F925E4B463008C90F2 /* GCommandDecoder.cpp */,
+				A2A898FC25E4B463008C90F2 /* GCommandDecoder.hpp */,
+				A2A898FB25E4B463008C90F2 /* GCommandTypes.cpp */,
+				A2A898F825E4B463008C90F2 /* GCommandTypes.hpp */,
 			);
 			path = commandbuffer;
 			sourceTree = "<group>";
@@ -415,12 +415,12 @@
 		A2A898FE25E4B463008C90F2 /* webgl */ = {
 			isa = PBXGroup;
 			children = (
-				A2A898FF25E4B463008C90F2 /* GWebGLRenderContextInner.cpp */,
 				A2A8990025E4B463008C90F2 /* GCommandDecoderWebGL.cpp */,
+				A2A8990425E4B463008C90F2 /* GCommandDecoderWebGL.hpp */,
 				A2A8990125E4B463008C90F2 /* GWebGLRenderContext.cpp */,
 				A2A8990225E4B463008C90F2 /* GWebGLRenderContext.hpp */,
+				A2A898FF25E4B463008C90F2 /* GWebGLRenderContextInner.cpp */,
 				A2A8990325E4B463008C90F2 /* GWebGLRenderContextInner.hpp */,
-				A2A8990425E4B463008C90F2 /* GCommandDecoderWebGL.hpp */,
 			);
 			path = webgl;
 			sourceTree = "<group>";
@@ -428,10 +428,10 @@
 		A2A8990525E4B463008C90F2 /* 2d */ = {
 			isa = PBXGroup;
 			children = (
-				A2A8990625E4B463008C90F2 /* GContext2DRenderContext.hpp */,
 				A2A8990725E4B463008C90F2 /* GCommandDecoder2D.cpp */,
 				A2A8990825E4B463008C90F2 /* GCommandDecoder2D.hpp */,
 				A2A8990925E4B463008C90F2 /* GContext2DRenderContext.cpp */,
+				A2A8990625E4B463008C90F2 /* GContext2DRenderContext.hpp */,
 			);
 			path = 2d;
 			sourceTree = "<group>";
