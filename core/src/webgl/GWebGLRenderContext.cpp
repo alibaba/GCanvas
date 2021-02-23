@@ -10,7 +10,7 @@
 #include "GWebGLRenderContextInner.hpp"
 #include <algorithm>
 #include "../support/Log.h"
-#include "../gcanvas/GL/GGL.h"
+#include "GGL.h"
 
 
 

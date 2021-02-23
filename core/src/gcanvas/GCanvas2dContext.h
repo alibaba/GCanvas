@@ -9,7 +9,7 @@
 #ifndef GCANVAS_GCANVASCONTEXT_H
 #define GCANVAS_GCANVASCONTEXT_H
 
-#include "./GL/GGL.h"
+#include "GGL.h"
 #include "GCanvasState.h"
 #include "GFrameBufferObject.h"
 #include "GTexture.h"

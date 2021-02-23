@@ -10,7 +10,7 @@
 #define GCANVAS_GPATH2D_H
 
 
-#include "./GL/GGL.h"
+#include "GGL.h"
 #include "GTransform.h"
 #include "GPath.h"
 #include <vector>

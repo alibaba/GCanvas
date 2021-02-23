@@ -9,7 +9,7 @@
 #ifndef GCANVAS_GCONTEXT2DTYPE_H
 #define GCANVAS_GCONTEXT2DTYPE_H
 
-#include "./GL/GGL.h"
+#include "GGL.h"
 
 typedef enum
 {

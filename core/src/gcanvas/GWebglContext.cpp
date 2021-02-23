@@ -9,7 +9,7 @@
 
 #ifdef GCANVAS_WEEX
 
-#include "./GL/GGL.h"
+#include "GGL.h"
 #include "GCanvas.hpp"
 #include "GCanvasWeex.hpp"
 #include "../support/Encode.h"
