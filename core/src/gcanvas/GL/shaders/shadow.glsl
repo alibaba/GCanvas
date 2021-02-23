@@ -2,15 +2,12 @@
 
 #define SHADOW_SHADER_VS                   "\
 attribute vec4 a_position;                  \n\
-attribute vec4 a_srcColor;                  \n\
 attribute vec2 a_texCoord;                  \n\
 uniform mat4 u_modelView;                   \n\
 varying vec2 v_texCoord;                    \n\
-varying vec4 v_desColor;                    \n\
 void main()                                 \n\
 {                                           \n\
    gl_Position = u_modelView * a_position;  \n\
-    v_desColor = a_srcColor;                \n\
    v_texCoord = a_texCoord;                 \n\
 }"
 

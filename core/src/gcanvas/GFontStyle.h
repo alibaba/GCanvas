@@ -22,12 +22,12 @@ namespace gcanvas
 class GFontStyle final
 {
 public:
-    API_EXPORT GFontStyle(const char *font = nullptr, float ratio = 1.0);
 
-    API_EXPORT ~GFontStyle();
+    
 
     enum class Style
     {
+        INVALID, 
         NORMAL = 0x0001,
         ITALIC = 0x0002,
         OBLIQUE = 0x0004
@@ -35,12 +35,14 @@ public:
 
     enum class Variant
     {
+        INVALID, 
         NORMAL = 0x0008,
         SMALL_CAPS = 0x0010
     };
 
     enum class Weight
     {
+        INVALID, 
         LIGHTER = 0x0020,
         THIN = 0x0040,       // 100
         EXTRA_LIGHT = 0x0080, // 200
@@ -53,6 +55,17 @@ public:
         EXTRA_BOLD = 0x4000, // 800
         BLACK = 0x8000      // 900
     };
+
+
+    API_EXPORT GFontStyle(const char *font = nullptr, float ratio = 1.0);
+
+
+    API_EXPORT GFontStyle(const char *font, Style style, Variant variant,
+         Weight weight, float fontSize, std::string& fontFamily, float ratio);
+        
+
+    API_EXPORT ~GFontStyle();
+
 
     Style GetStyle() { return mStyle; }
 
@@ -74,8 +87,16 @@ public:
     float GetDescender() { return mDescender; }
     void SetAscender(float as) { mAscender = as;}
     void SetDescender(float des) { mDescender = des;}
+
+    static GFontStyle* Parse(const char *font, float deviceDensity);
+
+
 private:
     void Initialize(const char *font);
+
+    static void ParseFields(const char *font, 
+        Style& style, Variant& variant, Weight& weight, float& fontStyleSize, std::string& outFontFamily);
+
 
     std::string mFullFontStyle;
     std::string mFontName;

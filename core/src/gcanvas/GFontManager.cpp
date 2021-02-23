@@ -64,14 +64,13 @@ bool GFontManager::LoadGlyphToTexture(GGlyph &glyph) {
         texture = GetOrCreateFontTexture();
         flag = PrepareGlyphTexture((int)glyph.width, (int)glyph.height, rect);
     }
-    if(texture==nullptr){
-        printf("GetOrCreateFontTexture is null \n");
-    }
+
     if (!flag) {
         return false;
     } else {
         unsigned int texWidth = texture->GetWidth();
         unsigned int texHeight = texture->GetHeight();
+
         if (glyph.bitmapBuffer != nullptr) {
             texture->UpdateTexture(glyph.bitmapBuffer, rect.x, rect.y, rect.width, rect.height);
             glyph.texture = texture;

@@ -33,6 +33,11 @@ public:
     bool IsLinearGradient() { return mStyle == STYLE_LINEAR_GRADIENT; }
     bool IsRadialGradient() { return mStyle == STYLE_RADIAL_GRADIENT; }
     bool IsDefault() { return mStyle == STYLE_UNDEFINED; }
+    
+    virtual bool IsSameAs(GFillStyle *otherStyle)
+    {
+        return otherStyle && mStyle == otherStyle->mStyle;
+    }
 
     virtual ~GFillStyle(){};
 
@@ -67,6 +72,20 @@ public:
         FillStylePattern *ptr =
             new FillStylePattern(mTextureListId, mPattern);
         return ptr;
+    }
+    
+    bool IsSameAs(GFillStyle *otherStyle)
+    {
+        if (GFillStyle::IsSameAs(otherStyle)) {
+            if (typeid(*otherStyle) == typeid(FillStylePattern)) {
+                FillStylePattern *patternStyle = (FillStylePattern *)otherStyle;
+                return mPattern == patternStyle->mPattern
+                && mTextureListId == patternStyle->mTextureListId
+                && mTextureWidth == patternStyle->mTextureWidth
+                && mTextureHeight == patternStyle->mTextureHeight;
+            }
+        }
+        return false;
     }
 
 private:
@@ -122,6 +141,34 @@ public:
             return &mStops[id];
         }
         return nullptr;
+    }
+    
+    bool IsSameAs(GFillStyle *otherStyle)
+    {
+        if (GFillStyle::IsSameAs(otherStyle)) {
+            if (typeid(*otherStyle) == typeid(FillStyleLinearGradient)) {
+                FillStyleLinearGradient *linearGradientStyle = (FillStyleLinearGradient *)otherStyle;
+                bool ret = PointEqualToPoint(mStartPos, linearGradientStyle->mStartPos)
+                && PointEqualToPoint(mEndPos, linearGradientStyle->mEndPos)
+                && mStopCount == linearGradientStyle->mStopCount;
+                if (ret) {
+                    for (int i = 0; i < mStopCount; ++i) {
+                        ColorStop colorStop = mStops[i];
+                        ColorStop colorStop2 = linearGradientStyle->mStops[i];
+                        if (colorStop.pos != colorStop2.pos
+                            || colorStop.color.rgba.r != colorStop2.color.rgba.r
+                            || colorStop.color.rgba.g != colorStop2.color.rgba.g
+                            || colorStop.color.rgba.b != colorStop2.color.rgba.b
+                            || colorStop.color.rgba.a != colorStop2.color.rgba.a) {
+                            ret = false;
+                            break;
+                        }
+                    }
+                }
+                return ret;
+            }
+        }
+        return false;
     }
 
 private:
@@ -181,6 +228,41 @@ public:
             new FillStyleRadialGradient(mStart, mEnd);
         *ptr = *this;
         return ptr;
+    }
+    
+    bool IsSameAs(GFillStyle *otherStyle)
+    {
+        if (GFillStyle::IsSameAs(otherStyle)) {
+            if (typeid(*otherStyle) == typeid(FillStyleRadialGradient)) {
+                FillStyleRadialGradient *radialGradientStyle = (FillStyleRadialGradient *)otherStyle;
+                bool ret = true;
+                // 比较两个圆形参数是否一致
+                for (int i = 0; i < 3; ++i) {
+                    if (mStart[i] != radialGradientStyle->mStart[i] || mEnd[i] != radialGradientStyle->mEnd[i]) {
+                        ret = false;
+                        break;
+                    }
+                }
+                // 比较颜色参数是否一致
+                ret &= mStopCount == radialGradientStyle->mStopCount;
+                if (ret) {
+                    for (int i = 0; i < mStopCount; ++i) {
+                        ColorStop colorStop = mStops[i];
+                        ColorStop colorStop2 = radialGradientStyle->mStops[i];
+                        if (colorStop.pos != colorStop2.pos
+                            || colorStop.color.rgba.r != colorStop2.color.rgba.r
+                            || colorStop.color.rgba.g != colorStop2.color.rgba.g
+                            || colorStop.color.rgba.b != colorStop2.color.rgba.b
+                            || colorStop.color.rgba.a != colorStop2.color.rgba.a) {
+                            ret = false;
+                            break;
+                        }
+                    }
+                }
+                return ret;
+            }
+        }
+        return false;
     }
 
 private:

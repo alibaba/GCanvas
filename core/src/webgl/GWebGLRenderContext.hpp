@@ -19,6 +19,7 @@
 #include <vector>
 #include "../export.h"
 #include "GGL.h"
+#include "GCommandTypes.hpp"
 
 
 namespace gcanvas
@@ -27,35 +28,6 @@ namespace gcanvas
 namespace WebGL
 {
 
-class JSBindingPixels
-{
-public:
-    API_EXPORT  JSBindingPixels();
-    API_EXPORT ~JSBindingPixels();
-
-    JSBindingPixels(JSBindingPixels &&v)
-    {
-        textureId = v.textureId;
-        pixels = v.pixels;
-        width = v.width;
-        height = v.height;
-        
-        v.textureId = 0;
-        v.pixels = nullptr;
-        v.width = 0;
-        v.height = 0;
-    }
-    
-    
-    uint32_t    textureId;
-    uint8_t*    pixels;
-    short       width;
-    short       height;
-};
-
-
-//Fectch pixels form JSBinding instance with instanceID
-using FetchPixelsFunc = std::function< void (void*obj, uint64_t, JSBindingPixels*) >;
 //bindframebuffer null
 using BindFramebufferNullFunc = std::function< void(void*obj) >;
 //glResource

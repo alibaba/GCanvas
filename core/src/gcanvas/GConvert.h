@@ -17,17 +17,29 @@
 #define GColorTransparentWhite  GColorRGBA({1.0,1.0,1.0,0})
 #define GColorWhite             GColorRGBA({1.0,1.0,1.0,1.0})
 namespace gcanvas{
+
+
     API_EXPORT GColorRGBA StrValueToColorRGBA(const char *value);
 
 
-    API_EXPORT GColorRGBA StrValueToColorRGBALegacy(const char *value);
+    API_EXPORT bool StrValueToColorRGBA(const char *value, GColorRGBA& output);
 
+
+    API_EXPORT GColorRGBA ParseRGBAFullString(char value[8]);
+
+    API_EXPORT void ParseRGBAFullString(char value[8], GColorRGBA&);
 
 
     API_EXPORT GColorRGBA IntValueToColorRGBA(int value);
 
 
     API_EXPORT std::string ColorToString(const GColorRGBA &color);
+
+    API_EXPORT std::string ColorToRGBASharpString(const GColorRGBA &color);
+
+
+    std::string Trim(const std::string& str, const std::string& whitespace = " \t");
+
 }
 
 

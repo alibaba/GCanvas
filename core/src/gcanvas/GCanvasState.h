@@ -53,6 +53,8 @@ public:
 
     GColorRGBA mStrokeColor;
     GFillStyle *mStrokeStyle;
+    
+    GFillStyle *mCurrentFillStyle;
 
     GColorRGBA mShadowColor;
     float mShadowBlur;

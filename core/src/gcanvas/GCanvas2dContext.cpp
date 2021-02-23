@@ -7,11 +7,12 @@
  * the LICENSE file in the root directory of this source tree.
  */
 
+
 #include "GCanvas2dContext.h"
 #include "GShaderManager.h"
 #include "../GCanvas.hpp"
 #include "GL/GLUtil.h"
-#include <stdio.h>
+
 #include <assert.h>
 
 #define SIZE_EPSILON 1.f
@@ -32,6 +33,7 @@ GBlendOperationFuncs GCompositeOperationFuncs(int index)
         {GL_ONE, GL_ONE},                                 // 8 lighter
         {GL_ONE, GL_ZERO},                                // 9 copy
         {GL_ONE_MINUS_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA}, // 10 xor
+		{GL_ZERO, GL_ZERO},// 11 clear
     };
 
     if (index < COMPOSITE_OP_SOURCE_OVER || index >= COMPOSITE_OP_NONE)
@@ -1227,7 +1229,7 @@ void GCanvasContext::DrawFBOToScreen(GFrameBufferObject &fbo, float x, float y, 
     PushRectangle4TextureArea(x, y, w, h, 0, 0,
                               static_cast<float>(fbo.ExpectedWidth()) / fbo.Width(),
                               static_cast<float>(fbo.ExpectedHeight()) / fbo.Height(),
-                              color, GTransformIdentity, false);
+                              color, GTransformIdentity, true);
 }
 
 void GCanvasContext::DoDrawBlur(const GRectf &rect, float blur, std::function<void()> draw,
@@ -1620,10 +1622,19 @@ void GCanvasContext::UsePatternRenderPipeline(bool isStroke)
         SendVertexBufferToGPU();
         mCurrentState->mShader = newShader;
         mCurrentState->mShader->Bind();
+    } 
+	else if (newShader != nullptr) 
+	{
+        GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+        if (style != mCurrentState->mCurrentFillStyle && !style->IsSameAs(mCurrentState->mCurrentFillStyle)) 
+		{
+            SendVertexBufferToGPU();
+        }
     }
 
     //Pattern
     GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+    mCurrentState->mCurrentFillStyle = style;
     if (style != nullptr && style->IsPattern() && mCurrentState->mShader)
     {
         FillStylePattern *pattern = (FillStylePattern *)(style);
@@ -1653,9 +1664,18 @@ void GCanvasContext::UseLinearGradientPipeline(bool isStroke)
         SendVertexBufferToGPU();
         mCurrentState->mShader = newShader;
         mCurrentState->mShader->Bind();
+    } 
+	else if (newShader != nullptr) 
+	{
+        GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+        if (style != mCurrentState->mCurrentFillStyle && !style->IsSameAs(mCurrentState->mCurrentFillStyle)) 
+		{
+            SendVertexBufferToGPU();
+        }
     }
 
     GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+    mCurrentState->mCurrentFillStyle = style;
     if (style != nullptr && style->IsLinearGradient() && mCurrentState->mShader)
     {
         FillStyleLinearGradient *grad = (FillStyleLinearGradient *)(style);
@@ -1684,10 +1704,19 @@ void GCanvasContext::UseRadialGradientPipeline(bool isStroke)
         SendVertexBufferToGPU();
         mCurrentState->mShader = newShader;
         mCurrentState->mShader->Bind();
+    } 
+	else if (newShader != nullptr) 
+	{
+        GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+        if (style != mCurrentState->mCurrentFillStyle && !style->IsSameAs(mCurrentState->mCurrentFillStyle)) 
+		{
+            SendVertexBufferToGPU();
+        }
     }
 
     //Radial Gradinet
     GFillStyle *style = isStroke ? mCurrentState->mStrokeStyle : mCurrentState->mFillStyle;
+    mCurrentState->mCurrentFillStyle = style;
     if (style != nullptr && style->IsRadialGradient() && mCurrentState->mShader)
     {
         FillStyleRadialGradient *grad = (FillStyleRadialGradient *)(style);
@@ -1784,21 +1813,35 @@ void GCanvasContext::SetFont(const char *font)
         {
             return;
         }
-        delete mCurrentState->mFont;
     }
-    mCurrentState->mFont = new GFontStyle(font, mDevicePixelRatio);
+
+    GFontStyle* fontStyle = GFontStyle::Parse(font, mDevicePixelRatio);
+    if (fontStyle != nullptr) 
+	{
+        if (mCurrentState->mFont != nullptr) 
+		{
+            delete mCurrentState->mFont;
+        }
+        mCurrentState->mFont = fontStyle;
+    }   
 }
 
 //shadow
-void GCanvasContext::SetShadowColor(const char *str)
-{
-    GColorRGBA color = StrValueToColorRGBA(str);
-    mCurrentState->mShadowColor = color;
+void GCanvasContext::SetShadowColor(const char *str) {
+    GColorRGBA color;
+    bool flag = StrValueToColorRGBA(str, color);
+    if (flag) 
+	{
+        mCurrentState->mShadowColor = color;
+    }
 }
 
-void GCanvasContext::SetShadowBlur(float blur)
-{
-    mCurrentState->mShadowBlur = blur;
+
+void GCanvasContext::SetShadowBlur(float blur) {
+    if (blur >= 0) 
+	{
+        mCurrentState->mShadowBlur = blur;
+    }
 }
 
 void GCanvasContext::SetShadowOffsetX(float x)
@@ -1819,54 +1862,12 @@ void GCanvasContext::SetFillStyle(const char *str)
         return;
     }
 
-    GColorRGBA color = StrValueToColorRGBA(str);
-    SetFillStyle(color);
-    // mock();
-}
-
-void GCanvasContext::mock()
-{
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glViewport(0, 0, mWidth, mHeight);
-    glClear(GL_COLOR_BUFFER_BIT);
-    static const GLfloat g_vertex_buffer_data[] = {
-        -1.0f,
-        -1.0f,
-        0.0f,
-        1.0f,
-        -1.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        0.0f,
-    };
-    GLuint vertexbuffer;
-    // Generate 1 buffer, put the resulting identifier in vertexbuffer
-    glGenBuffers(1, &vertexbuffer);
-
-    // The following commands will talk about our 'vertexbuffer' buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-    // Give our vertices to OpenGL.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-    // 1rst attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(
-        0,        // attribute 0. No particular reason for 0, but must match the layout in the shader.
-        3,        // size
-        GL_FLOAT, // type
-        GL_FALSE, // normalized?
-        0,        // stride
-        (void *)0 // array buffer offset
-    );
-    // Draw the triangle !
-
-    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-
-    // glDisableVertexAttribArray(0);
-    // glFlush();
+    GColorRGBA color;
+    bool flag = StrValueToColorRGBA(str, color);
+    if (flag) 
+	{
+        SetFillStyle(color);
+    }
 }
 
 void GCanvasContext::SetFillStyle(GColorRGBA c)
@@ -1876,9 +1877,7 @@ void GCanvasContext::SetFillStyle(GColorRGBA c)
         delete mCurrentState->mFillStyle;
         mCurrentState->mFillStyle = nullptr;
     }
-
     mCurrentState->mFillColor = c;
-    //    UseDefaultRenderPipeline();
 }
 
 void GCanvasContext::SetStrokeStyle(const char *str)
@@ -1898,12 +1897,7 @@ void GCanvasContext::SetStrokeStyle(const GColorRGBA &c)
         delete mCurrentState->mStrokeStyle;
         mCurrentState->mStrokeStyle = nullptr;
     }
-
     mCurrentState->mStrokeColor = c;
-    //    UseDefaultRenderPipeline();
-    //    if (mCurrentState->mShader != nullptr) {
-    //        mCurrentState->mShader->SetHasTexture(0);
-    //    }
 }
 
 void GCanvasContext::SetFillStylePattern(int textureId, int width, int height, const char *repeatMode,
@@ -2594,24 +2588,21 @@ void GCanvasContext::DrawImage(int textureId, int textureWidth, int textureHeigh
     GColorRGBA color = BlendWhiteColor(this);
     SetTexture(textureId);
 
-    // if (NeedDrawShadow())
-    // {
-    //     std::vector<GVertex> vec;
-    //     PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
-    //                   sh / textureHeight, color, mCurrentState->mTransform, flipY, &vec);
+    if (NeedDrawShadow()) {
+        std::vector<GVertex> vec;
+        PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
+                      sh / textureHeight, color, mCurrentState->mTransform, flipY, &vec);
 
-    //     GRectf rect;
-    //     GPath::GetRectCoverVertex(rect, vec);
-    //     DrawShadow(rect, [&] {
-    //         PushVertexs(vec);
-    //     });
-    //     PushVertexs(vec);
-    // }
-    // else
-    // {
-    PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
-                  sh / textureHeight, color, mCurrentState->mTransform, flipY);
-    // }
+        GRectf rect;
+        GPath::GetRectCoverVertex(rect, vec);
+        DrawShadow(rect, [&] {
+            PushVertexs(vec);
+        });
+        PushVertexs(vec);
+    } else {
+        PushRectangle(dx, dy, dw, dh, sx / textureWidth, sy / textureHeight, sw / textureWidth,
+                      sh / textureHeight, color, mCurrentState->mTransform, flipY);
+    }
 }
 
 void GCanvasContext::DoDrawImage(float w, float h, int TextureId, float sx,
@@ -2634,16 +2625,11 @@ void GCanvasContext::DoDrawImage(float w, float h, int TextureId, float sx,
 void GCanvasContext::GetImageData(int x, int y, int width, int height, uint8_t *pixels)
 {
     SendVertexBufferToGPU();
-
-    std::vector<int> rawPixel;
-
-    if (width < 0)
-    {
+    if (width < 0) {
         x += width;
         width = -width;
     }
-    if (height < 0)
-    {
+    if (height < 0) {
         y += height;
         height = -height;
     }
@@ -2657,42 +2643,107 @@ void GCanvasContext::GetImageData(int x, int y, int width, int height, uint8_t *
     int realWidth = width * sw;
     int realHeight = height * sh;
 
-    rawPixel.resize(realWidth * realHeight);
-
+    uint8_t* rawPixel = new uint8_t[realWidth * realHeight * 4];
     //read pixels
     glReadPixels(realX, mHeight - (realY + realHeight), realWidth, realHeight, GL_RGBA,
-                 GL_UNSIGNED_BYTE, &rawPixel[0]);
+                 GL_UNSIGNED_BYTE, (void*)rawPixel);
     GLenum glerror = glGetError();
-    if (glerror)
-    {
+    if (glerror) {
         LOG_EXCEPTION(mHooks, mContextId, "glReadPixels_fail", "<function:%s, glGetError:%x>",
                       __FUNCTION__,
                       glerror);
     }
     // sample
-    gcanvas::PixelsSampler(realWidth, realHeight, &rawPixel[0], width, height,
-                           reinterpret_cast<int *>(pixels));
+    if (realWidth != width || realHeight != height) {
+        gcanvas::PixelsSampler(realWidth, realHeight, (int*)rawPixel, width, height,
+                               reinterpret_cast<int *>(pixels));
+    } else {
+        gcanvas::FlipYPixels(width, height, (int*)rawPixel, (int*)pixels);
+    }
+
+#ifdef ANDROID
+    // for outside region, clear it with 0
+    int posX = 0;
+    int posY = 0;
+    int* ipixels = (int*)pixels;
+    if (x < 0 || y < 0 || x >= mWidth || y >= mHeight) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                posX = j + x;
+                posY = i + y;
+                if (posX < 0 || posY < 0 || posX >= mWidth || posY >= mHeight ) {
+                    ipixels[i * width + j] = 0;
+                }
+            }
+        }
+    }
+#endif
+
+    if (rawPixel != nullptr) {
+        delete[] rawPixel;
+    }
 }
 
-void GCanvasContext::PutImageData(const unsigned char *rgbaData, int tw,
-                                  int th, int x, int y, int sx, int sy,
-                                  int sw, int sh, bool is_src_flip_y)
-{
+void GCanvasContext::PutImageData(const unsigned char *rgbaData,
+                                int tw, int th, int x, int y,
+                                  int dirtyX, int dirtyY, int dirtyW, int dirtyH, bool is_src_flip_y) {
+     PutImageDataFloat(rgbaData, tw, th, x, y, dirtyX, dirtyY, dirtyW, dirtyH, is_src_flip_y);
+}
+
+
+
+void GCanvasContext::PutImageDataFloat(const unsigned char *rgbaData,
+                                  int tw, int th, float x, float y,
+                                  float dirtyX, float dirtyY, float dirtyW, float dirtyH, bool is_src_flip_y) {
     SendVertexBufferToGPU();
 
     std::vector<GCanvasLog> logVec;
     GLuint glID = gcanvas::PixelsBindTexture(rgbaData, GL_RGBA, tw, th, &logVec);
     LOG_EXCEPTION_VECTOR(mHooks, mContextId, logVec);
 
-    sw = sw > tw ? tw : sw;
-    sh = sh > th ? th : sh;
-    sw -= sx;
-    sh -= sy;
-    DrawImage(glID, tw, th, sx, sy, sw, sh, x + sx, y + sy, sw, sh);
+    dirtyW = dirtyW > tw ? tw : dirtyW;
+    dirtyH = dirtyH > th ? th : dirtyH;
 
+    if (glID <= 0) {
+        LOG_EXCEPTION(mHooks, mContextId, "texture invalid", "<function:%s> textureId=%i",
+                      __FUNCTION__, glID);
+        return;
+    }
+
+    // drawTexture, but ignore blend, shadow, transform
+    UseTextureRenderPipeline();
+    GColorRGBA color = GColorWhite;
+    SetTexture(glID);
+
+    // disable clip
+    glDisable(GL_DEPTH_TEST);
+
+// TODO IOS blendFunc
+#ifdef ANDROID
+    GCompositeOperation compositeOp = mCurrentState->mGlobalCompositeOp;
+    GBlendOperationFuncs funcs = GCompositeOperationFuncs(COMPOSITE_OP_COPY);
+    GBlendOperationFuncs alphaFuncs = GCompositeOperationFuncs(COMPOSITE_OP_COPY);
+    glBlendFuncSeparate(funcs.source, funcs.destination,
+                        alphaFuncs.source, alphaFuncs.destination);
+#endif
+
+    PushRectangle(dirtyX + x, dirtyY + y, dirtyW, dirtyH,
+                  dirtyX / tw, dirtyY / th, dirtyW / tw, dirtyH / th, color, GTransformIdentity, is_src_flip_y);
     SendVertexBufferToGPU();
     SetTexture(InvalidateTextureId);
     glDeleteTextures(1, &glID);
+
+#ifdef ANDROID
+
+    // rollback clip
+    glEnable(GL_DEPTH_TEST);
+
+    // rollback blend
+    GBlendOperationFuncs funcs2 = GCompositeOperationFuncs(compositeOp);
+    GBlendOperationFuncs alphaFuncs2 = GCompositeOperationFuncs(compositeOp);
+    glBlendFuncSeparate(funcs2.source, funcs2.destination,
+                        alphaFuncs2.source, alphaFuncs2.destination);
+#endif
 }
 
 int GCanvasContext::BindImage(const unsigned char *rgbaData, GLint format, unsigned int width,

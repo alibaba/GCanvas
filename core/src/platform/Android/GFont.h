@@ -81,7 +81,7 @@ public:
 
 
     const GGlyph *GetOrLoadGlyph(gcanvas::GFontStyle* fontStyle, const wchar_t charcode, bool isStroke,
-                           float scaleX, float scaleY,float lineWidth=1.0,float deviceRatio=1.0);
+                           float scaleX, float scaleY);
 
 
     // deprecated
@@ -107,28 +107,25 @@ public:
     void SetFtLibrary(FT_Library libraryPtr);
 
 private:
-
-  void DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x, float y,
+ void DrawGlyph(GCanvasContext *context, const GGlyph *glyph, float x, float y,
                 float scaleX, float scaleY, GColorRGBA color, bool needDrawShadow);
 
+ static void *(*getFontCallback)(const char *fontDefinition);
 
-    static void *(*getFontCallback)(const char *fontDefinition);
-
-
-    static bool (*getFontImageCallback)(void *font, wchar_t charCode,
-                                        int &ftBitmapWidth, int &ftBitmapHeight,
-                                        unsigned char *&bitmapBuffer, int &left,
-                                        int &top, float &advanceX,
-                                        float &advanceY);
+ static bool (*getFontImageCallback)(void *font, wchar_t charCode,
+                                     int &ftBitmapWidth, int &ftBitmapHeight,
+                                     unsigned char *&bitmapBuffer, int &left,
+                                     int &top, float &advanceX,
+                                     float &advanceY);
 
 #ifdef GFONT_LOAD_BY_FREETYPE
 
     void LoadGlyphs(gcanvas::GFontStyle* style, const wchar_t *charCodes, bool isStroke,
-                    float scaleX, float scaleY,float lineWidth,float deviceRatio);
+                    float scaleX, float scaleY);
 
 #endif
 
-    bool LoadStroke(const char *filename, FT_Stroker *stroker, float scaleX, float scaleY,float lineWidth,float deviceRatio);
+    bool LoadStroke(const char *filename, FT_Stroker *stroker, float scaleX, float scaleY);
 
 
     bool LoadFaceIfNot();

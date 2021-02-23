@@ -648,6 +648,7 @@ void GPath::Stroke(GCanvasContext *context, GColorRGBA color, std::vector<GVerte
 void GPath::Stroke(GCanvasContext *context) {
     context->SetTexture(InvalidateTextureId);
     GColorRGBA color = BlendStrokeColor(context);
+    
     std::vector<GVertex> vertexVec;
     if (color.rgba.a < 1.0) { //transparent, use stencil buffer
         Stroke(context, color, &vertexVec);

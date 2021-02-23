@@ -93,7 +93,7 @@ public:
     API_EXPORT bool InitializeGLEnvironment();
     bool InitializeGLShader();
     void ResetStateStack();
-    void mock();
+    
     void BindVertexBuffer();
     void ClearGeometryDataBuffers();
     API_EXPORT void SendVertexBufferToGPU(const GLenum geometry_type = GL_TRIANGLES);
@@ -123,7 +123,7 @@ public:
     float GetCurrentAlphaOfStyle(bool isStroke = false);
 
     void SetTexture(int textureId);
-    bool flagHack=true;
+
     
     //----------------Push Vertex------------------------
     void PushTriangle(GPoint v1, GPoint v2, GPoint v3, GColorRGBA color,
@@ -328,15 +328,20 @@ public:
     
     //image
     API_EXPORT void DrawImage(int textureId, int textureWidth, int textureHeight,
-                                  float sx, float sy, float sw, float sh,
-                                  float dx, float dy, float dw, float dh,
-                                  bool flipY = false);
+                              float sx, float sy, float sw, float sh,
+                              float dx, float dy, float dw, float dh,
+                              bool flipY = false);
 
     API_EXPORT void DoDrawImage(float w, float h, int TextureId, float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, bool flipY = false);
     
+    API_EXPORT void PutImageDataFloat(const unsigned char *rgbaData,
+                                 int tw, int th, float x, float y,
+                                 float dirtyX, float dirtyY, float dirtyW, float dirtyH,
+                                 bool is_src_flip_y = false);
+
     API_EXPORT void PutImageData(const unsigned char *rgbaData,
                                  int tw, int th, int x, int y,
-                                 int sx, int sy, int sw, int sh,
+                                 int dirtyX, int dirtyY, int dirtyW, int dirtyH,
                                  bool is_src_flip_y = false);
 
     API_EXPORT void GetImageData(int x, int y, int width, int height, uint8_t *pixels);
@@ -400,6 +405,8 @@ public:
      * @param fontManager GFontManager
      */
     API_EXPORT void SetFontManager(GFontManager* fontManager);
+
+
     bool NeedDrawShadow();
     void DrawShadow(const GRectf &rect, std::function<void()> drawFun, bool isStroke = false);
 
@@ -414,7 +421,6 @@ protected:
 
     virtual GShader *FindShader(const char *name);
     
-
     void DoDrawShadowToFBO(GFrameBufferObjectPtr &shadowFbo, float dpr, const GRectf &rect, std::function<void()> draw);
     void DoDrawShadowFBOToScreen(GFrameBufferObjectPtr &shadowFbo, const GRectf &rect, std::vector<GPath*>* recoveryClipPath);
     void DrawBlur(const GRectf &rect, float blur, std::function<void()> draw, std::vector<GPath*>* recoveryClipPath);

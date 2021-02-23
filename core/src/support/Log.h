@@ -12,9 +12,8 @@
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
-#include <vector>
-#include <stdarg.h>  
-#include <string>
+#include <iostream>
+
 #include "export.h"
 
 

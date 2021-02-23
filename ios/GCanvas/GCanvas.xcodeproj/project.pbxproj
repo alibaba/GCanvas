@@ -87,6 +87,22 @@
 		A284A306234348880029BBCA /* GCanvasSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27E234348880029BBCA /* GCanvasSDK.h */; };
 		A284A307234348880029BBCA /* GCanvasObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A27F234348880029BBCA /* GCanvasObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A284A308234348880029BBCA /* GCVCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = A284A280234348880029BBCA /* GCVCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A2A8990A25E4B463008C90F2 /* GCommandTypes.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A898F825E4B463008C90F2 /* GCommandTypes.hpp */; };
+		A2A8990B25E4B463008C90F2 /* GCommandDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A898F925E4B463008C90F2 /* GCommandDecoder.cpp */; };
+		A2A8990C25E4B463008C90F2 /* GCommandBuffer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A898FA25E4B463008C90F2 /* GCommandBuffer.hpp */; };
+		A2A8990D25E4B463008C90F2 /* GCommandTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A898FB25E4B463008C90F2 /* GCommandTypes.cpp */; };
+		A2A8990E25E4B463008C90F2 /* GCommandDecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A898FC25E4B463008C90F2 /* GCommandDecoder.hpp */; };
+		A2A8990F25E4B463008C90F2 /* GCommandBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A898FD25E4B463008C90F2 /* GCommandBuffer.cpp */; };
+		A2A8991025E4B463008C90F2 /* GWebGLRenderContextInner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A898FF25E4B463008C90F2 /* GWebGLRenderContextInner.cpp */; };
+		A2A8991125E4B463008C90F2 /* GCommandDecoderWebGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A8990025E4B463008C90F2 /* GCommandDecoderWebGL.cpp */; };
+		A2A8991225E4B463008C90F2 /* GWebGLRenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A8990125E4B463008C90F2 /* GWebGLRenderContext.cpp */; };
+		A2A8991325E4B463008C90F2 /* GWebGLRenderContext.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A8990225E4B463008C90F2 /* GWebGLRenderContext.hpp */; };
+		A2A8991425E4B463008C90F2 /* GWebGLRenderContextInner.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A8990325E4B463008C90F2 /* GWebGLRenderContextInner.hpp */; };
+		A2A8991525E4B463008C90F2 /* GCommandDecoderWebGL.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A8990425E4B463008C90F2 /* GCommandDecoderWebGL.hpp */; };
+		A2A8991625E4B463008C90F2 /* GContext2DRenderContext.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A8990625E4B463008C90F2 /* GContext2DRenderContext.hpp */; };
+		A2A8991725E4B463008C90F2 /* GCommandDecoder2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A8990725E4B463008C90F2 /* GCommandDecoder2D.cpp */; };
+		A2A8991825E4B463008C90F2 /* GCommandDecoder2D.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A2A8990825E4B463008C90F2 /* GCommandDecoder2D.hpp */; };
+		A2A8991925E4B463008C90F2 /* GContext2DRenderContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A2A8990925E4B463008C90F2 /* GContext2DRenderContext.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -171,6 +187,22 @@
 		A284A27E234348880029BBCA /* GCanvasSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasSDK.h; sourceTree = "<group>"; };
 		A284A27F234348880029BBCA /* GCanvasObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCanvasObject.h; sourceTree = "<group>"; };
 		A284A280234348880029BBCA /* GCVCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCVCommon.h; sourceTree = "<group>"; };
+		A2A898F825E4B463008C90F2 /* GCommandTypes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCommandTypes.hpp; sourceTree = "<group>"; };
+		A2A898F925E4B463008C90F2 /* GCommandDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCommandDecoder.cpp; sourceTree = "<group>"; };
+		A2A898FA25E4B463008C90F2 /* GCommandBuffer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCommandBuffer.hpp; sourceTree = "<group>"; };
+		A2A898FB25E4B463008C90F2 /* GCommandTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCommandTypes.cpp; sourceTree = "<group>"; };
+		A2A898FC25E4B463008C90F2 /* GCommandDecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCommandDecoder.hpp; sourceTree = "<group>"; };
+		A2A898FD25E4B463008C90F2 /* GCommandBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCommandBuffer.cpp; sourceTree = "<group>"; };
+		A2A898FF25E4B463008C90F2 /* GWebGLRenderContextInner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GWebGLRenderContextInner.cpp; sourceTree = "<group>"; };
+		A2A8990025E4B463008C90F2 /* GCommandDecoderWebGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCommandDecoderWebGL.cpp; sourceTree = "<group>"; };
+		A2A8990125E4B463008C90F2 /* GWebGLRenderContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GWebGLRenderContext.cpp; sourceTree = "<group>"; };
+		A2A8990225E4B463008C90F2 /* GWebGLRenderContext.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GWebGLRenderContext.hpp; sourceTree = "<group>"; };
+		A2A8990325E4B463008C90F2 /* GWebGLRenderContextInner.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GWebGLRenderContextInner.hpp; sourceTree = "<group>"; };
+		A2A8990425E4B463008C90F2 /* GCommandDecoderWebGL.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCommandDecoderWebGL.hpp; sourceTree = "<group>"; };
+		A2A8990625E4B463008C90F2 /* GContext2DRenderContext.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GContext2DRenderContext.hpp; sourceTree = "<group>"; };
+		A2A8990725E4B463008C90F2 /* GCommandDecoder2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GCommandDecoder2D.cpp; sourceTree = "<group>"; };
+		A2A8990825E4B463008C90F2 /* GCommandDecoder2D.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GCommandDecoder2D.hpp; sourceTree = "<group>"; };
+		A2A8990925E4B463008C90F2 /* GContext2DRenderContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GContext2DRenderContext.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,6 +300,9 @@
 				A231B1E7235064DA00466BE3 /* GCanvasWeex.hpp */,
 				A25FB0EB2343491500EF73E5 /* GCanvasManager.cpp */,
 				A25FB0DA2343491500EF73E5 /* GCanvasManager.h */,
+				A2A8990525E4B463008C90F2 /* 2d */,
+				A2A898F725E4B463008C90F2 /* commandbuffer */,
+				A2A898FE25E4B463008C90F2 /* webgl */,
 				A25FB0C92343491500EF73E5 /* platform */,
 				A25FB0DB2343491500EF73E5 /* support */,
 			);
@@ -364,6 +399,43 @@
 			path = ../BridgeModule;
 			sourceTree = "<group>";
 		};
+		A2A898F725E4B463008C90F2 /* commandbuffer */ = {
+			isa = PBXGroup;
+			children = (
+				A2A898F825E4B463008C90F2 /* GCommandTypes.hpp */,
+				A2A898F925E4B463008C90F2 /* GCommandDecoder.cpp */,
+				A2A898FA25E4B463008C90F2 /* GCommandBuffer.hpp */,
+				A2A898FB25E4B463008C90F2 /* GCommandTypes.cpp */,
+				A2A898FC25E4B463008C90F2 /* GCommandDecoder.hpp */,
+				A2A898FD25E4B463008C90F2 /* GCommandBuffer.cpp */,
+			);
+			path = commandbuffer;
+			sourceTree = "<group>";
+		};
+		A2A898FE25E4B463008C90F2 /* webgl */ = {
+			isa = PBXGroup;
+			children = (
+				A2A898FF25E4B463008C90F2 /* GWebGLRenderContextInner.cpp */,
+				A2A8990025E4B463008C90F2 /* GCommandDecoderWebGL.cpp */,
+				A2A8990125E4B463008C90F2 /* GWebGLRenderContext.cpp */,
+				A2A8990225E4B463008C90F2 /* GWebGLRenderContext.hpp */,
+				A2A8990325E4B463008C90F2 /* GWebGLRenderContextInner.hpp */,
+				A2A8990425E4B463008C90F2 /* GCommandDecoderWebGL.hpp */,
+			);
+			path = webgl;
+			sourceTree = "<group>";
+		};
+		A2A8990525E4B463008C90F2 /* 2d */ = {
+			isa = PBXGroup;
+			children = (
+				A2A8990625E4B463008C90F2 /* GContext2DRenderContext.hpp */,
+				A2A8990725E4B463008C90F2 /* GCommandDecoder2D.cpp */,
+				A2A8990825E4B463008C90F2 /* GCommandDecoder2D.hpp */,
+				A2A8990925E4B463008C90F2 /* GContext2DRenderContext.cpp */,
+			);
+			path = 2d;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -373,14 +445,18 @@
 			files = (
 				A284A303234348880029BBCA /* GCVLog.h in Headers */,
 				A25FB21D2343491700EF73E5 /* GCVFont.h in Headers */,
+				A2A8990C25E4B463008C90F2 /* GCommandBuffer.hpp in Headers */,
 				A284A308234348880029BBCA /* GCVCommon.h in Headers */,
 				A284A2FF234348880029BBCA /* GCanvasPlugin.h in Headers */,
 				A284A307234348880029BBCA /* GCanvasObject.h in Headers */,
 				A24156E424AC628B00405D95 /* GGL.h in Headers */,
+				A2A8991425E4B463008C90F2 /* GWebGLRenderContextInner.hpp in Headers */,
+				A2A8991625E4B463008C90F2 /* GContext2DRenderContext.hpp in Headers */,
 				A284A301234348880029BBCA /* GCanvasModule.h in Headers */,
 				A284A2FD234348880029BBCA /* GCanvasModuleProtocol.h in Headers */,
 				A284A304234348880029BBCA /* GCanvasViewProtocol.h in Headers */,
 				A284A306234348880029BBCA /* GCanvasSDK.h in Headers */,
+				A2A8991825E4B463008C90F2 /* GCommandDecoder2D.hpp in Headers */,
 				A25FB2102343491700EF73E5 /* GStrSeparator.h in Headers */,
 				A25FB1F62343491700EF73E5 /* GConvert.h in Headers */,
 				A25FB2142343491700EF73E5 /* GTreemap.h in Headers */,
@@ -389,6 +465,7 @@
 				A25FB2342343491700EF73E5 /* Log.h in Headers */,
 				A24156E524AC628B00405D95 /* GTexture.h in Headers */,
 				A25FB1F92343491700EF73E5 /* GFontStyle.h in Headers */,
+				A2A8991525E4B463008C90F2 /* GCommandDecoderWebGL.hpp in Headers */,
 				A24156FB24AC628B00405D95 /* GPathStroker.h in Headers */,
 				A25FB21B2343491700EF73E5 /* GCanvas.hpp in Headers */,
 				A24156EA24AC628B00405D95 /* GShader.h in Headers */,
@@ -399,10 +476,13 @@
 				A25FB20E2343491700EF73E5 /* GWebglContext.h in Headers */,
 				A25FB2362343491700EF73E5 /* DynArray.h in Headers */,
 				A25FB2392343491700EF73E5 /* Encode.h in Headers */,
+				A2A8990E25E4B463008C90F2 /* GCommandDecoder.hpp in Headers */,
+				A2A8990A25E4B463008C90F2 /* GCommandTypes.hpp in Headers */,
 				A25FB2172343491700EF73E5 /* GTextDefine.h in Headers */,
 				A25FB1F82343491700EF73E5 /* GFillStyle.h in Headers */,
 				A25FB1F22343491700EF73E5 /* GTransform.h in Headers */,
 				A25FB2132343491700EF73E5 /* GCanvas2dContext.h in Headers */,
+				A2A8991325E4B463008C90F2 /* GWebGLRenderContext.hpp in Headers */,
 				A25FB2372343491700EF73E5 /* Util.h in Headers */,
 				A25FB2152343491700EF73E5 /* GCanvasState.h in Headers */,
 				A24156EB24AC628B00405D95 /* GShaderManager.h in Headers */,
@@ -495,9 +575,13 @@
 				A24156F524AC628B00405D95 /* GLUtil.cpp in Sources */,
 				A25FB2382343491700EF73E5 /* Encode.cpp in Sources */,
 				A25FB23C2343491700EF73E5 /* GCanvas.cpp in Sources */,
+				A2A8990F25E4B463008C90F2 /* GCommandBuffer.cpp in Sources */,
+				A2A8991125E4B463008C90F2 /* GCommandDecoderWebGL.cpp in Sources */,
 				A24156FA24AC628B00405D95 /* GPathStroker.cpp in Sources */,
+				A2A8991025E4B463008C90F2 /* GWebGLRenderContextInner.cpp in Sources */,
 				A25FB1F12343491700EF73E5 /* GFontStyle.cpp in Sources */,
 				A25FB21F2343491700EF73E5 /* GCVFont.mm in Sources */,
+				A2A8990B25E4B463008C90F2 /* GCommandDecoder.cpp in Sources */,
 				A25FB2042343491700EF73E5 /* GCanvas2dContext.cpp in Sources */,
 				A25FB2112343491700EF73E5 /* GWebglContext.cpp in Sources */,
 				A25FB2002343491700EF73E5 /* GTreemap.cpp in Sources */,
@@ -511,13 +595,17 @@
 				A25FB2162343491700EF73E5 /* GGlyphCache.cpp in Sources */,
 				A24156FF24AC62C100405D95 /* GFontManagerIOS.mm in Sources */,
 				A284A305234348880029BBCA /* GCanvasPlugin.mm in Sources */,
+				A2A8991925E4B463008C90F2 /* GContext2DRenderContext.cpp in Sources */,
+				A2A8990D25E4B463008C90F2 /* GCommandTypes.cpp in Sources */,
 				A25FB1F32343491700EF73E5 /* GStrSeparator.cpp in Sources */,
+				A2A8991225E4B463008C90F2 /* GWebGLRenderContext.cpp in Sources */,
 				A231B1E8235064DA00466BE3 /* GCanvasWeex.cpp in Sources */,
 				A24156F624AC628B00405D95 /* GTexture.cpp in Sources */,
 				A24156ED24AC628B00405D95 /* GShader.cpp in Sources */,
 				A25FB22C2343491700EF73E5 /* Log.cpp in Sources */,
 				A284A2FE234348880029BBCA /* GCVCommon.m in Sources */,
 				A25FB22D2343491700EF73E5 /* Util.cpp in Sources */,
+				A2A8991725E4B463008C90F2 /* GCommandDecoder2D.cpp in Sources */,
 				A25FB1FF2343491700EF73E5 /* GCanvasState.cpp in Sources */,
 				A284A2FB234348880029BBCA /* GCVLog.m in Sources */,
 				A284A2FC234348880029BBCA /* GCanvasModule.m in Sources */,

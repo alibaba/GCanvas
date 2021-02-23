@@ -15,9 +15,16 @@
 #include <vector>
 
 namespace gcanvas{
+
+
     GLuint PixelsBindTexture(const unsigned char *rgbaData, GLint format, unsigned int width,
                              unsigned int height, std::vector<GCanvasLog> *errVec = nullptr);
+
     void PixelsSampler(int inWidth, int inHeight, int *inPixels, int outWidth, int outHeight, int *outPixels);
+
+
+    void FlipYPixels(int width, int height, int *inPixels, int *outPixels) ;
+
 }
 
 #endif /* GCANVAS_GLUTIL_H */

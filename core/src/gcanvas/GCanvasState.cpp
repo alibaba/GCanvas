@@ -123,6 +123,7 @@ void GCanvasState::ClearStyle() {
         delete mFillStyle;
         mFillStyle = nullptr;
     }
+
     if (mStrokeStyle != nullptr) {
         delete mStrokeStyle;
         mStrokeStyle = nullptr;

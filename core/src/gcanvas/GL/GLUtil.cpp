@@ -88,6 +88,28 @@ namespace gcanvas {
         }
     }
 
+
+    void FlipYPixels(int width, int height, int *inPixels, int *outPixels) {
+        GLuint *pixs = (GLuint *) inPixels;
+        uint8_t *src = (uint8_t *) pixs + (height - 1) * width * 4;
+        uint8_t *dest = (uint8_t *) outPixels;
+        // 扫描转置(OpenGl:左上->右下 Bitmap:左下->右上)
+        for (int y = 0; y < height; y++) {
+            memcpy(dest, src, (size_t)width * 4);
+            src -= (width * 4);
+            dest += (width * 4);
+        }
+
+        // return pixs;
+//        for (int y = 0; y < height; ++y) {
+//            int revertY = height - y - 1;
+//            for (int x = 0; x < width; ++x) {
+//                RGBA pixel;
+//                outPixels[y * width + x] = GetPixel(inPixels, x, revertY, width, height);
+//            }
+//        }
+    }
+
 //////////////////////////////////////////////////////////////////////////////
 ///   Pixels BindTexture
 //////////////////////////////////////////////////////////////////////////////

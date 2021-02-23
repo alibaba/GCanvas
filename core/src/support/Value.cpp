@@ -9,7 +9,6 @@
 #include "Value.h"
 #include <iomanip>
 #include <sstream>
-#include <string.h>
 
 #ifndef FLT_EPSILON
 #define FLT_EPSILON 1.192092896e-07F

@@ -21,6 +21,7 @@ void GCanvasContext::DrawTextWithLength(const char *text, int strLength, float x
 
     const GCompositeOperation old_op = mCurrentState->mGlobalCompositeOp;
     DoSetGlobalCompositeOperation(COMPOSITE_OP_SOURCE_OVER, COMPOSITE_OP_SOURCE_OVER);
+
     // scaleWidth
     float scaleWidth = 1.0;
     if (fabs(maxWidth - SHRT_MAX) > 1) {
@@ -33,6 +34,7 @@ void GCanvasContext::DrawTextWithLength(const char *text, int strLength, float x
 
 
     Utf8ToUCS2 *lbData = new Utf8ToUCS2(text, strLength);
+
     FillText(lbData->ucs2, lbData->ucs2len, x, y,
              isStroke, scaleWidth);
 
@@ -51,7 +53,6 @@ GCanvasContext::DoSetGlobalCompositeOperation(GCompositeOperation op, GComposite
     SendVertexBufferToGPU();
 
     GBlendOperationFuncs funcs = GCompositeOperationFuncs(op);
-
     GBlendOperationFuncs alphaFuncs = GCompositeOperationFuncs(alphaOp);
 
     glBlendFuncSeparate(funcs.source, funcs.destination,

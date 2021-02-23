@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-exceptions -funwind-tabl
 
 add_definitions(-DFT2_BUILD_LIBRARY)
 add_definitions(-DANDROID)
+add_definitions(-DCOMMANDBUFFER_2D)
 
 if ((${ANDROID_ARM_NEON}) AND (${ANDROID_ABI} MATCHES arm*))
     add_definitions(-DARM_NEON_OPT)
@@ -79,7 +80,6 @@ set(SRC_FILES
         ./src/platform/Android/GPreCompiledShaders.cpp
         ./src/platform/Android/GSystemFontInformation.cpp
         ./src/platform/Android/GFontManagerAndroid.cpp
-    
 
         ./src/platform/Android/egl/GEGLPbufferContext.cpp
         ./src/platform/Android/egl/GEGLWindowContext.cpp
@@ -97,9 +97,13 @@ set(SRC_FILES
 
         ./src/commandbuffer/GCommandBuffer.cpp
         ./src/commandbuffer/GCommandDecoder.cpp
+        ./src/commandbuffer/GCommandTypes.cpp
         ./src/webgl/GCommandDecoderWebGL.cpp
         ./src/webgl/GWebGLRenderContextInner.cpp
         ./src/webgl/GWebGLRenderContext.cpp
+
+        ./src/2d/GCommandDecoder2D.cpp
+        ./src/2d/GContext2DRenderContext.cpp
         )
 
 

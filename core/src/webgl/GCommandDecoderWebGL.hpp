@@ -181,7 +181,7 @@ class GCommandDecoderWebGL : public GCommandDecoder
     
 public:
     API_EXPORT GCommandDecoderWebGL(WebGL::GWebGLRenderContext* renderContext);
-    API_EXPORT ~GCommandDecoderWebGL();
+    API_EXPORT virtual ~GCommandDecoderWebGL();
         
     virtual void InitCommands();
     inline virtual bool IsSyncCommand(uint32_t cmdId){

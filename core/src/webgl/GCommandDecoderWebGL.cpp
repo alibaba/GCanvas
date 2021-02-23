@@ -23,6 +23,9 @@
 namespace gcanvas
 {
 
+typedef void (*GCommandWebGLFunc)(GCommandBuffer& , GDecodeRes& );
+
+
 //#define WEBGL_FUNC_ARRAY_ASSIGN(NAME) \
 //mWebGLFuncs[GWEBGL_FUNC_##NAME] = std::bind(&GCommandDecoderWebGL::WebGL_##NAME, this, std::placeholders::_1, std::placeholders::_2);
 
@@ -394,7 +397,7 @@ void GCommandDecoderWebGL::InitCommands()
 
 bool GCommandDecoderWebGL::Decode(GCommandBuffer& buffer, GDecodeRes& res)
 {
-    static GCommandFuncPtr mWebGLFuncs[GWEBGL_FUNC_COUNT] = {
+    static GCommandWebGLFunc mWebGLFuncs[GWEBGL_FUNC_COUNT] = {
         nullptr,
         &GCommandDecoderWebGL::WebGL_activeTexture,
         &GCommandDecoderWebGL::WebGL_attachShader,
@@ -616,7 +619,7 @@ bool GCommandDecoderWebGL::Decode(GCommandBuffer& buffer, GDecodeRes& res)
             return false;
         }
 
-        GCommandFuncPtr func = mWebGLFuncs[funcId];
+        GCommandWebGLFunc func = mWebGLFuncs[funcId];
         if( !func )
         {
             LOG_E("[Error] Can't find WebGL API ID::%d", funcId);
@@ -1856,7 +1859,7 @@ void GCommandDecoderWebGL::WebGL_texImage2D(GCommandBuffer& buffer, GDecodeRes& 
     if( !ret || !uID ) return;
 
     //fetch pixels
-    WebGL::JSBindingPixels gPixels;
+    JSBindingPixels gPixels;
     mRenderContext->FetchPixels(*uID, 0, &gPixels);
 
     short width = gPixels.width;
@@ -2027,7 +2030,7 @@ void GCommandDecoderWebGL::WebGL_texSubImage2D(GCommandBuffer& buffer, GDecodeRe
     if( !ret || !uID ) return;
 
     //fetch pixels
-    WebGL::JSBindingPixels gPixels;
+    JSBindingPixels gPixels;
     mRenderContext->FetchPixels(*uID, 0, &gPixels);
 
     short width = gPixels.width;

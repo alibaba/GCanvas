@@ -162,7 +162,7 @@ namespace gcanvas {
         } else if (strcmp(str, "destination-over") == 0) {
             op = GCompositeOperation::COMPOSITE_OP_DESTINATION_OVER;
         } else if (strcmp(str, "destination-atop") == 0) {
-            op = GCompositeOperation::COMPOSITE_OP_SOURCE_ATOP;
+            op = GCompositeOperation::COMPOSITE_OP_DESTINATION_ATOP;
         } else if (strcmp(str, "destination-in") == 0) {
             op = GCompositeOperation::COMPOSITE_OP_DESTINATION_IN;
         } else if (strcmp(str, "destination-out") == 0) {
@@ -173,6 +173,8 @@ namespace gcanvas {
             op = GCompositeOperation::COMPOSITE_OP_XOR;
         } else if (strcmp(str, "copy") == 0) {
             op = GCompositeOperation::COMPOSITE_OP_COPY;
+        } else if (strcmp(str, "clear") == 0) {
+            op = GCompositeOperation::COMPOSITE_OP_CLEAR;
         } else {
             op = GCompositeOperation::COMPOSITE_OP_NONE;
         }
@@ -215,6 +217,9 @@ namespace gcanvas {
                 break;
             case COMPOSITE_OP_XOR:
                 result = "xor";
+                break;
+            case COMPOSITE_OP_CLEAR:
+                result = "clear";
                 break;
         }
         return result;

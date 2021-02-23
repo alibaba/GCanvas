@@ -18,18 +18,6 @@ namespace gcanvas {
 
 namespace WebGL {
 
-JSBindingPixels::JSBindingPixels():
-    textureId(0), width(0), height(0), pixels(nullptr)
-{
-
-}
-
-JSBindingPixels::~JSBindingPixels()
-{
-
-}
-
-
 GWebGLRenderContext::GWebGLRenderContext(std::string contextId)
     : mContextId(contextId), mDrawCall(0),mNeed_draw(false),
     mUnpackFlipY_WebGL(false), mPremultiplyAlpha_WebGL(false)

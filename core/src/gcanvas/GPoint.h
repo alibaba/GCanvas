@@ -78,6 +78,11 @@ static inline GPoint PointNormalize(GPoint v)
     return v;
 }
 
+static inline bool PointEqualToPoint(const GPoint &pt1, const GPoint &pt2)
+{
+    return pt1.x == pt2.x && pt1.y == pt2.y;
+}
+
 struct GRectf
 {
     bool isTransformed = false; //坐标是否经过transform变换

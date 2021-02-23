@@ -20,8 +20,8 @@
 
 class GCanvasContext;
 
-#define FontTextureWidth        2048
-#define FontTextureHeight       2048
+#define FontTextureWidth        1024
+#define FontTextureHeight       1024
 
 namespace gcanvas
 {

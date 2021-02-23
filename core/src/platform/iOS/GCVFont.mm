@@ -14,8 +14,9 @@
 
 #include "GFontStyle.h"
 #include "GCanvas2dContext.h"
+#import <pthread.h>
 
-#define GCV_FONT_GLYPH_PADDING 0
+#define GCV_FONT_GLYPH_PADDING 2
 
 #pragma mark - GFontLayout
 @implementation GFontLayout
@@ -49,7 +50,7 @@
     NSString            *_key;
 }
 
-static NSMutableDictionary *staticFontInstaceDict;
+pthread_mutex_t fontMutex = PTHREAD_MUTEX_INITIALIZER;
 + (NSMutableDictionary*)staticFontInstaceDict
 {
     static NSMutableDictionary *fontInstanceDict;
@@ -62,18 +63,25 @@ static NSMutableDictionary *staticFontInstaceDict;
 + (instancetype)createGCFontWithKey:(NSString*)key
 {
     GCVFont *gcvFont = [[GCVFont alloc] initWithKey:key];
+    pthread_mutex_lock(&fontMutex);
     self.staticFontInstaceDict[key] = gcvFont;
+    pthread_mutex_unlock(&fontMutex);
     return gcvFont;
 }
 
 + (GCVFont *)getGCVFontWithKey:(NSString*)key
 {
-    return self.staticFontInstaceDict[key];
+    pthread_mutex_lock(&fontMutex);
+    GCVFont *font = self.staticFontInstaceDict[key];
+    pthread_mutex_unlock(&fontMutex);
+    return font;
 }
 
 + (void)removeGCVFontWithKey:(NSString*)key
 {
-    return [self.staticFontInstaceDict removeObjectForKey:key];
+    pthread_mutex_lock(&fontMutex);
+    [self.staticFontInstaceDict removeObjectForKey:key];
+    pthread_mutex_unlock(&fontMutex);
 }
 
 - (instancetype)initWithKey:(NSString *)key
@@ -251,6 +259,7 @@ static NSMutableDictionary *staticFontInstaceDict;
             context:(GCanvasContext *)context
 {
     bool needDrawShadow = context->NeedDrawShadow();
+    
     int offsetX = 0;
     GColorRGBA color = self.isStroke ? BlendStrokeColor(context) : BlendFillColor(context);
 

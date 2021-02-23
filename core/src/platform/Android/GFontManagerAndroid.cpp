@@ -172,7 +172,6 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text, unsigned int 
     float descender = 0;
 
     for (unsigned int i = 0; i < text_length; ++i) {
-        //todo fixme
         auto glyph = fonts[i]->GetOrLoadGlyph(fontStyle, ucs[i], false, sx, sy);
         if (glyph != nullptr) {
             top = glyph->offsetY / sy;
@@ -193,7 +192,7 @@ float *GFontManagerAndroid::PreMeasureTextHeight(const char *text, unsigned int 
 }
 
 
-void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont*>& font,
+void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vector<GFont*> font,
                                              const unsigned short *text, unsigned int textLength,
                                              bool isStroke, float &x, float &y, float sx, float sy) {
     gcanvas::GFontStyle *fontStyle = context->mCurrentState->mFont;
@@ -203,8 +202,7 @@ void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vecto
         auto left_x = x;
         auto delta_x = 0.0f;
         for (unsigned int i = 0; i < textLength; ++i) {
-            auto glyph = font[i]->GetOrLoadGlyph(fontStyle, text[i], isStroke, sx, sy,
-            context->mCurrentState->mLineWidth,context->GetDevicePixelRatio());
+            auto glyph = font[i]->GetOrLoadGlyph(fontStyle, text[i], isStroke, sx, sy);
             if (glyph != nullptr) {
                 delta_x += glyph->advanceX / sx;
             }
@@ -219,8 +217,7 @@ void GFontManagerAndroid::AdjustTextPenPoint(GCanvasContext *context, std::vecto
 
     GFont *font0 = font[0];
     // update font metrics
-    const GGlyph* glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy,
-       context->mCurrentState->mLineWidth,context->GetDevicePixelRatio());
+    const GGlyph* glyph = font0->GetOrLoadGlyph(fontStyle, text[0], isStroke, sx, sy);
     if (glyph == nullptr) { // fail
         return;
     }

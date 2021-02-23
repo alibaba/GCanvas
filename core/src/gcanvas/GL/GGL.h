@@ -13,6 +13,9 @@
 #ifndef _WIN32
 
 #ifdef ANDROID
+#ifndef GL_GLEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES 1
+#endif
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 #include <GLES2/gl2ext.h>

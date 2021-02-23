@@ -118,6 +118,7 @@ public:
 
     void SetHasTexture(bool value)
     {
+
         if (mHasTextureFlag != value)
         {
             mHasTextureFlag = value;
