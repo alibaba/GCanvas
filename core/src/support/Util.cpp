@@ -8,7 +8,7 @@
  */
 #include "Util.h"
 #include "Log.h"
-#include "GGL.h"
+#include "../gcanvas/GL/GGL.h"
 #include <string.h>
 
 #ifdef ANDROID

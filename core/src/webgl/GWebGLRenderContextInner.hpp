@@ -10,7 +10,7 @@
 #ifndef GCANVAS_GWEBGLRENDERCONTEXTINNER_H
 #define GCANVAS_GWEBGLRENDERCONTEXTINNER_H
 
-#include "GGL.h"
+#include "../gcanvas/GL/GGL.h"
 #include <iostream>
 
 namespace gcanvas {

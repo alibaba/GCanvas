@@ -21,7 +21,7 @@
 #include <vector>
 #include "../export.h"
 #include "../gcanvas/GCanvas2dContext.h"
-#include "GGL.h"
+#include "../gcanvas/GL/GGL.h"
 #include "GCommandTypes.hpp"
 
 namespace gcanvas

@@ -18,7 +18,7 @@
 #include <set>
 #include <vector>
 #include "../export.h"
-#include "GGL.h"
+#include "../gcanvas/GL/GGL.h"
 #include "GCommandTypes.hpp"
 
 

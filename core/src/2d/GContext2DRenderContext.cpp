@@ -12,7 +12,7 @@
 #include "GContext2DRenderContext.hpp"
 #include <algorithm>
 #include "../support/Log.h"
-#include "GGL.h"
+#include "../gcanvas/GL/GGL.h"
 
 namespace gcanvas {
 
