@@ -19,6 +19,6 @@ RUN wget https://launchpadlibrarian.net/364945399/freetype_2.8.1.orig.tar.gz && 
 
 RUN cd ./freetype-2.8.1 && ./configure && make && make install
 
-RUN npm config set registry https://registry.npm.taobao.org && npm install -g cmake-js
+RUN npm config set registry https://registry.npmmirror.com && npm install -g cmake-js
 #install curl-dev lib 
 RUN apt-get install libcurl4-openssl-dev libjpeg-dev
